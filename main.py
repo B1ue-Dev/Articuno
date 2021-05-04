@@ -31,7 +31,6 @@ async def activity(ctx, *, activity):
 	await bot.change_presence(activity=discord.Game(name=activity))
 	await ctx.send(f"Bot's activity changed to {activity}")
 	
-
 @bot.command()
 async def hello(ctx, description="Henlo"):
 	await ctx.send('Hello there, {ctx.author.name}')
@@ -54,7 +53,7 @@ async def avatar(ctx, avamember : discord.Member=None, *, member = discord.Membe
 	await ctx.send(embed=embed)
     
 @bot.command()
-async def server(ctx):
+async def server(ctx, description="About the server):
     name = str(ctx.guild.name)
     id = str(ctx.guild.id)
     memberCount = str(ctx.guild.member_count)
@@ -71,9 +70,8 @@ async def server(ctx):
 
     await ctx.send(embed=embed)
 
-	
 @bot.command()
-async def about(ctx):
+async def about(ctx, description="About BOT"):
 	embed = discord.Embed(title=f"About Articuno", color=blue)
 	python = "3.9.1"
 	discordpy = "1.5.1"
@@ -85,8 +83,11 @@ async def about(ctx):
 	await ctx.send(embed=embed)
 	
 @bot.command()
+async def dm(ctx, member : discord.Member
+		 
+@bot.command()
 @commands.has_permissions(ban_members = True)
-async def ban(ctx, member : discord.Member, *, reason = None):
+async def ban(ctx, member : discord.Member, *, reason = None, description="Ban a member"):
 	message = discord.Embed(title=f"Banned {member.name} by {ctx.author.name}", description=f"Reason: {reason}", color=blue)
 	message.set_image(url='https://tenor.com/view/blob-banned-ban-hammer-blob-ban-emoji-gif-16021044')
 		if isinstance(error, discord.ext.commands.MissingRequiredArgument):
