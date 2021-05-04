@@ -83,7 +83,8 @@ async def about(ctx, description="About BOT"):
 	await ctx.send(embed=embed)
 	
 @bot.command()
-async def dm(ctx, member : discord.Member
+async def dm(ctx, member : discord.Member, *, message)
+	await member.send(message)
 		 
 @bot.command()
 @commands.has_permissions(ban_members = True)
