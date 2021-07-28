@@ -91,4 +91,4 @@ async def change(ctx, type, *, status):
 
 
 
-bot.run(token)
+bot.run("ODUxMDY0Nzk4MzMzNTAxNDgw.YLy12w.EtzCjFGNf2xaeoKePJY3uhH3kxY")
