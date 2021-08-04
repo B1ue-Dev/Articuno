@@ -3,6 +3,11 @@ from discord.ext import commands
 import requests
 import random
 import asyncio
+import aiohttp
+import io
+import os 
+
+apikey = os.environ['APIKEY']
 
 
 class Fun(commands.Cog):
@@ -52,6 +57,7 @@ class Fun(commands.Cog):
       await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def meme(self, ctx):
       response1 = requests.get('https://some-random-api.ml/meme')
       data1 = response1.json()
@@ -66,6 +72,7 @@ class Fun(commands.Cog):
       await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def cat(self, ctx):
       response1 = requests.get('https://aws.random.cat/meow')
       response2 = requests.get('https://some-random-api.ml/facts/cat')
@@ -82,6 +89,7 @@ class Fun(commands.Cog):
       await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def dog(self, ctx):
       response1 = requests.get('https://some-random-api.ml/img/dog')
       response2 = requests.get('https://some-random-api.ml/facts/dog')
@@ -98,11 +106,7 @@ class Fun(commands.Cog):
       await ctx.send(embed=embed)
 
     @commands.command()
-    async def chat(self, ctx):
-      await ctx.channel.trigger_typing()
-      await ctx.send('Ur mom')
-
-    @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def bread(self, ctx):
       bread_image = [
         "https://miro.medium.com/max/7710/0*aj2NrmkQ69jMxpY0",
@@ -133,35 +137,39 @@ class Fun(commands.Cog):
           name1 = name1
 
         if 0 <= shipnumber <= 30:
-          comment = "Really low! {}".format(random.choice(["Friendzone ;(", 
-                                                            'Just "friends"', 
-                                                            "There's barely any love ;(",
-                                                            "I sense a small bit of love!",
-                                                            "Still in that friendzone ;(",
-                                                            "No, just no!",
-                                                            "But there's a small sense of romance from one person!"]))
+          comment = "Really low! {}".format(random.choice(
+            ["Friendzone ;(", 
+            'Just "friends"', 
+            "There's barely any love ;(",
+            "I sense a small bit of love!",
+            "Still in that friendzone ;(",
+            "No, just no!",
+            "But there's a small sense of romance from one person!"]))
         elif 31 <= shipnumber <= 70:
-          comment = "Moderate! {}".format(random.choice(["Fair enough!",
-                                                          "A small bit of love is in the air...",
-                                                          "I feel like there's some romance progressing!",
-                                                          "I'm starting to feel some love!",
-                                                          "At least this is acceptable",
-                                                          "...",
-                                                          "I sense a bit of potential!",
-                                                          "But it's very one-sided OwO"]))
+          comment = "Moderate! {}".format(random.choice(
+            ["Fair enough!",
+            "A small bit of love is in the air...",
+            "I feel like there's some romance progressing!",
+            "I'm starting to feel some love!",
+            "At least this is acceptable",
+            "...",
+            "I sense a bit of potential!",
+            "But it's very one-sided OwO"]))
         elif 71 <= shipnumber <= 90:
-          comment = "Almost perfect! {}".format(random.choice(["I definitely can see that love is in the air",
-                                                              "I feel the love! There's a sign of a match!",
-                                                              "A few things can be imporved to make this a match made in heaven!",
-                                                              "I can definitely feel the love",
-                                                              "This has a big potential",
-                                                              "I can see the love is there! Somewhere..."]))
+          comment = "Almost perfect! {}".format(random.choice(
+            ["I definitely can see that love is in the air",
+            "I feel the love! There's a sign of a match!",
+            "A few things can be imporved to make this a match made in heaven!",
+            "I can definitely feel the love",
+            "This has a big potential",
+            "I can see the love is there! Somewhere..."]))
         elif 90 < shipnumber <= 100:
-          comment = "True love! {}".format(random.choice(["It's a match!", 
-                                                           "There's a match made in heaven!", 
-                                                           "It's definitely a match!", 
-                                                           "Love is truely in the air!", 
-                                                           "Love is most definitely in the air!"]))
+          comment = "True love! {}".format(random.choice(
+            ["It's a match!", 
+            "There's a match made in heaven!", 
+            "It's definitely a match!", 
+            "Love is truely in the air!", 
+            "Love is most definitely in the air!"]))
         
 
         if shipnumber <= 40:
@@ -173,11 +181,16 @@ class Fun(commands.Cog):
 
         emb = (discord.Embed(color=shipColor, \
                              title="Love test for:", \
-                             description="**{0}** and **{1}** {2}".format(name1, name2, random.choice([
-                                                                                                        ":sparkling_heart:", 
-                                                                                                        ":heart_decoration:", 
-                                                                                                        ":heart_exclamation:", 
-                                                                                                        ":heartbeat:"]))))
+                             description="**{0}** and **{1}** {2}".format(name1, name2, random.choice(
+                               [
+                                ":sparkling_heart:", 
+                                ":heart_decoration:", 
+                                ":heart_exclamation:", 
+                                ":heartbeat:"]
+                                                                                                      )
+                                                                          )
+                            )
+              )
         emb.add_field(name="Results:", value=f"{shipnumber}%  {comment}", inline=True)
         emb.set_author(name="Shipping", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
@@ -200,7 +213,62 @@ class Fun(commands.Cog):
           await message.reply("Don't you dare!")
       else:
           await message.channel.trigger_typing()
-          await message.reply(f"```{content}```")    
+          await message.reply(f"```{content}```")
+
+    @commands.command()
+    @commands.cooldown(1, 2, commands.BucketType.user)
+    async def joke(self, ctx):
+      response = requests.get('https://some-random-api.ml/joke')
+      data = response.json()
+      joke = data['joke']
+      embed = discord.Embed(
+          title = 'Here is a joke',
+          description = joke,
+          color = random.randint(0, 0xFFFFFF))
+      await ctx.channel.trigger_typing()
+      await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def hornycard(self, ctx, member: discord.Member=None):
+      if not member: # if no member is mentioned
+          member = ctx.author # the user who ran the command will be the member
+          
+      async with aiohttp.ClientSession() as hornySession:
+          async with hornySession.get(f'https://some-random-api.ml/canvas/horny?avatar={member.avatar_url_as(format="png", size=1024)}') as trigImg: # get users avatar as png with 1024 size
+              imageData = io.BytesIO(await trigImg.read()) # read the image/bytes
+              
+              await hornySession.close() # closing the session and;
+              
+              await ctx.reply(file=discord.File(imageData, 'image.png')) # sending the file
+
+    @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
+    async def simpcard(self, ctx, member: discord.Member=None):
+      if not member: # if no member is mentioned
+          member = ctx.author # the user who ran the command will be the member
+          
+      async with aiohttp.ClientSession() as hornySession:
+          async with hornySession.get(f'https://some-random-api.ml/canvas/simpcard?avatar={member.avatar_url_as(format="png", size=1024)}') as trigImg: # get users avatar as png with 1024 size
+              imageData = io.BytesIO(await trigImg.read()) # read the image/bytes
+              
+              await hornySession.close() # closing the session and;
+              
+              await ctx.reply(file=discord.File(imageData, 'image.png')) # sending the file
+
+
+    @commands.command()
+    async def ai(self, ctx, *, message):
+      await ctx.channel.trigger_typing()
+      async with aiohttp.ClientSession() as aiSession:
+        async with aiSession.get(f'https://some-random-api.ml/chatbot?message={message}&key={apikey}') as response:
+          data = await response.json()
+          reply = data['response']
+          await aiSession.close() # closing the session and;
+          await ctx.reply(reply)
+
+
+
 
 
 def setup(bot):
