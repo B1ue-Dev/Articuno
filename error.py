@@ -61,7 +61,10 @@ class Error(commands.Cog):
         await ctx.send(embed=embed)
         await ctx.message.add_reaction("❌")
         await self.bot.get_channel(867039086387789874).send(content=discord.utils.escape_mentions("Something wrong"))
-
+      if isinstance(error, commands.CommandOnCooldown):
+        embed=discord.Embed(title=f"{ctx.author.name}, you made an error <:angery:859696959337529345>",description=f"Command On Cool Down. Try again in {error.retry_after:.2f}s.", color=red)
+        await ctx.message.add_reaction("❌")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
