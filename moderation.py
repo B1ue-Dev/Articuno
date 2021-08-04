@@ -22,38 +22,40 @@ class Moderation(commands.Cog):
 
         log_channel = discord.utils.get(ctx.guild.channels, name="📝║logs")
 
-        channel_message = discord.Embed(title=f"{member.name} has been banned by {ctx.author.name}", description=f"Reason: {reason}", color=red)
+        channel_message = discord.Embed(title=f"{member.name} has been banned by {ctx.author.name}.", description=f"Reason: {reason}", color=red)
 
-        user = discord.Embed(title=f"You have been banned by {ctx.author.name} in Blue's Community", description=f"Reason: {reason}", color=red)
+        user = discord.Embed(title=f"You have been banned by {ctx.author.name} in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
 
-        log=discord.Embed(title="Banned successfully", colour=red)
+        log=discord.Embed(title="Banned successfully!", colour=red)
         log.set_thumbnail(url=member.avatar_url)
         log.add_field(name="**Moderator**", value=ctx.author.mention + str(ctx.author), inline=True)
         log.add_field(name="**Member**", value=member.mention + str(member), inline=False)
         log.add_field(name="**ID**", value=member.id, inline=False)
         log.add_field(name="**Reason**", value=f"{reason}", inline=False)
-
-        try:
-            await log_channel.send(embed=log)
-        except:
-            await ctx.send("I couldn't find the logs channel")
-        try:
-            await member.send(embed=user)
-        except:
-            await ctx.send("I couldn't DM the User. I'll still ban")
-        await member.ban(reason = reason, delete_message_days=0)
-        await ctx.message.add_reaction("✅")
-        await ctx.send(embed=channel_message)
+        if member == ctx.author:
+          await ctx.send("You cannot ban yourself.")
+        else:
+          try:
+              await log_channel.send(embed=log)
+          except:
+              await ctx.send("I could not find the logs channel.")
+          try:
+              await member.send(embed=user)
+          except:
+              await ctx.send("I could not DM the User. I will still ban.")
+          await member.ban(reason = reason, delete_message_days=0)
+          await ctx.message.add_reaction("✅")
+          await ctx.send(embed=channel_message)
         
 
 
     @commands.command(name='unban')
     @commands.has_permissions(ban_members = True)
     async def unban(self, ctx, id: int):
-        user = await commands.fetch_user(id)
+        user = await self.bot.fetch_user(id)
         await ctx.message.add_reaction("✅")
         await ctx.guild.unban(user)
-        embed1 = discord.Embed(description=f"Member unbanned successfully", color=yellow)
+        embed1 = discord.Embed(description=f"Member has been unbanned successfully", color=yellow)
         await ctx.send(embed=embed1)
         
 
@@ -63,28 +65,30 @@ class Moderation(commands.Cog):
     async def kick(self, ctx, member : discord.Member, *, reason = None):
         log_channel = discord.utils.get(ctx.guild.channels, name="📝║logs")
         
-        channel_message = discord.Embed(title=f"{member.name} has been kicked by {ctx.author.name}", description=f"Reason: {reason}", color=red)
+        channel_message = discord.Embed(title=f"{member.name} has been kicked by {ctx.author.name}.", description=f"Reason: {reason}", color=red)
 
-        user = discord.Embed(title=f"You have been kicked by {ctx.author.name} in Blue's Community", description=f"Reason: {reason}", color=red)
+        user = discord.Embed(title=f"You have been kicked by {ctx.author.name} in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
 
-        log=discord.Embed(title="Kicked successfully", colour=red)
+        log=discord.Embed(title="Kicked successfully!", colour=red)
         log.set_thumbnail(url=member.avatar_url)
         log.add_field(name="**Moderator**", value=ctx.author.mention + str(ctx.author), inline=True)
         log.add_field(name="**Member**", value=member.mention + str(member), inline=False)
         log.add_field(name="**ID**", value=member.id, inline=False)
         log.add_field(name="**Reason**", value=f"{reason}", inline=False)
-
-        try:
-            await log_channel.send(embed=log)
-        except:
-            await ctx.send("I couldn't find the logs channel")
-        try:
-            await member.send(embed=user)
-        except:
-            await ctx.send("I couldn't DM the User. I'll still kick")
-        await member.kick(reason = reason)    
-        await ctx.message.add_reaction("✅")
-        await ctx.send(embed=channel_message)
+        if member == ctx.author:
+          await ctx.send("You cannot kick yourself.")
+        else:
+          try:
+              await log_channel.send(embed=log)
+          except:
+              await ctx.send("I could not find the logs channel.")
+          try:
+              await member.send(embed=user)
+          except:
+              await ctx.send("I could not DM the User. I will still kick.")
+          await member.kick(reason = reason)    
+          await ctx.message.add_reaction("✅")
+          await ctx.send(embed=channel_message)
         
         
 
@@ -96,11 +100,11 @@ class Moderation(commands.Cog):
         guild = ctx.guild
         mutedRole = discord.utils.get(guild.roles, name="🔇║Muted")
 
-        channel_message = discord.Embed(title=f"{member.name} has been muted", description=f"Reason: {reason}", colour=red)
+        channel_message = discord.Embed(title=f"{member.name} has been muted.", description=f"Reason: {reason}", colour=red)
 
-        user = discord.Embed(title=f"You have been muted by {ctx.author.name} in Blue's Community", description=f"Reason: {reason}", color=red)
+        user = discord.Embed(title=f"You have been muted by {ctx.author.name} in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
 
-        log=discord.Embed(title="Muted successfully", colour=red)
+        log=discord.Embed(title="Muted successfully!", colour=red)
         log.set_thumbnail(url=member.avatar_url)
         log.add_field(name="**Moderator**", value=ctx.author.mention + str(ctx.author), inline=True)
         log.add_field(name="**Member**", value=member.mention + str(member), inline=False)
@@ -110,17 +114,17 @@ class Moderation(commands.Cog):
         try:
             await log_channel.send(embed=log)
         except:
-            await ctx.send("I couldn't find the logs channel")
+            await ctx.send("I could not find the logs channel")
         try:
             await member.send(embed=user)
         except:
-            await ctx.send("I couldn't DM the User. I'll still mute")
+            await ctx.send("I could not DM the User. I will still mute")
         try:
             await member.add_roles(mutedRole, reason=reason)
             await ctx.message.add_reaction("✅")
             await ctx.send(embed=channel_message)
         except: 
-            await ctx.send("There is no mute role, so I couldn't mute the user")
+            await ctx.send("There is no mute role, so I could not mute the user")
             await ctx.message.add_reaction("❌") 
 
 
@@ -133,7 +137,7 @@ class Moderation(commands.Cog):
     async def unmute(self, ctx, member: discord.Member):
         log_channel = discord.utils.get(ctx.guild.channels, name="📝║logs")
 
-        log=discord.Embed(title="Unmuted successfully", colour=green)
+        log=discord.Embed(title="Unmuted successfully!", colour=green)
         log.set_thumbnail(url=member.avatar_url)
         log.add_field(name="**Moderator**", value=ctx.author.mention, inline=True)
         log.add_field(name="**Member**", value=member.mention + str(member), inline=False)
@@ -142,14 +146,16 @@ class Moderation(commands.Cog):
         mutedRole = discord.utils.get(ctx.guild.roles, name="🔇║Muted")
 
         try:
+            # Ignore this. Thank you!
             await log_channel.send(embed=log)
         except:
-            await ctx.send("I couldn't find the logs channel")
+            await ctx.send("I could not find the logs channel")
+        # Still buggy like :woozy_face:
         try:
             await member.remove_roles(mutedRole)
             await ctx.message.add_reaction("✅")
-            await ctx.send(f"{member.name} is unmuted")
-        except: 
+            await ctx.send(f"{member.name} is unmuted.")
+        except:
             await ctx.send("The user is not muted")
             await ctx.message.add_reaction("❌") 
 
@@ -175,6 +181,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     async def snipe(self, message):
+        # Experimental, may have a lot of bugs
         if snipe_message_content==None:
             await message.channel.send("Theres nothing to snipe.")
         else:
@@ -183,6 +190,28 @@ class Moderation(commands.Cog):
             embed.set_author(name= f"{snipe_message_author}")
             await message.channel.send(embed=embed)
             return
+
+    @commands.command()
+    @commands.has_permissions(manage_channels=True)
+    async def lock(self, ctx, channel : discord.TextChannel=None):
+      channel = channel or ctx.channel
+      overwrite = channel.overwrites_for(ctx.guild.default_role)
+      overwrite.send_messages = False
+      await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+      await ctx.message.add_reaction('🔒')
+      await ctx.send(f'``{channel}`` is locked.')
+
+    @commands.command()
+    @commands.has_permissions(manage_channels=True)
+    async def unlock(self, ctx, channel : discord.TextChannel=None):
+      channel = channel or ctx.channel
+      overwrite = channel.overwrites_for(ctx.guild.default_role)
+      overwrite.send_messages = True
+      message = await ctx.send(f'``{channel}`` is being unlocked.')
+      await asyncio.sleep(2)
+      await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+      await ctx.message.add_reaction('🔓')
+      await message.edit(content=f"``{channel}`` is unlocked.")
 
         
 
