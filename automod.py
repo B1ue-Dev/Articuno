@@ -53,6 +53,10 @@ class AutoMod(commands.Cog):
                 color=blue)
             await message.channel.send(embed=embed)
 
+        if "IM MOD" in message.content or "mod" in message.content:
+            await message.channel.send(f"No lol")
+
+
 
 def setup(bot):
     bot.add_cog(AutoMod(bot))
