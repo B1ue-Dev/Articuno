@@ -3,9 +3,9 @@ from discord.ext import commands
 import random
 from discord.ext.commands import Greedy
 from discord import User
-import aiohttp
-import requests
 import asyncio
+from typing import Union
+import requests
 
 
 blue = 0x236adf
@@ -100,6 +100,56 @@ class Server(commands.Cog):
         message0 = await ctx.send(f"{amount} messages have been deleted. This message will be deleted after 3 seconds.")
         await asyncio.sleep(3)
         await message0.delete()
+
+    @commands.command()
+    @commands.has_permissions(manage_emojis=True)
+    async def emojisteal(self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji], name=None):
+        if not name:
+          name = emoji.name
+        await ctx.guild.create_custom_emoji(name=name, image=await emoji.url.read())
+        await ctx.send(f"Successfully added the emoji {name}")
+
+    @commands.command()
+    @commands.has_permissions(manage_emojis=True)
+    async def emojiadd(self, ctx, url, name):
+        try:
+            response = requests.get(url)
+        except (requests.exceptions.MissingSchema, requests.exceptions.InvalidURL, requests.exceptions.InvalidSchema, requests.exceptions.ConnectionError):
+            return await ctx.send("The URL you have provided is invalid.")
+        if response.status_code == 404:
+            return await ctx.send("The URL you have provided leads to a 404.")
+        try:
+            await ctx.guild.create_custom_emoji(name=name, image=response.content)
+        except discord.InvalidArgument:
+            return await ctx.send("Invalid image type. Only PNG, JPEG and GIF are supported.")
+        await ctx.send(f"Successfully added the emoji {name}")
+
+
+    @commands.command()
+    @commands.has_permissions(manage_emojis=True)
+    async def emojiremove(self, ctx, name):
+        emotes = [x for x in ctx.guild.emojis if x.name == name]
+        emote_length = len(emotes)
+        if not emotes:
+            return await ctx.send("No emotes with that name could be found on this server.")
+        for emote in emotes:
+            await emote.delete()
+        if emote_length == 1:
+            await ctx.send("Successfully removed the {} emoji!".format(name))
+        else:
+            await ctx.send("Successfully removed {} emoji with the name {}.".format(emote_length, name))
+
+    @commands.command()
+    async def emojiurl(self, ctx, emoji: Union[discord.Emoji, discord.PartialEmoji]):
+        await ctx.send(f"<{emoji.url}>")
+        
+    @commands.command()
+    async def addrole(self, ctx, member: discord.Member):
+      guild = ctx.guild
+      No = discord.utils.get(guild.roles, name="Articuno")
+      await member.add_roles(No)
+      await ctx.message.add_reaction("✅")
+
 
 
 def setup(bot):
