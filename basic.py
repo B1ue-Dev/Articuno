@@ -3,6 +3,8 @@ from discord.ext import commands
 import random
 import aiohttp
 import requests
+import asyncio
+
 
 
 blue = 0x236adf
@@ -18,17 +20,6 @@ gray = 0x6d6868
 class Basic(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-    
-    @commands.command(description="List of available comamnds")
-    async def help(self, ctx):
-      embed = discord.Embed(title="Available commands for Articuno", description=f"If you encounter any error, DM to <@738937306224001157>JimmyBlue#4773", color=blue)
-      embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
-      embed.add_field(name="**Basic**", value="``about`` ``avatar`` ``credits`` ``hello`` ``hi`` ``henlo`` ``invite`` ``ping`` ``status`` ``stats``", inline=False)
-      embed.add_field(name="**Fun**", value="``ball`` ``coffee`` ``meme`` ``duck`` ``cat`` ``dog`` ``pokemon`` ``pikachu`` ``bread`` ``ship`` ``roll`` ``say``", inline=False)
-      embed.add_field(name="**Moderation**", value="``kick`` ``ban`` ``unban`` ``mute`` ``unmute`` ``snipe``", inline=False)
-      embed.add_field(name="**Server**", value="``server`` ``info`` ``dm`` ``message`` ``emoji`` ``emojicopy`` ``emojiadd`` ``emojiremove`` ``emojiurl``")
-      await ctx.message.add_reaction("✅")
-      await ctx.send(embed=embed)
 
     @commands.command(description="Hello")
     async def hi(self, ctx):
@@ -40,9 +31,14 @@ class Basic(commands.Cog):
     async def henlo(self, ctx):
         await ctx.send(f"Henlo <:Henlo:859316764159770645>")
 
-    @commands.command(description="The owner of Articuno")
+    @commands.command(description="Developers/Contributors to this project")
     async def credits(self, ctx):
-        embed = discord.Embed(title=f'Credits', description=f"Articuno was originally created by <@738937306224001157>", color=blue)
+        embed = discord.Embed(title=f'Credits', description=f"Developers and contributors in this project:", color=blue)
+        embed.add_field(name="JimmyBlue#4773", value=f"**Leader** The owner and creator of this project and mostly handle with stuffs")
+        embed.add_field(name="terabyte.#4258", value=f"**Developer** Debugger and helper for me in this project")
+        embed.add_field(name="matteodev#1109", value=f"**Suggestor** Idea maker for this")
+        embed.add_field(name="Manana#3313", value="**Tester** Insider for this project")
+        embed.add_field(name="pokemon hangout", value=f"**Inspirational** If it wasn't because of this server, this project would be abandoned\n[Join this amazing server](https://discord.gg/TWtrRS7uVp)")
         await ctx.send(embed=embed)
 
     @commands.command(description="Ping the commands")
@@ -61,30 +57,18 @@ class Basic(commands.Cog):
         embed.set_author(name=member, icon_url=avatar)
         embed.set_image(url=avatar)
         await ctx.send(embed=embed)
-
-        
-    @commands.command(description="About Articuno")
-    async def about(self, ctx):
-        embed = discord.Embed(title=f"About Articuno", color=blue)
-        python = "3.8.10"
-        discordpy = "1.7.6"
-        latency=f"{round(self.bot.latency * 1000)}ms"
-        embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
-        embed.add_field(name="Python <:Python:860913381850480650>", value=python, inline=False)
-        embed.add_field(name="Discord.py <:Discord:860913504361644032>", value=discordpy, inline=True)
-        embed.add_field(name="Latency :ping_pong:", value=latency, inline=False)
-        await ctx.send(embed=embed)
         
     @commands.command()
     async def status(self, ctx):
-      await ctx.channel.send(f"<a:WindowsHello:854724546061402146> {ctx.author.mention}, everything is working perfectly fine")
+      await ctx.channel.send(f"<a:WindowsHello:854724546061402146> {ctx.author.mention}, everything is working perfectly fine.")
     
     @commands.command()
     async def invite(self, ctx):
-      embed = discord.Embed(title=f"Invite me to your server", description=f"https://discord.com/api/oauth2/authorize?client_id=851064798333501480&permissions=8&scope=bot", color=blue)
+      embed = discord.Embed(title=f"Invite me to your server :)", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=851064798333501480&permissions=8&scope=bot)", color=blue)
       await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(1, 3, commands.BucketType.user)
     async def stats(self, ctx):
       async with aiohttp.ClientSession():
         response = requests.get('https://api.statcord.com/v3/851064798333501480')
@@ -94,18 +78,42 @@ class Basic(commands.Cog):
             usercount = (d['users'])
             cpu = (d['cpuload'])
             memload = (d['memload'])
-            memactive = (d['memactive'])
-        embed=discord.Embed(title="Articuno Stats",description="My official stats!",color=blue)
-        embed.add_field(name="Server Count",value=len(self.bot.guilds))
-        embed.add_field(name="User Count",value=f"{usercount}")
-        embed.add_field(name="CPU Load",value=f"{cpu}%")
-        embed.add_field(name="MEM Load",value=f"{memload}MB")
-        embed.add_field(name="MEM Active",value=f"{memactive}KB")
+        python = "3.8.10"
+        discordpy = "1.7.6"
+        latency=f"{round(self.bot.latency * 1000)}ms"
+
+        embed=discord.Embed(title="Articuno Stats",color=blue)
+        embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')        
+        embed.add_field(name="Server Count :family_mmbb:",value=len(self.bot.guilds))
+        embed.add_field(name="User Count :bust_in_silhouette:",value=f"{usercount}")
+        embed.add_field(name="CPU Load <:CPU:870908659897610250>",value=f"{cpu}%")
+        embed.add_field(name="MEM Load <:RAM:870907903513612299>",value=f"{memload}MB")
+        embed.add_field(name="Python <:Python:860913381850480650>", value=python)
+        embed.add_field(name="Discord.py <:Discord:860913504361644032>", value=discordpy)
+        embed.add_field(name="Latency :ping_pong:", value=latency)
+        embed.add_field(name="Operating System <:Tux:859316661248720918>", value="Linux")
         embed.set_footer(icon_url='https://cdn.statcord.com/logo.png',text=f"Powered by Statcord")
         await ctx.send(embed=embed)
       
 
+    @commands.command()
+    @commands.is_owner()
+    async def update(self, ctx):
+      await ctx.message.delete()
+      message = await ctx.send(f"<a:WindowsLoading:859101948397092924> Articuno is being updated to the latest version. Please be patient\nEstimate time left: unknown")
+      await asyncio.sleep(30)
+      await message.delete()
+      embed = discord.Embed(title="An update to Articuno", description="``Changelog v2.2.5``",color=blue)
+      embed.add_field(name="What's new in this update?",value="In this update, Articuno has 3 new fun commands. ``hornycard`` ``simpcard`` and ``ai``. We have worked hard (at least, compared to before) to make this. The AI command was a real pain, but luckily, we managed to solved the problem. Thank you for your trust in Articuno and have a great day, everyone. Love you all :love_you_gesture:")
+      await ctx.send(embed=embed)
 
-    
+
+
+
+
+
+
+
+
 def setup(bot):
   bot.add_cog(Basic(bot))
