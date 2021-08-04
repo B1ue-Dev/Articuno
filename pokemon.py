@@ -11,7 +11,10 @@ class Pokemon(commands.Cog):
     @commands.command()
     async def pokemon(self,ctx,*,pokemon):
       async with aiohttp.ClientSession() as session:
+        message0 = await ctx.send("I am looking for that Pokemon. Please be patient.")
+        await ctx.channel.trigger_typing()
         response = await session.get(f'https://some-random-api.ml/pokedex?pokemon={pokemon}')
+        await ctx.channel.trigger_typing()
         if str(response.status) == "404":
             await ctx.send("I couldn't find that pokemon. Please try again.")
         else:
@@ -71,6 +74,7 @@ class Pokemon(commands.Cog):
                         if len(evs) != 0:
                             embed.add_field(name="Evolution Line",value=evs,inline=True)
                         await ctx.channel.trigger_typing()
+                        await message0.delete()
                         await ctx.send(embed=embed)
 
     @commands.command()
@@ -79,7 +83,7 @@ class Pokemon(commands.Cog):
       data = response.json()
       embed = discord.Embed(
         title = 'Pikachu <:PikaFacePalm:865060210991955968>',
-        description = 'Here is a gif of Pikachu',
+        description = 'Here is a gif of Pikachu.',
         color = 0xfff900
       )
       embed.set_image(url=data['link'])
