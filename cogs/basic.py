@@ -78,7 +78,7 @@ class Basic(commands.Cog):
 
 	# Base: info
 	# Subcommand: user
-	@cog_ext.cog_subcommand(base="info", name="user", description="Check the informaion about a user")
+	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user")
 	async def _info(self, ctx: SlashContext, member : discord.Member = None):
 		if not member:
 			member = ctx.author
@@ -102,9 +102,9 @@ class Basic(commands.Cog):
 			bot = "Yes"
 		# Highest role's color
 		color = member.top_role.color
-		embed=discord.Embed(title=f"{member.name}'s' informaion", colour=color)
+		embed=discord.Embed(colour=color)
 		embed.set_thumbnail(url=member.avatar_url)
-		embed.set_author(name=f"{member}", icon_url=member.avatar_url)
+		embed.set_author(name=f"{member.name}'s information", icon_url=member.avatar_url)
 		embed.add_field(name="Name", value=member, inline=True)
 		embed.add_field(name="Nickname", value=member.nick, inline=True)
 		embed.add_field(name="ID", value=member.id, inline=True)
