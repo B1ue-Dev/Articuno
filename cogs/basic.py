@@ -122,7 +122,6 @@ class Basic(commands.Cog):
 		if not avamember:
 			avamember = ctx.author
 		avatar = avamember.avatar_url
-		member = avamember.name
 		embed = discord.Embed(description=f"**Avatar**", color=random.randint(0, 0xFFFFFF))
 		embed.set_author(name=member, icon_url=avatar)
 		embed.set_image(url=avatar)
