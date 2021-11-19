@@ -71,7 +71,7 @@ class Basic(commands.Cog):
 			embed.add_field(name="Python", value=python)
 			embed.add_field(name="discord.py", value=discordpy)
 			embed.add_field(name="Latency", value=latency)
-			embed.add_field(name="Operating System", value=os)
+			embed.add_field(name="System", value=os)
 			embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 			await ctx.send(embed=embed)
 
