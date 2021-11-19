@@ -34,6 +34,10 @@ class Stats(commands.Cog):
 		self.api.command_run(ctx)
 def setup(bot):
 	bot.add_cog(Stats(bot))
+def natural_size(size_in_bytes: int):
+	units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
+	power = int(math.log(size_in_bytes, 1024))
+	return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
 class Basic(commands.Cog):
@@ -57,23 +61,30 @@ class Basic(commands.Cog):
 		await ctx.send(embed.embed)
 
 
-	@cog_ext.cog_slash(name="stats", description="See Articuno stats")
+	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno")
 	async def _stats(self, ctx: SlashContext):
-		async with aiohttp.ClientSession():
-			python = platform.python_version()
-			discordpy = discord.__version__
-			latency = f"{self.bot.latency * 1000:.0f}"
-			os = str(platform.platform())
-			embed=discord.Embed(title="Articuno Stats", color=blue)
-			embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
-			embed.add_field(name="Server Count", value=len(self.bot.guilds))
-			embed.add_field(name="User Count", value=len(self.bot.users))
-			embed.add_field(name="Python", value=python)
-			embed.add_field(name="discord.py", value=discordpy)
-			embed.add_field(name="Latency", value=latency)
-			embed.add_field(name="System", value=os)
-			embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
-			await ctx.send(embed=embed)
+		proc = psutil.Process()
+		mem = proc.memory_full_info()
+		python = platform.python_version()
+		discordpy = discord.__version__
+		latency = f"{self.bot.latency * 1000:.0f}"
+		os = str(platform.platform())
+		version = "v2.5"
+		embed=discord.Embed(title="Articuno Stats", color=blue)
+		cpu = psutil.cpu_percent()
+		thread_count = proc.num_threads()
+		embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
+		embed.add_field(name="Version", value=version)
+		embed.add_field(name="Server Count",value=len(self.bot.guilds))
+		embed.add_field(name="User Count",value=len(self.bot.users))
+		embed.add_field(name="Latency", value=latency)
+		embed.add_field(name="Python", value=python)
+		embed.add_field(name="discord.py", value=discordpy)
+		embed.add_field(name="Memory",value=f"{natural_size(mem.rss)}\n{natural_size(mem.vms)}")
+		embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
+		embed.add_field(name="System", value=os)
+		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
+		await ctx.send(embed=embed)
 
 
 	# Base: info
