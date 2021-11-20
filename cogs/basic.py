@@ -87,6 +87,24 @@ class Basic(commands.Cog):
 		await ctx.send(embed=embed)
 
 
+	@cog_ext.cog_slash(name="credits", description="Developers/Contributors to this project")
+	async def _credits(self, ctx: SlashContext):
+		embed = discord.Embed(title=f'Credits', description=f"Developers and contributors in this project:", color=blue)
+		embed.add_field(name="**JimmyBlue#4773**", value=f"``Leader`` Owner and creator of this project and mostly handle with stuffs.")
+		embed.add_field(name="**matteodev#1109**", value=f"``Developer`` Debugger, helper in this project.")
+		embed.add_field(name="**Manana#3313**\n**꒓ꆂꌚꑛꂑꁍꆂ#8149**", value="``Tester`` Insider for this project.")
+		embed.add_field(name="**Pokémeu#8842**", value=f"``Suggestor`` Ideas maker and error finder for this project.")
+		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
+		await ctx.send(embed=embed)
+
+
+	@cog_ext.cog_slash(name="invite", description="Invite Articuno to your server")
+	async def _invite(self, ctx: SlashContext):
+		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=809084067446259722&permissions=536870911991&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/MCTppQWZcA", color=blue)
+		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
+		await ctx.send(embed=embed)
+
+
 	# Base: info
 	# Subcommand: user
 	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user")
