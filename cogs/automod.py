@@ -22,8 +22,7 @@ class AutoMod(commands.Cog):
             # be blocked
                 await message.delete()
                 await message.channel.send(
-                    f"<@{message.author.id}>, don't try to ping everyone."
-                )
+                    f"<@{message.author.id}>, don't try to ping everyone.")
 
 
 
