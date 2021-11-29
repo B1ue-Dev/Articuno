@@ -1,10 +1,7 @@
 import discord
 from discord.ext import commands
 
-'''
-A very, very basic auto moderation command, which block @everyone
-mention (everyone ping).
-'''
+
 
 
 class AutoMod(commands.Cog):
@@ -23,6 +20,8 @@ class AutoMod(commands.Cog):
                 await message.delete()
                 await message.channel.send(
                     f"<@{message.author.id}>, don't try to ping everyone.")
+
+
 
 
 
