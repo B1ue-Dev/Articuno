@@ -1,13 +1,13 @@
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, SlashCommand
-import aiohttp
-import requests
-import asyncio
+from discord_slash import cog_ext, SlashContext
 import platform
-import json
-import time
 import random
+try:
+	import psutil
+except:
+	pass
+import math
 
 
 
@@ -61,18 +61,21 @@ class Basic(commands.Cog):
 		await ctx.send(embed.embed)
 
 
-	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno")
+	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno", guild_ids=guild_ids)
 	async def _stats(self, ctx: SlashContext):
-		proc = psutil.Process()
-		mem = proc.memory_full_info()
+		try:
+			proc = psutil.Process()
+			mem = proc.memory_full_info()
+			cpu = psutil.cpu_percent()
+			thread_count = proc.num_threads()
+		except:
+			pass
 		python = platform.python_version()
 		discordpy = discord.__version__
 		latency = f"{self.bot.latency * 1000:.0f}"
 		os = str(platform.platform())
 		version = "v2.5"
 		embed=discord.Embed(title="Articuno Stats", color=blue)
-		cpu = psutil.cpu_percent()
-		thread_count = proc.num_threads()
 		embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
 		embed.add_field(name="Version", value=version)
 		embed.add_field(name="Server Count",value=len(self.bot.guilds))
@@ -80,8 +83,11 @@ class Basic(commands.Cog):
 		embed.add_field(name="Latency", value=latency)
 		embed.add_field(name="Python", value=python)
 		embed.add_field(name="discord.py", value=discordpy)
-		embed.add_field(name="Memory",value=f"{natural_size(mem.rss)}\n{natural_size(mem.vms)}")
-		embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
+		try:
+			embed.add_field(name="Memory",value=f"{natural_size(mem.rss)}\n{natural_size(mem.vms)}")
+			embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
+		except:
+			pass
 		embed.add_field(name="System", value=os)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
@@ -152,7 +158,7 @@ class Basic(commands.Cog):
 			avamember = ctx.author
 		avatar = avamember.avatar_url
 		embed = discord.Embed(description=f"**Avatar**", color=random.randint(0, 0xFFFFFF))
-		embed.set_author(name=member, icon_url=avatar)
+		embed.set_author(name=avamember, icon_url=avatar)
 		embed.set_image(url=avatar)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
