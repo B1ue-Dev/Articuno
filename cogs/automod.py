@@ -33,7 +33,7 @@ class AutoMod(commands.Cog):
 		for line in html.splitlines():
 			if line in message.content:
 				await message.delete()
-				await message.channel.send(f"<@{message.author.id}>, sending a scam link is not a good idea.")
+				await message.channel.send(f"<@{message.author.id}>, sending a scam link is not allowed.")
 
 
 		# if there is a server invite link
