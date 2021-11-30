@@ -199,7 +199,7 @@ class Basic(commands.Cog):
 		embed.add_field(name="Owner", value=f"<@{owner.id}>\nID: {owner}", inline=True)
 		embed.add_field(name="Boost", value=f"Number: {boost}\n{comment}",inline=True)
 		embed.add_field(name="Member", value=f"Total: {memberCount}\nHumans: {memberer}\nBOTs: {bots}", inline=True)
-		embed.add_field(name="Channels", value=f"<:text_channel:873442091424944178>Text channels: {text_channel}\n<:voice_channel:873442207758159904>Voice channels: {voice_channel}")
+		embed.add_field(name="Channels", value=f"Text channels: {text_channel}\nVoice channels: {voice_channel}")
 		embed.add_field(name="Region", value=region, inline=True)
 		embed.add_field(name="Created on", value=created, inline=True)
 		embed.add_field(name="Verify level", value=f"Level: {verify_level}")
