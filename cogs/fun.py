@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, SlashCommand
 import random
 import asyncio
+import requests
 
 
 
@@ -76,6 +77,24 @@ class Fun(commands.Cog):
 		message0 = await message.send("I am rolling the dice now!")
 		await asyncio.sleep(2.5)
 		await message0.edit(content=f"The number is {number}.")
+
+	
+	@cog_ext.cog_slash(name="flip", description="Flip a coin")
+	async def _flip(self, message):
+		coin = ["Heads", "Tails"]
+		number = random.choice(coin)
+		message0 = await message.send("I am flipping the coin now!")
+		await asyncio.sleep(2.5)
+		await message0.edit(content=f"The coin is {number}.")
+
+
+	@cog_ext.cog_slash(name="coffee", description="Send an image of coffee")
+	async def _coffee(self, ctx: SlashContext):
+		response = requests.get('https://coffee.alexflipnote.dev/random.json')
+		data = response.json()
+		embed = discord.Embed(title="Coffee ☕", color=0xc4771d)
+		embed.set_image(url=data['file'])
+		await ctx.send(embed=embed)
 
 
 def setup(bot: commands.Bot):
