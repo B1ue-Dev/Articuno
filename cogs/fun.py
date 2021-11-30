@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, SlashCommand
 import random
+import asyncio
 
 
 
@@ -66,6 +67,15 @@ class Fun(commands.Cog):
 		embed = discord.Embed(description=f"**{name1}** {heart} **{name2}**" ,color=shipColor)
 		embed.add_field(name="Results:", value=f"{shipnumber}%  {comment}", inline=True)
 		await ctx.send(embed=embed)
+
+
+	@cog_ext.cog_slash(name="roll", description="Roll a dice")
+	async def _roll(self, message):
+		dice = ["1", "2", "3", "4", "5", "6"]
+		number = random.choice(dice)
+		message0 = await message.send("I am rolling the dice now!")
+		await asyncio.sleep(2.5)
+		await message0.edit(content=f"The number is {number}.")
 
 
 def setup(bot: commands.Bot):
