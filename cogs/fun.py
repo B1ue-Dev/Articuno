@@ -11,6 +11,8 @@ class Fun(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 
+	# I use some API here. They are mostly from https://some-random-api.ml/
+	# The API is free to use. You can use this API for your own project or based on my code.
 
 	@cog_ext.cog_slash(name="ship", description="Ship two users together")
 	async def _ship(self, ctx: SlashContext, name1 = None, name2 = None):
@@ -94,6 +96,16 @@ class Fun(commands.Cog):
 		data = response.json()
 		embed = discord.Embed(title="Coffee ☕", color=0xc4771d)
 		embed.set_image(url=data['file'])
+		await ctx.send(embed=embed)
+
+
+	@cog_ext.cog_slash(name="joke", description="Send a random joke sentence")
+	async def _joke(self, ctx: SlashContext):
+		await ctx.defer()
+		response = requests.get('https://some-random-api.ml/joke')
+		data = response.json()
+		joke = data['joke']
+		embed = discord.Embed(description=joke, color=random.randint(0, 0xFFFFFF))
 		await ctx.send(embed=embed)
 
 
