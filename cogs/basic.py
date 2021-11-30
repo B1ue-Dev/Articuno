@@ -106,7 +106,7 @@ class Basic(commands.Cog):
 
 	@cog_ext.cog_slash(name="invite", description="Invite Articuno to your server")
 	async def _invite(self, ctx: SlashContext):
-		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=809084067446259722&permissions=536870911991&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/MCTppQWZcA", color=blue)
+		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=809084067446259722&permissions=536870911991&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/rQHRQ8JjSY", color=blue)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
