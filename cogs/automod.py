@@ -37,13 +37,13 @@ class AutoMod(commands.Cog):
 
 
 		# if there is a server invite link
-			message.content = message.content.lower()
-			if "discord.gg" in message.content or "discordapp.com/invite" in message.content or "discord.me" in message.content or "discord.io" in message.content or "discord.com/invite" in message.content or "discord.gg/" in message.content:
-				if message.author.guild_permissions.administrator:
-					return
-				else:
-					await message.delete()
-					await message.channel.send(f"<@{message.author.id}>, sending a server invite link is not allowed.")
+		message.content = message.content.lower()
+		if "discord.gg" in message.content or "discordapp.com/invite" in message.content or "discord.me" in message.content or "discord.io" in message.content or "discord.com/invite" in message.content or "discord.gg/" in message.content:
+			if message.author.guild_permissions.administrator:
+				return
+			else:
+				await message.delete()
+				await message.channel.send(f"<@{message.author.id}>, sending a server invite link is not allowed.")
 
 
 

@@ -1,0 +1,6 @@
+discord.py
+jishaku
+requests
+psutil
+google-api-python-client
+discord-py-interactions
