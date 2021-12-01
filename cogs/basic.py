@@ -48,7 +48,7 @@ class Basic(commands.Cog):
 		await ctx.send(embed.embed)
 
 
-	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno", guild_ids=guild_ids)
+	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno")
 	async def _stats(self, ctx: SlashContext):
 		try:
 			proc = psutil.Process()
@@ -100,7 +100,7 @@ class Basic(commands.Cog):
 
 	# Base: info
 	# Subcommand: user
-	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user")
+	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user", guild_ids=guild_ids)
 	async def _info(self, ctx: SlashContext, member : discord.Member = None):
 		if not member:
 			member = ctx.author
@@ -108,15 +108,14 @@ class Basic(commands.Cog):
 		# Check hypesquad
 		hypesquad = "None"
 		if profile.hypesquad_bravery == True:
-			hypesquad = "Bravery"
+			hypesquad = "<:bravery:875411242917969961> Bravery"
 		if profile.hypesquad_brilliance == True:  
-			hypesquad = "Brilliance"        
+			hypesquad = "<:brilliance:875411403413000233> Brilliance"        
 		if profile.hypesquad_balance == True:
-			hypesquad = "Ballance"
-        # Check if supporter
+			hypesquad = "<:balance:875411281350369330> Ballance"
 		supporter = "No"
 		if profile.early_supporter == True:
-			supporter = "Yes"
+			supporter = "<:earlysupporter:875412600341540874> Yes"
 		# Check if bot
 		if not member.bot:
 			bot = "No"
@@ -124,33 +123,39 @@ class Basic(commands.Cog):
 			bot = "Yes"
 		# Highest role's color
 		color = member.top_role.color
+		# Joined date
+		joined = f"<t:{round(member.joined_at.timestamp())}>"
+		# Account creation date
+		created = f"<t:{round(member.created_at.timestamp())}>"
 		embed=discord.Embed(colour=color)
 		embed.set_thumbnail(url=member.avatar_url)
 		embed.set_author(name=f"{member.name}'s information", icon_url=member.avatar_url)
 		embed.add_field(name="Name", value=member, inline=True)
 		embed.add_field(name="Nickname", value=member.nick, inline=True)
 		embed.add_field(name="ID", value=member.id, inline=True)
-		embed.add_field(name="Joined on", value=member.joined_at.strftime("%B %d, %Y"), inline=True)
+		embed.add_field(name="Joined on", value=joined, inline=True)
 		embed.add_field(name="Top role", value=f"<@&{member.top_role.id}>", inline=True)
-		embed.add_field(name="Created on", value=member.created_at.strftime("%B %d, %Y"), inline=True)
+		embed.add_field(name="Created on", value=created, inline=True)
 		embed.add_field(name="Hypesquad", value=f"{hypesquad}")
 		embed.add_field(name="Bot?", value=bot)
 		embed.add_field(name="Early Supporter?", value=supporter)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 	# Subcommand: avatar
-	@cog_ext.cog_subcommand(base="info", name="avatar", description="Check the profile picture of a user")  
+	@cog_ext.cog_subcommand(base="info", name="avatar", description="Check the profile picture of a user", guild_ids=guild_ids)  
 	async def _avatar(self, ctx: SlashContext, *,  avamember : discord.Member = None):
 		if not avamember:
 			avamember = ctx.author
 		avatar = avamember.avatar_url
+		member = avamember.name
 		embed = discord.Embed(description=f"**Avatar**", color=random.randint(0, 0xFFFFFF))
-		embed.set_author(name=avamember, icon_url=avatar)
+		embed.set_author(name=member, icon_url=avatar)
 		embed.set_image(url=avatar)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
+	
 	# Subcommand: server
-	@cog_ext.cog_subcommand(base="info", name="server", description="Check the infomation about the server")
+	@cog_ext.cog_subcommand(base="info", name="server", description="Check the information about the server", guild_ids=guild_ids)
 	async def _server(self, ctx: SlashContext):
 		name = str(ctx.guild.name)
 		id = str(ctx.guild.id)
@@ -165,7 +170,7 @@ class Basic(commands.Cog):
 		icon = str(ctx.guild.icon_url)
 		owner = ctx.guild.owner
 		region = str(ctx.guild.region)
-		created = str(ctx.guild.created_at.strftime("%B %d, %Y"))
+		created = f"<t:{round(ctx.guild.created_at.timestamp())}>"
 		# Check the number of boost
 		boost = ctx.guild.premium_subscription_count
 		if boost <= 2:
@@ -193,6 +198,7 @@ class Basic(commands.Cog):
 		embed.add_field(name="Roles", value=role_number)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
+
 
 
 
