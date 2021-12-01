@@ -6,7 +6,7 @@ A small and fun Discord Bot that is written in Python and discord-interactions (
 # Get started
 If you want to host the bot by yoursel, you must do these steps:
 - Put your bot's token in ./data/config.json. You can get your bot's token at [here](https://discord.com/developers/applications)
-- Install required libraries in ``requirements.txt`` by using pip
+- Install required libraries in ``requirements.txt`` by using ``pip install -r requirements.txt``
 
 
 # For legacy code
