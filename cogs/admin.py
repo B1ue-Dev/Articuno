@@ -5,6 +5,7 @@ import random
 import json
 import time
 import asyncio
+import math
 
 
 
@@ -50,6 +51,10 @@ class Admin(commands.Cog):
 			bot = "Yes"
 		# Highest role's color
 		color = member.top_role.color
+		# Joined date
+		joined = f"<t:{round(member.joined_at.timestamp())}>"
+		# Account creation date
+		created = f"<t:{round(member.created_at.timestamp())}>"
         # Message
 		embed=discord.Embed(title=f"{member.name}'s' informaion", colour=color)
 		embed.set_thumbnail(url=member.avatar_url)
@@ -57,9 +62,9 @@ class Admin(commands.Cog):
 		embed.add_field(name="Name", value=member, inline=True)
 		embed.add_field(name="Nickname", value=member.nick, inline=True)
 		embed.add_field(name="ID", value=member.id, inline=True)
-		embed.add_field(name="Joined on", value=member.joined_at.strftime("%B %d, %Y"), inline=True)
+		embed.add_field(name="Joined on", value=joined, inline=True)
 		embed.add_field(name="Top role", value=f"<@&{member.top_role.id}>", inline=True)
-		embed.add_field(name="Created on", value=member.created_at.strftime("%B %d, %Y"), inline=True)
+		embed.add_field(name="Created on", value=created, inline=True)
 		embed.add_field(name="Hypesquad", value=f"{hypesquad}")
 		embed.add_field(name="Bot?", value=bot)
 		embed.add_field(name="Early Supporter?", value=supporter)
