@@ -7,7 +7,7 @@ try:
 	import psutil
 except:
 	pass
-import math
+import required
 
 
 
@@ -25,19 +25,6 @@ gray = 0x6d6868
 
 
 
-
-class Stats(commands.Cog):
-	def __init__(self, bot: commands.Bot):
-		self.bot = bot
-	@commands.Cog.listener()
-	async def on_command(self,ctx):
-		self.api.command_run(ctx)
-def setup(bot):
-	bot.add_cog(Stats(bot))
-def natural_size(size_in_bytes: int):
-	units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
-	power = int(math.log(size_in_bytes, 1024))
-	return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
 class Basic(commands.Cog):
@@ -84,7 +71,7 @@ class Basic(commands.Cog):
 		embed.add_field(name="Python", value=python)
 		embed.add_field(name="discord.py", value=discordpy)
 		try:
-			embed.add_field(name="Memory",value=f"{natural_size(mem.rss)}\n{natural_size(mem.vms)}")
+			embed.add_field(name="Memory",value=f"{required.natural_size(mem.rss)}\n{required.natural_size(mem.vms)}")
 			embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
 		except:
 			pass

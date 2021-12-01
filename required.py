@@ -1,4 +1,4 @@
-import asyncio, aiohttp, json
+import asyncio, aiohttp, json, math
 
 def setup(bot):
 
@@ -24,9 +24,16 @@ async def async_dl(url, headers = None):
                     return None
     return data
 
+
 async def async_text(url, headers = None):
     data = await async_dl(url, headers)
     if data != None:
         return data.decode("utf-8", "replace")
     else:
         return data
+
+
+def natural_size(size_in_bytes: int):
+	units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
+	power = int(math.log(size_in_bytes, 1024))
+	return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
