@@ -13,6 +13,8 @@ class Fun(commands.Cog):
 
 	# I use some API here. They are mostly from https://some-random-api.ml/
 	# The API is free to use. You can use this API for your own project or based on my code.
+	# I do not claim any ownership over the API.
+
 
 	@cog_ext.cog_slash(name="ship", description="Ship two users together")
 	async def _ship(self, ctx: SlashContext, name1 = None, name2 = None):
@@ -107,6 +109,31 @@ class Fun(commands.Cog):
 		joke = data['joke']
 		embed = discord.Embed(description=joke, color=random.randint(0, 0xFFFFFF))
 		await ctx.send(embed=embed)
+
+	
+	@cog_ext.cog_slash(name="urban", description="Urban dictionary")
+	async def _urban(self, ctx: SlashContext, word):
+		api = "http://api.urbandictionary.com/v0/define"
+		gray = 0x6d6868
+		response = requests.get(api, params=[("term", word)]).json()
+		if len(response["list"]) == 0:
+			embed = discord.Embed(description="No results found!", color=gray)
+			await ctx.send(embed=embed, hidden=True)
+		else:
+			writeon = response['list'][0]['written_on']
+			up = response['list'][0]['thumbs_up']
+			down = response['list'][0]['thumbs_down']
+			embed = discord.Embed(title=f"Definition of {word}", description=f"Created on: {writeon}\n:thumbsup:{up}     :thumbsdown:{down}", color=gray)
+			embed.add_field(name="Definition:", value=response['list'][0]['definition'])
+			embed.add_field(name="Examples:", value=response['list'][0]['example'])
+			await ctx.send(embed=embed)
+
+
+
+
+
+
+
 
 
 def setup(bot: commands.Bot):
