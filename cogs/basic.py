@@ -100,7 +100,7 @@ class Basic(commands.Cog):
 
 	# Base: info
 	# Subcommand: user
-	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user", guild_ids=guild_ids)
+	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user")
 	async def _info(self, ctx: SlashContext, member : discord.Member = None):
 		if not member:
 			member = ctx.author
@@ -142,7 +142,7 @@ class Basic(commands.Cog):
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 	# Subcommand: avatar
-	@cog_ext.cog_subcommand(base="info", name="avatar", description="Check the profile picture of a user", guild_ids=guild_ids)  
+	@cog_ext.cog_subcommand(base="info", name="avatar", description="Check the profile picture of a user")  
 	async def _avatar(self, ctx: SlashContext, *,  avamember : discord.Member = None):
 		if not avamember:
 			avamember = ctx.author
@@ -155,7 +155,7 @@ class Basic(commands.Cog):
 		await ctx.send(embed=embed)
 	
 	# Subcommand: server
-	@cog_ext.cog_subcommand(base="info", name="server", description="Check the information about the server", guild_ids=guild_ids)
+	@cog_ext.cog_subcommand(base="info", name="server", description="Check the information about the server")
 	async def _server(self, ctx: SlashContext):
 		name = str(ctx.guild.name)
 		id = str(ctx.guild.id)
