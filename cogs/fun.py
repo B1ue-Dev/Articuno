@@ -4,6 +4,8 @@ from discord_slash import cog_ext, SlashContext, SlashCommand
 import random
 import asyncio
 import requests
+import required
+import urllib
 
 
 
@@ -127,6 +129,17 @@ class Fun(commands.Cog):
 			embed.add_field(name="Definition:", value=response['list'][0]['definition'])
 			embed.add_field(name="Examples:", value=response['list'][0]['example'])
 			await ctx.send(embed=embed)
+
+
+	@cog_ext.cog_slash(name="ascii", description="Ascii of a short text (under 10)")
+	async def _ascii(self, ctx: SlashContext, text):
+		text_format = text.lower()
+		if len(text_format) > 10:
+			await ctx.send("Please send something shorter (under 10).", hidden=True)
+		else:
+			url = "http://artii.herokuapp.com/make?{}".format(urllib.parse.urlencode({'text':text_format}))
+			response = await required.async_text(url)
+			await ctx.send("```Markup\n{}```".format(response))
 
 
 
