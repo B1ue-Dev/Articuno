@@ -123,6 +123,21 @@ class Admin(commands.Cog):
 				await ctx.send(embed=channel_message)
 
 
+	@cog_ext.cog_subcommand(base="user", name="hackban", description="(Admin only) Ban a user that is not in the current server")
+	async def _hackban(self, ctx: SlashContext, id, reason = None):
+		perms = ctx.author.guild_permissions
+		if not (perms.administrator or perms.ban_members):
+			await ctx.send("You don't have permission to do this.", hidden=True)
+		else:
+			try:
+				await self.bot.http.ban(id, ctx.guild.id, 0, reason=reason)
+				await ctx.send(f'User with ID ``{id}`` has been banned.')
+			except discord.NotFound:
+				await ctx.send(f'I cannot find any user with the ID ``{id}``.', hidden=True)
+			except discord.errors.Forbidden:
+				await ctx.send(f"I don't have enough permission to perform this.", hidden=True)
+
+
 	@cog_ext.cog_subcommand(base="user", name="unban", description="(Admin only) Unban a user")
 	async def _unban(self, ctx: SlashContext, id):
 		perms = ctx.author.guild_permissions
