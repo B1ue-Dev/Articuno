@@ -141,10 +141,7 @@ class Fun(commands.Cog):
 			response = await required.async_text(url)
 			await ctx.send("```Markup\n{}```".format(response))
 
-
-
-
-
+	
 
 
 

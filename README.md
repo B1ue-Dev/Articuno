@@ -1,7 +1,7 @@
 # Articuno (discord-interactions)
 A small and fun Discord Bot that is written in Python and discord-interactions (with discord.py)
 
-![banner.png](https://github.com/Jimmy-Blue/Articuno/blob/discord-interactions/articuno_banner.png)
+![banner.png](./articuno_banner.png)
 
 # Get started
 If you want to host the bot by yoursel, you must do these steps:

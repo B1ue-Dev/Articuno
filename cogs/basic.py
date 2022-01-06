@@ -5,7 +5,7 @@ import platform
 import random
 try:
 	import psutil
-except:
+except ImportError:
 	pass
 import required
 
@@ -73,7 +73,7 @@ class Basic(commands.Cog):
 		try:
 			embed.add_field(name="Memory",value=f"{required.natural_size(mem.rss)}\n{required.natural_size(mem.vms)}")
 			embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
-		except:
+		except: # Yes, I will add something else...
 			pass
 		embed.add_field(name="System", value=os)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
