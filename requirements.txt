@@ -3,4 +3,4 @@ jishaku
 requests
 psutil
 google-api-python-client
-discord-py-interactions
+discord-py-interactions==3.0.2
