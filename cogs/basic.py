@@ -1,18 +1,22 @@
 import discord
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext
-import platform
-import random
-try:
-	import psutil
-except ImportError:
-	pass
-import required
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle, ContextMenuType
+from discord_slash.context import InteractionContext
+from discord_slash.utils.manage_commands import create_option, create_choice
+import aiohttp, requests
+import utils, random, json
+import platform, psutil
+from jishaku.features.baseclass import Feature as jsk
 
 
+# Excuse me but I am lazy
+subcommand = cog_ext.cog_subcommand
+slash = cog_ext.cog_slash
 
 
-#color
+# Color
 blue = 0x236adf
 red = 0xff0000
 orange = 0xff8b00
@@ -30,25 +34,28 @@ gray = 0x6d6868
 class Basic(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
-	guild_ids = [833886728259239968, 859030372783751168]
+	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
 
 
-	#commands
-	@cog_ext.cog_slash(name="ping", description="Ping the bot")
+	@slash(name="ping",
+		description="Ping Articuno",
+		)
 	async def _ping(self, ctx: SlashContext):
 		websocket = f"{self.bot.latency * 1000:.0f}"
 		if int(websocket) < int(99):
-			message = f"{websocket}ms 🟢"
+			message = f"{websocket}ms <:Connection_Best:936294842286342204>"
 		elif int(100) <= int(websocket) < int(199):
-			message = f"{websocket}ms 🟡"
+			message = f"{websocket}ms<:Connection_Stable:936294747516067841>"
 		elif int(websocket) > int(200):
-			message = f"{websocket}ms 🔴"
+			message = f"{websocket}ms <:Connection_Bad:936294724954894436>"
 		embed = discord.Embed(title=":ping_pong: Pong!", description=f"Websocket: {message}", color=orange)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
-		await ctx.send(embed.embed)
+		await ctx.send(embed=embed)
 
 
-	@cog_ext.cog_slash(name="stats", description="See the stats of Articuno")
+	@slash(name="stats",
+		description="See the stats of Articuno"
+		)
 	async def _stats(self, ctx: SlashContext):
 		try:
 			proc = psutil.Process()
@@ -56,55 +63,73 @@ class Basic(commands.Cog):
 			cpu = psutil.cpu_percent()
 			thread_count = proc.num_threads()
 		except:
-			pass
-		python = platform.python_version()
-		discordpy = discord.__version__
-		latency = f"{self.bot.latency * 1000:.0f}"
-		os = str(platform.platform())
-		version = "v2.5"
+			pass	
 		embed=discord.Embed(title="Articuno Stats", color=blue)
-		embed.set_thumbnail(url='https://cdn.discordapp.com/app-icons/782628076503957524/10ca66e0b32229c171a26d35e53f342b.png?size=256')
+		thumbnail = self.bot.user.avatar # Thumbnail
+		embed.set_thumbnail(url=thumbnail)
+		version = "v3.0a" # Version
 		embed.add_field(name="Version", value=version)
-		embed.add_field(name="Server Count",value=len(self.bot.guilds))
-		embed.add_field(name="User Count",value=len(self.bot.users))
+		server_count = len(self.bot.guilds) # Server Count
+		embed.add_field(name="Server Count",value=server_count)
+		user_count = len(self.bot.users) # User Count
+		embed.add_field(name="User Count",value=user_count)
+		latency = f"{self.bot.latency * 1000:.0f}ms" # Latency
 		embed.add_field(name="Latency", value=latency)
+		python = platform.python_version() # Python Version
 		embed.add_field(name="Python", value=python)
-		embed.add_field(name="discord.py", value=discordpy)
+		embed.add_field(name="Uptime", value=f"<t:{jsk.load_time.timestamp():.0f}:R>") # Uptime
 		try:
-			embed.add_field(name="Memory",value=f"{required.natural_size(mem.rss)}\n{required.natural_size(mem.vms)}")
+			embed.add_field(name="Memory",value=f"{utils.natural_size(mem.rss)}\n{utils.natural_size(mem.vms)}")
 			embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
-		except: # Yes, I will add something else...
+		except:
 			pass
+		os = str(platform.platform()) # OS
 		embed.add_field(name="System", value=os)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
-		await ctx.send(embed=embed)
+		buttons = [
+			create_button(style=ButtonStyle, label="GitHub", url="https://github.com/Jimmy-Blue/Articuno")
+		]
+		action_row = create_actionrow(*buttons)
+		await ctx.send(embed=embed, components=[action_row])
 
 
-	@cog_ext.cog_slash(name="credits", description="Developers/Contributors to this project")
+	@slash(name="credits",
+		description="Developers/Contributors to this project"
+		)
 	async def _credits(self, ctx: SlashContext):
 		embed = discord.Embed(title=f'Credits', description=f"Developers and contributors in this project:", color=blue)
-		embed.add_field(name="**JimmyBlue#4773**", value=f"``Leader`` Owner and creator of this project and mostly handle with stuffs.")
-		embed.add_field(name="**matteodev#1109**", value=f"``Developer`` Debugger, helper in this project.")
-		embed.add_field(name="**Manana#3313**\n**꒓ꆂꌚꑛꂑꁍꆂ#8149**", value="``Tester`` Insider for this project.")
-		embed.add_field(name="**Pokémeu#8842**", value=f"``Suggestor`` Ideas maker and error finder for this project.")
+		embed.add_field(name="**BlueZ#7181**", value=f"``Leader`` Owner, creator and debugger for Articuno. Mostly handle with stuffs and errors.")
+		embed.add_field(name="**Manana#3313**\n**꒓ꆂꌚꑛꂑꁍꆂ#8149**", value="``Tester`` Insiders for this project.")
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
 
-	@cog_ext.cog_slash(name="invite", description="Invite Articuno to your server")
+	@slash(name="invite",
+		description="Invite Articuno to your server"
+		)
 	async def _invite(self, ctx: SlashContext):
-		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=809084067446259722&permissions=536870911991&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/rQHRQ8JjSY", color=blue)
+		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/api/oauth2/authorize?client_id=809084067446259722&permissions=1644906413303&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/MCTppQWZcA", color=blue)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
 
 	# Base: info
 	# Subcommand: user
-	@cog_ext.cog_subcommand(base="info", name="user", description="Check the information about a user")
-	async def _info(self, ctx: SlashContext, member : discord.Member = None):
-		if not member:
-			member = ctx.author
-		profile = member.public_flags
+	@subcommand(base="info", 
+				name="user", 
+				description="Check the information about a user",
+				options=[
+					create_option(
+						name="user",
+						description="Targeted user",
+						option_type=6,
+						required=False)
+					]
+				)
+	async def _info(self, ctx: SlashContext, user: str = None):
+		if not user:
+			user = ctx.author
+		profile = user.public_flags
 		# Check hypesquad
 		hypesquad = "None"
 		if profile.hypesquad_bravery == True:
@@ -117,45 +142,60 @@ class Basic(commands.Cog):
 		if profile.early_supporter == True:
 			supporter = "<:earlysupporter:875412600341540874> Yes"
 		# Check if bot
-		if not member.bot:
+		if not user.bot:
 			bot = "No"
 		else:
 			bot = "Yes"
 		# Highest role's color
-		color = member.top_role.color
+		color = user.top_role.color
 		# Joined date
-		joined = f"<t:{round(member.joined_at.timestamp())}>"
+		joined = f"<t:{round(user.joined_at.timestamp())}>"
 		# Account creation date
-		created = f"<t:{round(member.created_at.timestamp())}>"
+		created = f"<t:{round(user.created_at.timestamp())}>"
 		embed=discord.Embed(colour=color)
-		embed.set_thumbnail(url=member.avatar_url)
-		embed.set_author(name=f"{member.name}'s information", icon_url=member.avatar_url)
-		embed.add_field(name="Name", value=member, inline=True)
-		embed.add_field(name="Nickname", value=member.nick, inline=True)
-		embed.add_field(name="ID", value=member.id, inline=True)
+		embed.set_thumbnail(url=user.avatar_url)
+		embed.set_author(name=f"{user.name}'s information", icon_url=user.avatar)
+		embed.add_field(name="Name", value=user, inline=True)
+		embed.add_field(name="Nickname", value=user.nick, inline=True)
+		embed.add_field(name="ID", value=user.id, inline=True)
 		embed.add_field(name="Joined on", value=joined, inline=True)
-		embed.add_field(name="Top role", value=f"<@&{member.top_role.id}>", inline=True)
+		embed.add_field(name="Top role", value=f"<@&{user.top_role.id}>", inline=True)
 		embed.add_field(name="Created on", value=created, inline=True)
 		embed.add_field(name="Hypesquad", value=f"{hypesquad}")
 		embed.add_field(name="Bot?", value=bot)
 		embed.add_field(name="Early Supporter?", value=supporter)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
+
 	# Subcommand: avatar
-	@cog_ext.cog_subcommand(base="info", name="avatar", description="Check the profile picture of a user")  
-	async def _avatar(self, ctx: SlashContext, *,  avamember : discord.Member = None):
-		if not avamember:
-			avamember = ctx.author
-		avatar = avamember.avatar_url
-		member = avamember.name
+	@subcommand(base="info",
+				name="avatar",
+				description="Check the profile picture of a user",
+				options=[
+					create_option(
+						name="user",
+						description="Targeted user",
+						option_type=6,
+						required=False
+						)
+					]
+				)
+	async def _avatar(self, ctx: SlashContext, user: str = None):
+		if not user:
+			user = ctx.author
+		avatar = user.avatar_url
+		member = user.name
 		embed = discord.Embed(description=f"**Avatar**", color=random.randint(0, 0xFFFFFF))
 		embed.set_author(name=member, icon_url=avatar)
 		embed.set_image(url=avatar)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
-	
+
 	# Subcommand: server
-	@cog_ext.cog_subcommand(base="info", name="server", description="Check the information about the server")
+	@subcommand(base="info",
+				name="server",
+				description="Check the information about the server"
+				)
 	async def _server(self, ctx: SlashContext):
 		name = str(ctx.guild.name)
 		id = str(ctx.guild.id)
@@ -196,8 +236,11 @@ class Basic(commands.Cog):
 		embed.add_field(name="Created on", value=created, inline=True)
 		embed.add_field(name="Verify level", value=f"Level: {verify_level}")
 		embed.add_field(name="Roles", value=role_number)
-		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
+		embed.set_footer(icon_url=ctx.author.avatar, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
+
+
+
 
 
 
