@@ -1,16 +1,21 @@
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext, SlashContext, SlashCommand
-import random
-import json
-import time
+from discord.ext import commands
+from discord_slash import cog_ext, SlashContext
+from discord_slash import error as error_cog
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle
+from discord_slash.context import InteractionContext
+from discord_slash.utils.manage_commands import create_option, create_choice
 import asyncio
-import math
 
 
+# Excuse me but I am lazy
+slash = cog_ext.cog_slash
+subcommand = cog_ext.cog_subcommand
 
 
-# Color
+# Colors
 blue = 0x236adf
 red = 0xff0000
 orange = 0xff8b00
@@ -23,175 +28,205 @@ gray = 0x6d6868
 
 
 
+
+
+# Main file
 class Admin(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
-	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
+	guild_ids = [859030372783751168, 833886728259239968, 738938246574374913]
 
 
-	@cog_ext.cog_subcommand(base="user", name="info", description="(Admin only) Check the information about a user")
-	async def _info(self, ctx: SlashContext, member: discord.Member):
-		profile = member.public_flags
-		# Check hypesquad
-		hypesquad = "None"
-		if profile.hypesquad_bravery == True:
-			hypesquad = "Bravery"
-		if profile.hypesquad_brilliance == True:  
-			hypesquad = "Brilliance"        
-		if profile.hypesquad_balance == True:
-			hypesquad = "Ballance"
-        # Check if early supporter
-		supporter = "No"
-		if profile.early_supporter == True:
-			supporter = "Yes"
-		# Check if bot
-		if not member.bot:
-			bot = "No"
-		else:
-			bot = "Yes"
-		# Highest role's color
-		color = member.top_role.color
-		# Joined date
-		joined = f"<t:{round(member.joined_at.timestamp())}>"
-		# Account creation date
-		created = f"<t:{round(member.created_at.timestamp())}>"
-        # Message
-		embed=discord.Embed(title=f"{member.name}'s' informaion", colour=color)
-		embed.set_thumbnail(url=member.avatar_url)
-		embed.set_author(name=f"{member}", icon_url=member.avatar_url)
-		embed.add_field(name="Name", value=member, inline=True)
-		embed.add_field(name="Nickname", value=member.nick, inline=True)
-		embed.add_field(name="ID", value=member.id, inline=True)
-		embed.add_field(name="Joined on", value=joined, inline=True)
-		embed.add_field(name="Top role", value=f"<@&{member.top_role.id}>", inline=True)
-		embed.add_field(name="Created on", value=created, inline=True)
-		embed.add_field(name="Hypesquad", value=f"{hypesquad}")
-		embed.add_field(name="Bot?", value=bot)
-		embed.add_field(name="Early Supporter?", value=supporter)
-		# Check permission
+	@subcommand(base="user",
+				name="kick",
+				description="(Admin only) Kick a user from the server",
+				options=[
+					create_option(name="user",
+						description="Targeted user",
+						option_type=6,
+						required=True),
+					create_option(name="reason",
+						description="Reason",
+						option_type=3,
+						required=False)
+					]
+				)
+	async def _kick(self, ctx: SlashContext, user: str, reason: str = None):
+		# Get the message
+		channel_message = f"{user} was kicked from the server.\nReason: {reason}"
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.kick_members):
-			await ctx.send("You don't have permission to use this command.", hidden=True)
-            # hidden = True is hiding the message that only the user can see the output (message)
+			await ctx.send("You do not have permission to do this.", hidden=True)
+			return
 		else:
-			await ctx.send(embed=embed, hidden=True)
-
-
-	@cog_ext.cog_subcommand(base="user", name="kick", description="(Admin only) Kick a member")
-	async def _kick(self, ctx: SlashContext, member: discord.Member, reason = None):
-		# Message to kicked member
-		member_message = discord.Embed(title=f"You have been kicked in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
-		# Message in channel
-		channel_message = discord.Embed(title=f"{member} is kicked", description=f"Reason: {reason}", color=red)
-        # Check permission
-		perms = ctx.author.guild_permissions
-		if not (perms.administrator or perms.kick_members):
-			await ctx.send("You don't have permission to do this.", hidden=True)
-		else:
-			if member == ctx.author:
+			if user == ctx.author:
 				await ctx.send("You cannot kick yourself.", hidden=True)
+				return
 			else:
 				try:
-					await member.send(embed=member_message)
-				except:
-                    # pass if member has Direct Message closed
-					pass
-				await member.kick(reason=reason)
-				await ctx.send(embed=channel_message)
+					await user.kick(reason=reason)
+					await ctx.send(channel_message)
+				except discord.Forbidden:
+					await ctx.send("I do not have permission to do this.", hidden=True)
+					return
+	
 
-
-	@cog_ext.cog_subcommand(base="user", name="ban", description="(Admin only) Ban a user")
-	async def _ban(self, ctx: SlashContext, member: discord.Member, reason = None):
-		# Message to banned member
-		member_message = discord.Embed(title=f"You have been banned in {ctx.guild.name}.", description=f"Reason: {reason}", color=red)
-		# Message in channel
-		channel_message = discord.Embed(title=f"{member} is banned.", description=f"Reason: {reason}", color=red)
+	@subcommand(base="user",
+				name="ban",
+				description="(Admin only) Ban a user from the server",
+				options=[
+					create_option(name="user",
+						description="Targeted user",
+						option_type=6,
+						required=True),
+					create_option(name="reason",
+						description="Reason",
+						option_type=3,
+						required=False)
+					]
+				)
+	async def _ban(self, ctx: SlashContext, user: str, reason: str = None):
+		# Get the message
+		channel_message = f"{user} was banned from the server.\nReason: {reason}"
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.ban_members):
-			await ctx.send("You don't have permission to do this.", hidden=True)
+			await ctx.send("You do not have permission to do this.", hidden=True)
+			return
 		else:
-			if member == ctx.author:
+			if user == ctx.author:
 				await ctx.send("You cannot ban yourself.", hidden=True)
+				return
 			else:
 				try:
-					await member.send(embed=member_message)
-				except:
-					pass
-				await member.ban(reason=reason, delete_message_days=0)
-                # delete_message_days = 0 is for not deleting any previous message when banning the member
-                # usually, messages within 1 day will be deleted. You can choose to delete with a range from 0 to 7 days
-				await ctx.send(embed=channel_message)
+					await user.ban(reason=reason)
+					await ctx.send(channel_message)
+				except discord.Forbidden:
+					await ctx.send("I do not have permission to do this.", hidden=True)
+					return
+	
 
-
-	@cog_ext.cog_subcommand(base="user", name="hackban", description="(Admin only) Ban a user that is not in the current server")
-	async def _hackban(self, ctx: SlashContext, id, reason = None):
+	@subcommand(base="user",
+				name="hackban",
+				description="(Admin only) Ban a user that is not in the current server",
+				options=[
+					create_option(name="id",
+						description="Targeted user ID",
+						option_type=3,
+						required=True),
+					create_option(name="reason",
+						description="Reason",
+						option_type=3,
+						required=False)
+					]
+				)
+	async def _hackban(self, ctx: SlashContext, id: str, reason: str = None):
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.ban_members):
-			await ctx.send("You don't have permission to do this.", hidden=True)
+			await ctx.send("You do not have permission to do this.", hidden=True)
 		else:
-			try:
-				await self.bot.http.ban(id, ctx.guild.id, 0, reason=reason)
-				await ctx.send(f'User with ID ``{id}`` has been banned.')
-			except discord.NotFound:
-				await ctx.send(f'I cannot find any user with the ID ``{id}``.', hidden=True)
-			except discord.errors.Forbidden:
-				await ctx.send(f"I don't have enough permission to perform this.", hidden=True)
+			if id == ctx.author.id:
+				await ctx.send("You cannot ban yourself.", hidden=True)
+				return
+			else:
+				try:
+					await self.bot.http.ban(id, ctx.guild.id, 0, reason=reason)
+					await ctx.send(f'User with ID ``{id}`` was banned from the server.')
+				except discord.NotFound:
+					await ctx.send(f'I cannot find any user with the ID ``{id}``.', hidden=True)
+				except discord.errors.Forbidden:
+					await ctx.send(f"I do not have permission to do this.", hidden=True)
+	
 
-
-	@cog_ext.cog_subcommand(base="user", name="unban", description="(Admin only) Unban a user")
-	async def _unban(self, ctx: SlashContext, id):
+	@subcommand(base="user",
+				name="unban",
+				description="(Admin only) Unban a user from the server",
+				options=[
+					create_option(name="id",
+						description="Targeted user ID",
+						option_type=3,
+						required=True)
+					]
+				)
+	async def _unban(self, ctx: SlashContext, id: str):
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.ban_members):
-			await ctx.send("You don't have permission to do this.", hidden=True)
+			await ctx.send("You do not have permission to do this.", hidden=True)
 		else:
-			user = await self.bot.fetch_user(id)
-			await ctx.guild.unban(user)
-			embed = discord.Embed(description="Member is unbanned.", color=yellow)
-			await ctx.send(embed=embed)
+			if id == ctx.author.id:
+				await ctx.send("You cannot unban yourself.", hidden=True)
+				return
+			else:
+				try:
+					await self.bot.http.unban(ctx.guild.id, id)
+					await ctx.send(f'User with ID ``{id}`` was unbanned from the server.')
+				except discord.NotFound:
+					await ctx.send(f'I cannot find any user with the ID ``{id}``.', hidden=True)
+				except discord.errors.Forbidden:
+					await ctx.send(f"I do not have permission to do this.", hidden=True)
+	
 
-
-	@cog_ext.cog_slash(name="lock", description="(Admin only) Lock the current channel")
-	async def _lock(self, ctx: SlashContext, channel : discord.TextChannel):
+	@slash(name="lock",
+		description="(Admin only) Lock a channel",
+		options=[
+			create_option(
+				name="channel",
+				description="Targeted channel",
+				option_type=7,
+				required=False)
+			]
+		)
+	async def _lock(self, ctx: SlashContext, channel: str = None):
+		if channel is None:
+			channel = ctx.channel
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.manage_messages):
-			await ctx.send("You don't have permission to do this.", hidden=True)
+			await ctx.send("You do not have permission to do this.", hidden=True)
+			return
 		else:
 			channel = channel or ctx.channel
 			overwrite = channel.overwrites_for(ctx.guild.default_role)
 			overwrite.send_messages = False
-			await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-			await ctx.send(f'``{channel}`` is locked.')
+			try:
+				await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+				await ctx.send(f'``{channel}`` was locked.')
+			except discord.Forbidden:
+				await ctx.send("I do not have permission to do this.", hidden=True)
+				return
 
 
-	@cog_ext.cog_slash(name="unlock", description="(Admin only) Unlock the current channel")
-	async def _unlock(self, ctx: SlashContext, channel : discord.TextChannel):
+	@slash(name="unlock",
+		description="(Admin only) Unlock a channel",
+		options=[
+			create_option(
+				name="channel",
+				description="Targeted channel",
+				option_type=7,
+				required=True)
+			]
+		)
+	async def _unlock(self, ctx: SlashContext, channel: str = None):
+		if channel is None:
+			channel = ctx.channel
+		# Get the user permissions
 		perms = ctx.author.guild_permissions
 		if not (perms.administrator or perms.manage_messages):
-			await ctx.send("You don't have permission to do this.", hidden=True)
+			await ctx.send("You do not have permission to do this.", hidden=True)
+			return
 		else:
 			channel = channel or ctx.channel
 			overwrite = channel.overwrites_for(ctx.guild.default_role)
 			overwrite.send_messages = True
-			message = await ctx.send(f'``{channel}`` is being unlocked.')
-			await asyncio.sleep(2)
-			await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-			await message.edit(content=f"``{channel}`` is unlocked.")
-
-
-	@cog_ext.cog_slash(name="clean", description="(Admin only) Purge an amount of messages (default: 5)")
-	async def _clean(self, ctx: SlashContext, amount = int(5)):
-		perms = ctx.author.guild_permissions
-		if not (perms.administrator or perms.manage_messages):
-			await ctx.send("You don't have permission to do this.", hidden=True)
-		else:
-			if int(amount) >= int(101):
-				await ctx.send("The limit is 100 messages per time.", hidden=True)
-			else:
-				await ctx.channel.purge(limit=int(amount), bulk=True)
-				message0 = await ctx.send(f"{amount} messages have been deleted. This message will be deleted after 3 seconds")
-				await asyncio.sleep(3)
-				await message0.delete()
-
+			try:
+				await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+				await ctx.send(f"``{channel}`` was unlocked.")
+			except discord.Forbidden:
+				await ctx.send("I do not have permission to do this.", hidden=True)
+				return
 
 
 
