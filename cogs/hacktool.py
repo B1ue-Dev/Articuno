@@ -34,9 +34,9 @@ class Hacktool(commands.Cog):
 
 
 	@subcommand(base="base64",
-                name="encode",
-                description="Encode a string (base64)"
-                )
+				name="encode",
+				description="Encode a string (base64)"
+				)
 	async def encode(self, ctx: commands.Context, message: str):
 		string_message = message
 		string_bytes = string_message.encode("utf-8")
@@ -46,9 +46,9 @@ class Hacktool(commands.Cog):
 
 
 	@subcommand(base="base64",
-                name="decode",
-                description="Decode a string (base64)"
-                )
+				name="decode",
+				description="Decode a string (base64)"
+				)
 	async def decode(self, ctx: commands.Context, message: str):
 		string_message = message
 		string_bytes = string_message.encode("utf-8")
