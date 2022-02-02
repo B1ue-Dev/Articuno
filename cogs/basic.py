@@ -6,7 +6,7 @@ from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.context import InteractionContext
 from discord_slash.utils.manage_commands import create_option, create_choice
 import aiohttp, requests
-import utils, random, json
+import random, json
 import platform, psutil
 from jishaku.features.baseclass import Feature as jsk
 
@@ -35,6 +35,11 @@ class Basic(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
+
+	def natural_size(size_in_bytes: int):
+		units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
+		power = int(math.log(size_in_bytes, 1024))
+		return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
 	@slash(name="ping",
@@ -79,7 +84,7 @@ class Basic(commands.Cog):
 		embed.add_field(name="Python", value=python)
 		embed.add_field(name="Uptime", value=f"<t:{jsk.load_time.timestamp():.0f}:R>") # Uptime
 		try:
-			embed.add_field(name="Memory",value=f"{utils.natural_size(mem.rss)}\n{utils.natural_size(mem.vms)}")
+			embed.add_field(name="Memory",value=f"{natural_size(mem.rss)}\n{natural_size(mem.vms)}")
 			embed.add_field(name="CPU", value=f"{cpu}%\n{thread_count} threads")
 		except:
 			pass
