@@ -3,4 +3,4 @@ A small and fun Discord Bot that is written in Python and discord-interactions (
 
 ![banner.png](./articuno_banner.png)
 
-> This is a full rewrite from scratch, using [nextcord](https://github.com/nextcord/nextcord).
+> This is a full rewrite from scratch, using [interactions.py](https://github.com/interactions-py/library).
