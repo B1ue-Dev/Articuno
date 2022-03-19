@@ -15,6 +15,8 @@ bot = Client(token=bot_token,
 )
 
 
+bot.load('Cogs.basic')
+
 
 @bot.event
 async def on_ready():
