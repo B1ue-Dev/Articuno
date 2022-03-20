@@ -1,12 +1,8 @@
 import interactions
 from interactions import Intents, Client
-import json, asyncio
+import os
+bot_token = os.environ['TOKEN']
 
-
-
-with open('./data/config.json') as bot_data:
-	data = json.load(bot_data)
-	bot_token = data['TOKEN']
 
 
 bot = Client(token=bot_token,
