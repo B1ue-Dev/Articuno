@@ -1,7 +1,9 @@
 import interactions
 from interactions import Intents, Client
 import os
-bot_token = os.environ['TOKEN']
+from dotenv import load_dotenv
+load_dotenv()
+bot_token = os.getenv("TOKEN")
 
 
 

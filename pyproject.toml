@@ -7,6 +7,7 @@ authors = ["JimmyBlue <<>>"]
 [tool.poetry.dependencies]
 python = "^3.8.12"
 discord-py-interactions = "4.1.0"
+python-dotenv = "0.19.2"
 
 
 [tool.poetry.dev-dependencies]
