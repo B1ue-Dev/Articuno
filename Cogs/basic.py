@@ -29,7 +29,7 @@ class Basic(interactions.Extension):
 	
 
 	@command(
-		name="stat",
+		name="stats",
 		description="Get Articuno's stats"
 	)
 	async def stat(self, ctx: CommandContext):
