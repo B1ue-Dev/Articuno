@@ -14,3 +14,5 @@ Instruction:
 - Put your bot's token in ``.env`` file after ``TOKEN=``.
 - Run ``python main.py``
 
+# Denying requests from particular servers
+- Put the guild ID in ``./data/servers.json``.
