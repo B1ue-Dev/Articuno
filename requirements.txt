@@ -1,0 +1,9 @@
+discord.py==1.7.3
+discord-py-interactions==3.0.2
+aiohttp
+psutil
+requests
+jishaku==2.0.0
+google-api-python-client
+googletrans==3.1.0a0
+python-dotenv==0.20.0
