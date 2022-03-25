@@ -1,2 +1,2 @@
 # Articuno
-This is for Articuno BOT on Discord
+Simply get out of here, oh wait, you can't even view this place. How funny!
