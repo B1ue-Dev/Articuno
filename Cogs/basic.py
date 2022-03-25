@@ -280,7 +280,7 @@ class Basic(commands.Cog):
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
-
+	"""
 	# An AI system
 	@commands.Cog.listener()
 	async def on_message(self, message): 
@@ -314,6 +314,7 @@ class Basic(commands.Cog):
 						reply = data['response']
 						await aiSession.close()
 						await message.channel.send(reply)
+	"""
 
 
 
