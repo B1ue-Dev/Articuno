@@ -13,7 +13,7 @@ load_dotenv()
 guild_ids = os.getenv("GUILD_IDS")
 with open ("./data/config.json") as f:
 	data = json.load(f)
-	blocked_guild = int(data['BLOCKED_GUILD'])
+	blocked_guild = data['BLOCKED_GUILD']
 
 
 # Excuse me but I am lazy
@@ -59,7 +59,7 @@ class Admin(commands.Cog):
 	async def _kick(self, ctx: SlashContext, user: str, reason: str = None):
 		# Get the message
 		channel_message = f"{user} was kicked from the server.\nReason: {reason}"
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id)) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
@@ -97,7 +97,7 @@ class Admin(commands.Cog):
 	async def _ban(self, ctx: SlashContext, user: str, reason: str = None):
 		# Get the message
 		channel_message = f"{user} was banned from the server.\nReason: {reason}"
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id)) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
@@ -133,7 +133,7 @@ class Admin(commands.Cog):
 					]
 				)
 	async def _hackban(self, ctx: SlashContext, id: str, reason: str = None):
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
@@ -146,7 +146,7 @@ class Admin(commands.Cog):
 					return
 				else:
 					try:
-						await self.bot.http.ban(id, ctx.guild.id, 0, reason=reason)
+						await self.bot.http.ban(id, int(ctx.guild.id), 0, reason=reason)
 						await ctx.send(f'User with ID ``{id}`` was banned from the server.')
 					except discord.NotFound:
 						await ctx.send(f'I cannot find any user with the ID ``{id}``.', hidden=True)
@@ -165,7 +165,7 @@ class Admin(commands.Cog):
 					]
 				)
 	async def _unban(self, ctx: SlashContext, id: str):
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
@@ -188,7 +188,7 @@ class Admin(commands.Cog):
 
 	@subcommand(base="user",
 				name="mute",
-				guild_ids=859030372783751168,
+				guild_ids=[859030372783751168],
 				description="(Admin only) Mute a user from the server",
 				options=[
 					create_option(name="user",
@@ -221,7 +221,7 @@ class Admin(commands.Cog):
 
 	@subcommand(base="user",
 				name="unmute",
-				guild_ids=859030372783751168,
+				guild_ids=[859030372783751168],
 				description="(Admin only) Unmute a user from the server",
 				options=[
 					create_option(name="user",
@@ -259,7 +259,7 @@ class Admin(commands.Cog):
 			]
 		)
 	async def _lock(self, ctx: SlashContext, channel: str = None):
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			if channel is None:
@@ -292,7 +292,7 @@ class Admin(commands.Cog):
 			]
 		)
 	async def _unlock(self, ctx: SlashContext, channel: str = None):
-		if ctx.guild.id in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			if channel is None:
