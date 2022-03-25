@@ -677,6 +677,9 @@ class Fun(commands.Cog):
 							   cx=google_cse,
 							   searchType="image").execute()
 		url = result["items"][ran]["link"]
+		title = result["items"][ran]["title"]
+		displayLink = result["items"][ran]["displayLink"]
+		contextLink = result["items"][ran]["image"]["contextLink"]
 		# Buttons
 		buttons = [
 			create_button(style=ButtonStyle.blurple,
@@ -702,6 +705,7 @@ class Fun(commands.Cog):
 			icon_url=
 			"https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
 			text=f"Google Search • Page {ran}/9")
+		embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 		msg = await ctx.send(embed=embed, components=action_row)
 		while True:
 			try:
@@ -716,33 +720,45 @@ class Fun(commands.Cog):
 								ran = int(0)
 							else:
 								ran = ran - 1
+							title = result["items"][ran]["title"]
+							displayLink = result["items"][ran]["displayLink"]
+							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
 								"https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
 								text=f"Google Search • Page {ran}/9")
+							embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 							await action.edit_origin(embed=embed)
 						elif action.custom_id == "right":
 							if ran == 9:
 								ran = int(9)
 							else:
 								ran = ran + 1
+							title = result["items"][ran]["title"]
+							displayLink = result["items"][ran]["displayLink"]
+							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
 								"https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
 								text=f"Google Search • Page {ran}/9")
+							embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 							await action.edit_origin(embed=embed)
 						elif action.custom_id == "random":
 							ran = random.randint(0, 9)
+							title = result["items"][ran]["title"]
+							displayLink = result["items"][ran]["displayLink"]
+							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
 								"https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
 								text=f"Google Search • Page {ran}/9")
+							embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 							await action.edit_origin(embed=embed)
 						elif action.custom_id == "page":
 
@@ -758,9 +774,13 @@ class Fun(commands.Cog):
 							if ran1.isdigit() is True:
 								if 0 <= int(ran1) <= 9:
 									ran = int(ran1)
+									title = result["items"][ran]["title"]
+									displayLink = result["items"][ran]["displayLink"]
+									contextLink = result["items"][ran]["image"]["contextLink"]
 									url = result["items"][ran]["link"]
 									embed.set_image(url=url)
 									embed.set_footer(text=f"Page {ran}/9")
+									embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 									await msg1.delete()
 									await msg.edit(embed=embed)
 								else:
