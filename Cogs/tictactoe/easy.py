@@ -1,4 +1,4 @@
-import asyncio, random, os
+import asyncio, random, os, json
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, ComponentContext
 from discord_slash.cog_ext import cog_component
@@ -8,7 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 guild_ids = os.getenv("GUILD_IDS")
-
+with open ("./data/config.json") as f:
+	data = json.load(f)
+	blocked_guild = data['BLOCKED_GUILD']
 
 def create_board() -> list:
 	"""Creates the tic tac toe board"""
@@ -32,9 +34,12 @@ class Easy(commands.Cog):
 		name="easy",
 		description="Start a game of tic tac toe (easy mode)")
 	async def ttt_start(self, ctx: SlashContext):
-		await ctx.send(
-			content=f"{ctx.author.mention}'s tic tac toe game (easy mode)", components=create_board()
-		)
+		if ctx.guild.id in blocked_guild:
+			return
+		else:
+			await ctx.send(
+				content=f"{ctx.author.mention}'s tic tac toe game (easy mode)", components=create_board()
+			)
 
 	def determine_board_state(self, components: list):
 		board = []

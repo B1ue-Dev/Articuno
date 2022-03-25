@@ -1,4 +1,4 @@
-import asyncio, copy, enum, math, typing, functools, contextvars, os
+import asyncio, copy, enum, math, typing, functools, contextvars, os, json
 from discord.ext import commands
 from discord_slash import cog_ext, SlashContext, ComponentContext
 from discord_slash.cog_ext import cog_component
@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 guild_ids = os.getenv("GUILD_IDS")
+with open ("./data/config.json") as f:
+	data = json.load(f)
+	blocked_guild = data['BLOCKED_GUILD']
 
 class GameState(enum.IntEnum):
 	empty = 0
@@ -134,10 +137,13 @@ class Hard(commands.Cog):
 		name="hard",
 		description="Start a game of tic tac toe (hard mode)")
 	async def ttt_start(self, ctx: SlashContext):
-		await ctx.send(
-			content=f"{ctx.author.mention}'s tic tac toe game (hard mode)",
-			components=render_board(copy.deepcopy(BoardTemplate)),
-		)
+		if ctx.guild.id in blocked_guild:
+			return
+		else:
+			await ctx.send(
+				content=f"{ctx.author.mention}'s tic tac toe game (hard mode)",
+				components=render_board(copy.deepcopy(BoardTemplate)),
+			)
 
 	def determine_board_state(self, components: list):
 		board = []
