@@ -59,7 +59,7 @@ class Admin(commands.Cog):
 	async def _kick(self, ctx: SlashContext, user: str, reason: str = None):
 		# Get the message
 		channel_message = f"{user} was kicked from the server.\nReason: {reason}"
-		if int(ctx.guild.id)) in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
@@ -97,7 +97,7 @@ class Admin(commands.Cog):
 	async def _ban(self, ctx: SlashContext, user: str, reason: str = None):
 		# Get the message
 		channel_message = f"{user} was banned from the server.\nReason: {reason}"
-		if int(ctx.guild.id)) in blocked_guild:
+		if int(ctx.guild.id) in blocked_guild:
 			return
 		else:
 			# Get the user permissions
