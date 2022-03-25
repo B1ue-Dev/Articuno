@@ -13,7 +13,7 @@ load_dotenv()
 guild_ids = os.getenv("GUILD_IDS")
 with open ("./data/config.json") as f:
 	data = json.load(f)
-	blocked_guild = data['BLOCKED_GUILD']
+	blocked_guild = int(data['BLOCKED_GUILD'])
 
 
 # Excuse me but I am lazy
