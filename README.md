@@ -1,4 +1,4 @@
-# Articuno (discord-interactions) [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge)
+# Articuno (interactions.py) [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge)
 A small and fun Discord Bot that is written in interactions.py, using Python.
 
 ![banner.png](./articuno_banner.png)
