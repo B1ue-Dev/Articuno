@@ -724,6 +724,8 @@ class Fun(commands.Cog):
 							displayLink = result["items"][ran]["displayLink"]
 							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
+							embed = discord.Embed(title=f"Image for: {search}",
+									color=random.randint(0, 0xFFFFFF))
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
@@ -740,6 +742,8 @@ class Fun(commands.Cog):
 							displayLink = result["items"][ran]["displayLink"]
 							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
+							embed = discord.Embed(title=f"Image for: {search}",
+									color=random.randint(0, 0xFFFFFF))
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
@@ -753,6 +757,8 @@ class Fun(commands.Cog):
 							displayLink = result["items"][ran]["displayLink"]
 							contextLink = result["items"][ran]["image"]["contextLink"]
 							url = result["items"][ran]["link"]
+							embed = discord.Embed(title=f"Image for: {search}",
+									color=random.randint(0, 0xFFFFFF))	
 							embed.set_image(url=url)
 							embed.set_footer(
 								icon_url=
@@ -778,6 +784,8 @@ class Fun(commands.Cog):
 									displayLink = result["items"][ran]["displayLink"]
 									contextLink = result["items"][ran]["image"]["contextLink"]
 									url = result["items"][ran]["link"]
+									embed = discord.Embed(title=f"Image for: {search}",
+											color=random.randint(0, 0xFFFFFF))
 									embed.set_image(url=url)
 									embed.set_footer(text=f"Page {ran}/9")
 									embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
