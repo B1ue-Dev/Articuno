@@ -34,7 +34,7 @@ class Error(commands.Cog):
 		embed.add_field(name="Error",value=f'```py\n{type(error).__name__}: {error}\n```')
 		await ctx.send(embed=embed, hidden=True)
 
-		errorc2 = await self.bot.fetch_channel(867039086387789874)
+		errorc2 = await self.bot.fetch_channel(862636687226044436)
 		try:
 			error=discord.Embed(title="An error occurred.",
 					description=f"Caused by **{ctx.command}**\n__Author:__ {ctx.author} `{ctx.author.id}`\n__Guild:__ {ctx.guild.name} `{ctx.guild.id}`\n__Occured:__ <t:{error_time.timestamp():.0f}:R>",color=discord.Color.red())
@@ -79,7 +79,7 @@ class Error(commands.Cog):
 		except:
 			pass
 
-		errorc2 = await self.bot.fetch_channel(867039086387789874)
+		errorc2 = await self.bot.fetch_channel(862636687226044436)
 		try:
 			error=discord.Embed(title="An error occurred.",
 					description=f"Caused by **{ctx.command}**\n__Author:__ {ctx.author} `{ctx.author.id}`\n__Guild:__ {ctx.guild.name} `{ctx.guild.id}`\n__Occured:__ <t:{error_time.timestamp():.0f}:R>",color=discord.Color.red())
@@ -128,7 +128,7 @@ class Error(commands.Cog):
 			embed.add_field(name="Error",value=f'```py\n{type(error).__name__}: {error}\n```')
 			await ctx.send(embed=embed, hidden=True)
 
-			errorc2 = await self.bot.fetch_channel(867039086387789874)
+			errorc2 = await self.bot.fetch_channel(862636687226044436)
 			try:
 				error=discord.Embed(title="An error occurred.",
 						description=f"Caused by **{ctx.command}**\n__Author:__ {ctx.author} `{ctx.author.id}`\n__Guild:__ {ctx.guild.name} `{ctx.guild.id}`\n__Occured:__ <t:{error_time.timestamp():.0f}:R>",color=discord.Color.red())
@@ -166,11 +166,7 @@ class Error(commands.Cog):
 		
 		# NotOwner
 		elif isinstance(error, commands.NotOwner):
-			guild = await self.bot.get_guild(833886728259239968)
-			if ctx.guild.id == guild:
-				await ctx.send("You do not look like Blue. This command is only for him.")
-			else:
-				await ctx.send(f"No!")
+			await ctx.send(f"No!")
 
 
 
