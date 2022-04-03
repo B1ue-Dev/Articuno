@@ -107,7 +107,7 @@ class Basic(commands.Cog):
 		description="Invite Articuno to your server"
 		)
 	async def _invite(self, ctx: SlashContext):
-		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644972474366&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/MCTppQWZcA", color=blue)
+		embed = discord.Embed(title=f"Invite me to your server", description=f"[Invite](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644972474366&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/SPd5RNhwfY", color=blue)
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
