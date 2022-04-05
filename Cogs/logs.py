@@ -1,4 +1,3 @@
-from statistics import median
 import discord
 from discord.ext import commands
 from discord.utils import find
@@ -39,7 +38,6 @@ class Logs(commands.Cog):
 		log = discord.utils.get(guild.channels, name="logs")
 		# Welcome role
 		memberRole1 = discord.utils.get(guild.roles, name="👤 Member")
-		#memberRole2 = discord.utils.get(guild.roles, name="Simp")
 		# Embed message in welcome channel
 		join = discord.Embed(color=random.randint(0, 0xFFFFFF))
 		join.set_thumbnail(url=member.avatar_url)
@@ -138,7 +136,7 @@ class Logs(commands.Cog):
 		try:
 			await log.send(embed=embed)
 		except discord.errors.Forbidden:
-			return # Bot does not have enough permission (plus, this is meant to work with only Pokemon Hangout and mine)
+			return
 
 
 	# Real work start here
@@ -147,7 +145,6 @@ class Logs(commands.Cog):
 		general = find(lambda x: x.name == ['general', 'bot', 'chat'],  guild.text_channels)
 		if general and general.permissions_for(guild.me).send_messages:
 			await general.send(f'Hello there, {format(guild.name)}. Thanks for inviting me to your server.\n\nUse **$help** for a list of available commands. Alternatively, you can use "/" and choose Articuno to see the list.')
-		# Development channel (Pokemon Hangout)
 		now = datetime.now()
 		current_time = now.strftime("%B %d, %Y\n%H:%M:%S")
 		# Guild data
@@ -156,7 +153,7 @@ class Logs(commands.Cog):
 		id = guild.id
 		owner = guild.owner
 		# Format the message to be sent
-		development2 = await self.bot.fetch_channel(str(906232173684744222))
+		development2 = await self.bot.fetch_channel(str(957090401418899526))
 		embed2 = discord.Embed(title=f"Joined {name}", color=blue)
 		embed2.set_thumbnail(url=guild.icon_url)
 		embed2.add_field(name="Member", value=member)
@@ -171,7 +168,7 @@ class Logs(commands.Cog):
 	async def on_guild_remove(self, guild):
 		now = datetime.now()
 		current_time = now.strftime("%B %d, %Y\n%H:%M:%S")
-		development2 = await self.bot.fetch_channel(str(906232173684744222))
+		development2 = await self.bot.fetch_channel(str(957090401418899526))
 		embed2 = discord.Embed(title=f"Left {guild.name}", color=blue)
 		embed2.set_thumbnail(url=guild.icon_url)
 		embed2.add_field(name=f"Server ID", value=guild.id)

@@ -322,16 +322,15 @@ class Fun(commands.Cog):
 		],
 	)
 	async def _tweet(self, ctx: SlashContext, user: str, comment: str):
-		number1 = random.randint(0, 100000)
-		number2 = random.randint(0, 100000)
-		number3 = random.randint(0, 100000)
+		number1 = random.randint(0, 100)
 		await ctx.defer()
-		name = len(user.name)
-		if name > 15:
+		if len(user.name) > 15:
 			name = user.name[:12] + "..."
+		else:
+			name = user.name
 		async with aiohttp.ClientSession() as session:
 			async with session.get(
-					f'https://some-random-api.ml/canvas/tweet/?avatar={user.avatar_url_as(format="png", size=1024)}&username={name}&displayname={name}&comment={comment}&replies={number1}&retweet{number2}=&likes{number3}&key={key}'
+					f'https://some-random-api.ml/canvas/tweet/?avatar={user.avatar_url_as(format="png", size=1024)}&username={name}&displayname={name}&comment={comment}&replies={number1}&theme=dark'
 			) as trigImg:
 				imageData = io.BytesIO(await trigImg.read())
 				await session.close()
@@ -398,21 +397,6 @@ class Fun(commands.Cog):
 		embed.add_field(name=f"Gay measure tool",
 						value=f"**{user}** is {number}% gay.")
 		await ctx.send(embed=embed)
-
-	@slash(
-		name="ascii",
-		description="Ascii of a short text (under 10)",
-	)
-	async def _ascii(self, ctx: SlashContext, text: str):
-		text_format = text.lower()
-		if len(text_format) > 10:
-			await ctx.send("Please send something shorter (under 10).",
-						   hidden=True)
-		else:
-			url = "http://artii.herokuapp.com/make?{}".format(
-				urllib.parseencode({'text': text_format}))
-			response = await utils.async_text(url)
-			await ctx.send("```Markup\n{}```".format(response))
 
 	@slash(name="ai",
 		   description="Chat with Articuno",

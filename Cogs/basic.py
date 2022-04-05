@@ -5,10 +5,12 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.context import InteractionContext
 from discord_slash.utils.manage_commands import create_option, create_choice
-import aiohttp, requests
-import utils, random, json
-import platform, psutil
+import aiohttp, requests, utils, random, json, os, platform, psutil
 from jishaku.features.baseclass import Feature as jsk
+from dotenv import load_dotenv
+load_dotenv()
+
+key = os.getenv("APIKEY")
 
 
 # Excuse me but I am lazy
@@ -280,14 +282,11 @@ class Basic(commands.Cog):
 		embed.set_footer(icon_url=ctx.author.avatar_url, text=f"Requested by {ctx.author}")
 		await ctx.send(embed=embed)
 
-	"""
+
 	# An AI system
 	@commands.Cog.listener()
 	async def on_message(self, message): 
-		with open("./data/config.json", "r") as f:
-			data = json.load(f)
-			key = data['APIKEY']
-		with open("./data/ai.json", "r") as r:
+		with open("./data/config.json", "r") as r:
 			data = json.load(r)
 			channel = data['AI_CHANNEL']
 
@@ -314,7 +313,7 @@ class Basic(commands.Cog):
 						reply = data['response']
 						await aiSession.close()
 						await message.channel.send(reply)
-	"""
+
 
 
 
