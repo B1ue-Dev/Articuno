@@ -1,4 +1,4 @@
-import asyncio, aiohttp, json, math
+import asyncio, aiohttp, json, math, io
 from datetime import datetime
 
 def setup(bot):
@@ -32,6 +32,16 @@ async def async_text(url, headers = None):
 		return data.decode("utf-8", "replace")
 	else:
 		return data
+
+async def get_response(url: str = None, params: dict = None):
+	async with aiohttp.ClientSession() as session:
+		async with session.get(url, params=params) as resp:
+			if resp.status == 200:
+				if resp.content_type == "application/json":
+					return await resp.json()
+				elif resp.content_type == "image/png":
+					return io.BytesIO(await resp.read())
+		session.close()
 
 
 def natural_size(size_in_bytes: int):
