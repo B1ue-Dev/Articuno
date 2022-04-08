@@ -11,7 +11,7 @@ scope = int(os.getenv("SCOPE"))
 
 
 
-bot = interactions.Client(token=bot_token, intents=interactions.Intents.DEFAULT)
+bot = interactions.Client(token=bot_token, intents=interactions.Intents.DEFAULT, disable_sync=True)
 #bot.load('Cogs.admin')
 #bot.load('Cogs.basic')
 #bot.load('Cogs.hacktool')

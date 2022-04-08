@@ -1,18 +1,29 @@
 import interactions
-from interactions import *
 from interactions import CommandContext
 from interactions import extension_command as command
 from interactions.ext import wait_for
-import json, random, asyncio, os, requests
+import json, random, asyncio, os, requests, io, aiohttp, datetime
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from utils.permission import Permissions, has_permission
 
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
+apikey = os.getenv("APIKEY")
 google_cloud = os.getenv("GOOGLE_CLOUD")
 google_cse = os.getenv("GOOGLE_CSE")
 
+
+
+async def get_response(url: str = None, params: dict = None):
+	async with aiohttp.ClientSession() as session:
+		async with session.get(url, params=params) as resp:
+			if resp.status == 200:
+				if resp.content_type == "application/json":
+					return await resp.json()
+				elif resp.content_type == "image/png":
+					return io.BytesIO(await resp.read())
+		session.close()
 
 
 
@@ -27,10 +38,9 @@ class Fun(interactions.Extension):
 		scope=scope
 	)
 	async def coffee(self, ctx: CommandContext):
-		response = requests.get('https://coffee.alexflipnote.dev/random.json')
-		data = response.json()
-		file = data['file']
-		response.close()
+		url = "https://coffee.alexflipnote.dev/random.json"
+		resp = await get_response(url)
+		file = resp['file']
 		image = interactions.EmbedImageStruct(url=file)._json
 		embed = interactions.Embed(title="Coffee ☕", color=0xc4771d, image=image)
 		await ctx.send(embeds=embed)
@@ -183,7 +193,28 @@ class Fun(interactions.Extension):
 		msg: CommandContext = await ctx.send("I am flipping the coin...")
 		await asyncio.sleep(1.5)
 		await msg.edit("The coin landed on **{}**.".format(coin))
-	
+
+
+	@command(
+		name="gay",
+		description="Calculate the gay percentage of a user",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=False,
+			)
+		]
+	)
+	async def gay(self, ctx: CommandContext,
+		user: interactions.Member = None,
+	):
+		if not user:
+			user = ctx.author
+
+
 
 	@command(
 		name="joke",
@@ -191,10 +222,9 @@ class Fun(interactions.Extension):
 		scope=scope,
 	)
 	async def joke(self, ctx: CommandContext):
-		response = requests.get('https://some-random-api.ml/joke')
-		data = response.json()
-		response.close()
-		embed = Embed(description=data['joke'], color=random.randint(0, 0xFFFFFF))
+		url = "https://some-random-api.ml/joke"
+		resp = await get_response(url)
+		embed = interactions.Embed(description=resp['joke'], color=random.randint(0, 0xFFFFFF))
 		await ctx.send(embeds=embed)
 
 
@@ -204,12 +234,11 @@ class Fun(interactions.Extension):
 		scope=scope,
 	)
 	async def quote(self, ctx: CommandContext):
-		response = requests.get('https://api.quotable.io/random')
-		data = response.json()
-		author = data['author']
-		content = data['content']
-		dateAdded = data['dateAdded']
-		response.close()
+		url = 'https://api.quotable.io/random'
+		resp = await get_response(url)
+		author = resp['author']
+		content = resp['content']
+		dateAdded = resp['dateAdded']
 		footer = interactions.EmbedFooter(text=f"Added on {dateAdded}")
 		embed = interactions.Embed(title=f"From {author}", description=content, color=random.randint(0, 0xFFFFFF), footer=footer)
 		await ctx.send(embeds=embed)
@@ -232,20 +261,18 @@ class Fun(interactions.Extension):
 		page: int = None
 	):
 		if page is None:
-			response = requests.get('https://xkcd.com/info.0.json')
-			data = response.json()
-			newest = data['num']
+			url = "https://xkcd.com/info.0.json"
+			resp = await get_response(url)
+			newest = resp['num']
 			page = random.randint(1, newest)
-			response.close()
-		response = requests.get(f'https://xkcd.com/{page}/info.0.json')
-		data = response.json()
-		month = data['month']
-		year = data['year']
-		day = data['day']
-		title = data['title']
-		alt = data['alt']
-		img = data['img']
-		response.close()
+		url = "https://xkcd.com/{page}/info.0.json"
+		resp = await get_response(url.format(page=page))
+		month = resp['month']
+		year = resp['year']
+		day = resp['day']
+		title = resp['title']
+		alt = resp['alt']
+		img = resp['img']
 		footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
 		image = interactions.EmbedImageStruct(url=img)._json
 		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")._json
@@ -270,33 +297,220 @@ class Fun(interactions.Extension):
 		user: interactions.User = None
 	):
 		if not user:
-			user = ctx.author
+			user = ctx.author.user
 		else:
-			user = user
-		guild = interactions.Guild(**await self.bot._http.get_guild(ctx.guild_id), _client=self.bot._http)
-		bot = await guild.get_member(member_id=self.bot.me.id)
-		role = await guild.get_role(role_id=bot.roles[0])
-		bot_perm = role.permissions
-		
-		if not (
-			has_permission(int(bot_perm), Permissions.EMBED_LINKS) or
-			has_permission(int(bot_perm), Permissions.ADMINISTRATOR)
-		):
-			return
-		else:
-			response = 'https://some-random-api.ml/canvas/horny?avatar={}'.format(user.avatar_url)
-			await ctx.send(f"{response}")
+			user = user.user
+		avatar_url = user.avatar_url
+		await ctx.send("Processing...", ephemeral=True)
+		channel = await ctx.get_channel()
+		url = "https://some-random-api.ml/canvas/horny"
+		params = {
+			"avatar": avatar_url,
+		}
+		resp = await get_response(url, params)
+		img = interactions.File(filename="image.png", fp=resp, description="Image")
+		await channel.send(files=img)
 
 
 	@command(
 		name="simpcard",
 		description="Send a simpcard",
 		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=False
+			)
+		]
 	)
-		
-		
+	async def simpcard(self, ctx: CommandContext,
+		user: interactions.Member = None
+	):
+		if not user:
+			user = ctx.author.user
+		else:
+			user = user.user
+		avatar_url = user.avatar_url
+		await ctx.send("Processing...", ephemeral=True)
+		channel = await ctx.get_channel()
+		async with aiohttp.ClientSession() as session:
+			url = "https://some-random-api.ml/canvas/simpcard"
+			params = {
+				"avatar": avatar_url
+			}
+			async with session.get(url, params=params) as resp:
+				imageData = io.BytesIO(await resp.read())
+				await session.close()
+				img = interactions.File(filename="image.png", fp=imageData, description="Image")
+				await channel.send(files=img)
 
 
+	@command(
+		name="tweet",
+		description="Send a Twitter tweet",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=True,
+			),
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="comment",
+				description="Comment",
+				required=True,
+			)
+		]
+	)
+	async def tweet(self, ctx: CommandContext,
+		user: interactions.Member,
+		comment: str,
+	):
+		await ctx.send("Processing...", ephemeral=True)
+		channel = await ctx.get_channel()
+		if len(user.user.username) >= 15:
+			username = user.user.username[:12] + "..."
+		else:
+			username = user.user.username
+		if user.nick is not None:
+			if len(user.nick) >= 32:
+				nick = user.nick[:29] + "..."
+			else:
+				nick = user.nick
+		else:
+			nick = username
+		async with aiohttp.ClientSession() as session:
+			url = "https://some-random-api.ml/canvas/tweet"
+			params = {
+				"avatar": user.user.avatar_url,
+				"username": username,
+				"displayname": nick,
+				"comment": comment,
+				"theme": "dark",
+			}
+			async with session.get(url, params=params) as resp:
+				imageData = io.BytesIO(await resp.read())
+				await session.close()
+				img = interactions.File(filename="image.png", fp=imageData, description="Image")
+				await channel.send(files=img)
+
+	
+
+	@command(
+		name="youtube",
+		description="Send a YouTube comment",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=True,
+			),
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="comment",
+				description="Comment",
+				required=True,
+			)
+		]
+	)
+	async def youtube(self, ctx: CommandContext,
+		user: interactions.Member,
+		comment: str,
+	):
+		await ctx.send("Processing...", ephemeral=True)
+		channel = await ctx.get_channel()
+		if len(user.user.username) >= 15:
+			username = user.user.username[:12] + "..."
+		else:
+			username = user.user.username
+		async with aiohttp.ClientSession() as session:
+			url = "https://some-random-api.ml/canvas/youtube-comment"
+			params = {
+				"avatar": user.user.avatar_url,
+				"username": username,
+				"comment": comment,
+			}
+			async with session.get(url, params=params) as resp:
+				imageData = io.BytesIO(await resp.read())
+				await session.close()
+				img = interactions.File(filename="image.png", fp=imageData, description="Image")
+				await channel.send(files=img)
+
+
+	@command(
+		name="amogus",
+		description="Amogus",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=True,
+			),
+		]
+	)
+	async def amogus(self, ctx: CommandContext,
+		user: interactions.Member,
+	):
+		await ctx.send("Processing...", ephemeral=True)
+		choice = 'true', 'false'
+		imposter = random.choice(choice)
+		channel = await ctx.get_channel()
+		if len(user.user.username) >= 10:
+			username = user.user.username[:7] + "..."
+		else:
+			username = user.user.username
+		async with aiohttp.ClientSession() as session:
+			url = "https://some-random-api.ml/premium/amongus"
+			params = {
+				"avatar": user.user.avatar_url,
+				"username": username,
+				"key": apikey,
+				"imposter": imposter,
+			}
+			async with session.get(url, params=params) as resp:
+				imageData = io.BytesIO(await resp.read())
+				await session.close()
+				img = interactions.File(filename="image.gif", fp=imageData, description="Image")
+				await channel.send(files=img)
+	
+
+	@command(
+		name="pet",
+		description="Pet someone",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="Targeted user",
+				required=True,
+			),
+		]
+	)
+	async def pet(self, ctx: CommandContext,
+		user: interactions.Member,
+	):
+		await ctx.send("Processing...", ephemeral=True)
+		channel = await ctx.get_channel()
+		async with aiohttp.ClientSession() as session:
+			url = "https://some-random-api.ml/premium/petpet"
+			params = {
+				"avatar": user.user.avatar_url,
+				"key": apikey,
+			}
+			async with session.get(url, params=params) as resp:
+				imageData = io.BytesIO(await resp.read())
+				await session.close()
+				img = interactions.File(filename="image.gif", fp=imageData, description="Image")
+				await channel.send(files=img)
 
 
 	@command(
@@ -326,7 +540,7 @@ class Fun(interactions.Extension):
 		displayLink = result["items"][ran]["displayLink"]
 		contextLink = result["items"][ran]["image"]["contextLink"]
 
-		embed = Embed(title=f"Image for: {query}", color=0x000000)
+		embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
 		embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
 		embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 		embed.set_image(url=image_link)
@@ -350,34 +564,37 @@ class Fun(interactions.Extension):
 		while True:
 			try:
 				res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
-				if res.custom_id == "next":
-					ran += 1
-					if ran < 9:
-						ran = ran
-					image_link = result["items"][ran]["link"]
-					title = result["items"][ran]["title"]
-					displayLink = result["items"][ran]["displayLink"]
-					contextLink = result["items"][ran]["image"]["contextLink"]
+				if res.author.id == ctx.author.id:
+					if res.custom_id == "next":
+						ran += 1
+						if ran < 9:
+							ran = ran
+						image_link = result["items"][ran]["link"]
+						title = result["items"][ran]["title"]
+						displayLink = result["items"][ran]["displayLink"]
+						contextLink = result["items"][ran]["image"]["contextLink"]
 
-					embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
-					embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
-					embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
-					embed.set_image(url=image_link)
-					await res.edit(embeds=embed)
-				elif res.custom_id == "previous":
-					ran -= 1
-					if ran < 0:
-						ran = 0
-					image_link = result["items"][ran]["link"]
-					title = result["items"][ran]["title"]
-					displayLink = result["items"][ran]["displayLink"]
-					contextLink = result["items"][ran]["image"]["contextLink"]
+						embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+						embed.set_image(url=image_link)
+						await res.edit(embeds=embed)
+					elif res.custom_id == "previous":
+						ran -= 1
+						if ran < 0:
+							ran = 0
+						image_link = result["items"][ran]["link"]
+						title = result["items"][ran]["title"]
+						displayLink = result["items"][ran]["displayLink"]
+						contextLink = result["items"][ran]["image"]["contextLink"]
 
-					embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
-					embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
-					embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
-					embed.set_image(url=image_link)
-					await res.edit(embeds=embed)
+						embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+						embed.set_image(url=image_link)
+						await res.edit(embeds=embed)
+				else:
+					await res.edit()
 			except asyncio.TimeoutError:
 				await msg.edit(components=[])
 				break
