@@ -8,15 +8,18 @@ scope = int(os.getenv("SCOPE"))
 
 
 
-
-
-
-bot = interactions.Client(token=bot_token, intents=interactions.Intents.DEFAULT, disable_sync=True)
+bot = interactions.Client(
+	token=bot_token,
+	intents=interactions.Intents.DEFAULT | interactions.Intents.PRIVILEGED,
+	disable_sync=True
+)
 #bot.load('Cogs.admin')
 #bot.load('Cogs.basic')
+#bot.load('Cogs.fun')
 #bot.load('Cogs.hacktool')
-bot.load('Cogs.fun')
+#bot.load('Cogs.logs')
 #bot.load('Cogs.menus')
+bot.load('Cogs.tag')
 #bot.load('Cogs.test')
 
 
@@ -26,7 +29,7 @@ async def on_ready():
 	websocket = f"{bot.latency * 1:.0f}"
 	print('Ready!')
 	print(f'Latency: {websocket}ms')
-
+	message = bot._http.get_message
 """
 @bot.command(name="test", description="Why?", scope=scope)
 async def test(ctx: interactions.CommandContext):

@@ -14,14 +14,6 @@ class Logs(interactions.Extension):
 			await channel.send("Pong!")
 	
 
-	@listener(name="on_message_delete")
-	async def message_delete(self, message: interactions.Message):
-		guild = await message.get_guild()
-		channel = await message.get_channel()
-		channels = await guild.get_all_channels()
-		logs = [ch._json for ch in await guild.get_all_channels() if int(ch.name) == "logs"]
-		await channel.send(f"```{logs}```")
-
 
 
 
