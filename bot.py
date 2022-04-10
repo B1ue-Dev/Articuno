@@ -27,7 +27,8 @@ bot.load('Cogs.tag')
 @bot.event
 async def on_ready():
 	websocket = f"{bot.latency * 1:.0f}"
-	print('Ready!')
+	print(f'Logged in as {bot.me.name}')
+	print(f'ID: {bot.me.id}')
 	print(f'Latency: {websocket}ms')
 	message = bot._http.get_message
 """
