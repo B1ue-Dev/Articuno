@@ -466,7 +466,7 @@ class Fun(commands.Cog):
 
 	@slash(name="pokemon",
 		   description="Show the infomation about a specific Pokemon",
-		   guild_ids=guild_ids)
+	)
 	async def _pokemon(self, ctx: SlashContext, pokemon):
 		async with aiohttp.ClientSession() as session:
 			response = await session.get(
