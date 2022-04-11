@@ -20,7 +20,6 @@ context_menu = cog_ext.cog_context_menu
 class ContextMenuMessage(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
-	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
 
 
 	@context_menu(target=ContextMenuType.USER,
