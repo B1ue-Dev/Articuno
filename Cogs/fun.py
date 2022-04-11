@@ -527,13 +527,13 @@ class Fun(commands.Cog):
 										  color=random.randint(0, 0xFFFFFF))
 				except:
 					embed = discord.Embed(title=name, description=desc)
-				embed.set_thumbnail(url=img)
-				embed.add_field(
+					embed.set_thumbnail(url=img)
+					embed.add_field(
 					name="Information",
 					value=
 					f"Pokedex Entry: {pid}\nFirst introduced in generation {(rj['generation'])}\nType(s): {ptype}\nAbilities: {abilities}",
 					inline=True)
-				embed.add_field(
+					embed.add_field(
 					name="Base Stats",
 					value=
 					f"HP: {hp}\nDefense: {defense}\nSpeed: {speed}\nAttack: {attack}\nSpecial Attack: {spattack}\nSpecial Defense: {spdef}",
@@ -542,7 +542,7 @@ class Fun(commands.Cog):
 					embed.add_field(name="Evolution Line",
 									value=evs,
 									inline=True)
-				embed.set_footer(icon_url=ctx.author.avatar_url,
+					embed.set_footer(icon_url=ctx.author.avatar_url,
 								 text=f"Requested by {ctx.author}")
 				await ctx.send(embed=embed)
 
