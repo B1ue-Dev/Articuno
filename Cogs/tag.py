@@ -1,4 +1,5 @@
 import interactions
+from interactions.ext.wait_for import wait_for
 import os, json, datetime
 from dotenv import load_dotenv
 load_dotenv()
@@ -10,6 +11,7 @@ scope = int(os.getenv("SCOPE"))
 class Tag(interactions.Extension):
 	def __init__(self, bot):
 		self.bot = bot
+		wait_for.setup(bot, add_method=True)
 
 	"""
 	Tag create: Create a tag.
@@ -166,6 +168,7 @@ class Tag(interactions.Extension):
 		tag = json.loads(open("./data/tag.json", "r").read())
 		if guild_id in tag:
 			if name in tag[guild_id]:
+				res = 
 				del tag[guild_id][name]
 				with open("./data/tag.json", "w") as f:
 					json.dump(tag, f, indent=4)
