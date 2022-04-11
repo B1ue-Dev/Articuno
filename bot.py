@@ -57,18 +57,11 @@ bot.load_extension('Cogs.ttt')
 # Send message in the channel, which indicate that the bot is ready
 @bot.event
 async def on_ready():
-	#channel = bot.get_channel(867039086387789874)
-	##message = f"{bot.user.name} is now online again\nTime: <t:{jsk.load_time.timestamp():.0f}:R>"
-	#embed = discord.Embed(description=message, color=0x000000)
 	websocket = f"{bot.latency * 1000:.0f}"
 	print('Connected to: {}'.format(bot.user.name))
 	print('Bot ID: {}'.format(bot.user.id))
 	print(f'Latency: {websocket}ms')
-	#buttons = [
-	#	create_button(style=ButtonStyle.URL, label="GitHub", url="https://github.com/Jimmy-Blue/Articuno")
-	#]
-	#action_row = create_actionrow(*buttons)
-	#await channel.send(embed=embed, components=[action_row])
+
 
 
 # List all servers the bot is connected to
