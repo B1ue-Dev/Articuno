@@ -37,7 +37,6 @@ subcommand = cog_ext.cog_subcommand
 class Server(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
-	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
 
 
 	@slash(name="clean",
