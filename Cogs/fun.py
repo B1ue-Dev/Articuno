@@ -460,8 +460,7 @@ class Fun(interactions.Extension):
 		user: interactions.Member,
 	):
 		await ctx.send("Processing...", ephemeral=True)
-		choice = 'true', 'false'
-		imposter = random.choice(choice)
+		imposter = bool(random.getrandbits(1))
 		channel = await ctx.get_channel()
 		if len(user.user.username) >= 10:
 			username = user.user.username[:7] + "..."
