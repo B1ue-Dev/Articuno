@@ -7,10 +7,7 @@ from discord_slash.model import ButtonStyle
 from dotenv import load_dotenv
 load_dotenv()
 
-guild_ids = os.getenv("GUILD_IDS")
-with open ("./data/config.json") as f:
-	data = json.load(f)
-	blocked_guild = data['BLOCKED_GUILD']
+
 
 def create_board() -> list:
 	"""Creates the tic tac toe board"""
@@ -34,12 +31,9 @@ class Easy(commands.Cog):
 		name="easy",
 		description="Start a game of tic tac toe (easy mode)")
 	async def ttt_start(self, ctx: SlashContext):
-		if ctx.guild.id in blocked_guild:
-			return
-		else:
-			await ctx.send(
-				content=f"{ctx.author.mention}'s tic tac toe game (easy mode)", components=create_board()
-			)
+		await ctx.send(
+			content=f"{ctx.author.mention}'s tic tac toe game (easy mode)", components=create_board()
+		)
 
 	def determine_board_state(self, components: list):
 		board = []
