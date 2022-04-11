@@ -10,10 +10,7 @@ import os, json
 from dotenv import load_dotenv
 load_dotenv()
 
-guild_ids = os.getenv("GUILD_IDS")
-with open ("./data/config.json") as f:
-	data = json.load(f)
-	blocked_guild = data['BLOCKED_GUILD']
+
 
 
 # Excuse me but I am lazy
@@ -55,13 +52,10 @@ class Admin(commands.Cog):
 						option_type=3,
 						required=False)
 					]
-				)
+	)
 	async def _kick(self, ctx: SlashContext, user: str, reason: str = None):
-		# Get the message
-		channel_message = f"{user} was kicked from the server.\nReason: {reason}"
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
+			# Get the message
+			channel_message = f"{user} was kicked from the server.\nReason: {reason}"
 			# Get the user permissions
 			perms = ctx.author.guild_permissions
 			if not (perms.administrator or perms.kick_members):
@@ -93,13 +87,10 @@ class Admin(commands.Cog):
 						option_type=3,
 						required=False)
 					]
-				)
+	)
 	async def _ban(self, ctx: SlashContext, user: str, reason: str = None):
-		# Get the message
-		channel_message = f"{user} was banned from the server.\nReason: {reason}"
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
+			# Get the message
+			channel_message = f"{user} was banned from the server.\nReason: {reason}"
 			# Get the user permissions
 			perms = ctx.author.guild_permissions
 			if not (perms.administrator or perms.ban_members):
@@ -131,11 +122,8 @@ class Admin(commands.Cog):
 						option_type=3,
 						required=False)
 					]
-				)
+	)
 	async def _hackban(self, ctx: SlashContext, id: str, reason: str = None):
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
 			# Get the user permissions
 			perms = ctx.author.guild_permissions
 			if not (perms.administrator or perms.ban_members):
@@ -163,11 +151,8 @@ class Admin(commands.Cog):
 						option_type=3,
 						required=True)
 					]
-				)
+	)
 	async def _unban(self, ctx: SlashContext, id: str):
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
 			# Get the user permissions
 			perms = ctx.author.guild_permissions
 			if not (perms.administrator or perms.ban_members):
@@ -188,7 +173,6 @@ class Admin(commands.Cog):
 
 	@subcommand(base="user",
 				name="mute",
-				guild_ids=[859030372783751168],
 				description="(Admin only) Mute a user from the server",
 				options=[
 					create_option(name="user",
@@ -200,7 +184,7 @@ class Admin(commands.Cog):
 						option_type=3,
 						required=False)
 					]
-				)
+	)
 	async def _mute(self, ctx: SlashContext, user: str, reason: str = None):
 		# Get the mute role
 		mute_role = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -221,7 +205,6 @@ class Admin(commands.Cog):
 
 	@subcommand(base="user",
 				name="unmute",
-				guild_ids=[859030372783751168],
 				description="(Admin only) Unmute a user from the server",
 				options=[
 					create_option(name="user",
@@ -229,7 +212,7 @@ class Admin(commands.Cog):
 						option_type=6,
 						required=True)
 					]
-				)
+	)
 	async def _unmute(self, ctx: SlashContext, user: str):
 		# Get the mute role
 		mute_role = discord.utils.get(ctx.guild.roles, name="Muted")
@@ -257,11 +240,8 @@ class Admin(commands.Cog):
 				option_type=7,
 				required=False)
 			]
-		)
+	)
 	async def _lock(self, ctx: SlashContext, channel: str = None):
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
 			if channel is None:
 				channel = ctx.channel
 			# Get the user permissions
@@ -290,11 +270,8 @@ class Admin(commands.Cog):
 				option_type=7,
 				required=True)
 			]
-		)
+	)
 	async def _unlock(self, ctx: SlashContext, channel: str = None):
-		if int(ctx.guild.id) in blocked_guild:
-			return
-		else:
 			if channel is None:
 				channel = ctx.channel
 			# Get the user permissions
