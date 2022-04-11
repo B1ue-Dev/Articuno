@@ -43,7 +43,6 @@ class Fun(commands.Cog):
 	def __init__(self, bot: commands.Bot):
 		self.bot = bot
 
-	guild_ids = [833886728259239968, 859030372783751168, 738938246574374913]
 
 	@slash(
 		name="coffee",
@@ -531,13 +530,11 @@ class Fun(commands.Cog):
 					embed.add_field(
 					name="Information",
 					value=
-					f"Pokedex Entry: {pid}\nFirst introduced in generation {(rj['generation'])}\nType(s): {ptype}\nAbilities: {abilities}",
-					inline=True)
+					f"Pokedex Entry: {pid}\nFirst introduced in generation {(rj['generation'])}\nType(s): {ptype}\nAbilities: {abilities}", inline=True)
 					embed.add_field(
 					name="Base Stats",
 					value=
-					f"HP: {hp}\nDefense: {defense}\nSpeed: {speed}\nAttack: {attack}\nSpecial Attack: {spattack}\nSpecial Defense: {spdef}",
-					inline=True)
+					f"HP: {hp}\nDefense: {defense}\nSpeed: {speed}\nAttack: {attack}\nSpecial Attack: {spattack}\nSpecial Defense: {spdef}", inline=True)
 				if len(evs) != 0:
 					embed.add_field(name="Evolution Line",
 									value=evs,
