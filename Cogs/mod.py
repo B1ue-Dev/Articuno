@@ -1,5 +1,4 @@
 import interactions
-from interactions import Option, OptionType, CommandContext, User, Member
 from interactions import extension_command as command
 from interactions import extension_component as component
 from interactions import extension_listener as listener
@@ -24,101 +23,121 @@ class Admin(interactions.Extension):
 		description="Moderation commands",
 		scope=scope,
 		options=[
-			Option(
-				type=OptionType.SUB_COMMAND,
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
 				name="kick",
 				description="(Admin only) Kick a user from the server",
 				options=[
-					Option(
-						type=OptionType.USER,
+					interactions.Option(
+						type=interactions.OptionType.USER,
 						name="user",
 						description="Targeted user",
 						required=True,
 					),
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="reason",
 						description="Reason",
 						required=False,
 					),
 				]
 			),
-			Option(
-				type=OptionType.SUB_COMMAND,
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
 				name="ban",
 				description="(Admin only) Ban a user from the server",
 				options=[
-					Option(
-						type=OptionType.USER,
+					interactions.Option(
+						type=interactions.OptionType.USER,
 						name="user",
 						description="Targeted user",
 						required=True,
 					),
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="reason",
 						description="Reason",
 						required=False,
 					),
 				]
 			),
-			Option(
-				type=OptionType.SUB_COMMAND,
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
 				name="hackban",
 				description="(Admin only) Ban a user that is not in the server",
 				options=[
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="id",
 						description="Targeted user ID",
 						required=True,
 					),
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="reason",
 						description="Reason",
 						required=False,
 					),
 				]
 			),
-			Option(
-				type=OptionType.SUB_COMMAND,
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
 				name="unban",
 				description="(Admin only) Unban a user from the server",
 				options=[
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="id",
 						description="Targeted user ID",
 						required=True,
 					)
 				]
 			),
-			Option(
-				type=OptionType.SUB_COMMAND,
-				name="mute",
-				description="(Admin only) Mute a user from the server",
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="timeout",
+				description="(Admin only) Timeout a user from the server",
 				options=[
-					Option(
-						type=OptionType.USER,
+					interactions.Option(
+						type=interactions.OptionType.USER,
 						name="user",
 						description="Targeted user",
 						required=True,
 					),
-					Option(
-						type=OptionType.STRING,
+					interactions.Option(
+						type=interactions.OptionType.INTEGER,
+						name="minutes",
+						description="Timeout in how long (minutes). Default to 60 minutes",
+						required=True,
+					),
+					interactions.Option(
+						type=interactions.OptionType.STRING,
 						name="reason",
 						description="Reason",
 						required=False,
+					)
+				]
+			),
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="untimeout",
+				description="(Admin only) Untimeout a user from the server",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.USER,
+						name="user",
+						description="Targeted user",
+						required=True,
 					)
 				]
 			)
 		]
 	)
-	async def user(self, ctx: CommandContext, sub_command: str,
-		user: Member = None,
+	async def user(self, ctx: interactions.CommandContext, sub_command: str,
+		user: interactions.Member = None,
 		id: str = None,
 		reason: str = None,
+		minutes: int = None
 	):
 		guild = interactions.Guild(**await self.bot._http.get_guild(ctx.guild_id), _client=self.bot._http)
 
@@ -240,7 +259,7 @@ class Admin(interactions.Extension):
 						await ctx.send(message)
 			return
 		
-		elif sub_command == "mute":
+		elif sub_command == "timeout":
 			if not (
 				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
 				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
@@ -264,13 +283,49 @@ class Admin(interactions.Extension):
 						return
 					else:
 						member = await guild.get_member(member_id=user.user.id)
-						time = datetime.datetime.utcnow()
-						time += datetime.timedelta(hours=1)
 						if reason is None:
 							reason = "No reason provided."
-						message = f"{user.user.username}#{user.user.discriminator} was timeout from the server.\nReason: {reason}"
+						if minutes is None:
+							minutes = 60
+						time = datetime.datetime.utcnow()
+						time += datetime.timedelta(minutes=minutes)
+						message = f"{user.user.username}#{user.user.discriminator} was timed out from the server.\nReason: {reason}"
 						await member.modify(guild_id=ctx.guild_id, communication_disabled_until=time.isoformat())
 						await ctx.send(message)
+						return
+		
+		elif sub_command == "untimeout":
+			if not (
+				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
+				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+			):
+				await ctx.send(content="You do not have timeout permission.", ephemeral=True)
+				return
+			else:
+				if int(user.user.id) == int(ctx.author.id):
+					await ctx.send("You cannot untimeout yourself.", ephemeral=True)
+					return
+				else:
+					bot = await guild.get_member(member_id=self.bot.me.id)
+					role = bot.roles[0]
+					role = await guild.get_role(role_id=role)
+					perms = role.permissions
+					if not (
+						has_permission(int(perms), Permissions.MODERATE_MEMBERS) or
+						has_permission(int(perms), Permissions.ADMINISTRATOR)
+					):
+						await ctx.send(content="You do not have timeout permission.", ephemeral=True)
+						return
+					else:
+						member = await guild.get_member(member_id=user.user.id)
+						if member.communication_disabled_until is None:
+							await ctx.send(content="That user was not timed out.", ephemeral=True)
+							return
+						else:
+							message = f"{user.user.username}#{user.user.discriminator} was untimeout from the server."
+							await member.modify(guild_id=ctx.guild_id, communication_disabled_until=None)
+							await ctx.send(message)
+							return
 
 
 
