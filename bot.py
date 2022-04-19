@@ -1,26 +1,39 @@
 import interactions
 from interactions.ext import wait_for
-import os, datetime
+import os, datetime, logging
 from dotenv import load_dotenv
 load_dotenv()
 bot_token = os.getenv("TOKEN")
 scope = int(os.getenv("SCOPE"))
 
-
+#logging.basicConfig(level=logging.DEBUG)
 
 bot = interactions.Client(
 	token=bot_token,
-	intents=interactions.Intents.DEFAULT | interactions.Intents.PRIVILEGED,
+	intents=interactions.Intents.ALL,
 	#disable_sync=True
 )
-#bot.load('Cogs.admin')
+
+"""
+Main cogs.
+"""
 #bot.load('Cogs.basic')
 #bot.load('Cogs.fun')
 #bot.load('Cogs.hacktool')
-#bot.load('Cogs.logs')
+#bot.load('Cogs.info')
+bot.load('Cogs.logger')
 #bot.load('Cogs.menus')
-bot.load('Cogs.tag')
+#bot.load('Cogs.misc')
+#bot.load('Cogs.mod')
+#bot.load('Cogs.tag')
+
+"""
+Test cogs.
+"""
+bot.load('interactions.ext.enhanced')
+#bot.load('Cogs.get_method')
 #bot.load('test')
+
 
 
 

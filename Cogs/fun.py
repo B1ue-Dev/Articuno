@@ -2,10 +2,9 @@ import interactions
 from interactions import CommandContext
 from interactions import extension_command as command
 from interactions.ext import wait_for
-import json, random, asyncio, os, requests, io, aiohttp, datetime
+import json, random, asyncio, os, io, aiohttp, datetime
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
-from utils.permission import Permissions, has_permission
 
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
@@ -32,6 +31,7 @@ class Fun(interactions.Extension):
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
 
+
 	@command(
 		name="coffee",
 		description="Send an image of coffee",
@@ -43,8 +43,10 @@ class Fun(interactions.Extension):
 		file = resp['file']
 		image = interactions.EmbedImageStruct(url=file)._json
 		embed = interactions.Embed(title="Coffee ☕", color=0xc4771d, image=image)
+
 		await ctx.send(embeds=embed)
 	
+
 
 	@command(
 		name="ship",
@@ -72,6 +74,7 @@ class Fun(interactions.Extension):
 		shipnumber = int(random.randint(0, 100))
 		guild = await ctx.get_guild()
 		members_list = await guild.get_list_of_members(limit=1000)
+
 		if not user1 and not user2:
 			result = random.choice(members_list)
 			user1 = ctx.author.user.username if ctx.author.nick is None else ctx.author.nick
@@ -83,7 +86,7 @@ class Fun(interactions.Extension):
 		if not user1 and user2:
 			result = random.choice(members_list)
 			user1 = result.user.username if result.nick is None else result.nick
-		# Choose comment and heart emoji
+
 		if 0 <= shipnumber <= 30:
 			comment = "Really low! {}".format(random.choice(
 				[
@@ -150,15 +153,14 @@ class Fun(interactions.Extension):
 				':heartpulse:'
 				]
 			)
-		# Choose color
+
 		if shipnumber <= 40:
 			shipColor = 0xdd3939
 		elif 41 < shipnumber < 80:
 			shipColor = 0xff6600
 		else:
 			shipColor = 0x3be801
-		name1 = user1[:len(user1) // 2]
-		name2 = user2[len(user2) // 2:]
+
 		field = [
 			interactions.EmbedField(name=f"Result: {shipnumber}%", value=f"{comment}"),
 		]
@@ -168,9 +170,11 @@ class Fun(interactions.Extension):
 			fields=field,
 			timestamp = datetime.datetime.utcnow()
 		)
+	
 		await ctx.send(embeds=embed)
 
-	
+
+
 	@command(
 		name="roll",
 		description="Roll a dice",
@@ -182,6 +186,7 @@ class Fun(interactions.Extension):
 		await asyncio.sleep(1.5)
 		await msg.edit("The number is **{}**.".format(dice))
 	
+
 
 	@command(
 		name="flip",
@@ -195,13 +200,14 @@ class Fun(interactions.Extension):
 		await msg.edit("The coin landed on **{}**.".format(coin))
 
 
+
 	@command(
 		name="gay",
 		description="Calculate the gay percentage of a user",
 		scope=scope,
 		options=[
 			interactions.Option(
-				type=interactions.OptionType.USER,
+				type=interactions.OptionType.STRING,
 				name="user",
 				description="Targeted user",
 				required=False,
@@ -209,10 +215,19 @@ class Fun(interactions.Extension):
 		]
 	)
 	async def gay(self, ctx: CommandContext,
-		user: interactions.Member = None,
+		user: str = None,
 	):
 		if not user:
-			user = ctx.author
+			user = ctx.author.user.username
+		perc = int(random.randint(0, 100))
+
+		embed = interactions.Embed(
+			title="Gay measure tool",
+			description=f"**{user}** is {perc}% gay.",
+			color=random.randint(0, 0xFFFFFF)
+		)
+		
+		await ctx.send(embeds=embed)
 
 
 
@@ -225,7 +240,9 @@ class Fun(interactions.Extension):
 		url = "https://some-random-api.ml/joke"
 		resp = await get_response(url)
 		embed = interactions.Embed(description=resp['joke'], color=random.randint(0, 0xFFFFFF))
+
 		await ctx.send(embeds=embed)
+
 
 
 	@command(
@@ -244,6 +261,7 @@ class Fun(interactions.Extension):
 		await ctx.send(embeds=embed)
 	
 
+
 	@command(
 		name="xkcd",
 		description="Send a xkcd comic page",
@@ -260,10 +278,10 @@ class Fun(interactions.Extension):
 	async def xkcd(self, ctx: CommandContext,
 		page: int = None
 	):
+		url = "https://xkcd.com/info.0.json"
+		resp = await get_response(url)
+		newest = resp['num']
 		if page is None:
-			url = "https://xkcd.com/info.0.json"
-			resp = await get_response(url)
-			newest = resp['num']
 			page = random.randint(1, newest)
 		url = "https://xkcd.com/{page}/info.0.json"
 		resp = await get_response(url.format(page=page))
@@ -279,237 +297,6 @@ class Fun(interactions.Extension):
 		embed = interactions.Embed(description=alt, color=random.randint(0, 0xFFFFFF), footer=footer, image=image, author=author)
 		await ctx.send(embeds=embed)
 
-
-	@command(
-		name="hornycard",
-		description="Send a hornycard",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=False
-			)
-		]
-	)
-	async def hornycard(self, ctx: CommandContext,
-		user: interactions.User = None
-	):
-		if not user:
-			user = ctx.author.user
-		else:
-			user = user.user
-		avatar_url = user.avatar_url
-		await ctx.send("Processing...", ephemeral=True)
-		channel = await ctx.get_channel()
-		url = "https://some-random-api.ml/canvas/horny"
-		params = {
-			"avatar": avatar_url,
-		}
-		resp = await get_response(url, params)
-		img = interactions.File(filename="image.png", fp=resp, description="Image")
-		await channel.send(files=img)
-
-
-	@command(
-		name="simpcard",
-		description="Send a simpcard",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=False
-			)
-		]
-	)
-	async def simpcard(self, ctx: CommandContext,
-		user: interactions.Member = None
-	):
-		if not user:
-			user = ctx.author.user
-		else:
-			user = user.user
-		avatar_url = user.avatar_url
-		await ctx.send("Processing...", ephemeral=True)
-		channel = await ctx.get_channel()
-		async with aiohttp.ClientSession() as session:
-			url = "https://some-random-api.ml/canvas/simpcard"
-			params = {
-				"avatar": avatar_url
-			}
-			async with session.get(url, params=params) as resp:
-				imageData = io.BytesIO(await resp.read())
-				await session.close()
-				img = interactions.File(filename="image.png", fp=imageData, description="Image")
-				await channel.send(files=img)
-
-
-	@command(
-		name="tweet",
-		description="Send a Twitter tweet",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=True,
-			),
-			interactions.Option(
-				type=interactions.OptionType.STRING,
-				name="comment",
-				description="Comment",
-				required=True,
-			)
-		]
-	)
-	async def tweet(self, ctx: CommandContext,
-		user: interactions.Member,
-		comment: str,
-	):
-		await ctx.send("Processing...", ephemeral=True)
-		channel = await ctx.get_channel()
-		if len(user.user.username) >= 15:
-			username = user.user.username[:12] + "..."
-		else:
-			username = user.user.username
-		if user.nick is not None:
-			if len(user.nick) >= 32:
-				nick = user.nick[:29] + "..."
-			else:
-				nick = user.nick
-		else:
-			nick = username
-		async with aiohttp.ClientSession() as session:
-			url = "https://some-random-api.ml/canvas/tweet"
-			params = {
-				"avatar": user.user.avatar_url,
-				"username": username,
-				"displayname": nick,
-				"comment": comment,
-				"theme": "dark",
-			}
-			async with session.get(url, params=params) as resp:
-				imageData = io.BytesIO(await resp.read())
-				await session.close()
-				img = interactions.File(filename="image.png", fp=imageData, description="Image")
-				await channel.send(files=img)
-
-	
-
-	@command(
-		name="youtube",
-		description="Send a YouTube comment",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=True,
-			),
-			interactions.Option(
-				type=interactions.OptionType.STRING,
-				name="comment",
-				description="Comment",
-				required=True,
-			)
-		]
-	)
-	async def youtube(self, ctx: CommandContext,
-		user: interactions.Member,
-		comment: str,
-	):
-		await ctx.send("Processing...", ephemeral=True)
-		channel = await ctx.get_channel()
-		if len(user.user.username) >= 15:
-			username = user.user.username[:12] + "..."
-		else:
-			username = user.user.username
-		async with aiohttp.ClientSession() as session:
-			url = "https://some-random-api.ml/canvas/youtube-comment"
-			params = {
-				"avatar": user.user.avatar_url,
-				"username": username,
-				"comment": comment,
-			}
-			async with session.get(url, params=params) as resp:
-				imageData = io.BytesIO(await resp.read())
-				await session.close()
-				img = interactions.File(filename="image.png", fp=imageData, description="Image")
-				await channel.send(files=img)
-
-
-	@command(
-		name="amogus",
-		description="Amogus",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=True,
-			),
-		]
-	)
-	async def amogus(self, ctx: CommandContext,
-		user: interactions.Member,
-	):
-		await ctx.send("Processing...", ephemeral=True)
-		imposter = bool(random.getrandbits(1))
-		channel = await ctx.get_channel()
-		if len(user.user.username) >= 10:
-			username = user.user.username[:7] + "..."
-		else:
-			username = user.user.username
-		async with aiohttp.ClientSession() as session:
-			url = "https://some-random-api.ml/premium/amongus"
-			params = {
-				"avatar": user.user.avatar_url,
-				"username": username,
-				"key": apikey,
-				"imposter": imposter,
-			}
-			async with session.get(url, params=params) as resp:
-				imageData = io.BytesIO(await resp.read())
-				await session.close()
-				img = interactions.File(filename="image.gif", fp=imageData, description="Image")
-				await channel.send(files=img)
-	
-
-	@command(
-		name="pet",
-		description="Pet someone",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=True,
-			),
-		]
-	)
-	async def pet(self, ctx: CommandContext,
-		user: interactions.Member,
-	):
-		await ctx.send("Processing...", ephemeral=True)
-		channel = await ctx.get_channel()
-		async with aiohttp.ClientSession() as session:
-			url = "https://some-random-api.ml/premium/petpet"
-			params = {
-				"avatar": user.user.avatar_url,
-				"key": apikey,
-			}
-			async with session.get(url, params=params) as resp:
-				imageData = io.BytesIO(await resp.read())
-				await session.close()
-				img = interactions.File(filename="image.gif", fp=imageData, description="Image")
-				await channel.send(files=img)
 
 
 	@command(
@@ -528,7 +315,6 @@ class Fun(interactions.Extension):
 	async def img(self, ctx: CommandContext,
 		query: str
 	):
-		# Get the image and the number of results
 		ran = int(0)
 		resource = build("customsearch", "v1", developerKey=google_cloud).cse()
 		result = resource.list(
@@ -577,7 +363,9 @@ class Fun(interactions.Extension):
 						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
 						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 						embed.set_image(url=image_link)
+
 						await res.edit(embeds=embed)
+
 					elif res.custom_id == "previous":
 						ran -= 1
 						if ran < 0:
@@ -591,6 +379,7 @@ class Fun(interactions.Extension):
 						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
 						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 						embed.set_image(url=image_link)
+
 						await res.edit(embeds=embed)
 				else:
 					await res.edit()

@@ -117,7 +117,7 @@ class Tag_test(EnhancedExtension):
 		if guild_id in tags:
 			embed = interactions.Embed(
 				title="Tags",
-				description="\n".join(tags[guild_id].keys()),
+				description=" ".join(f"``{list(tags[guild_id].keys())}``"),
 			)
 			await ctx.send(embeds=embed)
 		else:
