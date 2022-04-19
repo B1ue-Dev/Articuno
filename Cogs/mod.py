@@ -326,6 +326,46 @@ class Admin(interactions.Extension):
 							await member.modify(guild_id=ctx.guild_id, communication_disabled_until=None)
 							await ctx.send(message)
 							return
+	
+
+	@command(
+		name="channel",
+		description="Channel moderation commands",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="lock",
+				description="(Admin only) Lock a channel",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.CHANNEL,
+						name="channel",
+						description="Targeted channel",
+						required=False
+					)
+				]
+			),
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="unlock",
+				description="(Admin only) Unlock a channel",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.CHANNEL,
+						name="channel",
+						description="Targeted channel",
+						required=False
+					)
+				]
+			)
+		]
+	)
+	async def channel(self, ctx: interactions.CommandContext,
+		channel: interactions.Channel = None
+	):
+		#TODO: Work on this later
+		...
 
 
 
