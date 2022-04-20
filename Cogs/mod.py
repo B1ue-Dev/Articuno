@@ -337,35 +337,36 @@ class Admin(interactions.Extension):
 				type=interactions.OptionType.SUB_COMMAND,
 				name="lock",
 				description="(Admin only) Lock a channel",
-				options=[
-					interactions.Option(
-						type=interactions.OptionType.CHANNEL,
-						name="channel",
-						description="Targeted channel",
-						required=False
-					)
-				]
 			),
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
 				name="unlock",
 				description="(Admin only) Unlock a channel",
-				options=[
-					interactions.Option(
-						type=interactions.OptionType.CHANNEL,
-						name="channel",
-						description="Targeted channel",
-						required=False
-					)
-				]
 			)
 		]
 	)
-	async def channel(self, ctx: interactions.CommandContext,
-		channel: interactions.Channel = None
-	):
-		#TODO: Work on this later
-		...
+	async def channel(self, ctx: interactions.CommandContext, sub_command: str):
+		if sub_command == "lock":
+			channel = await ctx.get_channel()
+			if not (
+				has_permission(int(ctx.author.permissions), Permissions.MANAGE_CHANNELS) or
+				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+			):
+				await ctx.send(content="You do not have channel permission.", ephemeral=True)
+				return
+			else:
+				permission_overwrites = [
+					interactions.Overwrite(
+						id=int(ctx.guild_id),
+						type=0,
+						deny=interactions.Permissions.SEND_MESSAGES
+					),
+				]
+				print(channel.permission_overwrites)
+				permission_overwrites.extend(interactions.Overwrite())
+				await channel.modify(permission_overwrites=permission_overwrites)
+				await ctx.send(f"``{channel.name}`` is locked.")
+			
 
 
 
