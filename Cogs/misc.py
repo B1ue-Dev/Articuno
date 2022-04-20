@@ -17,6 +17,8 @@ async def get_response(url: str = None, params: dict = None):
 					return await resp.json()
 				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
 					return io.BytesIO(await resp.read())
+	await session.close()
+
 
 
 
