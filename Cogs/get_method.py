@@ -10,7 +10,6 @@ scope = int(os.getenv("SCOPE"))
 
 
 
-
 class Get_method(interactions.Extension):
 	def __init__(self, bot):
 		self.bot = bot
