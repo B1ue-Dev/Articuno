@@ -20,9 +20,10 @@ async def get_response(url: str = None, params: dict = None):
 			if resp.status == 200:
 				if resp.content_type == "application/json":
 					return await resp.json()
-				elif resp.content_type == "image/png":
+				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
 					return io.BytesIO(await resp.read())
-		session.close()
+	await session.close()
+
 
 
 
