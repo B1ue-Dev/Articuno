@@ -201,6 +201,7 @@ class Misc(interactions.Extension):
 	async def amogus(self, ctx: CommandContext,
 		user: interactions.Member,
 	):
+		msg = await ctx.send("Executing...")
 		url = "https://some-random-api.ml/premium/amongus"
 		params = {
 			"avatar": user.user.avatar_url,
@@ -210,7 +211,7 @@ class Misc(interactions.Extension):
 		}
 		resp = await get_response(url, params)
 		img = interactions.File(filename="image.gif", fp=resp, description="Image")
-		await ctx.send(files=img)
+		await msg.edit(content=None, files=img)
 	
 
 	@command(
