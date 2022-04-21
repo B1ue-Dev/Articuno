@@ -1,6 +1,5 @@
 import interactions
 from interactions import extension_command as command
-from interactions import CommandContext
 import random, os, io, aiohttp
 from dotenv import load_dotenv
 
@@ -73,7 +72,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def simpcard(self, ctx: CommandContext,
+	async def simpcard(self, ctx: interactions.CommandContext,
 		user: interactions.Member = None
 	):
 		if not user:
@@ -113,7 +112,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def tweet(self, ctx: CommandContext,
+	async def tweet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 		comment: str,
 	):
@@ -163,7 +162,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def youtube(self, ctx: CommandContext,
+	async def youtube(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 		comment: str,
 	):
@@ -198,7 +197,7 @@ class Misc(interactions.Extension):
 			),
 		]
 	)
-	async def amogus(self, ctx: CommandContext,
+	async def amogus(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
 		msg = await ctx.send("Executing...")
@@ -227,7 +226,7 @@ class Misc(interactions.Extension):
 			),
 		]
 	)
-	async def pet(self, ctx: CommandContext,
+	async def pet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
 		url = "https://cdn.discordapp.com/attachments/862636687226044436/965452327827935272/image.gif"
