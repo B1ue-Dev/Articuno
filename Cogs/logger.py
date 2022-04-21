@@ -7,6 +7,10 @@ class Logs(interactions.Extension):
 	def __init__(self, bot):
 		self.bot = bot
 	
+	@listener(name="on_message_create")
+	async def on_message_create(self, message: interactions.Message):
+		print(f"{message.author.username}#{message.author.discriminator} said: {message.content}")
+
 
 	@listener(name="on_guild_create")
 	async def guild_create(self, guild: interactions.Guild):

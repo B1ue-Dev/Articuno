@@ -8,10 +8,21 @@ scope = int(os.getenv("SCOPE"))
 
 #logging.basicConfig(level=logging.DEBUG)
 
+
+
 bot = interactions.Client(
 	token=bot_token,
 	intents=interactions.Intents.ALL,
-	#disable_sync=True
+	presence=interactions.ClientPresence(
+		activities=[
+			interactions.PresenceActivity(
+				type=interactions.PresenceActivityType.WATCHING,
+				name="you. 👀"
+			),
+		],
+		status=interactions.StatusType.IDLE,
+	),
+	disable_sync=True
 )
 
 """
@@ -21,10 +32,10 @@ Main cogs.
 #bot.load('Cogs.fun')
 #bot.load('Cogs.hacktool')
 #bot.load('Cogs.info')
-bot.load('Cogs.logger')
+#bot.load('Cogs.logger')
 #bot.load('Cogs.menus')
 #bot.load('Cogs.misc')
-#bot.load('Cogs.mod')
+bot.load('Cogs.mod')
 #bot.load('Cogs.tag')
 
 """
