@@ -67,13 +67,17 @@ class Pokemon(EnhancedExtension):
 				abilities = abilities.replace("'", "")
 				abilities = abilities.replace("[", "")
 				abilities = abilities.replace("]", "")
+				gen = int(resp[generation])
+		author = interactions.EmbedFooter(text=f"ID: {num} • First introduced in Generation {gen}")
 		fields = [
 			interactions.EmbedField(name="Stats", value=stats, inline=True),
 			interactions.EmbedField(name="Abilities", value=abilities, inline=True)
 		]
 		embed = interactions.Embed(
 			title=f"{name}",
-			description=f"{desp}"
+			description=f"{desp}",
+			author=author,
+			fields=fields
 		)
 		await ctx.send(embeds=embed)
 
