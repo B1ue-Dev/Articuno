@@ -51,7 +51,7 @@ class Pokemon(EnhancedExtension):
 			if name in data:
 				name = data[name]['name']
 				num = data[name]['num']
-				des = resp['description']
+				desp = resp['description']
 				types = str(data[name]['types'])
 				types = types.replace("'", "")
 				types = types.replace("[", "")
@@ -68,11 +68,12 @@ class Pokemon(EnhancedExtension):
 				abilities = abilities.replace("[", "")
 				abilities = abilities.replace("]", "")
 		fields = [
-			interactions.Field(name="Stats", value=stats, inline=True)
+			interactions.EmbedField(name="Stats", value=stats, inline=True),
+			interactions.EmbedField(name="Abilities", value=abilities, inline=True)
 		]
 		embed = interactions.Embed(
 			title=f"{name}",
-			description=f""
+			description=f"{desp}"
 		)
 		await ctx.send(embeds=embed)
 
