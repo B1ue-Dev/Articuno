@@ -40,10 +40,48 @@ class Pokemon(EnhancedExtension):
 	async def pokemon(self, ctx: interactions.CommandContext,
 		name: str
 	):
-		print("a")
+		url = "https://some-random-api.ml/pokedex"
+		params = {
+			"pokemon": name
+		}
+		resp = await get_response(url, params)
+		with open("./data/pokemon.json") as f:
+			data = json.load(f)
+			name = name.lower()
+			if name in data:
+				name = data[name]['name']
+				num = data[name]['num']
+				des = resp['description']
+				types = str(data[name]['types'])
+				types = types.replace("'", "")
+				types = types.replace("[", "")
+				types = types.replace("]", "")
+				hp = data[name]['baseStats']['hp']
+				atk = data[name]['baseStats']['atk']
+				defe = data[name]['baseStats']['def']
+				spa = data[name]['baseStats']['spa']
+				spd = data[name]['baseStats']['spd']
+				spe = data[name]['baseStats']['spe']
+				stats = "Hp: {}\nAtk: {}\nDef: {}\nSp.Atk: {}\nSp.Def: {}\nSpe: {}".format(hp, atk, defe, spa, spd, spe)
+				abilities = str(resp[abilities])
+				abilities = abilities.replace("'", "")
+				abilities = abilities.replace("[", "")
+				abilities = abilities.replace("]", "")
+		fields = [
+			interactions.Field(name="Stats", value=stats, inline=True)
+		]
+		embed = interactions.Embed(
+			title=f"{name}",
+			description=f""
+		)
+		await ctx.send(embeds=embed)
+
+
+
+
+
 
 
 
 def setup(bot):
 	Pokemon(bot)
-
