@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from interactions.ext.enhanced import (
 	extension_command,
 	EnhancedExtension,
-	option
+	option,
+	ext_subcommand_base
 )
 
 load_dotenv()
@@ -31,19 +32,16 @@ class Pokemon(EnhancedExtension):
 	def __init__(self, bot):
 		self.bot = bot
 
+	base = ext_subcommand_base("pokedex", scope=scope)
 
-	@command(
-		name="pokemon",
-		description="Show the information about a Pokemon",
-		scope=scope,
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.STRING,
-				name="name",
-				description="The name of the Pokemon",
-				required=True
-			)
-		]
+	@base.subcommand(
+		name="search",
+		description="Show the information about a Pokemon"
+	)
+	@option(
+		type=interactions.OptionType.STRING,
+		name="name",
+		autocomplete=True
 	)
 	async def pokemon(self, ctx: interactions.CommandContext,
 		name: str
@@ -86,7 +84,6 @@ class Pokemon(EnhancedExtension):
 			spd = data[name_lower]['baseStats']['spd']
 			spe = data[name_lower]['baseStats']['spe']
 			stats = "**HP:** {}\n**Attack:** {}\n**Defense:** {}\n**Special Attack:** {}\n**Special Defense:** {}\n**Speed:** {}".format(hp, atk, defe, spa, spd, spe)
-			gen = resp['generation']
 			egg_group = str(data[name_lower]['eggGroups'])
 			egg_group = egg_group.replace("'","")
 			egg_group = egg_group.replace("[","")
@@ -111,6 +108,36 @@ class Pokemon(EnhancedExtension):
 			await ctx.send("Pokemon not found.")
 
 
+	base.finish()
+
+
+	@base.autocomplete("name")
+	async def auto_complete(self, ctx:interactions.CommandContext, name: str = ""):
+		letters: list = list(name) if name != "" else []
+		data = json.loads(open("./data/pokemon.json", "r").read())
+		if len(name) == 0:
+			await ctx.populate(
+				[
+					interactions.Choice(
+						name=name[0].capitalize(), value=name[0].capitalize()) for name in (
+							list(data.items())[0:9] if len(data) > 10 else list(data.items()
+						)
+					)
+				]
+			)
+		else:
+			choices: list = []
+			for pkmn_name in data:
+				focus: str = "".join(letters)
+				if focus.lower() in pkmn_name and len(choices) <= 5:
+					for recommand_name in data:
+						choices.append(
+							interactions.Choice(
+								name=pkmn_name.capitalize(), value=recommand_name)
+							)
+					await ctx.populate(choices)
+				else:
+					await ctx.populate(choices=None)
 
 
 
