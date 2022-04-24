@@ -59,7 +59,6 @@ class Pokemon(EnhancedExtension):
 		abilities = abilities.replace("'", "")
 		abilities = abilities.replace("[", "")
 		abilities = abilities.replace("]", "")
-		img = resp['sprites']['animated']
 		evs = int(resp['family']['evolutionStage'])
 		if evs != 0:
 			evs = str(resp['family']['evolutionLine'])
@@ -70,6 +69,7 @@ class Pokemon(EnhancedExtension):
 			evs = None
 		height = resp['height']
 		weight = resp['weight']
+		sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
 		data = json.loads(open("./data/pokemon.json", "r").read())
 		if name_lower in data:
 			name = data[name_lower]['name']
@@ -89,7 +89,7 @@ class Pokemon(EnhancedExtension):
 			egg_group = egg_group.replace("[","")
 			egg_group = egg_group.replace("]","")
 			footer = interactions.EmbedFooter(text="First introduced in Generation {}".format(gen), icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png")._json
-			thumbnail = interactions.EmbedImageStruct(url=img)._json
+			thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)._json
 			fields = [
 				interactions.EmbedField(name="Information", value=f"**Entry:** {id}\n**Type(s):** {types}\n**Abilities:** {abilities}\n**Egg Groups:** {egg_group}\n**Height:** {height}\n**Weight:** {weight}", inline=True),
 				interactions.EmbedField(name="Stats", value=stats, inline=True)
@@ -113,7 +113,10 @@ class Pokemon(EnhancedExtension):
 
 	@base.autocomplete("name")
 	async def auto_complete(self, ctx:interactions.CommandContext, name: str = ""):
-		letters: list = list(name) if name != "" else []
+		if name != "":
+			letters: list = name
+		else:
+			letters = []
 		data = json.loads(open("./data/pokemon.json", "r").read())
 		if len(name) == 0:
 			await ctx.populate(
@@ -129,15 +132,9 @@ class Pokemon(EnhancedExtension):
 			choices: list = []
 			for pkmn_name in data:
 				focus: str = "".join(letters)
-				if focus.lower() in pkmn_name and len(choices) <= 5:
-					for recommand_name in data:
-						choices.append(
-							interactions.Choice(
-								name=pkmn_name.capitalize(), value=recommand_name)
-							)
-					await ctx.populate(choices)
-				else:
-					await ctx.populate(choices=None)
+				if focus.lower() in pkmn_name and len(choices) < 20:
+					choices.append(interactions.Choice(name=pkmn_name.capitalize(), value=pkmn_name.capitalize()))
+			await ctx.populate(choices)
 
 
 
