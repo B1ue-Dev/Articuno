@@ -1,4 +1,3 @@
-from code import interact
 import interactions
 from interactions import extension_command as command
 import aiohttp, json, os, io
@@ -135,6 +134,35 @@ class Pokemon(EnhancedExtension):
 				if focus.lower() in pkmn_name and len(choices) < 20:
 					choices.append(interactions.Choice(name=pkmn_name.capitalize(), value=pkmn_name.capitalize()))
 			await ctx.populate(choices)
+
+
+
+	@interactions.extension_listener(name="on_message_create")
+	async def message_create(self, message: interactions.Message):
+		channel = await message.get_channel()
+		if message.content.startswith("$shiny"):
+			ends = int(len(message.content) - 7)
+			msg = str(message.content)[-ends:].lower()
+			data = json.loads(open("./data/pokemon.json", "r").read())
+			if msg in data:
+				img = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{msg}.gif"
+				embed = interactions.Embed(
+					image=interactions.EmbedImageStruct(url=img)._json
+				)
+				await channel.send(embeds=embed)
+			return
+
+		elif message.content.startswith("$"):
+			ends = int(len(message.content) - 1)
+			msg = str(message.content)[-ends:].lower()
+			data = json.loads(open("./data/pokemon.json", "r").read())
+			if msg in data:
+				img = f"https://play.pokemonshowdown.com/sprites/ani/{msg}.gif"
+				embed = interactions.Embed(
+					image=interactions.EmbedImageStruct(url=img)._json
+				)
+				await channel.send(embeds=embed)
+			return
 
 
 
