@@ -1,12 +1,12 @@
 import interactions
 from interactions.ext import wait_for
-import os, datetime, logging
+import os, datetime, logging, io
 from dotenv import load_dotenv
 load_dotenv()
 bot_token = os.getenv("TOKEN")
 scope = int(os.getenv("SCOPE"))
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 
@@ -17,26 +17,27 @@ bot = interactions.Client(
 		activities=[
 			interactions.PresenceActivity(
 				type=interactions.PresenceActivityType.WATCHING,
-				name="you. 👀"
+				name="for v4.0.0a"
 			),
 		],
 		status=interactions.StatusType.IDLE,
 	),
-	disable_sync=True
+	#disable_sync=True
 )
 
 """
 Main cogs.
 """
-#bot.load('Cogs.basic')
-#bot.load('Cogs.fun')
-#bot.load('Cogs.hacktool')
-#bot.load('Cogs.info')
-#bot.load('Cogs.logger')
-#bot.load('Cogs.menus')
-#bot.load('Cogs.misc')
+bot.load('Cogs.basic')
+bot.load('Cogs.fun')
+bot.load('Cogs.hacktool')
+bot.load('Cogs.info')
+bot.load('Cogs.logger')
+bot.load('Cogs.menus')
+bot.load('Cogs.misc')
 bot.load('Cogs.mod')
-#bot.load('Cogs.tag')
+bot.load('Cogs.pokemon')
+bot.load('Cogs.tag')
 
 """
 Test cogs.
@@ -54,25 +55,20 @@ async def on_ready():
 	print(f'Logged in as {bot.me.name}')
 	print(f'ID: {bot.me.id}')
 	print(f'Latency: {websocket}ms')
+
 """
-@bot.command(name="test", description="Why?", scope=scope)
+@bot.command(name="test", description="AAAAAAAAAAAAAAAAAAAAAAA", scope=scope)
 async def test(ctx: interactions.CommandContext):
-		e = interactions.Embed(
-			fields=[
-				interactions.EmbedField(
-					name='Test',
-					value=f'{bot.me.icon_url}',
-				)
-			],
-			timestamp=str(datetime.datetime.utcnow()),
-			footer=interactions.EmbedFooter(
-				icon_url=bot.me.icon_url,
-				text=f'{bot.me.name}'
-			),
-			thumbnail=interactions.EmbedImageStruct(url=bot.me.icon_url)._json,
-		)
-		await ctx.send(embeds=e)
+	
+	data = "AAAAAAAAAAAAAAAAAAAAAAAAAA"
+	with io.StringIO(data) as f:
+		file = interactions.File(filename="aaaaa.txt", fp=f)
+		await ctx.send(files=file)
+	
+	#await ctx.send("AAAAAAAAAAAAAAAAAAAAAAAAA!")
 """
+
+
 
 
 bot.start()
