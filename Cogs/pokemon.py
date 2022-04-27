@@ -39,16 +39,16 @@ class Pokemon(EnhancedExtension):
 	)
 	@option(
 		type=interactions.OptionType.STRING,
-		name="name",
+		name="pokemon_name",
 		autocomplete=True
 	)
 	async def pokemon(self, ctx: interactions.CommandContext,
-		name: str
+		pokemon_name: str
 	):
-		name_lower = name.lower()
+		name_lower = pokemon_name.lower()
 		url = "https://some-random-api.ml/pokedex"
 		params = {
-			"pokemon": name
+			"pokemon": pokemon_name
 		}
 		resp = await get_response(url, params)
 		desp = resp['description']
@@ -68,6 +68,14 @@ class Pokemon(EnhancedExtension):
 			evs = None
 		height = resp['height']
 		weight = resp['weight']
+		if int(id) < int(10):
+			id = "00" + str(id)
+			id = int(id)
+		elif int(id) < int(100):
+			id = "0" + str(id)
+			id = int(id)
+		else:
+			id = int(id)
 		sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
 		data = json.loads(open("./data/pokemon.json", "r").read())
 		if name_lower in data:
@@ -110,14 +118,14 @@ class Pokemon(EnhancedExtension):
 	base.finish()
 
 
-	@base.autocomplete("name")
-	async def auto_complete(self, ctx:interactions.CommandContext, name: str = ""):
-		if name != "":
-			letters: list = name
+	@base.autocomplete("pokemon_name")
+	async def auto_complete(self, ctx:interactions.CommandContext, pokemon_name: str = ""):
+		if pokemon_name != "":
+			letters: list = pokemon_name
 		else:
 			letters = []
 		data = json.loads(open("./data/pokemon.json", "r").read())
-		if len(name) == 0:
+		if len(pokemon_name) == 0:
 			await ctx.populate(
 				[
 					interactions.Choice(
