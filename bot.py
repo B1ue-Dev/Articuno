@@ -22,7 +22,7 @@ bot = interactions.Client(
 		],
 		status=interactions.StatusType.IDLE,
 	),
-	disable_sync=True
+	#disable_sync=True
 )
 
 """
