@@ -22,22 +22,22 @@ bot = interactions.Client(
 		],
 		status=interactions.StatusType.IDLE,
 	),
-	#disable_sync=True
+	disable_sync=True
 )
 
 """
 Main cogs.
 """
-bot.load('Cogs.basic')
+#bot.load('Cogs.basic')
 bot.load('Cogs.fun')
-bot.load('Cogs.hacktool')
-bot.load('Cogs.info')
-bot.load('Cogs.logger')
-bot.load('Cogs.menus')
-bot.load('Cogs.misc')
-bot.load('Cogs.mod')
+#bot.load('Cogs.hacktool')
+#bot.load('Cogs.info')
+#bot.load('Cogs.logger')
+#bot.load('Cogs.menus')
+#bot.load('Cogs.misc')
+#bot.load('Cogs.mod')
 bot.load('Cogs.pokemon')
-bot.load('Cogs.tag')
+#bot.load('Cogs.tag')
 
 """
 Test cogs.
