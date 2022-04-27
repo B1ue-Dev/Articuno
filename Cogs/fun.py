@@ -38,7 +38,7 @@ class Fun(interactions.Extension):
 		description="Send an image of coffee",
 		scope=scope
 	)
-	async def coffee(self, ctx: CommandContext):
+	async def _coffee(self, ctx: CommandContext):
 		url = "https://coffee.alexflipnote.dev/random.json"
 		resp = await get_response(url)
 		file = resp['file']
@@ -68,7 +68,7 @@ class Fun(interactions.Extension):
 			),
 		]
 	)
-	async def ship(self, ctx: CommandContext,
+	async def _ship(self, ctx: CommandContext,
 		user1: str = None,
 		user2: str = None
 	):
@@ -181,7 +181,7 @@ class Fun(interactions.Extension):
 		description="Roll a dice",
 		scope=scope,
 	)
-	async def roll(self, ctx: CommandContext):
+	async def _roll(self, ctx: CommandContext):
 		dice = random.randint(1, 6)
 		msg: CommandContext = await ctx.send("I am rolling the dice...")
 		await asyncio.sleep(1.5)
@@ -194,7 +194,7 @@ class Fun(interactions.Extension):
 		description="Flip a coin",
 		scope=scope,
 	)
-	async def flip(self, ctx: CommandContext):
+	async def _flip(self, ctx: CommandContext):
 		coin = random.choice(["heads", "tails"])
 		msg: CommandContext = await ctx.send("I am flipping the coin...")
 		await asyncio.sleep(1.5)
@@ -215,7 +215,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def gay(self, ctx: CommandContext,
+	async def _gay(self, ctx: CommandContext,
 		user: str = None,
 	):
 		if not user:
@@ -237,7 +237,7 @@ class Fun(interactions.Extension):
 		description="Send a random joke",
 		scope=scope,
 	)
-	async def joke(self, ctx: CommandContext):
+	async def _joke(self, ctx: CommandContext):
 		url = "https://some-random-api.ml/joke"
 		resp = await get_response(url)
 		embed = interactions.Embed(description=resp['joke'], color=random.randint(0, 0xFFFFFF))
@@ -251,7 +251,7 @@ class Fun(interactions.Extension):
 		description="Send a quote",
 		scope=scope,
 	)
-	async def quote(self, ctx: CommandContext):
+	async def _quote(self, ctx: CommandContext):
 		url = 'https://api.quotable.io/random'
 		resp = await get_response(url)
 		author = resp['author']
@@ -259,6 +259,7 @@ class Fun(interactions.Extension):
 		dateAdded = resp['dateAdded']
 		footer = interactions.EmbedFooter(text=f"Added on {dateAdded}")
 		embed = interactions.Embed(title=f"From {author}", description=content, color=random.randint(0, 0xFFFFFF), footer=footer)
+		
 		await ctx.send(embeds=embed)
 	
 
@@ -276,7 +277,7 @@ class Fun(interactions.Extension):
 			),
 		]
 	)
-	async def xkcd(self, ctx: CommandContext,
+	async def _xkcd(self, ctx: CommandContext,
 		page: int = None
 	):
 		url = "https://xkcd.com/info.0.json"
@@ -292,11 +293,167 @@ class Fun(interactions.Extension):
 		title = resp['title']
 		alt = resp['alt']
 		img = resp['img']
+		
 		footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
 		image = interactions.EmbedImageStruct(url=img)._json
 		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")._json
 		embed = interactions.Embed(description=alt, color=random.randint(0, 0xFFFFFF), footer=footer, image=image, author=author)
+		
 		await ctx.send(embeds=embed)
+
+
+
+	@command(
+		name="dictionary",
+		description="Define a word",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="word",
+				description="The word you want to define",
+				required=True,
+			)
+		]
+	)
+	async def _dictionary(self, ctx: CommandContext,
+		word: str,
+	):
+		url = "https://some-random-api.ml/dictionary"
+		params = {
+			"word": word
+		}
+		resp = await get_response(url, params=params)
+
+		try:
+			er = resp['error']
+			await ctx.send(f"Error: {er}. Please try again.")
+		except:
+			term = resp['word']
+			definition = resp['definition']
+			if len(definition) > 4096:
+				definition = definition[:4000] + "..."
+			embed = interactions.Embed(
+				title=f"Definition of {term}",
+				description=definition,
+				color=random.randint(0, 0xFFFFFF)
+			)
+			
+			await ctx.send(embeds=embed)
+
+
+
+	@command(
+		name="urban",
+		description="Define a word on Urban Dictionary",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="term",
+				description="The term you want to define",
+				required=True
+			)
+		]
+	)
+	async def _urban(self, ctx: CommandContext,
+		term: str,
+	):
+		url = "https://api.urbandictionary.com/v0/define"
+		params = {
+			"term": term
+		}
+		resp = await get_response(url, params=params)
+		if len(resp['list']) == 0:
+			embed = interactions.Embed(
+				description="No results found.",
+			)
+			await ctx.send(embeds=embed, ephemeral=True)
+
+		else:
+			ran = int(0)
+			page = int(len(resp["list"]) - 1)
+			buttons = [
+				interactions.ActionRow(
+					components=[
+						interactions.Button(
+							style=interactions.ButtonStyle.PRIMARY,
+							label="◄",
+							custom_id="previous",
+						),
+						interactions.Button(
+							style=interactions.ButtonStyle.PRIMARY,
+							label="►",
+							custom_id="next"
+						)
+					]
+				)
+			]
+			definition = resp['list'][ran]['definition']
+			if len(definition) > 700:
+				definition = definition[:690] + "..."
+			example = resp['list'][ran]['example']
+			if len(example) > 700:
+				example = example[:330] + "..."
+
+			footer = interactions.EmbedFooter(text=f"👍 {resp['list'][ran]['thumbs_up']} • 👎 {resp['list'][ran]['thumbs_down']} • Page {ran}/{page}", icon_url="https://store-images.s-microsoft.com/image/apps.20202.13510798884772369.4d67f3fd-b81b-4f91-b3a0-8dcf0c039f62.e5abe879-5dc9-4adf-8fd8-6aad8bd2fb91")
+			embed = interactions.Embed(
+				title=f"{resp['list'][ran]['word']}",
+				footer=footer
+			)
+			embed.add_field(name="Definition", value=f"{definition}", inline=True)
+			embed.add_field(name="Example", value=f"{example}", inline=True)
+			
+			msg: CommandContext = await ctx.send(embeds=embed, components=buttons)
+			while True:
+				try:
+					res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
+					if res.author.id == ctx.author.id:
+						if res.custom_id == "previous":
+							if ran == 0:
+								ran = int(0)
+							else:
+								ran = int(ran - 1)
+								definition = resp['list'][ran]['definition']
+								if len(definition) > 700:
+									definition = definition[:690] + "..."
+								example = resp['list'][ran]['example']
+								if len(example) > 700:
+									example = example[:330] + "..."
+
+								footer = interactions.EmbedFooter(text=f"👍 {resp['list'][ran]['thumbs_up']} • 👎 {resp['list'][ran]['thumbs_down']} • Page {ran}/{page}", icon_url="https://store-images.s-microsoft.com/image/apps.20202.13510798884772369.4d67f3fd-b81b-4f91-b3a0-8dcf0c039f62.e5abe879-5dc9-4adf-8fd8-6aad8bd2fb91")
+								embed = interactions.Embed(
+									title=f"{resp['list'][ran]['word']}",
+									footer=footer
+								)
+								embed.add_field(name="Definition", value=f"{definition}", inline=True)
+								embed.add_field(name="Example", value=f"{example}", inline=True)
+								await res.edit(embeds=embed)
+						elif res.custom_id == "next":
+							if ran == page:
+								ran = int(page)
+							else:
+								ran = int(ran + 1)
+								definition = resp['list'][ran]['definition']
+								if len(definition) > 700:
+									definition = definition[:690] + "..."
+								example = resp['list'][ran]['example']
+								if len(example) > 700:
+									example = example[:330] + "..."
+
+								footer = interactions.EmbedFooter(text=f"👍 {resp['list'][ran]['thumbs_up']} • 👎 {resp['list'][ran]['thumbs_down']} • Page {ran}/{page}", icon_url="https://store-images.s-microsoft.com/image/apps.20202.13510798884772369.4d67f3fd-b81b-4f91-b3a0-8dcf0c039f62.e5abe879-5dc9-4adf-8fd8-6aad8bd2fb91")
+								embed = interactions.Embed(
+									title=f"{resp['list'][ran]['word']}",
+									footer=footer
+								)
+								embed.add_field(name="Definition", value=f"{definition}", inline=True)
+								embed.add_field(name="Example", value=f"{example}", inline=True)
+								await res.edit(embeds=embed)
+
+				except:
+					...
+
+			
 
 
 
@@ -313,7 +470,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def img(self, ctx: CommandContext,
+	async def _img(self, ctx: CommandContext,
 		query: str
 	):
 		ran = int(0)
