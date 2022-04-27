@@ -2,6 +2,7 @@ import interactions
 from interactions import extension_command as command
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
 
@@ -39,7 +40,7 @@ class Info(interactions.Extension):
 			)
 		]
 	)
-	async def info(self, ctx: interactions.CommandContext,
+	async def _info(self, ctx: interactions.CommandContext,
 		sub_command: str,
 		user: interactions.Member = None,
 		server: interactions.Guild = None,
@@ -107,9 +108,39 @@ class Info(interactions.Extension):
 
 		if sub_command == "server":
 			guild = await ctx.get_guild()
+			user = interactions.User(**await self.bot._http.get_user(int(guild.owner_id)), _client=self.bot._http)
 			name = guild.name
-			id = guild.icon_url
-			await ctx.send(f"{id}")
+			id = int(guild.id)
+			icon = guild.icon_url
+			boost = guild.premium_subscription_count
+			if boost <= 2:
+				comment = "Level 0"
+			if 2 <= boost < 7:
+				comment = "Level 1"
+			if 7 <= boost < 14:
+				comment = "Level 2"
+			if boost >= 14:
+				comment = "Level 3"
+
+			fields = [
+				interactions.EmbedField(name="ID", value=f"{id}", inline=True),
+				interactions.EmbedField(name="Owner", value=f"{user.mention}\n{user.username}#{user.discriminator}", inline=True),
+				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{comment}", inline=True),
+			]
+			thumbnail = interactions.EmbedImageStruct(url=icon)
+			footer = interactions.EmbedFooter(
+				text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+				icon_url=f"{ctx.author.user.avatar_url}"
+			)
+			embed = interactions.Embed(
+				title=f"{name}",
+				footer=footer,
+				thumbnail=thumbnail,
+				fields=fields
+			)
+			await ctx.send(embeds=embed)
+
+
 
 
 
