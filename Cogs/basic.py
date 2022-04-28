@@ -20,7 +20,7 @@ class Basic(interactions.Extension):
 		description='Ping Articuno',
 		scope=scope
 	)
-	async def ping(self, ctx: interactions.CommandContext):
+	async def _ping(self, ctx: interactions.CommandContext):
 		websocket = f"{self.bot.latency * 1:.0f}"
 
 		if int(websocket) < int(99):
@@ -30,14 +30,15 @@ class Basic(interactions.Extension):
 		elif int(websocket) > int(200):
 			message = f"{websocket}ms <:Connection_Bad:936294724954894436>"
 
+		footer = interactions.EmbedFooter(
+			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+			icon_url=f"{ctx.author.user.avatar_url}"
+		)
 		embed = interactions.Embed(
 			title=":ping_pong: Pong!",
 			description=f"Websocket: {message}",
 			color=0xff8b00,
-			footer = interactions.EmbedFooter(
-				text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-				icon_url=f"{ctx.author.user.avatar_url}"
-			)
+			footer=footer
 		)
 
 		await ctx.send(embeds=embed)
@@ -49,7 +50,7 @@ class Basic(interactions.Extension):
 		description="Shows the stats of Articuno",
 		scope=scope
 	)
-	async def stats(self, ctx: interactions.CommandContext):
+	async def _stats(self, ctx: interactions.CommandContext):
 		proc = psutil.Process()
 		mems = proc.memory_full_info()
 		cpus = psutil.cpu_percent()
