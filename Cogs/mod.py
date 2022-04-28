@@ -133,7 +133,7 @@ class Admin(interactions.Extension):
 			)
 		]
 	)
-	async def user(self, ctx: interactions.CommandContext, sub_command: str,
+	async def _user(self, ctx: interactions.CommandContext, sub_command: str,
 		user: interactions.Member = None,
 		id: str = None,
 		reason: str = None,
@@ -366,10 +366,6 @@ class Admin(interactions.Extension):
 				permission_overwrites.extend(interactions.Overwrite())
 				await channel.modify(permission_overwrites=permission_overwrites)
 				await ctx.send(f"``{channel.name}`` is locked.")
-			
-
-
-
 
 
 

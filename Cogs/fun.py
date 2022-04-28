@@ -27,6 +27,7 @@ async def get_response(url: str = None, params: dict = None):
 
 
 
+
 class Fun(interactions.Extension):
 	def __init__(self, bot):
 		self.bot = bot
@@ -42,8 +43,13 @@ class Fun(interactions.Extension):
 		url = "https://coffee.alexflipnote.dev/random.json"
 		resp = await get_response(url)
 		file = resp['file']
+
 		image = interactions.EmbedImageStruct(url=file)._json
-		embed = interactions.Embed(title="Coffee ☕", color=0xc4771d, image=image)
+		embed = interactions.Embed(
+			title="Coffee ☕",
+			color=0xc4771d,
+			image=image
+		)
 
 		await ctx.send(embeds=embed)
 	
@@ -240,7 +246,11 @@ class Fun(interactions.Extension):
 	async def _joke(self, ctx: CommandContext):
 		url = "https://some-random-api.ml/joke"
 		resp = await get_response(url)
-		embed = interactions.Embed(description=resp['joke'], color=random.randint(0, 0xFFFFFF))
+
+		embed = interactions.Embed(
+			description=resp['joke'],
+			color=random.randint(0, 0xFFFFFF)
+		)
 
 		await ctx.send(embeds=embed)
 
@@ -257,8 +267,14 @@ class Fun(interactions.Extension):
 		author = resp['author']
 		content = resp['content']
 		dateAdded = resp['dateAdded']
+
 		footer = interactions.EmbedFooter(text=f"Added on {dateAdded}")
-		embed = interactions.Embed(title=f"From {author}", description=content, color=random.randint(0, 0xFFFFFF), footer=footer)
+		embed = interactions.Embed(
+			title=f"From {author}",
+			description=content,
+			color=random.randint(0, 0xFFFFFF),
+			footer=footer
+		)
 		
 		await ctx.send(embeds=embed)
 	
@@ -297,7 +313,13 @@ class Fun(interactions.Extension):
 		footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
 		image = interactions.EmbedImageStruct(url=img)._json
 		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")._json
-		embed = interactions.Embed(description=alt, color=random.randint(0, 0xFFFFFF), footer=footer, image=image, author=author)
+		embed = interactions.Embed(
+			description=alt,
+			color=random.randint(0, 0xFFFFFF),
+			footer=footer,
+			image=image,
+			author=author
+		)
 		
 		await ctx.send(embeds=embed)
 
@@ -369,7 +391,6 @@ class Fun(interactions.Extension):
 				description="No results found.",
 			)
 			await ctx.send(embeds=embed, ephemeral=True)
-
 		else:
 			ran = int(0)
 			page = int(len(resp["list"]) - 1)
@@ -449,8 +470,7 @@ class Fun(interactions.Extension):
 								embed.add_field(name="Definition", value=f"{definition}", inline=True)
 								embed.add_field(name="Example", value=f"{example}", inline=True)
 								await res.edit(embeds=embed)
-
-				except:
+				except asyncio.TimeoutError:
 					...
 
 			
@@ -542,8 +562,7 @@ class Fun(interactions.Extension):
 				else:
 					await res.edit()
 			except asyncio.TimeoutError:
-				await msg.edit(components=[])
-				break
+				...
 
 
 

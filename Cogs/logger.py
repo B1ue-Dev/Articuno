@@ -8,18 +8,18 @@ class Logs(interactions.Extension):
 		self.bot = bot
 	
 	@listener(name="on_message_create")
-	async def on_message_create(self, message: interactions.Message):
+	async def _message_create(self, message: interactions.Message):
 		print(f"{message.author.username}#{message.author.discriminator} said: {message.content}")
 
 
 	@listener(name="on_guild_create")
-	async def guild_create(self, guild: interactions.Guild):
+	async def _guild_create(self, guild: interactions.Guild):
 		channel = interactions.Channel(**await self.bot._http.get_channel(957090401418899526), _client=self.bot._http)
 		print(f"Joined guild {guild.name}")
 	
 
 	@listener(name="on_guild_member_add")
-	async def guild_member_add(self, member: interactions.GuildMember):
+	async def _guild_member_add(self, member: interactions.GuildMember):
 		if int(member.guild_id) == int(738938246574374913):
 			guild = interactions.Guild(**await self.bot._http.get_guild(member.guild_id), _client=self.bot._http)
 			channel = interactions.Channel(**await self.bot._http.get_channel(862636687226044436), _client=self.bot._http)
@@ -36,7 +36,7 @@ class Logs(interactions.Extension):
 	
 
 	@listener(name="on_guild_member_remove")
-	async def guild_member_remove(self, member: interactions.GuildMember):
+	async def _guild_member_remove(self, member: interactions.GuildMember):
 		if int(member.guild_id) == int(738938246574374913):
 			guild = interactions.Guild(**await self.bot._http.get_guild(member.guild_id), _client=self.bot._http)
 			channel = interactions.Channel(**await self.bot._http.get_channel(862636687226044436), _client=self.bot._http)
@@ -51,7 +51,7 @@ class Logs(interactions.Extension):
 		else:
 			return
 
-	
+
 
 
 

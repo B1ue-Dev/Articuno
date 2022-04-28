@@ -13,7 +13,9 @@ scope = int(os.getenv("SCOPE"))
 
 
 
-class Tag_test(EnhancedExtension):
+
+
+class Tag(EnhancedExtension):
 	def __init__(self, bot):
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
@@ -47,7 +49,6 @@ class Tag_test(EnhancedExtension):
 			]
 		)
 		await ctx.popup(modal)
-
 
 
 	@tag.subcommand(
@@ -106,7 +107,6 @@ class Tag_test(EnhancedExtension):
 			await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
 
 
-
 	@tag.subcommand(
 		name="list",
 		description="List all tags",
@@ -122,7 +122,6 @@ class Tag_test(EnhancedExtension):
 			await ctx.send(embeds=embed)
 		else:
 			await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
-
 
 
 	@tag.subcommand(
@@ -164,7 +163,6 @@ class Tag_test(EnhancedExtension):
 		else:
 			await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
 			return
-
 
 
 	@tag.subcommand(
@@ -298,9 +296,5 @@ class Tag_test(EnhancedExtension):
 
 
 
-
-
 def setup(bot):
-	return Tag_test(bot)
-	
-
+	return Tag(bot)

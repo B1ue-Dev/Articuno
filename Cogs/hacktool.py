@@ -1,15 +1,14 @@
 import interactions
-from interactions import *
 from interactions import extension_command as command
-from interactions import extension_component as component
-from interactions import extension_listener as listener
-from interactions import extension_user_command as user_command
 from interactions import extension_message_command as message_command
 import os, base64 as b64, utils.brainfuck as brainfuck
 from dotenv import load_dotenv
-load_dotenv()
 
+load_dotenv()
 scope = int(os.getenv("SCOPE"))
+
+
+
 
 
 class HackTool(interactions.Extension):
@@ -21,26 +20,26 @@ class HackTool(interactions.Extension):
 			description="Base64 tools",
 			scope=scope,
 			options=[
-				Option(
-					type=OptionType.SUB_COMMAND,
+				interactions.Option(
+					type=interactions.OptionType.SUB_COMMAND,
 					name="encode",
 					description="Encode a string",
 					options=[
-						Option(
-							type=OptionType.STRING,
+						interactions.Option(
+							type=interactions.OptionType.STRING,
 							name="string",
 							description="String to encode",
 							required=True
 						)
 					]
 				),
-				Option(
-					type=OptionType.SUB_COMMAND,
+				interactions.Option(
+					type=interactions.OptionType.SUB_COMMAND,
 					name="decode",
 					description="Decode a string",
 					options=[
-						Option(
-							type=OptionType.STRING,
+						interactions.Option(
+							type=interactions.OptionType.STRING,
 							name="string",
 							description="String to decode",
 							required=True
@@ -49,7 +48,7 @@ class HackTool(interactions.Extension):
 				)
 			]
 	)
-	async def base64(self,
+	async def _base64(self,
 		ctx: interactions.CommandContext,
 		sub_command: str,
 		string: str
@@ -75,20 +74,21 @@ class HackTool(interactions.Extension):
 			description="Brainfuck interpreter",
 			scope=scope,
 			options=[
-				Option(
-					type=OptionType.STRING,
+				interactions.Option(
+					type=interactions.OptionType.STRING,
 					name="string",
 					description="String to interpret",
 					required=True
 				)
 			]
 	)
-	async def brainfuck(self,
+	async def _brainfuck(self,
 		ctx: interactions.CommandContext,
 		string: str
 	):
 		string_bytes = brainfuck.evaluate(string)
 		await ctx.send(f"```{string_bytes}```")
+
 
 
 

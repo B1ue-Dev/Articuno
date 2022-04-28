@@ -126,7 +126,7 @@ class Menus(interactions.Extension):
 
 		await ctx.send(embeds=embed, ephemeral=True)
 
-		
+
 
 
 

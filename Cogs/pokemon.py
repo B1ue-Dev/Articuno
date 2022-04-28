@@ -14,6 +14,7 @@ scope = int(os.getenv("SCOPE"))
 apikey = os.getenv("APIKEY")
 
 
+
 async def get_response(url: str = None, params: dict = None):
 	async with aiohttp.ClientSession() as session:
 		async with session.get(url, params=params) as resp:
@@ -23,6 +24,7 @@ async def get_response(url: str = None, params: dict = None):
 				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
 					return io.BytesIO(await resp.read())
 	await session.close()
+
 
 
 
@@ -42,7 +44,7 @@ class Pokemon(EnhancedExtension):
 		name="pokemon_name",
 		autocomplete=True
 	)
-	async def pokemon(self, ctx: interactions.CommandContext,
+	async def _pokemon(self, ctx: interactions.CommandContext,
 		pokemon_name: str
 	):
 		name_lower = pokemon_name.lower()

@@ -8,6 +8,7 @@ scope = int(os.getenv("SCOPE"))
 apikey = os.getenv("APIKEY")
 
 
+
 async def get_response(url: str = None, params: dict = None):
 	async with aiohttp.ClientSession() as session:
 		async with session.get(url, params=params) as resp:
@@ -17,7 +18,6 @@ async def get_response(url: str = None, params: dict = None):
 				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
 					return io.BytesIO(await resp.read())
 	await session.close()
-
 
 
 
@@ -41,7 +41,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def hornycard(self, ctx: interactions.CommandContext,
+	async def _hornycard(self, ctx: interactions.CommandContext,
 		user: interactions.User = None
 	):
 		if not user:
@@ -72,7 +72,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def simpcard(self, ctx: interactions.CommandContext,
+	async def _simpcard(self, ctx: interactions.CommandContext,
 		user: interactions.Member = None
 	):
 		if not user:
@@ -112,7 +112,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def tweet(self, ctx: interactions.CommandContext,
+	async def _tweet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 		comment: str,
 	):
@@ -162,7 +162,7 @@ class Misc(interactions.Extension):
 			)
 		]
 	)
-	async def youtube(self, ctx: interactions.CommandContext,
+	async def _youtube(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 		comment: str,
 	):
@@ -197,7 +197,7 @@ class Misc(interactions.Extension):
 			),
 		]
 	)
-	async def amogus(self, ctx: interactions.CommandContext,
+	async def _amogus(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
 		msg = await ctx.send("Executing...")
@@ -226,7 +226,7 @@ class Misc(interactions.Extension):
 			),
 		]
 	)
-	async def pet(self, ctx: interactions.CommandContext,
+	async def _pet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
 		url = "https://cdn.discordapp.com/attachments/862636687226044436/965452327827935272/image.gif"

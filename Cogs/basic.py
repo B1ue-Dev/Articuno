@@ -2,6 +2,7 @@ import interactions
 from interactions import extension_command as command
 import platform, psutil, utils.utils as utils, datetime, os, utils.utils as utils
 from dotenv import load_dotenv
+
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
 load_time = datetime.datetime.now()
@@ -99,7 +100,7 @@ class Basic(interactions.Extension):
 		description="Developers/Contributors to this project",
 		scope=scope
 	)
-	async def credits(self, ctx: interactions.CommandContext):
+	async def _credits(self, ctx: interactions.CommandContext):
 		fields = [
 			interactions.EmbedField(name="**BlueZ#7181**", value="``Leader``\n> Owner, creator and debugger for Articuno. Mostly handle with code and errors.", inline=True),
 			interactions.EmbedField(name="**Manana#3313**\n**꒓ꆂꌚꑛꂑꁍꆂ#8149**", value="``Tester``\n> Insiders for this project.")
@@ -125,7 +126,7 @@ class Basic(interactions.Extension):
 		description="Invite Articuno to your server",
 		scope=scope
 	)
-	async def invite(self, ctx: interactions.CommandContext):
+	async def _invite(self, ctx: interactions.CommandContext):
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"
