@@ -108,24 +108,45 @@ class Info(interactions.Extension):
 
 		if sub_command == "server":
 			guild = await ctx.get_guild()
+			channel = await ctx.get_channel()
 			user = interactions.User(**await self.bot._http.get_user(int(guild.owner_id)), _client=self.bot._http)
 			name = guild.name
 			id = int(guild.id)
 			icon = guild.icon_url
 			boost = guild.premium_subscription_count
+			member_count = int(guild.member_count)
+			channel_count = len(guild.channels)
+			verification_level = int(verification_level)
+			splash_bool = False
+			banner_bool = False
 			if boost <= 2:
-				comment = "Level 0"
-			if 2 <= boost < 7:
-				comment = "Level 1"
-			if 7 <= boost < 14:
-				comment = "Level 2"
-			if boost >= 14:
-				comment = "Level 3"
+				boost_comment = "Level 0"
+			elif 2 <= boost < 7:
+				boost_comment = "Level 1"
+				splash_bool = True
+			elif 7 <= boost < 14:
+				boost_comment = "Level 2"
+				banner_bool = True
+			elif boost >= 14:
+				boost_comment = "Level 3"
+			if verification_level == 0:
+				verification_comment = "Unrestricted."
+			elif verification_level == 1:
+				verification_comment = "Must have verified email on account."
+			elif verification_level == 2:
+				verification_comment = "Must be registered on Discord for longer than 5 minutes."
+			elif verification_level == 3:
+				verification_comment = "Must be a member of the server for longer than 10 minutes."
+			elif verification_level == 4:
+				verification_comment = "Must have a verified phone number."
 
 			fields = [
 				interactions.EmbedField(name="ID", value=f"{id}", inline=True),
 				interactions.EmbedField(name="Owner", value=f"{user.mention}\n{user.username}#{user.discriminator}", inline=True),
-				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{comment}", inline=True),
+				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True),
+				interactions.EmbedField(name="Member", value=f"Total: {member_count}", inline=True),
+				interactions.EmbedField(name="Channel", value=f"Total: {channel_count}", inline=True),
+				interactions.EmbedField(name="Verify Level", value=f"Level: {verification_level}\n{verification_comment}", inline=True)
 			]
 			thumbnail = interactions.EmbedImageStruct(url=icon)
 			footer = interactions.EmbedFooter(
