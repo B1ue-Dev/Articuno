@@ -139,6 +139,7 @@ class Info(interactions.Extension):
 				verification_comment = "Must be a member of the server for longer than 10 minutes."
 			elif verification_level == 4:
 				verification_comment = "Must have a verified phone number."
+			role_count = len(guild.roles)
 
 			fields = [
 				interactions.EmbedField(name="ID", value=f"{id}", inline=True),
@@ -146,7 +147,8 @@ class Info(interactions.Extension):
 				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True),
 				interactions.EmbedField(name="Member", value=f"Total: {member_count}", inline=True),
 				interactions.EmbedField(name="Channel", value=f"Total: {channel_count}", inline=True),
-				interactions.EmbedField(name="Verify Level", value=f"Level: {verification_level}\n{verification_comment}", inline=True)
+				interactions.EmbedField(name="Verify Level", value=f"Level: {verification_level}\n{verification_comment}", inline=True),
+				interactions.EmbedField(name="Role", value=f"Total: {role_count}", inline=True)
 			]
 			thumbnail = interactions.EmbedImageStruct(url=icon)
 			footer = interactions.EmbedFooter(
