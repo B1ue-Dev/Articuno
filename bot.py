@@ -36,7 +36,7 @@ bot.load('Cogs.info')
 bot.load('Cogs.menus')
 bot.load('Cogs.misc')
 bot.load('Cogs.mod')
-#bot.load('Cogs.pokemon')
+bot.load('Cogs.pokemon')
 bot.load('Cogs.tag')
 
 """
