@@ -328,6 +328,7 @@ class Admin(interactions.Extension):
 							return
 	
 
+	"""
 	@command(
 		name="channel",
 		description="Channel moderation commands",
@@ -366,7 +367,7 @@ class Admin(interactions.Extension):
 				permission_overwrites.extend(interactions.Overwrite())
 				await channel.modify(permission_overwrites=permission_overwrites)
 				await ctx.send(f"``{channel.name}`` is locked.")
-
+	"""
 
 
 

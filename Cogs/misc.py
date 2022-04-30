@@ -213,6 +213,7 @@ class Misc(interactions.Extension):
 		await msg.edit(content=None, files=img)
 	
 
+	"""
 	@command(
 		name="pet",
 		description="Pet someone",
@@ -238,7 +239,7 @@ class Misc(interactions.Extension):
 		#await ctx.defer()
 		img = interactions.File(filename="image.gif", fp=resp, description="Image")
 		await ctx.send(files=img)
-
+	"""
 
 
 

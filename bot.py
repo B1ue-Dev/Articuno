@@ -29,20 +29,20 @@ bot = interactions.Client(
 Main cogs.
 """
 bot.load('Cogs.basic')
-#bot.load('Cogs.fun')
-#bot.load('Cogs.hacktool')
-#bot.load('Cogs.info')
+bot.load('Cogs.fun')
+bot.load('Cogs.hacktool')
+bot.load('Cogs.info')
 #bot.load('Cogs.logger')
-#bot.load('Cogs.menus')
-#bot.load('Cogs.misc')
-#bot.load('Cogs.mod')
+bot.load('Cogs.menus')
+bot.load('Cogs.misc')
+bot.load('Cogs.mod')
 #bot.load('Cogs.pokemon')
-#bot.load('Cogs.tag')
+bot.load('Cogs.tag')
 
 """
 Test cogs.
 """
-#bot.load('interactions.ext.enhanced')
+bot.load('interactions.ext.enhanced')
 #bot.load('Cogs.get_method')
 #bot.load('test')
 

@@ -234,7 +234,7 @@ class Tag(EnhancedExtension):
 
 
 	@interactions.extension_modal(modal="new_tag")
-	async def new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
+	async def _new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
 		guild_id = ctx.guild_id
 		guild_id = str(guild_id)
 		with open("./data/tag.json", "r") as f:
@@ -257,7 +257,7 @@ class Tag(EnhancedExtension):
 
 
 	@interactions.extension_modal(modal="edit_tag")
-	async def edit_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
+	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
 		guild_id = ctx.guild_id
 		with open("./data/tag.json", "r") as f:
 			tags = json.load(f)
@@ -272,7 +272,7 @@ class Tag(EnhancedExtension):
 
 
 	@tag.autocomplete("tag_name")
-	async def auto_complete(self, ctx:interactions.CommandContext, tag_name: str = ""):
+	async def _auto_complete(self, ctx:interactions.CommandContext, tag_name: str = ""):
 		guild_id = ctx.guild_id
 		letters: list = list(tag_name) if tag_name != "" else []
 		tags = json.loads(open("./data/tag.json", "r").read())
