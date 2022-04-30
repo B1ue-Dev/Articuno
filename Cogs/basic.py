@@ -85,7 +85,7 @@ class Basic(interactions.Extension):
 		)
 		embed = interactions.Embed(
 			title="Articuno Stats",
-			color=0x236adf,
+			color=0x6aa4c1,
 			thumbnail=thumbnail,
 			footer=footer,
 			fields=fields
@@ -113,7 +113,7 @@ class Basic(interactions.Extension):
 		embed = interactions.Embed(
 			title="Credits",
 			description="Articuno is being maintained, developed and improved by Blue#2095.",
-			color=0x236adf,
+			color=0x6aa4c1,
 			footer=footer
 		)
 
@@ -127,18 +127,31 @@ class Basic(interactions.Extension):
 		scope=scope
 	)
 	async def _invite(self, ctx: interactions.CommandContext):
+		buttons = [
+			interactions.Button(
+				style=interactions.ButtonStyle.LINK,
+				label="Add me to your server",
+				url="https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands"
+			),
+			interactions.Button(
+				style=interactions.ButtonStyle.LINK,
+				label="Support server",
+				url="https://discord.gg/SPd5RNhwfY"
+			)
+		]
+
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title="Invite Articuno to your server",
-			description="[Invite](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/SPd5RNhwfY",
-			color=0x236adf,
+			description="Click the button below to invite Articuno to your server.\n\nIf you have any questions, feel free to join the support server.",
+			color=0x6aa4c1,
 			footer=footer
 		)
 
-		await ctx.send(embeds=embed)
+		await ctx.send(embeds=embed, components=buttons)
 
 
 

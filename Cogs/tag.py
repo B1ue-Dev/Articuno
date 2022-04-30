@@ -67,14 +67,14 @@ class Tag(EnhancedExtension):
 					description = description[:100] + "..."
 				else:
 					description = description
-				created_at = tags[guild_id][tag_name]["created_at"]
+				created_on = tags[guild_id][tag_name]["created_on"]
 				footer = interactions.EmbedFooter(
 					text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 					icon_url=f"{ctx.author.user.avatar_url}"
 				)
 				fields = [
 					interactions.EmbedField(name="Author", value=f"<@!{author}>", inline=True),
-					interactions.EmbedField(name="Created at", value=f"<t:{created_at}>", inline=True),
+					interactions.EmbedField(name="Created at", value=f"<t:{created_on}>", inline=True),
 					interactions.EmbedField(name="Description", value=description, inline=False)
 				]
 				embed = interactions.Embed(
@@ -248,7 +248,7 @@ class Tag(EnhancedExtension):
 		tag = json.loads(open("./data/tag.json", "r").read())
 		tag[guild_id][tag_name] = {
 			"description": tag_description,
-			"created_at": round(datetime.datetime.utcnow().timestamp()),
+			"created_on": round(datetime.datetime.utcnow().timestamp()),
 			"author": str(ctx.author.id)
 		}
 		with open("./data/tag.json", "w") as f:
@@ -263,7 +263,7 @@ class Tag(EnhancedExtension):
 			tags = json.load(f)
 			tags[guild_id][tag_name] = {
 				"description": tag_description,
-				"created_at": tags[guild_id][tag_name]["created_at"],
+				"created_on": tags[guild_id][tag_name]["created_on"],
 				"author": tags[guild_id][tag_name]["author"]
 			}
 		with open("./data/tag.json", "w") as f:

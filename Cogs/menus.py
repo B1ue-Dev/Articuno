@@ -115,7 +115,7 @@ class Menus(interactions.Extension):
 			interactions.EmbedField(name="Name", value=f"{name}#{discriminator}", inline=True),
 			interactions.EmbedField(name="ID", value=id, inline=True),
 			interactions.EmbedField(name="Joined at", value=f"<t:{joined_at}>", inline=False),
-			interactions.EmbedField(name="Created at", value=f"<t:{created_at}>", inline=False),
+			interactions.EmbedField(name="Created on", value=f"<t:{created_at}>", inline=False),
 			interactions.EmbedField(name="Bot?", value=bot, inline=True),
 		]
 		embed = interactions.Embed(

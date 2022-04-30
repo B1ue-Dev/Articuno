@@ -97,7 +97,7 @@ class Info(interactions.Extension):
 				interactions.EmbedField(name="Nickname", value=f"{nick}", inline=True),
 				interactions.EmbedField(name="ID", value=f"{id}", inline=True),
 				interactions.EmbedField(name="Joined at", value=f"<t:{joined_at}>", inline=True),
-				interactions.EmbedField(name="Created at", value=f"<t:{created_at}>", inline=True),
+				interactions.EmbedField(name="Created on", value=f"<t:{created_at}>", inline=True),
 				interactions.EmbedField(name="Highest role", value=f"{role.mention}", inline=True),
 				interactions.EmbedField(name="Hypesquad", value=f"{hypesquad}", inline=True),
 				interactions.EmbedField(name="Bot", value=f"{bot}", inline=True),

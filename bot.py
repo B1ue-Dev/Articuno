@@ -28,10 +28,10 @@ bot = interactions.Client(
 """
 Main cogs.
 """
-#bot.load('Cogs.basic')
+bot.load('Cogs.basic')
 #bot.load('Cogs.fun')
 #bot.load('Cogs.hacktool')
-bot.load('Cogs.info')
+#bot.load('Cogs.info')
 #bot.load('Cogs.logger')
 #bot.load('Cogs.menus')
 #bot.load('Cogs.misc')
@@ -42,7 +42,7 @@ bot.load('Cogs.info')
 """
 Test cogs.
 """
-bot.load('interactions.ext.enhanced')
+#bot.load('interactions.ext.enhanced')
 #bot.load('Cogs.get_method')
 #bot.load('test')
 
