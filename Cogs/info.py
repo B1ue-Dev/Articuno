@@ -1,6 +1,6 @@
 import interactions
 from interactions import extension_command as command
-import os, datetime
+import os, datetime, random
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -29,21 +29,33 @@ class Info(interactions.Extension):
 						type=interactions.OptionType.USER,
 						name="user",
 						description="Targeted user",
-						required=True,
+						required=True
 					)
-				],
+				]
+			),
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="avatar",
+				description="Shows avatar of targeted user",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.USER,
+						name="user",
+						description="Targeted user",
+						required=True
+					)
+				]
 			),
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
 				name="server",
-				description="Shows information of current server",
+				description="Shows information of current server"
 			)
 		]
 	)
 	async def _info(self, ctx: interactions.CommandContext,
 		sub_command: str,
-		user: interactions.Member = None,
-		server: interactions.Guild = None,
+		user: interactions.Member = None
 	):
 		if sub_command == "user":
 			role = await (await ctx.get_guild()).get_role(role_id=user.roles[0])
@@ -104,6 +116,26 @@ class Info(interactions.Extension):
 				fields=fields
 			)
 
+			await ctx.send(embeds=embed)
+
+		if sub_command == "avatar":
+			avatar = user.user.avatar_url
+			avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
+			avatar_png = user.user.avatar_url[:-4] + ".png"
+			avatar_webp = user.user.avatar_url[:-4] + ".webp"
+			message = f"[JPG]({avatar_jpg})  [PNG]({avatar_png})  [WEBP]({avatar_webp})"
+			if avatar[:-4] == ".gif":
+				message += "  [GIF]" + "(" + avatar[:-4] + ".gif)"
+			embed = interactions.Embed(
+				title=f"{user.user.username}#{user.user.discriminator}",
+				description=f"{message}",
+				color=random.randint(0, 0xFFFFFF),
+				image=interactions.EmbedImageStruct(url=avatar)._json,
+				footer=interactions.EmbedFooter(
+					text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+					icon_url=f"{ctx.author.user.avatar_url}"
+				)
+			)
 			await ctx.send(embeds=embed)
 
 		if sub_command == "server":
