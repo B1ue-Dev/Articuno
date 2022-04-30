@@ -1,6 +1,6 @@
 import interactions
 from interactions import extension_command as command
-import os
+import os, datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -107,15 +107,33 @@ class Info(interactions.Extension):
 			await ctx.send(embeds=embed)
 
 		if sub_command == "server":
-			guild = await ctx.get_guild()
-			channel = await ctx.get_channel()
+			guild = interactions.Guild(**await self.bot._http.get_guild(ctx.guild_id), _client=self.bot._http)
 			user = interactions.User(**await self.bot._http.get_user(int(guild.owner_id)), _client=self.bot._http)
+
 			name = guild.name
 			id = int(guild.id)
 			icon = guild.icon_url
 			boost = guild.premium_subscription_count
-			member_count = guild.member_count
-			#channel_count = len(guild.channels)
+			members = await guild.get_all_members()
+			member_counts = len(members)
+			human = 0
+			bot = 0
+			for member in members:
+				if member.user.bot is True:
+					bot += 1
+				else:
+					human += 1
+			channels = await guild.get_all_channels()
+			text_channels = 0
+			voice_channels = 0
+			categories = 0
+			for channel in channels:
+				if channel.type is interactions.ChannelType.GUILD_TEXT:
+					text_channels += 1
+				elif channel.type is interactions.ChannelType.GUILD_VOICE:
+					voice_channels += 1
+				elif channel.type is interactions.ChannelType.GUILD_CATEGORY:
+					categories += 1
 			verification_level = int(guild.verification_level)
 			splash_bool = False
 			banner_bool = False
@@ -140,15 +158,19 @@ class Info(interactions.Extension):
 			elif verification_level == 4:
 				verification_comment = "Must have a verified phone number."
 			role_count = len(guild.roles)
+			region = guild.region
+			joined_at = guild.id.epoch
 
 			fields = [
 				interactions.EmbedField(name="ID", value=f"{id}", inline=True),
 				interactions.EmbedField(name="Owner", value=f"{user.mention}\n{user.username}#{user.discriminator}", inline=True),
 				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True),
-				interactions.EmbedField(name="Member", value=f"Total: {member_count}", inline=True),
-				#interactions.EmbedField(name="Channel", value=f"Total: {channel_count}", inline=True),
+				interactions.EmbedField(name="Member", value=f"Total: {member_counts}\nHuman: {human}\nBot: {bot}", inline=True),
+				interactions.EmbedField(name="Channel", value=f"Text channels: {text_channels}\nVoice channels: {voice_channels}\nCategories: {categories}", inline=True),
 				interactions.EmbedField(name="Verify Level", value=f"Level: {verification_level}\n{verification_comment}", inline=True),
-				interactions.EmbedField(name="Role", value=f"Total: {role_count}", inline=True)
+				interactions.EmbedField(name="Created on", value=f"<t:{joined_at}>", inline=True),
+				interactions.EmbedField(name="Region", value=f"{region}", inline=True),
+				interactions.EmbedField(name="Roles", value=f"{role_count} roles", inline=True),
 			]
 			thumbnail = interactions.EmbedImageStruct(url=icon)
 			footer = interactions.EmbedFooter(
@@ -157,11 +179,17 @@ class Info(interactions.Extension):
 			)
 			embed = interactions.Embed(
 				title=f"{name}",
+				color=0x788cdc,
 				footer=footer,
 				thumbnail=thumbnail,
 				fields=fields
 			)
+			if splash_bool is True and guild.splash_url is not None:
+				embed.add_field(name="Splash URL", value=f"[Splash_url]({guild.splash_url})", inline=True)
+			if banner_bool is True and guild.banner_url is not None:
+				embed.add_field(name="Banner URL", value=f"[Banner_url]({guild.banner_url})", inline=True)
 			await ctx.send(embeds=embed)
+
 
 
 
