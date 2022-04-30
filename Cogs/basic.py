@@ -81,7 +81,7 @@ class Basic(interactions.Extension):
 		github = interactions.Button(
 			style = interactions.ButtonStyle.LINK,
 			label = "GitHub",
-			url = "https://github.com/Jimmy-Blue/Articuno"
+			url = "https://github.com/Articuno-org/Articuno"
 		)
 		embed = interactions.Embed(
 			title="Articuno Stats",
@@ -101,23 +101,23 @@ class Basic(interactions.Extension):
 		scope=scope
 	)
 	async def _credits(self, ctx: interactions.CommandContext):
-		fields = [
-			interactions.EmbedField(name="**BlueZ#7181**", value="``Leader``\n> Owner, creator and debugger for Articuno. Mostly handle with code and errors.", inline=True),
-			interactions.EmbedField(name="**Manana#3313**\n**꒓ꆂꌚꑛꂑꁍꆂ#8149**", value="``Tester``\n> Insiders for this project.")
-		]
+		profile = interactions.Button(
+			style = interactions.ButtonStyle.LINK,
+			label = "Profile",
+			url = "https://blue.is-a.dev/"
+		)
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title="Credits",
-			description="Developers and contributors in this project:",
+			description="Articuno is being maintained, developed and improved by Blue#2095.",
 			color=0x236adf,
-			footer=footer,
-			fields=fields
+			footer=footer
 		)
 
-		await ctx.send(embeds=embed)
+		await ctx.send(embeds=embed, components=[profile])
 	
 
 
@@ -133,7 +133,7 @@ class Basic(interactions.Extension):
 		)
 		embed = interactions.Embed(
 			title="Invite Articuno to your server",
-			description="[Invite](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=2146958847&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/MCTppQWZcA",
+			description="[Invite](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands)\n\nSupport server: https://discord.gg/SPd5RNhwfY",
 			color=0x236adf,
 			footer=footer
 		)

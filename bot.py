@@ -6,13 +6,13 @@ load_dotenv()
 bot_token = os.getenv("TOKEN")
 scope = int(os.getenv("SCOPE"))
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 
 bot = interactions.Client(
 	token=bot_token,
-	intents=interactions.Intents.ALL,
+	intents=interactions.Intents.DEFAULT | interactions.Intents.PRIVILEGED,
 	presence=interactions.ClientPresence(
 		activities=[
 			interactions.PresenceActivity(
@@ -29,14 +29,14 @@ bot = interactions.Client(
 Main cogs.
 """
 #bot.load('Cogs.basic')
-bot.load('Cogs.fun')
+#bot.load('Cogs.fun')
 #bot.load('Cogs.hacktool')
-#bot.load('Cogs.info')
+bot.load('Cogs.info')
 #bot.load('Cogs.logger')
 #bot.load('Cogs.menus')
-bot.load('Cogs.misc')
+#bot.load('Cogs.misc')
 #bot.load('Cogs.mod')
-bot.load('Cogs.pokemon')
+#bot.load('Cogs.pokemon')
 #bot.load('Cogs.tag')
 
 """

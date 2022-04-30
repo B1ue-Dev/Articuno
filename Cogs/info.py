@@ -114,9 +114,9 @@ class Info(interactions.Extension):
 			id = int(guild.id)
 			icon = guild.icon_url
 			boost = guild.premium_subscription_count
-			member_count = int(guild.member_count)
-			channel_count = len(guild.channels)
-			verification_level = int(verification_level)
+			member_count = guild.member_count
+			#channel_count = len(guild.channels)
+			verification_level = int(guild.verification_level)
 			splash_bool = False
 			banner_bool = False
 			if boost <= 2:
@@ -146,7 +146,7 @@ class Info(interactions.Extension):
 				interactions.EmbedField(name="Owner", value=f"{user.mention}\n{user.username}#{user.discriminator}", inline=True),
 				interactions.EmbedField(name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True),
 				interactions.EmbedField(name="Member", value=f"Total: {member_count}", inline=True),
-				interactions.EmbedField(name="Channel", value=f"Total: {channel_count}", inline=True),
+				#interactions.EmbedField(name="Channel", value=f"Total: {channel_count}", inline=True),
 				interactions.EmbedField(name="Verify Level", value=f"Level: {verification_level}\n{verification_comment}", inline=True),
 				interactions.EmbedField(name="Role", value=f"Total: {role_count}", inline=True)
 			]
