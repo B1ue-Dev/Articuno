@@ -7,18 +7,6 @@ class Logs(interactions.Extension):
 	def __init__(self, bot):
 		self.bot = bot
 	
-	@listener(name="on_message_create")
-	async def _message_create(self, message: interactions.Message):
-		if message.guild_id == 738938246574374913 and message.guild_id is not None:
-			message_content = message.content.lower()
-
-			# If someone sends an invite link
-			if "discord.gg/" in message_content or "discordapp.com/invite" in message_content or "discord.com/invite" in message_content:
-				#author_channel: interactions.Channel = await self.bot._http.create_dm(int(message.author.id))
-				await message.delete()
-				await message.member.send("Don't send scam link please.")
-				#print(f"{message.author.username}#{message.author.discriminator} tried to send an invite link.")
-	
 
 	@listener(name="on_message_delete")
 	async def _message_delete(self, message: interactions.Message):
