@@ -15,7 +15,8 @@ scope = int(os.getenv("SCOPE"))
 
 
 class Menus(interactions.Extension):
-	def __init__(self, bot):
+	def __init__(self, bot) -> None:
+		super().__init__()
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
 

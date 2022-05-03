@@ -29,7 +29,8 @@ async def get_response(url: str = None, params: dict = None):
 
 
 class Fun(interactions.Extension):
-	def __init__(self, bot):
+	def __init__(self, bot) -> None:
+		super().__init__()
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
 

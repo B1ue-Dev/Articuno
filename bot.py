@@ -28,11 +28,12 @@ bot = interactions.Client(
 """
 Main cogs.
 """
+bot.load('exts.automod')
 #bot.load('exts.basic')
 #bot.load('exts.fun')
 #bot.load('exts.hacktool')
 #bot.load('exts.info')
-bot.load('exts.logger')
+bot.load('exts.logs')
 #bot.load('exts.menus')
 #bot.load('exts.misc')
 #bot.load('exts.mod')

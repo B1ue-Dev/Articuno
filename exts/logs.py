@@ -4,7 +4,8 @@ import datetime, random
 
 
 class Logs(interactions.Extension):
-	def __init__(self, bot):
+	def __init__(self, bot) -> None:
+		super().__init__()
 		self.bot = bot
 	
 

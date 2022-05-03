@@ -11,7 +11,8 @@ scope = int(os.getenv("SCOPE"))
 
 
 class Info(interactions.Extension):
-	def __init__(self, bot):
+	def __init__(self, bot) -> None:
+		super().__init__()
 		self.bot = bot
 
 

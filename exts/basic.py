@@ -12,7 +12,8 @@ load_time = datetime.datetime.now()
 
 
 class Basic(interactions.Extension):
-	def __init__(self, bot):
+	def __init__(self, bot) -> None:
+		super().__init__()
 		self.bot = bot
 
 

@@ -12,8 +12,9 @@ scope = int(os.getenv("SCOPE"))
 
 
 class HackTool(interactions.Extension):
-	def __init__(self, client):
-		self.client = client
+	def __init__(self, bot) -> None:
+		super().__init__()
+		self.bot = bot
 	
 
 	@command(name="base64",
