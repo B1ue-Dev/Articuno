@@ -1,6 +1,6 @@
 import interactions
 from interactions import extension_listener as listener
-import datetime, random
+import datetime, random, json
 
 
 class Logs(interactions.Extension):
@@ -31,17 +31,6 @@ class Logs(interactions.Extension):
 			)
 
 			await channel.send(embeds=embed)
-
-
-
-	"""
-	#TODO: Working on this later.
-	@listener(name="on_guild_create")
-	async def _guild_create(self, guild: interactions.Guild):
-		#channel = interactions.Channel(**await self.bot._http.get_channel(957090401418899526), _client=self.bot._http)
-		_guild: interactions.Guild = self.bot._http.cache.guilds.get(int(guild.id))
-		print(f"Joined guild {_guild}")
-	"""
 
 
 	@listener(name="on_guild_member_add")
