@@ -1,6 +1,6 @@
 import interactions
 from interactions.ext import wait_for
-import os, datetime, logging, io
+import os, datetime, logging, asyncio, json
 from dotenv import load_dotenv
 load_dotenv()
 bot_token = os.getenv("TOKEN")
@@ -24,28 +24,25 @@ bot = interactions.Client(
 	),
 	#disable_sync=True
 )
+bot.load('utils.cache')
 
-"""
-Main cogs.
-"""
-bot.load('exts.automod')
-#bot.load('exts.basic')
-#bot.load('exts.fun')
+
+#bot.load('exts.automod')
+bot.load('exts.basic')
+bot.load('exts.fun')
 #bot.load('exts.hacktool')
 #bot.load('exts.info')
-bot.load('exts.logs')
+#bot.load('exts.logs')
 #bot.load('exts.menus')
-#bot.load('exts.misc')
+bot.load('exts.misc')
 #bot.load('exts.mod')
 #bot.load('exts.pokemon')
 #bot.load('exts.tag')
 
-"""
-Test cogs.
-"""
-#bot.load('interactions.ext.enhanced')
+bot.load('interactions.ext.enhanced')
 #bot.load('Cogs.get_method')
 #bot.load('test')
+
 
 
 
@@ -56,17 +53,6 @@ async def on_ready():
 	print(f'ID: {bot.me.id}')
 	print(f'Latency: {websocket}ms')
 
-"""
-@bot.command(name="test", description="AAAAAAAAAAAAAAAAAAAAAAA", scope=scope)
-async def test(ctx: interactions.CommandContext):
-	
-	data = "AAAAAAAAAAAAAAAAAAAAAAAAAA"
-	with io.StringIO(data) as f:
-		file = interactions.File(filename="aaaaa.txt", fp=f)
-		await ctx.send(files=file)
-	
-	#await ctx.send("AAAAAAAAAAAAAAAAAAAAAAAAA!")
-"""
 
 
 

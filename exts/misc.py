@@ -142,7 +142,7 @@ class Misc(interactions.Extension):
 				img = interactions.File(filename="image.png", fp=imageData, description="Image")
 				await ctx.send(files=img)
 
-	
+
 
 	@command(
 		name="youtube",
@@ -185,6 +185,7 @@ class Misc(interactions.Extension):
 				await ctx.send(files=img)
 
 
+
 	@command(
 		name="amogus",
 		description="Amogus",
@@ -214,7 +215,7 @@ class Misc(interactions.Extension):
 		await msg.edit(content=None, files=img)
 	
 
-	"""
+
 	@command(
 		name="pet",
 		description="Pet someone",
@@ -231,16 +232,14 @@ class Misc(interactions.Extension):
 	async def _pet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
-		url = "https://cdn.discordapp.com/attachments/862636687226044436/965452327827935272/image.gif"
-		#params = {
-		#	"avatar": user.user.avatar_url,
-		#	"key": apikey,
-		#}
-		resp = await get_response(url)
-		#await ctx.defer()
+		url = "https://some-random-api.ml/premium/petpet"
+		params = {
+			"avatar": user.user.avatar_url,
+			"key": apikey,
+		}
+		resp = await get_response(url, params)
 		img = interactions.File(filename="image.gif", fp=resp, description="Image")
 		await ctx.send(files=img)
-	"""
 
 
 
