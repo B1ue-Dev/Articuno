@@ -1,6 +1,7 @@
 import interactions
 from interactions import extension_command as command
 import platform, psutil, utils.utils as utils, datetime, os, utils.utils as utils
+import utils.cache as _cache
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -63,26 +64,37 @@ class Basic(interactions.Extension):
 		latency = f"{self.bot.latency * 1:.0f}ms"
 		python = platform.python_version()
 		os = str(platform.platform())
-		uptime = utils.pretty_date(load_time)
+		uptime = f"<t:{round(load_time.timestamp())}:R>"
+		_set_user_count: set = set()
+		_set_guild_count: set = set()
+		for guild in _cache.__cached__:
+			_set_guild_count.add(guild)
+			for member in _cache.__cached__[guild]:
+				_set_user_count.add(member)
+		user_count = len(_set_user_count)
+		guild_count = len(_set_guild_count)
+
+		github = interactions.Button(
+			style = interactions.ButtonStyle.LINK,
+			label = "GitHub",
+			url = "https://github.com/Articuno-org/Articuno"
+		)
 
 		fields = [
 			interactions.EmbedField(name="Version", value=version, inline=True),
+			interactions.EmbedField(name="Guilds", value=guild_count, inline=True),
+			interactions.EmbedField(name="Users", value=user_count, inline=True),
 			interactions.EmbedField(name="Latency", value=latency, inline=True),
 			interactions.EmbedField(name="Python", value=python, inline=True),
+			interactions.EmbedField(name="Uptime", value=uptime, inline=True),
 			interactions.EmbedField(name="CPU", value=cpu, inline=True),
 			interactions.EmbedField(name="Memory", value=mem, inline=True),
-			interactions.EmbedField(name="Uptime", value=uptime, inline=True),
 			interactions.EmbedField(name="System", value=os, inline=True)
 		]
 		thumbnail = interactions.EmbedImageStruct(url=self.bot.me.icon_url)._json
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"
-		)
-		github = interactions.Button(
-			style = interactions.ButtonStyle.LINK,
-			label = "GitHub",
-			url = "https://github.com/Articuno-org/Articuno"
 		)
 		embed = interactions.Embed(
 			title="Articuno Stats",
@@ -107,6 +119,7 @@ class Basic(interactions.Extension):
 			label = "Profile",
 			url = "https://blue.is-a.dev/"
 		)
+
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"
