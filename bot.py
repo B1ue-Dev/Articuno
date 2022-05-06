@@ -6,7 +6,7 @@ load_dotenv()
 bot_token = os.getenv("TOKEN")
 scope = int(os.getenv("SCOPE"))
 
-#logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 
