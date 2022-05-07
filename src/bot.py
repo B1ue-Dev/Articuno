@@ -1,5 +1,4 @@
 import interactions
-from interactions import Intents, Client
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -7,13 +6,13 @@ bot_token = os.getenv("TOKEN")
 
 
 
-bot = Client(token=bot_token,
-				intents=Intents.DEFAULT,
-				disable_sync=False
+bot = interactions.Client(token=bot_token,
+	intents=interactions.Intents.DEFAULT,
+	#disable_sync=False
 )
 
 
-bot.load('Cogs.basic')
+bot.load('exts.basic')
 
 
 @bot.event
