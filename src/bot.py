@@ -23,6 +23,7 @@ Cogs for bot
 """
 bot.load('exts.basic')
 bot.load('exts.menus')
+bot.load('exts.pokemon')
 
 
 
