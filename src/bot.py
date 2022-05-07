@@ -11,7 +11,15 @@ bot = interactions.Client(token=bot_token,
 	#disable_sync=False
 )
 
+"""
+For .\utils\cache.py
+"""
+bot.load('utils.cache')
 
+
+"""
+Basic cogs
+"""
 bot.load('exts.basic')
 
 
