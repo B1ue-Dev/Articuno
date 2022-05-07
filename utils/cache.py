@@ -26,13 +26,11 @@ class Cache(interactions.Extension):
 		for member in guild.members:
 			__cached__[int(guild.id)].append(int(member.id))
 		_sets_guilds.add(int(guild.id))
-		print(f"{__cached__}")
 
 	@listener(name="on_guild_delete")
 	async def _guild_remove(self, guild: interactions.Guild):
 		del __cached__[int(guild.id)]
 		_sets_guilds.remove(int(guild.id))
-		print(f"{__cached__}")
 
 
 
