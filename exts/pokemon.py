@@ -161,7 +161,10 @@ class Pokemon(interactions.Extension):
 				await ctx.send(embeds=embed)
 
 
-	@interactions.extension_autocomplete(name="pokemon_name", command="pokedex")
+	@interactions.extension_autocomplete(
+		command="pokedex",
+		name="pokemon_name"
+	)
 	async def auto_complete(self, ctx:interactions.CommandContext, pokemon_name: str = ""):
 		if pokemon_name != "":
 			letters: list = pokemon_name
