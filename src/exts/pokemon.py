@@ -29,7 +29,7 @@ class Pokemon(EnhancedExtension):
 		super().__init__()
 		self.bot = bot
 
-	base = ext_subcommand_base("pokedex", scope=scope)
+	base = ext_subcommand_base("pokedex")
 
 	@base.subcommand(
 		name="search",
