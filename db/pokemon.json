@@ -12351,21 +12351,10 @@
 		"color": "Green",
 		"evos": [
 			"Wormadam",
-			"Wormadam-Sandy",
-			"Wormadam-Trash",
 			"Mothim"
 		],
 		"eggGroups": [
 			"Bug"
-		],
-		"cosmeticFormes": [
-			"Burmy-Sandy",
-			"Burmy-Trash"
-		],
-		"formeOrder": [
-			"Burmy",
-			"Burmy-Sandy",
-			"Burmy-Trash"
 		]
 	},
 	"wormadam": {
@@ -12658,13 +12647,6 @@
 		"eggGroups": [
 			"Water 1",
 			"Amorphous"
-		],
-		"cosmeticFormes": [
-			"Shellos-East"
-		],
-		"formeOrder": [
-			"Shellos",
-			"Shellos-East"
 		]
 	},
 	"gastrodon": {
@@ -12696,13 +12678,6 @@
 		"eggGroups": [
 			"Water 1",
 			"Amorphous"
-		],
-		"cosmeticFormes": [
-			"Gastrodon-East"
-		],
-		"formeOrder": [
-			"Gastrodon",
-			"Gastrodon-East"
 		]
 	},
 	"ambipom": {
@@ -17587,17 +17562,6 @@
 		],
 		"eggGroups": [
 			"Field"
-		],
-		"cosmeticFormes": [
-			"Deerling-Summer",
-			"Deerling-Autumn",
-			"Deerling-Winter"
-		],
-		"formeOrder": [
-			"Deerling",
-			"Deerling-Summer",
-			"Deerling-Autumn",
-			"Deerling-Winter"
 		]
 	},
 	"sawsbuck": {
@@ -17628,17 +17592,6 @@
 		"evoLevel": 34,
 		"eggGroups": [
 			"Field"
-		],
-		"cosmeticFormes": [
-			"Sawsbuck-Summer",
-			"Sawsbuck-Autumn",
-			"Sawsbuck-Winter"
-		],
-		"formeOrder": [
-			"Sawsbuck",
-			"Sawsbuck-Summer",
-			"Sawsbuck-Autumn",
-			"Sawsbuck-Winter"
 		]
 	},
 	"emolga": {
@@ -20098,19 +20051,6 @@
 		],
 		"eggGroups": [
 			"Fairy"
-		],
-		"cosmeticFormes": [
-			"Flabébé-Blue",
-			"Flabébé-Orange",
-			"Flabébé-White",
-			"Flabébé-Yellow"
-		],
-		"formeOrder": [
-			"Flabébé",
-			"Flabébé-Blue",
-			"Flabébé-Orange",
-			"Flabébé-White",
-			"Flabébé-Yellow"
 		]
 	},
 	"floette": {
@@ -20314,29 +20254,6 @@
 		"color": "White",
 		"eggGroups": [
 			"Field"
-		],
-		"cosmeticFormes": [
-			"Furfrou-Dandy",
-			"Furfrou-Debutante",
-			"Furfrou-Diamond",
-			"Furfrou-Heart",
-			"Furfrou-Kabuki",
-			"Furfrou-La Reine",
-			"Furfrou-Matron",
-			"Furfrou-Pharaoh",
-			"Furfrou-Star"
-		],
-		"formeOrder": [
-			"Furfrou",
-			"Furfrou-Heart",
-			"Furfrou-Star",
-			"Furfrou-Diamond",
-			"Furfrou-Debutante",
-			"Furfrou-Matron",
-			"Furfrou-Dandy",
-			"Furfrou-La Reine",
-			"Furfrou-Kabuki",
-			"Furfrou-Pharaoh"
 		]
 	},
 	"espurr": {
@@ -22419,10 +22336,6 @@
 		],
 		"eggGroups": [
 			"Field"
-		],
-		"formeOrder": [
-			"Rockruff",
-			"Rockruff"
 		]
 	},
 	"lycanroc": {
