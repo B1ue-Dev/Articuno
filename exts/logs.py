@@ -15,8 +15,8 @@ class Logs(interactions.Extension):
 		channel = interactions.Channel(**await self.bot._http.get_channel(862636687226044436), _client=self.bot._http)
 
 		if _message is not None:
-			author = interactions.EmbedAuthor(name=f"{_message.author.username}#{_message.author.discriminator}", icon_url=_message.author.avatar_url)._json
-			footer = interactions.EmbedFooter(text=f"Message ID: {_message.id}")._json
+			author = interactions.EmbedAuthor(name=f"{_message.author.username}#{_message.author.discriminator}", icon_url=_message.author.avatar_url)
+			footer = interactions.EmbedFooter(text=f"Message ID: {_message.id}")
 			fields = [
 				interactions.EmbedField(name="Member", value=f"{_message.member.mention}", inline=True),
 				interactions.EmbedField(name="Channel", value=f"<#{_message.channel_id}>", inline=True),
@@ -44,7 +44,7 @@ class Logs(interactions.Extension):
 				color=random.randint(0, 0xFFFFFF),
 				timestamp=member.joined_at,
 				footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-				thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url)._json,
+				thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url),
 			)
 			await channel.send(embeds=embed)
 		else:
@@ -62,7 +62,7 @@ class Logs(interactions.Extension):
 				color=random.randint(0, 0xFFFFFF),
 				timestamp=datetime.datetime.utcnow(),
 				footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-				thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url)._json,
+				thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url),
 			)
 			await channel.send(embeds=embed)
 		else:

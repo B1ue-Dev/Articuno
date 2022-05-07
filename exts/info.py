@@ -131,7 +131,7 @@ class Info(interactions.Extension):
 				title=f"{user.user.username}#{user.user.discriminator}",
 				description=f"{message}",
 				color=random.randint(0, 0xFFFFFF),
-				image=interactions.EmbedImageStruct(url=avatar)._json,
+				image=interactions.EmbedImageStruct(url=avatar),
 				footer=interactions.EmbedFooter(
 					text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 					icon_url=f"{ctx.author.user.avatar_url}"

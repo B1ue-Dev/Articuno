@@ -1,6 +1,6 @@
 import interactions
 from interactions import extension_command as command
-import platform, psutil, utils.utils as utils, datetime, os, utils.utils as utils
+import platform, psutil, utils.utils as utils, datetime, os
 import utils.cache as _cache
 from dotenv import load_dotenv
 
@@ -91,7 +91,7 @@ class Basic(interactions.Extension):
 			interactions.EmbedField(name="Memory", value=mem, inline=True),
 			interactions.EmbedField(name="System", value=os, inline=True)
 		]
-		thumbnail = interactions.EmbedImageStruct(url=self.bot.me.icon_url)._json
+		thumbnail = interactions.EmbedImageStruct(url=self.bot.me.icon_url)
 		footer = interactions.EmbedFooter(
 			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
 			icon_url=f"{ctx.author.user.avatar_url}"

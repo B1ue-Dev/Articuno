@@ -45,7 +45,7 @@ class Fun(interactions.Extension):
 		resp = await get_response(url)
 		file = resp['file']
 
-		image = interactions.EmbedImageStruct(url=file)._json
+		image = interactions.EmbedImageStruct(url=file)
 		embed = interactions.Embed(
 			title="Coffee ☕",
 			color=0xc4771d,
@@ -312,8 +312,8 @@ class Fun(interactions.Extension):
 		img = resp['img']
 		
 		footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
-		image = interactions.EmbedImageStruct(url=img)._json
-		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")._json
+		image = interactions.EmbedImageStruct(url=img)
+		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")
 		embed = interactions.Embed(
 			description=alt,
 			color=random.randint(0, 0xFFFFFF),
