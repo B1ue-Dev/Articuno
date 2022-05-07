@@ -17,7 +17,7 @@ class Tag(interactions.Extension):
 	@interactions.extension_command(
 		name="tag",
 		description="Tag",
-		scope=scope,
+		scope=738938246574374913,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
@@ -204,7 +204,7 @@ class Tag(interactions.Extension):
 						del tags[guild_id][tag_name]
 						if len(tags[guild_id]) == 0:
 							del tags[guild_id]
-						with open("./data/tag.json", "w") as f:
+						with open("./db/tag.json", "w") as f:
 							json.dump(tags, f, indent=4)
 						await res.edit(components=buttonsed)
 						await res.send(f"Tag ``{tag_name}`` deleted.", ephemeral=True)
@@ -239,7 +239,7 @@ class Tag(interactions.Extension):
 	async def _new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
 		guild_id = ctx.guild_id
 		guild_id = str(guild_id)
-		with open("./data/tag.json", "r") as f:
+		with open("./db/tag.json", "r") as f:
 			tag1 = json.load(f)
 			if guild_id not in tag1:
 				guild_add = {
@@ -251,7 +251,7 @@ class Tag(interactions.Extension):
 		tag[guild_id][tag_name] = {
 			"description": tag_description
 		}
-		with open("./data/tag.json", "w") as f:
+		with open("./db/tag.json", "w") as f:
 			json.dump(tag, f, indent=4)
 		await ctx.send(content=f"Tag ``{tag_name}`` created.", ephemeral=True)
 
@@ -283,7 +283,7 @@ class Tag(interactions.Extension):
 	async def _tag_autocomplete(self, ctx: interactions.CommandContext, tag_name: str = ""):
 		guild_id = ctx.guild_id
 		letters: list = list(tag_name) if tag_name != "" else []
-		tags = json.loads(open("./data/tag.json", "r", encoding="utf8").read())
+		tags = json.loads(open("./db/tag.json", "r", encoding="utf8").read())
 		if guild_id in tags:
 			if len(tag_name) == 0:
 				await ctx.populate([interactions.Choice(name=tag[0], value=tag[0]) for tag in (
