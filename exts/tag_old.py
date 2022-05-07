@@ -13,9 +13,7 @@ class Tag(interactions.Extension):
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
 
-	"""
-	Tag create: Create a tag.
-	"""
+
 	@interactions.extension_command(
 		name="tag",
 		description="Tag",
@@ -75,48 +73,61 @@ class Tag(interactions.Extension):
 			)
 		]
 	)
-	async def parse_tags(self, ctx: interactions.CommandContext,
+	async def _tag(self, ctx: interactions.CommandContext,
 		sub_command: str,
 		tag_name: str = None,
 	):
 		if sub_command == "create":
-			modal = interactions.Modal(
-				title="Create new tag",
-				custom_id="new_tag",
-				components=[
-					interactions.TextInput(
-						style=interactions.TextStyleType.SHORT,
-						label="Name of the tag",
-						placeholder="The name of the tag you wish to create",
-						custom_id="tag_name",
-						max_length=100,
-					),
-					interactions.TextInput(
-						style=interactions.TextStyleType.PARAGRAPH,
-						label="Description of the tag",
-						placeholder="The description of the tag you wish to create.",
-						custom_id="tag_description",
-						max_length=2000,
-					)
-				]
-			)
-
-			await ctx.popup(modal)
-		
+			await self._create_tag(ctx)
 		elif sub_command == "view":
-			guild_id = ctx.guild_id
-			tags = json.loads(open("./data/tag.json", "r").read())
-			if guild_id in tags:
-				if tag_name in tags[guild_id]:
-					await ctx.send(content=tags[guild_id][tag_name]["description"])
-				else:
-					await ctx.send("Tag not found.", ephemeral=True)
-			else:
-				await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
-		
+			await self._view_tag(ctx, tag_name)
 		elif sub_command == "edit":
+			await self._edit_tag(ctx, tag_name)
+		elif sub_command == "delete":
+			await self._delete_tag(ctx, tag_name)
+		elif sub_command == "list":
+			await self._list_tag(ctx)
+
+
+	async def _create_tag(self, ctx: interactions.CommandContext):
+		modal = interactions.Modal(
+			title="Create new tag",
+			custom_id="new_tag",
+			components=[
+				interactions.TextInput(
+					style=interactions.TextStyleType.SHORT,
+					label="Name of the tag",
+					placeholder="The name of the tag you wish to create",
+					custom_id="tag_name",
+					max_length=100,
+				),
+				interactions.TextInput(
+					style=interactions.TextStyleType.PARAGRAPH,
+					label="Description of the tag",
+					placeholder="The description of the tag you wish to create.",
+					custom_id="tag_description",
+					max_length=2000,
+				)
+			]
+		)
+		await ctx.popup(modal)
+
+
+	async def _view_tag(self, ctx: interactions.CommandContext, tag_name: str):
+		guild_id = ctx.guild_id
+		tags = json.loads(open("./db/tag.json", "r").read())
+		if guild_id in tags:
+			if tag_name in tags[guild_id]:
+				await ctx.send(content=tags[guild_id][tag_name]["description"])
+			else:
+				await ctx.send("Tag not found.", ephemeral=True)
+		else:
+			await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
+
+
+	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str):
 			guild_id = ctx.guild_id
-			tags = json.loads(open("./data/tag.json", "r").read())
+			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
 				if tag_name in tags[guild_id]:
 					modal = interactions.Modal(
@@ -146,8 +157,9 @@ class Tag(interactions.Extension):
 					await ctx.send(f"Tag {tag_name} not found.", ephemeral=True)
 			else:
 				await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
-		
-		elif sub_command == "delete":
+
+
+	async def _delete_tag(self, ctx: interactions.CommandContext, tag_name: str):
 			guild_id = ctx.guild_id
 			buttons = [
 				interactions.ActionRow(
@@ -165,7 +177,7 @@ class Tag(interactions.Extension):
 					]
 				)
 			]
-			tags = json.loads(open("./data/tag.json", "r").read())
+			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
 				if tag_name in tags[guild_id]:
 					msg = await ctx.send(content=f"Do you want to delete tag ``{tag_name}``?", components=buttons, ephemeral=True)
@@ -203,10 +215,11 @@ class Tag(interactions.Extension):
 					await ctx.send(f"Tag {tag_name} not found.", ephemeral=True)
 			else:
 				await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
-		
-		elif sub_command == "list":
+
+
+	async def _list_tag(self, ctx: interactions.CommandContext):
 			guild_id = ctx.guild_id
-			tags = json.loads(open("./data/tag.json", "r").read())
+			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
 				embed = interactions.Embed(
 					title="Tags",
@@ -223,7 +236,7 @@ class Tag(interactions.Extension):
 	Models for the commands.
 	"""
 	@interactions.extension_modal(modal="new_tag")
-	async def new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
+	async def _new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
 		guild_id = ctx.guild_id
 		guild_id = str(guild_id)
 		with open("./data/tag.json", "r") as f:
@@ -232,9 +245,9 @@ class Tag(interactions.Extension):
 				guild_add = {
 					guild_id: {}
 				}
-				with open("./data/tag.json", "w") as f:
+				with open("./db/tag.json", "w") as f:
 					json.dump(guild_add, f, indent=4)
-		tag = json.loads(open("./data/tag.json", "r").read())
+		tag = json.loads(open("./db/tag.json", "r").read())
 		tag[guild_id][tag_name] = {
 			"description": tag_description
 		}
@@ -244,21 +257,18 @@ class Tag(interactions.Extension):
 
 
 	@interactions.extension_modal(modal="edit_tag")
-	async def edit_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
+	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
 		guild_id = ctx.guild_id
-		with open("./data/tag.json", "r") as f:
+		with open("./db/tag.json", "r") as f:
 			tags = json.load(f)
 			tags[guild_id][tag_name] = {
 				"description": tag_description,
 				"created_at": tags[guild_id][tag_name]["created_at"],
 				"author": tags[guild_id][tag_name]["author"]
 			}
-		"""
-		with open("./data/tag.json", "w") as f:
+		with open("./db/tag.json", "w") as f:
 			json.dump(tags, f, indent=4)
 		await ctx.send(f"Tag ``{tag_name}`` edited.", ephemeral=True)
-		"""
-		print(tags)
 
 
 
@@ -267,13 +277,13 @@ class Tag(interactions.Extension):
 	Tag autocomplete.
 	"""
 	@interactions.extension_autocomplete(
-		command=963255851878060042,
+		command="tag",
 		name="tag_name"
 	)
-	async def delete_tags(self, ctx: interactions.CommandContext, tag_name: str = ""):
+	async def _tag_autocomplete(self, ctx: interactions.CommandContext, tag_name: str = ""):
 		guild_id = ctx.guild_id
 		letters: list = list(tag_name) if tag_name != "" else []
-		tags = json.loads(open("./data/tag.json", "r").read())
+		tags = json.loads(open("./data/tag.json", "r", encoding="utf8").read())
 		if guild_id in tags:
 			if len(tag_name) == 0:
 				await ctx.populate([interactions.Choice(name=tag[0], value=tag[0]) for tag in (
