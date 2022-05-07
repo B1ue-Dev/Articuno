@@ -2,7 +2,7 @@ python-dotenv
 psutil
 requests
 google-api-python-client
-git+https://github.com/interactions-py/library@4.1.1-rc.1
+git+https://github.com/interactions-py/library@4.2.0
 interactions-wait-for==1.0.4
 googletrans==3.1.0a0
 git+https://github.com/interactions-py/enhanced@main
