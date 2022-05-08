@@ -32,7 +32,7 @@ class Pokemon(interactions.Extension):
 	@command(
 		name="pokedex",
 		description="Show the information about a Pokemon",
-		scope=738938246574374913,
+		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,
@@ -197,7 +197,7 @@ class Pokemon(interactions.Extension):
 		if message.content.startswith("$shiny"):
 			ends = int(len(message.content) - 7)
 			msg = str(message.content)[-ends:].lower()
-			data = json.loads(open("./data/pokemon.json", "r").read())
+			data = json.loads(open("./db/pokemon.json", "r").read())
 			if msg in data:
 				img = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{msg}.gif"
 				embed = interactions.Embed(
@@ -209,7 +209,7 @@ class Pokemon(interactions.Extension):
 		elif message.content.startswith("$"):
 			ends = int(len(message.content) - 1)
 			msg = str(message.content)[-ends:].lower()
-			data = json.loads(open("./data/pokemon.json", "r").read())
+			data = json.loads(open("./db/pokemon.json", "r").read())
 			if msg in data:
 				img = f"https://play.pokemonshowdown.com/sprites/ani/{msg}.gif"
 				embed = interactions.Embed(
