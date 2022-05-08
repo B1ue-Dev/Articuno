@@ -16,8 +16,8 @@ class Tag(interactions.Extension):
 
 	@interactions.extension_command(
 		name="tag",
-		description="Tag",
-		scope=738938246574374913,
+		description="Tag system",
+		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
@@ -114,7 +114,7 @@ class Tag(interactions.Extension):
 
 
 	async def _view_tag(self, ctx: interactions.CommandContext, tag_name: str):
-		guild_id = ctx.guild_id
+		guild_id = str(ctx.guild_id)
 		tags = json.loads(open("./db/tag.json", "r").read())
 		if guild_id in tags:
 			if tag_name in tags[guild_id]:
@@ -126,7 +126,7 @@ class Tag(interactions.Extension):
 
 
 	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str):
-			guild_id = ctx.guild_id
+			guild_id = str(ctx.guild_id)
 			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
 				if tag_name in tags[guild_id]:
@@ -160,7 +160,7 @@ class Tag(interactions.Extension):
 
 
 	async def _delete_tag(self, ctx: interactions.CommandContext, tag_name: str):
-			guild_id = ctx.guild_id
+			guild_id = str(ctx.guild_id)
 			buttons = [
 				interactions.ActionRow(
 					components=[
@@ -218,7 +218,7 @@ class Tag(interactions.Extension):
 
 
 	async def _list_tag(self, ctx: interactions.CommandContext):
-			guild_id = ctx.guild_id
+			guild_id = str(ctx.guild_id)
 			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
 				embed = interactions.Embed(
@@ -237,7 +237,6 @@ class Tag(interactions.Extension):
 	"""
 	@interactions.extension_modal(modal="new_tag")
 	async def _new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
-		guild_id = ctx.guild_id
 		guild_id = str(guild_id)
 		with open("./db/tag.json", "r") as f:
 			tag1 = json.load(f)
@@ -258,7 +257,7 @@ class Tag(interactions.Extension):
 
 	@interactions.extension_modal(modal="edit_tag")
 	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
-		guild_id = ctx.guild_id
+		guild_id = str(ctx.guild_id)
 		with open("./db/tag.json", "r") as f:
 			tags = json.load(f)
 			tags[guild_id][tag_name] = {
@@ -281,7 +280,7 @@ class Tag(interactions.Extension):
 		name="tag_name"
 	)
 	async def _tag_autocomplete(self, ctx: interactions.CommandContext, tag_name: str = ""):
-		guild_id = ctx.guild_id
+		guild_id = str(ctx.guild_id)
 		letters: list = list(tag_name) if tag_name != "" else []
 		tags = json.loads(open("./db/tag.json", "r", encoding="utf8").read())
 		if guild_id in tags:
