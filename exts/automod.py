@@ -40,6 +40,17 @@ class Automod(interactions.Extension):
 						await message.delete()
 						await channel.send(f"{message.member.mention}, please do not send a scam link.")
 						return
+			
+
+			# If someone mentions the bot
+			if f"@{self.bot.me.id}" in message_content or f"<@{self.bot.me.id}>" in message_content:
+				channel = await message.get_channel()
+				embed = interactions.Embed(
+					title="It seems like you mentioned me",
+					description=f"I could not help much but noticed you mentioned me. You can type ``/`` and choose **{self.bot.me.name}** to see a list of available commands.",
+					color=0x6aa4c1
+				)
+				await channel.send(embeds=embed)
 
 
 
