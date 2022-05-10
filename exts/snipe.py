@@ -51,7 +51,7 @@ class Snipe(interactions.Extension):
 	@command(
 		name="snipe",
 		description="Snipe a deleted message",
-		#scope=738938246574374913
+		scope=scope
 	)
 	async def _snipe(self, ctx: interactions.CommandContext):
 		channel = await ctx.get_channel()

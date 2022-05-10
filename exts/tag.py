@@ -10,6 +10,7 @@ scope = int(os.getenv("SCOPE"))
 
 class Tag(interactions.Extension):
 	def __init__(self, bot):
+		super().__init__()
 		self.bot = bot
 		wait_for.setup(bot, add_method=True)
 

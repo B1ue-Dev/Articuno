@@ -6,7 +6,7 @@ load_dotenv()
 bot_token = os.getenv("TOKEN")
 scope = int(os.getenv("SCOPE"))
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 
@@ -22,24 +22,26 @@ bot = interactions.Client(
 		],
 		status=interactions.StatusType.IDLE,
 	),
-	#disable_sync=True
+	disable_sync=True
 )
 bot.load('utils.cache')
 
 
 #bot.load('exts.automod')
-bot.load('exts.basic')
-bot.load('exts.fun')
+#bot.load('exts.basic')
+bot.load('exts.emoji')
+#bot.load('exts.fun')
 #bot.load('exts.hacktool')
 #bot.load('exts.info')
 #bot.load('exts.logs')
 #bot.load('exts.menus')
-bot.load('exts.misc')
+#bot.load('exts.misc')
 #bot.load('exts.mod')
 #bot.load('exts.pokemon')
+#bot.load('exts.snipe')
 #bot.load('exts.tag')
 
-bot.load('interactions.ext.enhanced')
+#bot.load('interactions.ext.enhanced')
 #bot.load('Cogs.get_method')
 #bot.load('test')
 

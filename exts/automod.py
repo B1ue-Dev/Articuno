@@ -1,6 +1,9 @@
 import interactions
 from interactions import extension_listener as listener
-import datetime, random, urllib.request
+import urllib.request, os
+from dotenv import load_dotenv
+load_dotenv()
+GUILD = int(os.getenv("GUILD"))
 
 
 class Automod(interactions.Extension):
@@ -11,7 +14,7 @@ class Automod(interactions.Extension):
 
 	@listener(name="on_message_create")
 	async def _message_create(self, message: interactions.Message):
-		if message.guild_id == 738938246574374913 and message.guild_id is not None:
+		if message.guild_id == GUILD and message.guild_id is not None:
 			message_content = message.content.lower()
 
 			# If someone sends an invite link
@@ -40,8 +43,8 @@ class Automod(interactions.Extension):
 						await message.delete()
 						await channel.send(f"{message.member.mention}, please do not send a scam link.")
 						return
-			
 
+		else:
 			# If someone mentions the bot
 			if f"@{self.bot.me.id}" in message_content or f"<@{self.bot.me.id}>" in message_content:
 				channel = await message.get_channel()
