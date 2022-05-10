@@ -1,5 +1,4 @@
 import interactions
-from interactions import CommandContext
 from interactions import extension_command as command
 from interactions.ext import wait_for
 import json, random, asyncio, os, io, aiohttp, datetime
@@ -40,7 +39,7 @@ class Fun(interactions.Extension):
 		description="Send an image of coffee",
 		scope=scope
 	)
-	async def _coffee(self, ctx: CommandContext):
+	async def _coffee(self, ctx: interactions.CommandContext):
 		url = "https://coffee.alexflipnote.dev/random.json"
 		resp = await get_response(url)
 		file = resp['file']
@@ -75,7 +74,7 @@ class Fun(interactions.Extension):
 			),
 		]
 	)
-	async def _ship(self, ctx: CommandContext,
+	async def _ship(self, ctx: interactions.CommandContext,
 		user1: str = None,
 		user2: str = None
 	):
@@ -188,9 +187,9 @@ class Fun(interactions.Extension):
 		description="Roll a dice",
 		scope=scope,
 	)
-	async def _roll(self, ctx: CommandContext):
+	async def _roll(self, ctx: interactions.CommandContext):
 		dice = random.randint(1, 6)
-		msg: CommandContext = await ctx.send("I am rolling the dice...")
+		msg = await ctx.send("I am rolling the dice...")
 		await asyncio.sleep(1.5)
 		await msg.edit("The number is **{}**.".format(dice))
 	
@@ -201,9 +200,9 @@ class Fun(interactions.Extension):
 		description="Flip a coin",
 		scope=scope,
 	)
-	async def _flip(self, ctx: CommandContext):
+	async def _flip(self, ctx: interactions.CommandContext):
 		coin = random.choice(["heads", "tails"])
-		msg: CommandContext = await ctx.send("I am flipping the coin...")
+		msg = await ctx.send("I am flipping the coin...")
 		await asyncio.sleep(1.5)
 		await msg.edit("The coin landed on **{}**.".format(coin))
 
@@ -222,7 +221,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def _gay(self, ctx: CommandContext,
+	async def _gay(self, ctx: interactions.CommandContext,
 		user: str = None,
 	):
 		if not user:
@@ -244,7 +243,7 @@ class Fun(interactions.Extension):
 		description="Send a random joke",
 		scope=scope,
 	)
-	async def _joke(self, ctx: CommandContext):
+	async def _joke(self, ctx: interactions.CommandContext):
 		url = "https://some-random-api.ml/joke"
 		resp = await get_response(url)
 
@@ -262,7 +261,7 @@ class Fun(interactions.Extension):
 		description="Send a quote",
 		scope=scope,
 	)
-	async def _quote(self, ctx: CommandContext):
+	async def _quote(self, ctx: interactions.CommandContext):
 		url = 'https://api.quotable.io/random'
 		resp = await get_response(url)
 		author = resp['author']
@@ -294,7 +293,7 @@ class Fun(interactions.Extension):
 			),
 		]
 	)
-	async def _xkcd(self, ctx: CommandContext,
+	async def _xkcd(self, ctx: interactions.CommandContext,
 		page: int = None
 	):
 		url = "https://xkcd.com/info.0.json"
@@ -339,7 +338,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def _dictionary(self, ctx: CommandContext,
+	async def _dictionary(self, ctx: interactions.CommandContext,
 		word: str,
 	):
 		url = "https://some-random-api.ml/dictionary"
@@ -379,7 +378,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def _urban(self, ctx: CommandContext,
+	async def _urban(self, ctx: interactions.CommandContext,
 		term: str,
 	):
 		url = "https://api.urbandictionary.com/v0/define"
@@ -426,7 +425,7 @@ class Fun(interactions.Extension):
 			embed.add_field(name="Definition", value=f"{definition}", inline=True)
 			embed.add_field(name="Example", value=f"{example}", inline=True)
 			
-			msg: CommandContext = await ctx.send(embeds=embed, components=buttons)
+			msg = await ctx.send(embeds=embed, components=buttons)
 			while True:
 				try:
 					res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
@@ -491,7 +490,7 @@ class Fun(interactions.Extension):
 			)
 		]
 	)
-	async def _img(self, ctx: CommandContext,
+	async def _img(self, ctx: interactions.CommandContext,
 		query: str
 	):
 		ran = int(0)
@@ -524,7 +523,7 @@ class Fun(interactions.Extension):
 				]
 			)
 		]
-		msg: CommandContext = await ctx.send(embeds=embed, components=buttons)
+		msg = await ctx.send(embeds=embed, components=buttons)
 		while True:
 			try:
 				res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
