@@ -1,6 +1,7 @@
 import interactions
 from interactions import extension_command as command
 import os, io, aiohttp, re
+from utils.permission import Permissions, has_permissions
 from dotenv import load_dotenv
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
@@ -167,116 +168,137 @@ class Emoji(interactions.Extension):
 
 
 	async def _emoji_steal(self, ctx: interactions.CommandContext, emoji: str, name: str = None):
-		if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
-			s = [pos for pos, char in enumerate(emoji) if char == ':']
-			if len(s) == 2:
-				for i in s:
-					if i != 1:
-						_emoji = emoji[i:]
-						break
-				emoji_id = int(_emoji[1:-1])
-				if name is None:
-					emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
-				else:
-					emoji_name = name
-				_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.png"
-				guild = await ctx.get_guild()
-				async with aiohttp.ClientSession() as session:
-					async with session.get(_url) as resp:
-						if resp.status == 200:
-							_io = (io.BytesIO(await resp.read())).read()
-							image = interactions.Image(fp=_io, file="unknown.png")
-							await guild.create_emoji(image=image, name=emoji_name)
-							await ctx.send(f"Emoji uploaded!")
-						else:
-							await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
-			else:
-				await ctx.send(content="Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
-
-		elif emoji.startswith("<a") and emoji.endswith(">"):
-			s = [pos for pos, char in enumerate(emoji) if char == ':']
-			if len(s) == 2:
-				for i in s:
-					if i != 2:
-						_emoji = emoji[i:]
-						break
-				emoji_id = int(_emoji[1:-1])
-				if name is None:
-					emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
-				else:
-					emoji_name = name
-				_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.gif"
-				guild = await ctx.get_guild()
-				async with aiohttp.ClientSession() as session:
-					async with session.get(_url) as resp:
-						if resp.status == 200:
-							_io = (io.BytesIO(await resp.read())).read()
-							image = interactions.Image(fp=_io, file="unknown.gif")
-							await guild.create_emoji(image=image, name=emoji_name)
-							await ctx.send(content="Emoji uploaded!")
-						else:
-							await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
-			else:
-				await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
-
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+			return
 		else:
-			await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+			if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
+				s = [pos for pos, char in enumerate(emoji) if char == ':']
+				if len(s) == 2:
+					for i in s:
+						if i != 1:
+							_emoji = emoji[i:]
+							break
+					emoji_id = int(_emoji[1:-1])
+					if name is None:
+						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
+					else:
+						emoji_name = name
+					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.png"
+					guild = await ctx.get_guild()
+					async with aiohttp.ClientSession() as session:
+						async with session.get(_url) as resp:
+							if resp.status == 200:
+								_io = (io.BytesIO(await resp.read())).read()
+								image = interactions.Image(fp=_io, file="unknown.png")
+								await guild.create_emoji(image=image, name=emoji_name)
+								await ctx.send(f"Emoji uploaded!")
+							else:
+								await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+				else:
+					await ctx.send(content="Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+
+			elif emoji.startswith("<a") and emoji.endswith(">"):
+				s = [pos for pos, char in enumerate(emoji) if char == ':']
+				if len(s) == 2:
+					for i in s:
+						if i != 2:
+							_emoji = emoji[i:]
+							break
+					emoji_id = int(_emoji[1:-1])
+					if name is None:
+						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
+					else:
+						emoji_name = name
+					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.gif"
+					guild = await ctx.get_guild()
+					async with aiohttp.ClientSession() as session:
+						async with session.get(_url) as resp:
+							if resp.status == 200:
+								_io = (io.BytesIO(await resp.read())).read()
+								image = interactions.Image(fp=_io, file="unknown.gif")
+								await guild.create_emoji(image=image, name=emoji_name)
+								await ctx.send(content="Emoji uploaded!")
+							else:
+								await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+				else:
+					await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
+
+			else:
+				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 
 	async def _emoji_add(self, ctx: interactions.CommandContext, url: str, name: str):
-		async with aiohttp.ClientSession() as session:
-			async with session.get(url) as resp:
-				if resp.status == 200:
-					if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
-						_io = (io.BytesIO(await resp.read())).read()
-						image = interactions.Image(fp=_io, file="unknown.png")
-						guild = await ctx.get_guild()
-						await guild.create_emoji(image=image, name=name)
-						await ctx.send(content="Emoji uploaded!")
-					elif resp.content_type in {"image/gif"}:
-						_io = (io.BytesIO(await resp.read())).read()
-						image = interactions.Image(fp=_io, file="unknown.gif")
-						guild = await ctx.get_guild()
-						await guild.create_emoji(image=image, name=name)
-						await ctx.send(content="Emoji uploaded!")
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+			return
+		else:
+			async with aiohttp.ClientSession() as session:
+				async with session.get(url) as resp:
+					if resp.status == 200:
+						if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
+							_io = (io.BytesIO(await resp.read())).read()
+							image = interactions.Image(fp=_io, file="unknown.png")
+							guild = await ctx.get_guild()
+							await guild.create_emoji(image=image, name=name)
+							await ctx.send(content="Emoji uploaded!")
+						elif resp.content_type in {"image/gif"}:
+							_io = (io.BytesIO(await resp.read())).read()
+							image = interactions.Image(fp=_io, file="unknown.gif")
+							guild = await ctx.get_guild()
+							await guild.create_emoji(image=image, name=name)
+							await ctx.send(content="Emoji uploaded!")
+						else:
+							await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
 					else:
-						await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
-				else:
-					await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
+						await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
 	
 
 	async def _emoji_remove(self, ctx: interactions.CommandContext, emoji: str):
-		if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
-			s = [pos for pos, char in enumerate(emoji) if char == ':']
-			if len(s) == 2:
-				for i in s:
-					if i != 1:
-						emoji = emoji[i:]
-						break
-				emoji_id = int(emoji[1:-1])
-				_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
-				if _emoji.name is not None:
-					guild = await ctx.get_guild()
-					await guild.delete_emoji(_emoji)
-					await ctx.send(content="Emoji deleted!", ephemeral=True)
-				else:
-					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+			return
+		else:
+			if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
+				s = [pos for pos, char in enumerate(emoji) if char == ':']
+				if len(s) == 2:
+					for i in s:
+						if i != 1:
+							emoji = emoji[i:]
+							break
+					emoji_id = int(emoji[1:-1])
+					_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
+					if _emoji.name is not None:
+						guild = await ctx.get_guild()
+						await guild.delete_emoji(_emoji)
+						await ctx.send(content="Emoji deleted!", ephemeral=True)
+					else:
+						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
 
-		elif emoji.startswith("<a") and emoji.endswith(">"):
-			s = [pos for pos, char in enumerate(emoji) if char == ':']
-			if len(s) == 2:
-				for i in s:
-					if i != 2:
-						_emoji = emoji[i:]
-						break
-				emoji_id = int(_emoji[1:-1])
-				_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
-				if _emoji.name is not None:
-					guild = await ctx.get_guild()
-					await guild.delete_emoji(_emoji)
-					await ctx.send(content="Emoji deleted!", ephemeral=True)
-				else:
-					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+			elif emoji.startswith("<a") and emoji.endswith(">"):
+				s = [pos for pos, char in enumerate(emoji) if char == ':']
+				if len(s) == 2:
+					for i in s:
+						if i != 2:
+							_emoji = emoji[i:]
+							break
+					emoji_id = int(_emoji[1:-1])
+					_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
+					if _emoji.name is not None:
+						guild = await ctx.get_guild()
+						await guild.delete_emoji(_emoji)
+						await ctx.send(content="Emoji deleted!", ephemeral=True)
+					else:
+						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
 		
 		elif emoji.isnumeric() and len(emoji) > 0:
 			emoji_id = int(emoji)
