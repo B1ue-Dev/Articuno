@@ -238,7 +238,7 @@ class Tag(interactions.Extension):
 	"""
 	@interactions.extension_modal(modal="new_tag")
 	async def _new_tag(self, ctx: interactions.CommandContext, tag_name: str, tag_description: str):
-		guild_id = str(guild_id)
+		guild_id = str(ctx.guild_id)
 		with open("./db/tag.json", "r") as f:
 			tag1 = json.load(f)
 			if guild_id not in tag1:
