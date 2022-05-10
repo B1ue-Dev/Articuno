@@ -22,7 +22,9 @@ bot.load('interactions.ext.enhanced')
 Cogs for bot
 """
 bot.load('exts.basic')
+bot.load('exts.fun')
 bot.load('exts.menus')
+bot.load('exts.mod')
 bot.load('exts.pokemon')
 
 
