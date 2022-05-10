@@ -1,6 +1,7 @@
 import interactions
 import os, json, datetime
 from interactions.ext import wait_for
+from utils.permission import Permissions, has_permission
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -91,27 +92,34 @@ class Tag(interactions.Extension):
 
 
 	async def _create_tag(self, ctx: interactions.CommandContext):
-		modal = interactions.Modal(
-			title="Create new tag",
-			custom_id="new_tag",
-			components=[
-				interactions.TextInput(
-					style=interactions.TextStyleType.SHORT,
-					label="Name of the tag",
-					placeholder="The name of the tag you wish to create",
-					custom_id="tag_name",
-					max_length=100,
-				),
-				interactions.TextInput(
-					style=interactions.TextStyleType.PARAGRAPH,
-					label="Description of the tag",
-					placeholder="The description of the tag you wish to create.",
-					custom_id="tag_description",
-					max_length=2000,
-				)
-			]
-		)
-		await ctx.popup(modal)
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_MESSAGES) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have permission to perform this action.", ephemeral=True)
+			return
+		else:
+			modal = interactions.Modal(
+				title="Create new tag",
+				custom_id="new_tag",
+				components=[
+					interactions.TextInput(
+						style=interactions.TextStyleType.SHORT,
+						label="Name of the tag",
+						placeholder="The name of the tag you wish to create",
+						custom_id="tag_name",
+						max_length=100,
+					),
+					interactions.TextInput(
+						style=interactions.TextStyleType.PARAGRAPH,
+						label="Description of the tag",
+						placeholder="The description of the tag you wish to create.",
+						custom_id="tag_description",
+						max_length=2000,
+					)
+				]
+			)
+			await ctx.popup(modal)
 
 
 	async def _view_tag(self, ctx: interactions.CommandContext, tag_name: str):
@@ -127,6 +135,13 @@ class Tag(interactions.Extension):
 
 
 	async def _edit_tag(self, ctx: interactions.CommandContext, tag_name: str):
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_MESSAGES) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have permission to perform this action.", ephemeral=True)
+			return
+		else:
 			guild_id = str(ctx.guild_id)
 			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
@@ -161,6 +176,13 @@ class Tag(interactions.Extension):
 
 
 	async def _delete_tag(self, ctx: interactions.CommandContext, tag_name: str):
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_MESSAGES) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have permission to perform this action.", ephemeral=True)
+			return
+		else:
 			guild_id = str(ctx.guild_id)
 			buttons = [
 				interactions.ActionRow(
@@ -219,16 +241,16 @@ class Tag(interactions.Extension):
 
 
 	async def _list_tag(self, ctx: interactions.CommandContext):
-			guild_id = str(ctx.guild_id)
-			tags = json.loads(open("./db/tag.json", "r").read())
-			if guild_id in tags:
-				embed = interactions.Embed(
-					title="Tags",
-					description="\n".join(tags[guild_id].keys()),
-				)
-				await ctx.send(embeds=embed)
-			else:
-				await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
+		guild_id = str(ctx.guild_id)
+		tags = json.loads(open("./db/tag.json", "r").read())
+		if guild_id in tags:
+			embed = interactions.Embed(
+				title="Tags",
+				description="\n".join(tags[guild_id].keys()),
+			)
+			await ctx.send(embeds=embed)
+		else:
+			await ctx.send(f"This guild does not have any registered tag.", ephemeral=True)
 
 
 
