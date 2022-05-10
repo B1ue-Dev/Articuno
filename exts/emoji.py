@@ -1,7 +1,7 @@
 import interactions
 from interactions import extension_command as command
 import os, io, aiohttp, re
-from utils.permission import Permissions, has_permissions
+from utils.permission import Permissions, has_permission
 from dotenv import load_dotenv
 load_dotenv()
 scope = int(os.getenv("SCOPE"))
@@ -300,18 +300,18 @@ class Emoji(interactions.Extension):
 					else:
 						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
 		
-		elif emoji.isnumeric() and len(emoji) > 0:
-			emoji_id = int(emoji)
-			_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
-			if _emoji.name is not None:
-				guild = await ctx.get_guild()
-				await guild.delete_emoji(_emoji)
-				await ctx.send(content="Emoji deleted!", ephemeral=True)
-			else:
-				await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+			elif emoji.isnumeric() and len(emoji) > 0:
+				emoji_id = int(emoji)
+				_emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)),  _client=self.bot._http)
+				if _emoji.name is not None:
+					guild = await ctx.get_guild()
+					await guild.delete_emoji(_emoji)
+					await ctx.send(content="Emoji deleted!", ephemeral=True)
+				else:
+					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
 		
-		else:
-			await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+			else:
+				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 	
 
