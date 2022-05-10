@@ -1,8 +1,6 @@
 import interactions
 from interactions import extension_command as command
-from interactions import extension_component as component
-from interactions import extension_listener as listener
-import os, datetime
+import os, datetime, asyncio
 from dotenv import load_dotenv
 from utils.permission import Permissions, has_permission
 
@@ -23,6 +21,7 @@ class Admin(interactions.Extension):
 		name="user",
 		description="Moderation commands",
 		scope=scope,
+		default_member_permissions=interactions.Permissions.ADMINISTRATOR | interactions.Permissions.KICK_MEMBERS | interactions.Permissions.BAN_MEMBERS |interactions.Permissions.MODERATE_MEMBERS,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
@@ -259,7 +258,7 @@ class Admin(interactions.Extension):
 						await self.bot._http.remove_guild_ban(guild_id=ctx.guild_id, user_id=id)
 						await ctx.send(message)
 			return
-		
+
 		elif sub_command == "timeout":
 			if not (
 				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
@@ -294,7 +293,7 @@ class Admin(interactions.Extension):
 						await member.modify(guild_id=ctx.guild_id, communication_disabled_until=time.isoformat())
 						await ctx.send(message)
 						return
-		
+
 		elif sub_command == "untimeout":
 			if not (
 				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
@@ -327,7 +326,7 @@ class Admin(interactions.Extension):
 							await member.modify(guild_id=ctx.guild_id, communication_disabled_until=None)
 							await ctx.send(message)
 							return
-	
+
 
 	"""
 	@command(
@@ -347,7 +346,7 @@ class Admin(interactions.Extension):
 			)
 		]
 	)
-	async def channel(self, ctx: interactions.CommandContext, sub_command: str):
+	async def _channel(self, ctx: interactions.CommandContext, sub_command: str):
 		if sub_command == "lock":
 			channel = await ctx.get_channel()
 			if not (
@@ -364,11 +363,49 @@ class Admin(interactions.Extension):
 						deny=interactions.Permissions.SEND_MESSAGES
 					),
 				]
-				print(channel.permission_overwrites)
-				permission_overwrites.extend(interactions.Overwrite())
-				await channel.modify(permission_overwrites=permission_overwrites)
-				await ctx.send(f"``{channel.name}`` is locked.")
+				#permission_overwrites.extend(channel.permissions)
+				#await channel.modify(permission_overwrites=permission_overwrites)
+				#await ctx.send(f"``{channel.name}`` is locked.")
+				await ctx.send(f"{permission_overwrites}")
+				await ctx.send(f"{channel.permissions}")
 	"""
+
+
+	@command(
+		name="purge",
+		description="(Admin only) Purge messages (default to 5 and max out of 20)",
+		scope=scope,
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.INTEGER,
+				name="amount",
+				description="Amount of messages to purge",
+				required=True
+			)
+		]
+	)
+	async def _purge(self, ctx: interactions.CommandContext, amount: int):
+		if not (
+			has_permission(int(ctx.author.permissions), Permissions.MANAGE_MESSAGES) or
+			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+		):
+			await ctx.send(content="You do not have manage messages permission.", ephemeral=True)
+			return
+		else:
+			if not amount:
+				amount = int(5)
+			if amount > 21:
+				await ctx.send(content="You cannot purge more than 20 messages.", ephemeral=True)
+				return
+			else:
+				channel = await ctx.get_channel()
+				await channel.purge(amount=amount, bulk=True)
+				msg: interactions.Message = await ctx.send(f"Purged {amount} messages. This message will be deleted after 3 seconds.")
+				await asyncio.sleep(3)
+				await msg.delete()
+				return
+
+
 
 
 
