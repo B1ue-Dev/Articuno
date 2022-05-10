@@ -1,5 +1,4 @@
 import interactions
-from interactions import CommandContext
 from interactions import extension_command as command
 from interactions.ext import wait_for
 import json, random, asyncio, io, aiohttp, datetime
