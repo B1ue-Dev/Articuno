@@ -1,11 +1,7 @@
 import interactions
 from interactions import extension_command as command
-import platform, psutil, utils.utils as utils, datetime, os
+import platform, psutil, utils.utils as utils, datetime
 import utils.cache as _cache
-from dotenv import load_dotenv
-
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
 load_time = datetime.datetime.now()
 
 
@@ -20,8 +16,7 @@ class Basic(interactions.Extension):
 
 	@command(
 		name='ping',
-		description='Ping Articuno',
-		scope=scope
+		description='Ping Articuno'
 	)
 	async def _ping(self, ctx: interactions.CommandContext):
 		websocket = f"{self.bot.latency * 1:.0f}"
@@ -50,8 +45,7 @@ class Basic(interactions.Extension):
 
 	@command(
 		name="stats",
-		description="Shows the stats of Articuno",
-		scope=scope
+		description="Shows the stats of Articuno"
 	)
 	async def _stats(self, ctx: interactions.CommandContext):
 		proc = psutil.Process()
@@ -60,7 +54,7 @@ class Basic(interactions.Extension):
 		thread_counts = proc.num_threads()
 		mem = f"{utils.natural_size(mems.rss)}\n{utils.natural_size(mems.vms)}"
 		cpu = f"{cpus}%\n{thread_counts} Threads"
-		version = "v4.0.0a"
+		version = "v4.0.0"
 		latency = f"{self.bot.latency * 1:.0f}ms"
 		python = platform.python_version()
 		os = str(platform.platform())
@@ -110,8 +104,7 @@ class Basic(interactions.Extension):
 
 	@command(
 		name="credits",
-		description="Developers/Contributors to this project",
-		scope=scope
+		description="Developers/Contributors to this project"
 	)
 	async def _credits(self, ctx: interactions.CommandContext):
 		profile = interactions.Button(
@@ -137,8 +130,7 @@ class Basic(interactions.Extension):
 
 	@command(
 		name="invite",
-		description="Invite Articuno to your server",
-		scope=scope
+		description="Invite Articuno to your server"
 	)
 	async def _invite(self, ctx: interactions.CommandContext):
 		buttons = [

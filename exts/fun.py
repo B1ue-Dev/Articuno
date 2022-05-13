@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
 load_dotenv()
-scope = int(os.getenv("SCOPE"))
 apikey = os.getenv("APIKEY")
 google_cloud = os.getenv("GOOGLE_CLOUD")
 google_cse = os.getenv("GOOGLE_CSE")
@@ -36,8 +35,7 @@ class Fun(interactions.Extension):
 
 	@command(
 		name="coffee",
-		description="Send an image of coffee",
-		scope=scope
+		description="Send an image of coffee"
 	)
 	async def _coffee(self, ctx: interactions.CommandContext):
 		url = "https://coffee.alexflipnote.dev/random.json"
@@ -58,7 +56,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="ship",
 		description="Ship 2 users",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,
@@ -184,8 +181,7 @@ class Fun(interactions.Extension):
 
 	@command(
 		name="roll",
-		description="Roll a dice",
-		scope=scope,
+		description="Roll a dice"
 	)
 	async def _roll(self, ctx: interactions.CommandContext):
 		dice = random.randint(1, 6)
@@ -197,8 +193,7 @@ class Fun(interactions.Extension):
 
 	@command(
 		name="flip",
-		description="Flip a coin",
-		scope=scope,
+		description="Flip a coin"
 	)
 	async def _flip(self, ctx: interactions.CommandContext):
 		coin = random.choice(["heads", "tails"])
@@ -211,7 +206,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="gay",
 		description="Calculate the gay percentage of a user",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,
@@ -240,8 +234,7 @@ class Fun(interactions.Extension):
 
 	@command(
 		name="joke",
-		description="Send a random joke",
-		scope=scope,
+		description="Send a random joke"
 	)
 	async def _joke(self, ctx: interactions.CommandContext):
 		url = "https://some-random-api.ml/joke"
@@ -258,8 +251,7 @@ class Fun(interactions.Extension):
 
 	@command(
 		name="quote",
-		description="Send a quote",
-		scope=scope,
+		description="Send a quote"
 	)
 	async def _quote(self, ctx: interactions.CommandContext):
 		url = 'https://api.quotable.io/random'
@@ -283,7 +275,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="xkcd",
 		description="Send a xkcd comic page",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.INTEGER,
@@ -328,7 +319,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="dictionary",
 		description="Define a word",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,
@@ -368,7 +358,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="urban",
 		description="Define a word on Urban Dictionary",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,
@@ -480,7 +469,6 @@ class Fun(interactions.Extension):
 	@command(
 		name="img",
 		description="Search for images using Google Images",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,

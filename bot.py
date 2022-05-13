@@ -20,10 +20,10 @@ bot = interactions.Client(
 		activities=[
 			interactions.PresenceActivity(
 				type=interactions.PresenceActivityType.WATCHING,
-				name="for v4.0.0a"
+				name="for v4.0.0"
 			),
 		],
-		status=interactions.StatusType.IDLE,
+		status=interactions.StatusType.ONLINE,
 	),
 	#disable_sync=True
 )
@@ -57,18 +57,17 @@ async def on_ready():
 	print(f'Logged in as {bot.me.name}')
 	print(f'ID: {bot.me.id}')
 	print(f'Latency: {websocket}ms')
-
-"""
-@bot.command(
-	name="ping",
-	description="Ping Blue",
-	scope=scope,
-)
-async def _ping(ctx: interactions.CommandContext):
-	await ctx.send("<@892080548342820925> Ping Blue.")
-	await ctx.send("<@&920717553616171088> Ping Developer.", allowed_mentions={"parse":["roles"]})
-"""
-
+	await bot.change_presence(
+		interactions.ClientPresence(
+			activities=[
+				interactions.PresenceActivity(
+					type=interactions.PresenceActivityType.WATCHING,
+					name="for v4.0.0a"
+				)
+			],
+			status=interactions.StatusType.ONLINE
+		)
+	)
 
 
 

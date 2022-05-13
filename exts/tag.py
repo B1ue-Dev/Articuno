@@ -1,11 +1,7 @@
 import interactions
-import os, json, datetime
+import json, datetime
 from interactions.ext import wait_for
 from utils.permission import Permissions, has_permission
-from dotenv import load_dotenv
-load_dotenv()
-
-scope = int(os.getenv("SCOPE"))
 
 
 
@@ -19,7 +15,6 @@ class Tag(interactions.Extension):
 	@interactions.extension_command(
 		name="tag",
 		description="Tag system",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,

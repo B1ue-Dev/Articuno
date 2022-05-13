@@ -4,7 +4,6 @@ import aiohttp, json, os, io
 from dotenv import load_dotenv
 
 load_dotenv()
-scope = int(os.getenv("SCOPE"))
 apikey = os.getenv("APIKEY")
 
 
@@ -32,7 +31,6 @@ class Pokemon(interactions.Extension):
 	@command(
 		name="pokedex",
 		description="Show the information about a Pokemon",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.STRING,

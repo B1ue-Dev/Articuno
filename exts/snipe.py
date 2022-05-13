@@ -1,10 +1,7 @@
 import interactions
 from interactions import extension_listener as listener
 from interactions import extension_command as command
-import os, asyncio
-from dotenv import load_dotenv
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
+import asyncio
 
 
 _snipe_message_author = {}
@@ -50,8 +47,7 @@ class Snipe(interactions.Extension):
 
 	@command(
 		name="snipe",
-		description="Snipe a deleted message",
-		scope=scope
+		description="Snipe a deleted message"
 	)
 	async def _snipe(self, ctx: interactions.CommandContext):
 		channel = await ctx.get_channel()

@@ -17,37 +17,37 @@ class HackTool(interactions.Extension):
 		self.bot = bot
 	
 
-	@command(name="base64",
-			description="Base64 tools",
-			scope=scope,
-			options=[
-				interactions.Option(
-					type=interactions.OptionType.SUB_COMMAND,
-					name="encode",
-					description="Encode a string",
-					options=[
-						interactions.Option(
-							type=interactions.OptionType.STRING,
-							name="string",
-							description="String to encode",
-							required=True
-						)
-					]
-				),
-				interactions.Option(
-					type=interactions.OptionType.SUB_COMMAND,
-					name="decode",
-					description="Decode a string",
-					options=[
-						interactions.Option(
-							type=interactions.OptionType.STRING,
-							name="string",
-							description="String to decode",
-							required=True
-						)
-					]
-				)
-			]
+	@command(
+		name="base64",
+		description="Base64 tools",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="encode",
+				description="Encode a string",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.STRING,
+						name="string",
+						description="String to encode",
+						required=True
+					)
+				]
+			),
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="decode",
+				description="Decode a string",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.STRING,
+						name="string",
+						description="String to decode",
+						required=True
+					)
+				]
+			)
+		]
 	)
 	async def _base64(self,
 		ctx: interactions.CommandContext,
@@ -71,17 +71,17 @@ class HackTool(interactions.Extension):
 				await ctx.send("```Invalid string. Please try again!```", ephemeral=True)
 	
 
-	@command(name="brainfuck",
-			description="Brainfuck interpreter",
-			scope=scope,
-			options=[
-				interactions.Option(
-					type=interactions.OptionType.STRING,
-					name="string",
-					description="String to interpret",
-					required=True
-				)
-			]
+	@command(
+		name="brainfuck",
+		description="Brainfuck interpreter",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="string",
+				description="String to interpret",
+				required=True
+			)
+		]
 	)
 	async def _brainfuck(self,
 		ctx: interactions.CommandContext,

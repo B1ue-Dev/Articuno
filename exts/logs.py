@@ -1,10 +1,9 @@
 import interactions
 from interactions import extension_listener as listener
-import datetime, random, json, os
+import datetime, random, os
 from dotenv import load_dotenv
 load_dotenv()
 GUILD = int(os.getenv("GUILD"))
-CHANNEL = int(os.getenv("CHANNEL"))
 
 
 class Logs(interactions.Extension):
@@ -17,7 +16,7 @@ class Logs(interactions.Extension):
 	async def _message_delete(self, message: interactions.Message):
 		if int(message.guild_id) == GUILD and message.guild_id is not None:
 			_message: interactions.Message = self.bot._http.cache.messages.get(str(message.id))
-			channel = interactions.Channel(**await self.bot._http.get_channel(CHANNEL), _client=self.bot._http)
+			channel = interactions.Channel(**await self.bot._http.get_channel(859044672469991465), _client=self.bot._http)
 
 			if _message is not None:
 				author = interactions.EmbedAuthor(name=f"{_message.author.username}#{_message.author.discriminator}", icon_url=_message.author.avatar_url)
@@ -44,7 +43,7 @@ class Logs(interactions.Extension):
 	async def _guild_member_add(self, member: interactions.GuildMember):
 		if int(member.guild_id) == GUILD:
 			guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
-			channel = interactions.Channel(**await self.bot._http.get_channel(CHANNEL), _client=self.bot._http)
+			channel = interactions.Channel(**await self.bot._http.get_channel(859077501589913610), _client=self.bot._http)
 			embed = interactions.Embed(
 				title="Welcome! 🥳",
 				description=f"Welcome to {guild.name}, **{member.user.username}#{member.user.discriminator}**! We hope you have a good time here.",
@@ -62,7 +61,7 @@ class Logs(interactions.Extension):
 	async def _guild_member_remove(self, member: interactions.GuildMember):
 		if int(member.guild_id) == GUILD:
 			guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
-			channel = interactions.Channel(**await self.bot._http.get_channel(CHANNEL), _client=self.bot._http)
+			channel = interactions.Channel(**await self.bot._http.get_channel(859077501589913610), _client=self.bot._http)
 			embed = interactions.Embed(
 				title="Goodbye! 😢",
 				description=f"Goodbye **{member.user.username}#{member.user.discriminator}**! Thanks for joining {guild.name}.",

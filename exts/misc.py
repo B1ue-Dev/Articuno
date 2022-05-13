@@ -4,7 +4,6 @@ import random, os, io, aiohttp
 from dotenv import load_dotenv
 
 load_dotenv()
-scope = int(os.getenv("SCOPE"))
 apikey = os.getenv("APIKEY")
 
 
@@ -32,7 +31,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="hornycard",
 		description="Send a hornycard",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,
@@ -63,7 +61,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="simpcard",
 		description="Send a simpcard",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,
@@ -97,7 +94,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="tweet",
 		description="Send a Twitter tweet",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,
@@ -147,7 +143,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="youtube",
 		description="Send a YouTube comment",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,
@@ -189,7 +184,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="amogus",
 		description="Amogus",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,
@@ -219,7 +213,6 @@ class Misc(interactions.Extension):
 	@command(
 		name="pet",
 		description="Pet someone",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.USER,

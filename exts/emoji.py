@@ -1,10 +1,7 @@
 import interactions
 from interactions import extension_command as command
-import os, io, aiohttp, re
+import io, aiohttp, re
 from utils.permission import Permissions, has_permission
-from dotenv import load_dotenv
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
 
 
 class Emoji(interactions.Extension):
@@ -16,7 +13,6 @@ class Emoji(interactions.Extension):
 	@command(
 		name="emoji",
 		description="Emoji commands",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,

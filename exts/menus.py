@@ -3,11 +3,6 @@ from interactions import extension_user_command as user_command
 from interactions import extension_message_command as message_command
 from interactions.ext import wait_for
 from googletrans import Translator
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
 
 
 
@@ -22,8 +17,7 @@ class Menus(interactions.Extension):
 
 	
 	@message_command(
-		name="Translate",
-		scope=scope
+		name="Translate"
 	)
 	async def _translate(self, ctx: interactions.CommandContext):
 		translator = Translator()
@@ -95,8 +89,7 @@ class Menus(interactions.Extension):
 
 
 	@user_command(
-		name="User Information",
-		scope=scope
+		name="User Information"
 	)
 	async def _user_information(self, ctx: interactions.CommandContext):
 		name = ctx.target.user.username

@@ -1,11 +1,8 @@
 import interactions
 from interactions import extension_command as command
-import os, datetime, asyncio
+import datetime, asyncio
 from dotenv import load_dotenv
 from utils.permission import Permissions, has_permission
-
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
 
 
 
@@ -20,7 +17,6 @@ class Admin(interactions.Extension):
 	@command(
 		name="user",
 		description="Moderation commands",
-		scope=scope,
 		default_member_permissions=interactions.Permissions.ADMINISTRATOR | interactions.Permissions.KICK_MEMBERS | interactions.Permissions.BAN_MEMBERS |interactions.Permissions.MODERATE_MEMBERS,
 		options=[
 			interactions.Option(
@@ -374,7 +370,6 @@ class Admin(interactions.Extension):
 	@command(
 		name="purge",
 		description="(Admin only) Purge messages (default to 5 and max out of 20)",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.INTEGER,
