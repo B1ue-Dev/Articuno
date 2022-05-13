@@ -5,7 +5,6 @@ import os, datetime, logging, asyncio, json
 from dotenv import load_dotenv
 load_dotenv()
 bot_token = os.getenv("TOKEN")
-scope = int(os.getenv("SCOPE"))
 google_cloud = os.getenv("GOOGLE_CLOUD")
 google_cse = os.getenv("GOOGLE_CSE")
 
