@@ -3,8 +3,7 @@ from interactions import extension_command as command
 import os, datetime, random
 from dotenv import load_dotenv
 
-load_dotenv()
-scope = int(os.getenv("SCOPE"))
+
 
 
 
