@@ -29,8 +29,8 @@ class Basic(interactions.Extension):
 			message = f"{websocket}ms <:Connection_Bad:936294724954894436>"
 
 		footer = interactions.EmbedFooter(
-			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-			icon_url=f"{ctx.author.user.avatar_url}"
+			text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+			icon_url=f"{ctx.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title=":ping_pong: Pong!",
@@ -54,7 +54,7 @@ class Basic(interactions.Extension):
 		thread_counts = proc.num_threads()
 		mem = f"{utils.natural_size(mems.rss)}\n{utils.natural_size(mems.vms)}"
 		cpu = f"{cpus}%\n{thread_counts} Threads"
-		version = "v4.0.0"
+		version = "v4.0.1a"
 		latency = f"{self.bot.latency * 1:.0f}ms"
 		python = platform.python_version()
 		os = str(platform.platform())
@@ -87,8 +87,8 @@ class Basic(interactions.Extension):
 		]
 		thumbnail = interactions.EmbedImageStruct(url=self.bot.me.icon_url)
 		footer = interactions.EmbedFooter(
-			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-			icon_url=f"{ctx.author.user.avatar_url}"
+			text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+			icon_url=f"{ctx.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title="Articuno Stats",
@@ -114,8 +114,8 @@ class Basic(interactions.Extension):
 		)
 
 		footer = interactions.EmbedFooter(
-			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-			icon_url=f"{ctx.author.user.avatar_url}"
+			text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+			icon_url=f"{ctx.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title="Credits",
@@ -147,8 +147,8 @@ class Basic(interactions.Extension):
 		]
 
 		footer = interactions.EmbedFooter(
-			text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-			icon_url=f"{ctx.author.user.avatar_url}"
+			text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+			icon_url=f"{ctx.user.avatar_url}"
 		)
 		embed = interactions.Embed(
 			title="Invite Articuno to your server",
