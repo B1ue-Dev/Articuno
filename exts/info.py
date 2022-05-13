@@ -18,7 +18,6 @@ class Info(interactions.Extension):
 	@command(
 		name="info",
 		description="Information command",
-		scope=scope,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
