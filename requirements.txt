@@ -2,7 +2,7 @@ python-dotenv
 psutil
 requests
 google-api-python-client
-git+https://github.com/Articuno-org/I-am-spending-way-too-many-time-on-this-lol.git@Autocomplete
+git+https://github.com/Jimmy-Blue/library.git@unstable
 interactions-wait-for==1.0.4
 googletrans==3.1.0a0
 git+https://github.com/interactions-py/enhanced@main
