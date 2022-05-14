@@ -13,3 +13,9 @@ Instruction:
 - Install requirements library: ``pip install -r requirements.txt``
 - Put your bot's token in ``.env`` file after ``TOKEN=``.
 - Run ``python main.py``
+
+# Roadmap
+
+Feature ideas for Articuno:
+
+- Ticketing system using threads
