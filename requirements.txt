@@ -3,4 +3,3 @@ psutil
 git+https://github.com/interactions-py/library@4.2.0
 interactions-wait-for==1.0.4
 googletrans==3.1.0a0
-pytest
