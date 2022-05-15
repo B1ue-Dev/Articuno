@@ -81,12 +81,12 @@ class Fun(interactions.Extension):
 
 		if not user1 and not user2:
 			result = random.choice(members_list)
-			user1 = ctx.author.user.username if ctx.author.nick is None else ctx.author.nick
+			user1 = ctx.user.username if ctx.member.nick is None else ctx.member.nick
 			user2 = result.user.username if result.nick is None else result.nick
 		if not user2 and user1:
 			user_1 = user1
 			user2 = user_1
-			user1 = ctx.author.user.username if ctx.author.nick is None else ctx.author.nick
+			user1 = ctx.user.username if ctx.member.nick is None else ctx.member.nick
 		if not user1 and user2:
 			result = random.choice(members_list)
 			user1 = result.user.username if result.nick is None else result.nick
@@ -219,7 +219,7 @@ class Fun(interactions.Extension):
 		user: str = None,
 	):
 		if not user:
-			user = ctx.author.user.username
+			user = ctx.user.username
 		perc = int(random.randint(0, 100))
 
 		embed = interactions.Embed(
@@ -294,25 +294,28 @@ class Fun(interactions.Extension):
 			page = random.randint(1, newest)
 		url = "https://xkcd.com/{page}/info.0.json"
 		resp = await get_response(url.format(page=page))
-		month = resp['month']
-		year = resp['year']
-		day = resp['day']
-		title = resp['title']
-		alt = resp['alt']
-		img = resp['img']
-		
-		footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
-		image = interactions.EmbedImageStruct(url=img)
-		author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")
-		embed = interactions.Embed(
-			description=alt,
-			color=random.randint(0, 0xFFFFFF),
-			footer=footer,
-			image=image,
-			author=author
-		)
-		
-		await ctx.send(embeds=embed)
+		if resp is None:
+			return await ctx.send("Invalid page. Please try again.", ephemeral=True)
+		else:	
+			month = resp['month']
+			year = resp['year']
+			day = resp['day']
+			title = resp['title']
+			alt = resp['alt']
+			img = resp['img']
+			
+			footer = interactions.EmbedFooter(text=f"Page {page}/{newest} • Created on {year}-{month}-{day}")
+			image = interactions.EmbedImageStruct(url=img)
+			author = interactions.EmbedAuthor(name=f"{title}", url=f"https://xkcd.com/{page}/", icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67")
+			embed = interactions.Embed(
+				description=alt,
+				color=random.randint(0, 0xFFFFFF),
+				footer=footer,
+				image=image,
+				author=author
+			)
+			
+			await ctx.send(embeds=embed)
 
 
 
@@ -336,11 +339,11 @@ class Fun(interactions.Extension):
 			"word": word
 		}
 		resp = await get_response(url, params=params)
+		print(resp)
 
-		try:
-			er = resp['error']
-			await ctx.send(f"Error: {er}. Please try again.")
-		except:
+		if resp is None:
+			return await ctx.send("No word found. Please try again.", ephemeral=True)
+		else:
 			term = resp['word']
 			definition = resp['definition']
 			if len(definition) > 4096:
@@ -418,7 +421,7 @@ class Fun(interactions.Extension):
 			while True:
 				try:
 					res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
-					if res.author.id == ctx.author.id:
+					if int(res.user.id) == int(ctx.user.id):
 						if res.custom_id == "previous":
 							if ran == 0:
 								ran = int(0)
@@ -481,6 +484,7 @@ class Fun(interactions.Extension):
 	async def _img(self, ctx: interactions.CommandContext,
 		query: str
 	):
+		#await ctx.defer()
 		ran = int(0)
 		resource = build("customsearch", "v1", developerKey=google_cloud).cse()
 		result = resource.list(
@@ -515,7 +519,7 @@ class Fun(interactions.Extension):
 		while True:
 			try:
 				res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
-				if res.author.id == ctx.author.id:
+				if int(res.user.id) == int(ctx.user.id):
 					if res.custom_id == "next":
 						ran += 1
 						if ran < 9:
