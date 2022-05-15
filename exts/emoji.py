@@ -78,7 +78,8 @@ class Emoji(interactions.Extension):
 					)
 				]
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _emoji(self, ctx: interactions.CommandContext,
 		sub_command: str,
