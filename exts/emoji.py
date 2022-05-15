@@ -40,7 +40,7 @@ class Emoji(interactions.Extension):
 					),
 					interactions.Option(
 						type=interactions.OptionType.STRING,
-						name="name",
+						name="emoji_name",
 						description="Name for the stolen emoji",
 						required=False
 					)
@@ -59,7 +59,7 @@ class Emoji(interactions.Extension):
 					),
 					interactions.Option(
 						type=interactions.OptionType.STRING,
-						name="name",
+						name="emoji_name",
 						description="Name for the added emoji",
 						required=True
 					)
@@ -84,14 +84,14 @@ class Emoji(interactions.Extension):
 		sub_command: str,
 		emoji: str = None,
 		url: str = None,
-		name: str = None
+		emoji_name: str = None
 	):
 		if sub_command == "info":
 			await self._emoji_info(ctx, emoji)
 		elif sub_command == "steal":
-			await self._emoji_steal(ctx, emoji, name)
+			await self._emoji_steal(ctx, emoji, emoji_name)
 		elif sub_command == "add":
-			await self._emoji_add(ctx, url, name)
+			await self._emoji_add(ctx, url, emoji_name)
 		elif sub_command == "remove":
 			await self._emoji_remove(ctx, emoji)
 
@@ -163,7 +163,7 @@ class Emoji(interactions.Extension):
 			await ctx.send("Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
 
 
-	async def _emoji_steal(self, ctx: interactions.CommandContext, emoji: str, name: str = None):
+	async def _emoji_steal(self, ctx: interactions.CommandContext, emoji: str, emoji_name: str = None):
 		if not (
 			has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
 			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
@@ -179,10 +179,10 @@ class Emoji(interactions.Extension):
 							_emoji = emoji[i:]
 							break
 					emoji_id = int(_emoji[1:-1])
-					if name is None:
+					if emoji_name is None:
 						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
 					else:
-						emoji_name = name
+						emoji_name = emoji_name
 					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.png"
 					guild = await ctx.get_guild()
 					async with aiohttp.ClientSession() as session:
@@ -205,10 +205,10 @@ class Emoji(interactions.Extension):
 							_emoji = emoji[i:]
 							break
 					emoji_id = int(_emoji[1:-1])
-					if name is None:
+					if emoji_name is None:
 						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
 					else:
-						emoji_name = name
+						emoji_name = emoji_name
 					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.gif"
 					guild = await ctx.get_guild()
 					async with aiohttp.ClientSession() as session:
@@ -227,7 +227,7 @@ class Emoji(interactions.Extension):
 				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 
-	async def _emoji_add(self, ctx: interactions.CommandContext, url: str, name: str):
+	async def _emoji_add(self, ctx: interactions.CommandContext, url: str, emoji_name: str):
 		if not (
 			has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
 			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
@@ -242,13 +242,13 @@ class Emoji(interactions.Extension):
 							_io = (io.BytesIO(await resp.read())).read()
 							image = interactions.Image(fp=_io, file="unknown.png")
 							guild = await ctx.get_guild()
-							await guild.create_emoji(image=image, name=name)
+							await guild.create_emoji(image=image, name=emoji_name)
 							await ctx.send(content="Emoji uploaded!")
 						elif resp.content_type in {"image/gif"}:
 							_io = (io.BytesIO(await resp.read())).read()
 							image = interactions.Image(fp=_io, file="unknown.gif")
 							guild = await ctx.get_guild()
-							await guild.create_emoji(image=image, name=name)
+							await guild.create_emoji(image=image, name=emoji_name)
 							await ctx.send(content="Emoji uploaded!")
 						else:
 							await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
