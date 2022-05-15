@@ -1,8 +1,6 @@
 import interactions
 from interactions import extension_command as command
-import os, datetime, random
-from dotenv import load_dotenv
-
+import random
 
 
 
@@ -65,7 +63,7 @@ class Info(interactions.Extension):
 
 
 
-	async def _info_user(self, ctx: interactions.CommandContext, user: str):
+	async def _info_user(self, ctx: interactions.CommandContext, user: interactions.Member):
 		role = await (await ctx.get_guild()).get_role(role_id=user.roles[0])
 		name = user.user.username
 		discriminator = int(user.user.discriminator)
@@ -125,7 +123,7 @@ class Info(interactions.Extension):
 		await ctx.send(embeds=embed)
 	
 
-	async def _info_avatar(self, ctx: interactions.CommandContext, user: str):
+	async def _info_avatar(self, ctx: interactions.CommandContext, user: interactions.Member):
 		avatar = user.user.avatar_url
 		avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
 		avatar_png = user.user.avatar_url[:-4] + ".png"

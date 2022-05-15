@@ -89,7 +89,8 @@ class Menus(interactions.Extension):
 
 
 	@user_command(
-		name="User Information"
+		name="User Information",
+		dm_permission=False
 	)
 	async def _user_information(self, ctx: interactions.CommandContext):
 		name = ctx.target.user.username

@@ -1,7 +1,6 @@
 import interactions
 from interactions import extension_command as command
-import datetime, asyncio
-from dotenv import load_dotenv
+import datetime
 from utils.permission import Permissions, has_permission
 
 

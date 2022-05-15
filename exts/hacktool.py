@@ -1,7 +1,7 @@
 import interactions
 from interactions import extension_command as command
 from interactions import extension_message_command as message_command
-import os, base64 as b64, utils.brainfuck as brainfuck
+import base64 as b64, utils.brainfuck as brainfuck
 
 
 

@@ -68,7 +68,8 @@ class Tag(interactions.Extension):
 				name="list",
 				description="List all tags"
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _tag(self, ctx: interactions.CommandContext,
 		sub_command: str,

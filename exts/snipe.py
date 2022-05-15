@@ -47,7 +47,8 @@ class Snipe(interactions.Extension):
 
 	@command(
 		name="snipe",
-		description="Snipe a deleted message"
+		description="Snipe a deleted message",
+		dm_permission=False
 	)
 	async def _snipe(self, ctx: interactions.CommandContext):
 		channel = await ctx.get_channel()

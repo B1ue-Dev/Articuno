@@ -1,7 +1,5 @@
-from optparse import Option
 import interactions
-from interactions.ext import wait_for
-import os, datetime, logging, asyncio, json
+import os, logging, utils.file_sending
 from dotenv import load_dotenv
 load_dotenv()
 bot_token = os.getenv("TOKEN")
@@ -14,12 +12,12 @@ google_cse = os.getenv("GOOGLE_CSE")
 
 bot = interactions.Client(
 	token=bot_token,
-	intents=interactions.Intents.DEFAULT | interactions.Intents.PRIVILEGED,
+	intents=interactions.Intents.ALL,
 	presence=interactions.ClientPresence(
 		activities=[
 			interactions.PresenceActivity(
 				type=interactions.PresenceActivityType.WATCHING,
-				name="for v4.0.0"
+				name="for v4.0.1"
 			),
 		],
 		status=interactions.StatusType.ONLINE,
@@ -27,7 +25,6 @@ bot = interactions.Client(
 	#disable_sync=True
 )
 bot.load('utils.cache')
-
 
 bot.load('exts.automod')
 bot.load('exts.basic')
@@ -44,11 +41,6 @@ bot.load('exts.snipe')
 bot.load('exts.tag')
 
 
-#bot.load('interactions.ext.enhanced')
-#bot.load('Cogs.get_method')
-#bot.load('test')
-
-
 
 @bot.event
 async def on_ready():
@@ -61,12 +53,13 @@ async def on_ready():
 			activities=[
 				interactions.PresenceActivity(
 					type=interactions.PresenceActivityType.WATCHING,
-					name="for v4.0.0a"
+					name="for v4.0.1"
 				)
 			],
-			status=interactions.StatusType.ONLINE
+			status=interactions.StatusType.ONLINE,
 		)
 	)
+
 
 
 
