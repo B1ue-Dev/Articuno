@@ -17,7 +17,7 @@ class Admin(interactions.Extension):
 	@command(
 		name="user",
 		description="Moderation commands",
-		default_member_permissions=interactions.Permissions.ADMINISTRATOR | interactions.Permissions.KICK_MEMBERS | interactions.Permissions.BAN_MEMBERS |interactions.Permissions.MODERATE_MEMBERS,
+		#default_member_permissions=interactions.Permissions.ADMINISTRATOR | interactions.Permissions.KICK_MEMBERS | interactions.Permissions.BAN_MEMBERS |interactions.Permissions.MODERATE_MEMBERS,
 		options=[
 			interactions.Option(
 				type=interactions.OptionType.SUB_COMMAND,
@@ -127,7 +127,8 @@ class Admin(interactions.Extension):
 					)
 				]
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _user(self, ctx: interactions.CommandContext, sub_command: str,
 		user: interactions.Member = None,
@@ -139,13 +140,13 @@ class Admin(interactions.Extension):
 
 		if sub_command == "kick":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.KICK_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.KICK_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have kick permission.", ephemeral=True)
 				return
 			else:
-				if int(user.user.id) == int(ctx.author.id):
+				if int(user.user.id) == int(ctx.member.id):
 					await ctx.send("You cannot kick yourself.", ephemeral=True)
 					return
 				else:
@@ -169,13 +170,13 @@ class Admin(interactions.Extension):
 
 		elif sub_command == "ban":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.BAN_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have ban permission.", ephemeral=True)
 				return
 			else:
-				if int(user.user.id) == int(ctx.author.id):
+				if int(user.user.id) == int(ctx.member.id):
 					await ctx.send("You cannot ban yourself.", ephemeral=True)
 					return
 				else:
@@ -199,13 +200,13 @@ class Admin(interactions.Extension):
 
 		elif sub_command == "hackban":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.BAN_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have ban permission.", ephemeral=True)
 				return
 			else:
-				if int(id) == int(ctx.author.id):
+				if int(id) == int(ctx.member.id):
 					await ctx.send("You cannot ban yourself.", ephemeral=True)
 					return
 				else:
@@ -229,13 +230,13 @@ class Admin(interactions.Extension):
 
 		elif sub_command == "unban":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.BAN_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have ban permission.", ephemeral=True)
 				return
 			else:
-				if int(id) == int(ctx.author.id):
+				if int(id) == int(ctx.member.id):
 					await ctx.send("You cannot unban yourself.", ephemeral=True)
 					return
 				else:
@@ -257,13 +258,13 @@ class Admin(interactions.Extension):
 
 		elif sub_command == "timeout":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have timeout permission.", ephemeral=True)
 				return
 			else:
-				if int(user.user.id) == int(ctx.author.id):
+				if int(user.user.id) == int(ctx.member.id):
 					await ctx.send("You cannot timeout yourself.", ephemeral=True)
 					return
 				else:
@@ -292,13 +293,13 @@ class Admin(interactions.Extension):
 
 		elif sub_command == "untimeout":
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.MODERATE_MEMBERS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have timeout permission.", ephemeral=True)
 				return
 			else:
-				if int(user.user.id) == int(ctx.author.id):
+				if int(user.user.id) == int(ctx.member.id):
 					await ctx.send("You cannot untimeout yourself.", ephemeral=True)
 					return
 				else:
@@ -346,8 +347,8 @@ class Admin(interactions.Extension):
 		if sub_command == "lock":
 			channel = await ctx.get_channel()
 			if not (
-				has_permission(int(ctx.author.permissions), Permissions.MANAGE_CHANNELS) or
-				has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+				has_permission(int(ctx.member.permissions), Permissions.MANAGE_CHANNELS) or
+				has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 			):
 				await ctx.send(content="You do not have channel permission.", ephemeral=True)
 				return
@@ -377,12 +378,13 @@ class Admin(interactions.Extension):
 				description="Amount of messages to purge",
 				required=True
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _purge(self, ctx: interactions.CommandContext, amount: int):
 		if not (
-			has_permission(int(ctx.author.permissions), Permissions.MANAGE_MESSAGES) or
-			has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
+			has_permission(int(ctx.member.permissions), Permissions.MANAGE_MESSAGES) or
+			has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
 		):
 			await ctx.send(content="You do not have manage messages permission.", ephemeral=True)
 			return
@@ -393,11 +395,9 @@ class Admin(interactions.Extension):
 				await ctx.send(content="You cannot purge more than 20 messages.", ephemeral=True)
 				return
 			else:
-				channel = await ctx.get_channel()
-				await channel.purge(amount=amount, bulk=True)
-				msg: interactions.Message = await ctx.send(f"Purged {amount} messages. This message will be deleted after 3 seconds.")
-				await asyncio.sleep(3)
-				await msg.delete()
+				await ctx.get_channel()
+				await ctx.channel.purge(amount=amount, bulk=True)
+				await ctx.send(f"Purged {amount} messages.", ephemeral=True)
 				return
 
 
