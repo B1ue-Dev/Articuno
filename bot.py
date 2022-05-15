@@ -28,7 +28,7 @@ bot.load('utils.cache')
 
 #bot.load('exts.automod')
 #bot.load('exts.basic')
-@bot.load('exts.emoji')
+#bot.load('exts.emoji')
 #bot.load('exts.fun')
 #bot.load('exts.hacktool')
 #bot.load('exts.info')
