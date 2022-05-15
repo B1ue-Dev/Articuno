@@ -38,16 +38,17 @@ class Misc(interactions.Extension):
 				description="Targeted user",
 				required=False
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _hornycard(self, ctx: interactions.CommandContext,
-		user: interactions.User = None
+		user: interactions.Member = None
 	):
-		if not user:
-			user = ctx.author.user
+		if user is None:
+			user = ctx.member
 		else:
-			user = user.user
-		avatar_url = user.avatar_url
+			user = user
+		avatar_url = user.user.avatar_url
 		url = "https://some-random-api.ml/canvas/horny"
 		params = {
 			"avatar": avatar_url,
@@ -68,16 +69,17 @@ class Misc(interactions.Extension):
 				description="Targeted user",
 				required=False
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _simpcard(self, ctx: interactions.CommandContext,
 		user: interactions.Member = None
 	):
-		if not user:
-			user = ctx.author.user
+		if user is None:
+			user = ctx.member
 		else:
-			user = user.user
-		avatar_url = user.avatar_url
+			user = user
+		avatar_url = user.user.avatar_url
 		async with aiohttp.ClientSession() as session:
 			url = "https://some-random-api.ml/canvas/simpcard"
 			params = {
@@ -107,7 +109,8 @@ class Misc(interactions.Extension):
 				description="Comment",
 				required=True,
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _tweet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
@@ -156,7 +159,8 @@ class Misc(interactions.Extension):
 				description="Comment",
 				required=True,
 			)
-		]
+		],
+		dm_permission=False
 	)
 	async def _youtube(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
@@ -191,12 +195,12 @@ class Misc(interactions.Extension):
 				description="Targeted user",
 				required=True,
 			),
-		]
+		],
+		dm_permission=False
 	)
 	async def _amogus(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
 	):
-		msg = await ctx.send("Executing...")
 		url = "https://some-random-api.ml/premium/amongus"
 		params = {
 			"avatar": user.user.avatar_url,
@@ -206,7 +210,7 @@ class Misc(interactions.Extension):
 		}
 		resp = await get_response(url, params)
 		img = interactions.File(filename="image.gif", fp=resp, description="Image")
-		await msg.edit(content=None, files=img)
+		await ctx.send(files=img)
 	
 
 
@@ -220,7 +224,8 @@ class Misc(interactions.Extension):
 				description="Targeted user",
 				required=True,
 			),
-		]
+		],
+		dm_permission=False
 	)
 	async def _pet(self, ctx: interactions.CommandContext,
 		user: interactions.Member,
