@@ -1,9 +1,6 @@
 import interactions
 from interactions import extension_listener as listener
-import urllib.request, os
-from dotenv import load_dotenv
-load_dotenv()
-GUILD = int(os.getenv("GUILD_ID"))
+import urllib.request
 
 
 class Automod(interactions.Extension):
@@ -15,7 +12,7 @@ class Automod(interactions.Extension):
 	@listener(name="on_message_create")
 	async def _message_create(self, message: interactions.Message):
 		message_content = message.content.lower()
-		if int(message.guild_id) == GUILD and int(message.guild_id) is not None:
+		if int(message.guild_id) == 859030372783751168 and int(message.guild_id) is not None:
 
 			# If someone sends an invite link
 			if "discord.gg/" in message_content or "discordapp.com/invite" in message_content or "discord.com/invite" in message_content:

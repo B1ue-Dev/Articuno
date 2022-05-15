@@ -1,9 +1,6 @@
 import interactions
 from interactions import extension_listener as listener
-import datetime, random, os
-from dotenv import load_dotenv
-load_dotenv()
-GUILD = int(os.getenv("GUILD"))
+import datetime, random
 
 
 class Logs(interactions.Extension):
@@ -14,7 +11,7 @@ class Logs(interactions.Extension):
 
 	@listener(name="on_message_delete")
 	async def _message_delete(self, message: interactions.Message):
-		if int(message.guild_id) == GUILD and message.guild_id is not None:
+		if int(message.guild_id) == 859030372783751168 and message.guild_id is not None:
 			_message: interactions.Message = self.bot._http.cache.messages.get(str(message.id))
 			channel = interactions.Channel(**await self.bot._http.get_channel(859044672469991465), _client=self.bot._http)
 
@@ -41,7 +38,7 @@ class Logs(interactions.Extension):
 
 	@listener(name="on_guild_member_add")
 	async def _guild_member_add(self, member: interactions.GuildMember):
-		if int(member.guild_id) == GUILD:
+		if int(member.guild_id) == 859030372783751168:
 			guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
 			channel = interactions.Channel(**await self.bot._http.get_channel(859077501589913610), _client=self.bot._http)
 			embed = interactions.Embed(
@@ -59,7 +56,7 @@ class Logs(interactions.Extension):
 
 	@listener(name="on_guild_member_remove")
 	async def _guild_member_remove(self, member: interactions.GuildMember):
-		if int(member.guild_id) == GUILD:
+		if int(member.guild_id) == 859030372783751168:
 			guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
 			channel = interactions.Channel(**await self.bot._http.get_channel(859077501589913610), _client=self.bot._http)
 			embed = interactions.Embed(
