@@ -172,60 +172,74 @@ class Emoji(interactions.Extension):
 			await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
 			return
 		else:
-			if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
-				s = [pos for pos, char in enumerate(emoji) if char == ':']
-				if len(s) == 2:
-					for i in s:
-						if i != 1:
-							_emoji = emoji[i:]
-							break
-					emoji_id = int(_emoji[1:-1])
-					if emoji_name is None:
-						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
-					else:
-						emoji_name = emoji_name
-					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.png"
-					guild = await ctx.get_guild()
-					async with aiohttp.ClientSession() as session:
-						async with session.get(_url) as resp:
-							if resp.status == 200:
-								_io = (io.BytesIO(await resp.read())).read()
-								image = interactions.Image(fp=_io, file="unknown.png")
-								await guild.create_emoji(image=image, name=emoji_name)
-								await ctx.send(f"Emoji uploaded!")
-							else:
-								await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
-				else:
-					await ctx.send(content="Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
-
-			elif emoji.startswith("<a") and emoji.endswith(">"):
-				s = [pos for pos, char in enumerate(emoji) if char == ':']
-				if len(s) == 2:
-					for i in s:
-						if i != 2:
-							_emoji = emoji[i:]
-							break
-					emoji_id = int(_emoji[1:-1])
-					if emoji_name is None:
-						emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
-					else:
-						emoji_name = emoji_name
-					_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.gif"
-					guild = await ctx.get_guild()
-					async with aiohttp.ClientSession() as session:
-						async with session.get(_url) as resp:
-							if resp.status == 200:
-								_io = (io.BytesIO(await resp.read())).read()
-								image = interactions.Image(fp=_io, file="unknown.gif")
-								await guild.create_emoji(image=image, name=emoji_name)
-								await ctx.send(content="Emoji uploaded!")
-							else:
-								await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
-				else:
-					await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
-
+			guild = await ctx.get_guild()
+			boost = int(guild.premium_subscription_count)
+			if boost <= 0:
+				emoji_limit = 50
+			elif 2 <= boost < 7:
+				emoji_limit = 100
+			elif 7 <= boost < 14:
+				emoji_limit = 150
+			elif boost >= 14:
+				emoji_limit = 250
+			_emojis = await guild.get_all_emoji()
+			if len(_emojis) >= emoji_limit:
+				await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
+				return
 			else:
-				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+				if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
+					s = [pos for pos, char in enumerate(emoji) if char == ':']
+					if len(s) == 2:
+						for i in s:
+							if i != 1:
+								_emoji = emoji[i:]
+								break
+						emoji_id = int(_emoji[1:-1])
+						if emoji_name is None:
+							emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
+						else:
+							emoji_name = emoji_name
+						_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.png"
+						async with aiohttp.ClientSession() as session:
+							async with session.get(_url) as resp:
+								if resp.status == 200:
+									_io = (io.BytesIO(await resp.read())).read()
+									image = interactions.Image(fp=_io, file="unknown.png")
+									await guild.create_emoji(image=image, name=emoji_name)
+									await ctx.send(f"Emoji uploaded!")
+								else:
+									await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+					else:
+						await ctx.send(content="Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+
+				elif emoji.startswith("<a") and emoji.endswith(">"):
+					s = [pos for pos, char in enumerate(emoji) if char == ':']
+					if len(s) == 2:
+						for i in s:
+							if i != 2:
+								_emoji = emoji[i:]
+								break
+						emoji_id = int(_emoji[1:-1])
+						if emoji_name is None:
+							emoji_name = re.findall(r"(?<=:)(.*)(?=:)", emoji)[0]
+						else:
+							emoji_name = emoji_name
+						_url = f"https://cdn.discordapp.com/emojis/{emoji_id}.gif"
+						guild = await ctx.get_guild()
+						async with aiohttp.ClientSession() as session:
+							async with session.get(_url) as resp:
+								if resp.status == 200:
+									_io = (io.BytesIO(await resp.read())).read()
+									image = interactions.Image(fp=_io, file="unknown.gif")
+									await guild.create_emoji(image=image, name=emoji_name)
+									await ctx.send(content="Emoji uploaded!")
+								else:
+									await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+					else:
+						await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
+
+				else:
+					await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 
 	async def _emoji_add(self, ctx: interactions.CommandContext, url: str, emoji_name: str):
@@ -236,25 +250,40 @@ class Emoji(interactions.Extension):
 			await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
 			return
 		else:
-			async with aiohttp.ClientSession() as session:
-				async with session.get(url) as resp:
-					if resp.status == 200:
-						if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
-							_io = (io.BytesIO(await resp.read())).read()
-							image = interactions.Image(fp=_io, file="unknown.png")
-							guild = await ctx.get_guild()
-							await guild.create_emoji(image=image, name=emoji_name)
-							await ctx.send(content="Emoji uploaded!")
-						elif resp.content_type in {"image/gif"}:
-							_io = (io.BytesIO(await resp.read())).read()
-							image = interactions.Image(fp=_io, file="unknown.gif")
-							guild = await ctx.get_guild()
-							await guild.create_emoji(image=image, name=emoji_name)
-							await ctx.send(content="Emoji uploaded!")
+			guild = await ctx.get_guild()
+			boost = int(guild.premium_subscription_count)
+			if boost <= 0:
+				emoji_limit = 50
+			elif 2 <= boost < 7:
+				emoji_limit = 100
+			elif 7 <= boost < 14:
+				emoji_limit = 150
+			elif boost >= 14:
+				emoji_limit = 250
+			_emojis = await guild.get_all_emoji()
+			if len(_emojis) >= emoji_limit:
+				await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
+				return
+			else:
+				async with aiohttp.ClientSession() as session:
+					async with session.get(url) as resp:
+						if resp.status == 200:
+							if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
+								_io = (io.BytesIO(await resp.read())).read()
+								image = interactions.Image(fp=_io, file="unknown.png")
+								guild = await ctx.get_guild()
+								await guild.create_emoji(image=image, name=emoji_name)
+								await ctx.send(content="Emoji uploaded!")
+							elif resp.content_type in {"image/gif"}:
+								_io = (io.BytesIO(await resp.read())).read()
+								image = interactions.Image(fp=_io, file="unknown.gif")
+								guild = await ctx.get_guild()
+								await guild.create_emoji(image=image, name=emoji_name)
+								await ctx.send(content="Emoji uploaded!")
+							else:
+								await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
 						else:
-							await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
-					else:
-						await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
+							await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
 	
 
 	async def _emoji_remove(self, ctx: interactions.CommandContext, emoji: str):
