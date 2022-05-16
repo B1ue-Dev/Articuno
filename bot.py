@@ -17,7 +17,7 @@ bot = interactions.Client(
 		activities=[
 			interactions.PresenceActivity(
 				type=interactions.PresenceActivityType.WATCHING,
-				name="for v4.0.1"
+				name="for v4.0.2"
 			),
 		],
 		status=interactions.StatusType.ONLINE,
@@ -53,7 +53,7 @@ async def on_ready():
 			activities=[
 				interactions.PresenceActivity(
 					type=interactions.PresenceActivityType.WATCHING,
-					name="for v4.0.1"
+					name="for v4.0.2"
 				)
 			],
 			status=interactions.StatusType.ONLINE,
