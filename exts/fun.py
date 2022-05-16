@@ -185,9 +185,9 @@ class Fun(interactions.Extension):
 	)
 	async def _roll(self, ctx: interactions.CommandContext):
 		dice = random.randint(1, 6)
-		msg = await ctx.send("I am rolling the dice...")
+		await ctx.send("I am rolling the dice...")
 		await asyncio.sleep(1.5)
-		await msg.edit("The number is **{}**.".format(dice))
+		await ctx.edit("The number is **{}**.".format(dice))
 	
 
 
@@ -197,9 +197,9 @@ class Fun(interactions.Extension):
 	)
 	async def _flip(self, ctx: interactions.CommandContext):
 		coin = random.choice(["heads", "tails"])
-		msg = await ctx.send("I am flipping the coin...")
+		await ctx.send("I am flipping the coin...")
 		await asyncio.sleep(1.5)
-		await msg.edit("The coin landed on **{}**.".format(coin))
+		await ctx.edit("The coin landed on **{}**.".format(coin))
 
 
 
@@ -373,6 +373,7 @@ class Fun(interactions.Extension):
 	async def _urban(self, ctx: interactions.CommandContext,
 		term: str,
 	):
+		await ctx.defer()
 		url = "https://api.urbandictionary.com/v0/define"
 		params = {
 			"term": term
@@ -484,7 +485,7 @@ class Fun(interactions.Extension):
 	async def _img(self, ctx: interactions.CommandContext,
 		query: str
 	):
-		#await ctx.defer()
+		await ctx.defer()
 		ran = int(0)
 		resource = build("customsearch", "v1", developerKey=google_cloud).cse()
 		result = resource.list(
@@ -518,7 +519,7 @@ class Fun(interactions.Extension):
 		msg = await ctx.send(embeds=embed, components=buttons)
 		while True:
 			try:
-				res = await self.bot.wait_for_component(components=buttons, messages = int(msg.id), timeout = 8)
+				res = await self.bot.wait_for_component(components=buttons, messages=int(msg.id), timeout = 8)
 				if int(res.user.id) == int(ctx.user.id):
 					if res.custom_id == "next":
 						ran += 1
