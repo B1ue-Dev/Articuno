@@ -117,9 +117,9 @@ class Emoji(interactions.Extension):
 					)
 					await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
 				else:
-					await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+					await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 			else:
-				await ctx.send("Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 		elif emoji.startswith("<a") and emoji.endswith(">"):
 			s = [pos for pos, char in enumerate(emoji) if char == ':']
@@ -140,9 +140,9 @@ class Emoji(interactions.Extension):
 					)
 					await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
 				else:
-					await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+					await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 			else:
-				await ctx.send("Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 		
 		elif emoji.isnumeric() and len(emoji) > 0:
 			emoji_id = int(emoji)
@@ -158,10 +158,32 @@ class Emoji(interactions.Extension):
 				)
 				await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
 			else:
-				await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+				await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
+		
+		elif len(emoji) > 0:
+			guild = await ctx.get_guild()
+			emojis = await guild.get_all_emoji()
+			__emoji__ = None
+			for _emoji in emojis:
+				if _emoji.name == emoji:
+					__emoji__ = _emoji
+					break
+				else:
+					continue
+			if __emoji__ is not None:
+				image = interactions.EmbedImageStruct(url=__emoji__.url)
+				embed = interactions.Embed(
+					title=f"``<:{__emoji__.name}:{__emoji__.id}>``",
+					description=f"[Emoji link]({__emoji__.url})",
+					color=0x788cdc,
+					image=image
+				)
+				await ctx.send(content=f"<{__emoji__.url}>", embeds=embed)
+			else:
+				await ctx.send("Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 
 		else:
-			await ctx.send("Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+			await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
 
 	async def _emoji_steal(self, ctx: interactions.CommandContext, emoji: str, emoji_name: str = None):
@@ -208,9 +230,9 @@ class Emoji(interactions.Extension):
 									await guild.create_emoji(image=image, name=emoji_name)
 									await ctx.send(f"Emoji uploaded!")
 								else:
-									await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+									await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
 					else:
-						await ctx.send(content="Invalid emoji. Please try again.\nError code: 400", ephemeral=True)
+						await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
 
 				elif emoji.startswith("<a") and emoji.endswith(">"):
 					s = [pos for pos, char in enumerate(emoji) if char == ':']
@@ -234,7 +256,7 @@ class Emoji(interactions.Extension):
 									await guild.create_emoji(image=image, name=emoji_name)
 									await ctx.send(content="Emoji uploaded!")
 								else:
-									await ctx.send(content="Invalid url. Please try again.\nError code: 404", ephemeral=True)
+									await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
 					else:
 						await ctx.send(content="Invalid emoji. Please try again.", ephemeral=True)
 
@@ -308,7 +330,7 @@ class Emoji(interactions.Extension):
 						await guild.delete_emoji(_emoji)
 						await ctx.send(content="Emoji deleted!", ephemeral=True)
 					else:
-						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 
 			elif emoji.startswith("<a") and emoji.endswith(">"):
 				s = [pos for pos, char in enumerate(emoji) if char == ':']
@@ -324,7 +346,7 @@ class Emoji(interactions.Extension):
 						await guild.delete_emoji(_emoji)
 						await ctx.send(content="Emoji deleted!", ephemeral=True)
 					else:
-						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+						await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 		
 			elif emoji.isnumeric() and len(emoji) > 0:
 				emoji_id = int(emoji)
@@ -334,7 +356,23 @@ class Emoji(interactions.Extension):
 					await guild.delete_emoji(_emoji)
 					await ctx.send(content="Emoji deleted!", ephemeral=True)
 				else:
-					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.\nError code: 404", ephemeral=True)
+					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
+			
+			elif len(emoji) > 0:
+				guild = await ctx.get_guild()
+				emojis = await guild.get_all_emoji()
+				__emoji__ = None
+				for _emoji in emojis:
+					if _emoji.name == emoji:
+						__emoji__ = _emoji
+						break
+					else:
+						continue
+				if __emoji__ is not None:
+					await guild.delete_emoji(__emoji__)
+					await ctx.send(content="Emoji deleted!", ephemeral=True)
+				else:
+					await ctx.send(content="Invalid emoji. Please try again and make sure that it is **from** this server.", ephemeral=True)
 		
 			else:
 				await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
