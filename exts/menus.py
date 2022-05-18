@@ -94,8 +94,8 @@ class Menus(interactions.Extension):
 	)
 	async def _user_information(self, ctx: interactions.CommandContext):
 		name = ctx.target.user.username
-		discriminator = int(ctx.target.user.discriminator)
-		id = int(ctx.target.user.id)
+		discriminator = str(ctx.target.user.discriminator)
+		id = str(ctx.target.user.id)
 		joined_at = round(ctx.target.joined_at.timestamp())
 		created_at = ctx.target.user.id.epoch
 		avatar = ctx.target.user.avatar_url

@@ -66,9 +66,9 @@ class Info(interactions.Extension):
 	async def _info_user(self, ctx: interactions.CommandContext, user: interactions.Member):
 		role = await (await ctx.get_guild()).get_role(role_id=user.roles[0])
 		name = user.user.username
-		discriminator = int(user.user.discriminator)
+		discriminator = str(user.user.discriminator)
 		nick = user.nick
-		id = int(user.user.id)
+		id = str(user.user.id)
 		joined_at = round(user.joined_at.timestamp())
 		created_at = user.user.id.epoch
 		avatar = user.user.avatar_url
@@ -148,7 +148,7 @@ class Info(interactions.Extension):
 		guild = interactions.Guild(**await self.bot._http.get_guild(ctx.guild_id), _client=self.bot._http)
 		user = interactions.User(**await self.bot._http.get_user(int(guild.owner_id)), _client=self.bot._http)
 		name = guild.name
-		id = int(guild.id)
+		id = str(guild.id)
 		icon = guild.icon_url
 		boost = guild.premium_subscription_count
 		members = await guild.get_all_members()
