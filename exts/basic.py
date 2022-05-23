@@ -54,7 +54,7 @@ class Basic(interactions.Extension):
 		thread_counts = proc.num_threads()
 		mem = f"{utils.natural_size(mems.rss)}\n{utils.natural_size(mems.vms)}"
 		cpu = f"{cpus}%\n{thread_counts} Threads"
-		version = "v4.0.2"
+		version = "v4.1.0"
 		latency = f"{self.bot.latency * 1:.0f}ms"
 		python = platform.python_version()
 		os = str(platform.platform())
