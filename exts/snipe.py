@@ -35,7 +35,7 @@ class Snipe(interactions.Extension):
 			_snipe_message_attachments[_channel_id] = None
 		else:
 			_snipe_message_attachments[_channel_id] = str(_message.attachments[0].url)
-		await asyncio.sleep(10)
+		await asyncio.sleep(120)
 		del _snipe_message_author[_channel_id]
 		del _snipe_message_author_id[_channel_id]
 		del _snipe_message_author_avatar_url[_channel_id]
