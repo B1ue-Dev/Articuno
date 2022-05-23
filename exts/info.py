@@ -65,10 +65,7 @@ class Info(interactions.Extension):
 
 	async def _info_user(self, ctx: interactions.CommandContext, user: interactions.Member):
 		role = await (await ctx.get_guild()).get_role(role_id=user.roles[0])
-		name = user.user.username
-		discriminator = str(user.user.discriminator)
 		nick = user.nick
-		id = str(user.user.id)
 		joined_at = round(user.joined_at.timestamp())
 		created_at = user.user.id.epoch
 		avatar = user.user.avatar_url
@@ -98,9 +95,9 @@ class Info(interactions.Extension):
 		else:
 			early_supporter = "No"
 			fields = [
-			interactions.EmbedField(name="Name", value=f"{name}", inline=True),
+			interactions.EmbedField(name="Name", value=f"{user.user.username}", inline=True),
 			interactions.EmbedField(name="Nickname", value=f"{nick}", inline=True),
-			interactions.EmbedField(name="ID", value=f"{id}", inline=True),
+			interactions.EmbedField(name="ID", value=f"{user.user.id}", inline=True),
 			interactions.EmbedField(name="Joined at", value=f"<t:{joined_at}>", inline=True),
 			interactions.EmbedField(name="Created on", value=f"<t:{created_at}>", inline=True),
 			interactions.EmbedField(name="Highest role", value=f"{role.mention}", inline=True),
@@ -114,7 +111,7 @@ class Info(interactions.Extension):
 			icon_url=f"{ctx.author.user.avatar_url}"
 		)
 		embed = interactions.Embed(
-			title=f"{name}#{discriminator}",
+			title=f"{user.user.username}#{user.user.discriminator}",
 			color=highest_role_color,
 			thumbnail=thumbnail,
 			footer=footer,
