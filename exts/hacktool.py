@@ -69,22 +69,47 @@ class HackTool(interactions.Extension):
 
 	@command(
 		name="brainfuck",
-		description="Brainfuck interpreter",
+		description="Brainfuck interpreter/converter",
 		options=[
 			interactions.Option(
-				type=interactions.OptionType.STRING,
-				name="string",
-				description="String to interpret",
-				required=True
+				type=interactions.OptionType.SUB_COMMAND,
+				name="convert",
+				description="Convert a string to brainfuck code",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.STRING,
+						name="string",
+						description="String to convert",
+						required=True
+					)
+				]
+			),
+			interactions.Option(
+				type=interactions.OptionType.SUB_COMMAND,
+				name="interpret",
+				description="Interpret a brainfuck code",
+				options=[
+					interactions.Option(
+						type=interactions.OptionType.STRING,
+						name="code",
+						description="Brainfuck code to interpret",
+						required=True
+					)
+				]
 			)
 		]
 	)
-	async def _brainfuck(self,
-		ctx: interactions.CommandContext,
-		string: str
+	async def _brainfuck(self, ctx: interactions.CommandContext,
+		sub_command: str,
+		string: str = None,
+		code: str = None
 	):
-		string_bytes = brainfuck.evaluate(string)
-		await ctx.send(f"```{string_bytes}```")
+		if sub_command == "convert":
+			string_bytes = brainfuck.Brainfuckery().convert(string)
+			await ctx.send(f"```{string_bytes}```")
+		elif sub_command == "interpret":
+			string_bytes = brainfuck.Brainfuckery().interpret(code)
+			await ctx.send(f"```{string_bytes}```")
 
 
 
