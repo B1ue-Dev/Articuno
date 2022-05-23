@@ -76,9 +76,9 @@ class Eval(interactions.Extension):
 	@interactions.extension_listener(name="on_message_create")
 	async def _message_create(self, message: interactions.Message):
 		channel = await message.get_channel()
-		if int(message.author.id) != 892080548342820925:
-			return await channel.send("You must be the bot owner to use this command. Also, no.")
 		if message.content.startswith("$eval"):
+			if int(message.author.id) != 892080548342820925:
+				return await channel.send("You must be the bot owner to use this command. Also, no.")
 			ends = int(len(message.content) - 6)
 			code = str(message.content)[-ends:]
 			blocked_words = ['.delete()', 'os', 'subprocess', 'history()', '("token")', "('token')",
