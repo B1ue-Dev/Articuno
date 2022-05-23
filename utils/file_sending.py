@@ -265,6 +265,7 @@ async def component_send(self, content: Optional[str] = MISSING, **kwargs) -> Me
 			data={},
 			token=self.token,
 			application_id=str(self.application_id),
+			files=files
 		)
 		if __newdata and not __newdata.get("code"):
 			# if sending message fails somehow
