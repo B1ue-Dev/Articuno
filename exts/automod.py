@@ -1,6 +1,6 @@
 import interactions
 from interactions import extension_listener as listener
-import urllib.request
+import urllib.request, re
 
 
 class Automod(interactions.Extension):
@@ -11,11 +11,12 @@ class Automod(interactions.Extension):
 
 	@listener(name="on_message_create")
 	async def _message_create(self, message: interactions.Message):
-		message_content = message.content.lower()
-		if int(message.guild_id) == 859030372783751168 and int(message.guild_id) is not None:
+		message_content = str(message.content.lower())
+		if int(message.guild_id) == 738938246574374913 and int(message.guild_id) is not None:
 
 			# If someone sends an invite link
-			if "discord.gg/" in message_content or "discordapp.com/invite" in message_content or "discord.com/invite" in message_content:
+			DISCORD_INVITE = r"(?:(?:discord.?(?:gg|io|me|li)|discord(?:app)?.?com[/\\]{1,}(?:invite))(?:[\S]+)?[/\\]{1,}([^\s/]+?)(?=\b))|discord://-/invite/([^\s/]+?)(?=\b)"
+			if re.search(DISCORD_INVITE, message_content):
 				channel = await message.get_channel()
 				await message.delete()
 				await channel.send(f"{message.member.mention}, your message was deleted because it contained an unauthorized invite link.")
