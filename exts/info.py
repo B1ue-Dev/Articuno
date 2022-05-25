@@ -67,7 +67,7 @@ class Info(interactions.Extension):
 		role = await (await ctx.get_guild()).get_role(role_id=user.roles[0])
 		nick = user.nick
 		joined_at = round(user.joined_at.timestamp())
-		created_at = user.user.id.timestamp
+		created_at = user.user.id.epoch
 		avatar = user.user.avatar_url
 		highest_role_color = role.color
 		public_flags = user.user.public_flags
@@ -193,7 +193,7 @@ class Info(interactions.Extension):
 			verification_comment = "Must have a verified phone number."
 		role_count = len(guild.roles)
 		region = guild.region
-		joined_at = guild.id.timestamp
+		joined_at = guild.id.epoch
 		fields = [
 			interactions.EmbedField(name="ID", value=f"{id}", inline=True),
 			interactions.EmbedField(name="Owner", value=f"{user.mention}\n{user.username}#{user.discriminator}", inline=True),

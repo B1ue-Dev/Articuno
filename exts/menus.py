@@ -142,7 +142,7 @@ class Menus(interactions.Extension):
 		discriminator = str(ctx.target.user.discriminator)
 		id = str(ctx.target.user.id)
 		joined_at = round(ctx.target.joined_at.timestamp())
-		created_at = ctx.target.user.id.timestamp
+		created_at = ctx.target.user.id.epoch
 		avatar = ctx.target.user.avatar_url
 		bot = ctx.target.user.bot
 		if bot is True:
