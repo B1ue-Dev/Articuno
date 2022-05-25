@@ -1,26 +1,33 @@
 import interactions
 from interactions import extension_command as command
 from interactions.ext import wait_for
-import json, random, asyncio, os, io, aiohttp, datetime
+import json, random, asyncio, os, io, aiohttp, datetime, pyfiglet, time, base64 as b64
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
 load_dotenv()
 apikey = os.getenv("APIKEY")
+authorization = os.getenv("AUTHORIZATION")
 google_cloud = os.getenv("GOOGLE_CLOUD")
 google_cse = os.getenv("GOOGLE_CSE")
 
 
 
-async def get_response(url: str = None, params: dict = None):
+async def get_response(url: str = None, params: dict = None, headers: dict = None):
 	async with aiohttp.ClientSession() as session:
-		async with session.get(url, params=params) as resp:
+		async with session.get(url, params=params, headers=headers) as resp:
 			if resp.status == 200:
 				if resp.content_type == "application/json":
 					return await resp.json()
 				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
 					return io.BytesIO(await resp.read())
 	await session.close()
+
+choice_convert = {
+	1: 'Rock',
+	2: 'Paper',
+	3: 'Scissors'
+}
 
 
 
@@ -233,6 +240,29 @@ class Fun(interactions.Extension):
 
 
 	@command(
+		name="ascii",
+		description="Make an ASCII art word",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="word",
+				description="Word to convert",
+				required=True,
+			)
+		]
+	)
+	async def _ascii(self, ctx: interactions.CommandContext,
+		word: str,
+	):
+		if len(word) > 10:
+			return await ctx.send("Word too long!", ephemeral=True)
+		else:
+			ascii_art = pyfiglet.figlet_format(word)
+			await ctx.send(f"```\n{ascii_art}```")
+
+
+
+	@command(
 		name="joke",
 		description="Send a random joke"
 	)
@@ -359,6 +389,39 @@ class Fun(interactions.Extension):
 
 
 	@command(
+		name="ai",
+		description="Chat with an AI",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="message",
+				description="The message you want to send",
+				required=True
+			)
+		]
+	)
+	async def _ai(self, ctx: interactions.CommandContext,
+		message: str
+	):
+		url = "https://random-stuff-api.p.rapidapi.com/ai"
+		params = {
+			"msg": message,
+			"bot_name": "Articuno",
+			"bot_gender": "male",
+			"bot_master": "Blue"
+		}
+		headers = {
+			'authorization': authorization,
+			'x-rapidapi-host': "random-stuff-api.p.rapidapi.com",
+			'x-rapidapi-key': "aad44bed6dmshba8fa4c3f4d92c2p118235jsne1aae4f19e3f"				
+		}
+		resp = await get_response(url, params=params, headers=headers)
+		msg = resp['AIResponse']
+		await ctx.send(msg)
+
+
+
+	@command(
 		name="urban",
 		description="Define a word on Urban Dictionary",
 		options=[
@@ -466,8 +529,6 @@ class Fun(interactions.Extension):
 				except asyncio.TimeoutError:
 					...
 
-			
-
 
 
 	@command(
@@ -491,71 +552,345 @@ class Fun(interactions.Extension):
 		result = resource.list(
 			q=f"{query}", cx=google_cse, searchType="image"
 		).execute()
-		image_link = result["items"][ran]["link"]
-		title = result["items"][ran]["title"]
-		displayLink = result["items"][ran]["displayLink"]
-		contextLink = result["items"][ran]["image"]["contextLink"]
+		try:
+			image_link = result["items"][ran]["link"]
+			title = result["items"][ran]["title"]
+			displayLink = result["items"][ran]["displayLink"]
+			contextLink = result["items"][ran]["image"]["contextLink"]
 
-		embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
-		embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
-		embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
-		embed.set_image(url=image_link)
+			embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+			embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+			embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+			embed.set_image(url=image_link)
+			buttons = [
+				interactions.ActionRow(
+					components=[
+						interactions.Button(
+							style=interactions.ButtonStyle.PRIMARY,
+							label="◄",
+							custom_id="previous",
+						),
+						interactions.Button(
+							style=interactions.ButtonStyle.PRIMARY,
+							label="►",
+							custom_id="next"
+						),
+					]
+				)
+			]
+			msg = await ctx.send(embeds=embed, components=buttons)
+			while True:
+				try:
+					res = await self.bot.wait_for_component(components=buttons, messages=int(msg.id), timeout = 8)
+					if int(res.user.id) == int(ctx.user.id):
+						if res.custom_id == "next":
+							ran += 1
+							if ran < 9:
+								ran = ran
+							image_link = result["items"][ran]["link"]
+							title = result["items"][ran]["title"]
+							displayLink = result["items"][ran]["displayLink"]
+							contextLink = result["items"][ran]["image"]["contextLink"]
+
+							embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+							embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+							embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+							embed.set_image(url=image_link)
+
+							await res.edit(embeds=embed)
+
+						elif res.custom_id == "previous":
+							ran -= 1
+							if ran < 0:
+								ran = 0
+							image_link = result["items"][ran]["link"]
+							title = result["items"][ran]["title"]
+							displayLink = result["items"][ran]["displayLink"]
+							contextLink = result["items"][ran]["image"]["contextLink"]
+
+							embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+							embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+							embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+							embed.set_image(url=image_link)
+
+							await res.edit(embeds=embed)
+					else:
+						await res.edit()
+				except asyncio.TimeoutError:
+					...
+		except KeyError:
+			await ctx.send("No results found.")
+	
+
+
+	@command(
+		name="trivia",
+		description="Play a game of trivia",
+	)
+	async def _trivia(self, ctx: interactions.CommandContext):
+		await ctx.defer()
 		buttons = [
 			interactions.ActionRow(
 				components=[
 					interactions.Button(
-						style=interactions.ButtonStyle.PRIMARY,
-						label="◄",
-						custom_id="previous",
+						style=interactions.ButtonStyle.SUCCESS,
+						label="TRUE",
+						custom_id="true"
 					),
 					interactions.Button(
-						style=interactions.ButtonStyle.PRIMARY,
-						label="►",
-						custom_id="next"
+						style=interactions.ButtonStyle.DANGER,
+						label="FALSE",
+						custom_id="false"
 					),
 				]
 			)
 		]
-		msg = await ctx.send(embeds=embed, components=buttons)
+		url = "https://opentdb.com/api.php?amount=1&type=boolean&encode=base64"
+		resp = await get_response(url)
+		if resp["response_code"] == 0:
+			_category = b64.b64decode(resp["results"][0]["category"])
+			category = _category.decode("utf-8")
+			_question = b64.b64decode(resp["results"][0]["question"])
+			question = _question.decode("utf-8")
+			_correct_answer = b64.b64decode(resp["results"][0]["correct_answer"])
+			correct_answer = _correct_answer.decode("utf-8")
+			embed = interactions.Embed(
+				title="Trivia",
+				description=f"**{category}**: {question}",
+				author=interactions.EmbedAuthor(
+					name=f"{ctx.user.username}#{ctx.user.discriminator}",
+					icon_url=ctx.user.avatar_url
+				)
+			)
+			msg = await ctx.send(embeds=embed, components=buttons)
+		else:
+			return await ctx.send("An error occured", ephemeral=True)
 		while True:
+			embed_ed = interactions.Embed(
+				title="Trivia",
+				description=f"**{category}**: {question}",
+				author=interactions.EmbedAuthor(
+					name=f"{ctx.user.username}#{ctx.user.discriminator}",
+					icon_url=ctx.user.avatar_url
+					)
+			)
+			buttons_disabled = [
+				interactions.ActionRow(
+					components=[
+						interactions.Button(
+							style=interactions.ButtonStyle.SUCCESS,
+							label="True",
+							custom_id="true",
+							disabled=True
+						),
+						interactions.Button(
+							style=interactions.ButtonStyle.DANGER,
+							label="False",
+							custom_id="false",
+							disabled=True
+						),
+					]
+				)
+			]
 			try:
-				res = await self.bot.wait_for_component(components=buttons, messages=int(msg.id), timeout = 8)
+				res = await self.bot.wait_for_component(components=buttons, messages=int(ctx.message.id), timeout=15)
 				if int(res.user.id) == int(ctx.user.id):
-					if res.custom_id == "next":
-						ran += 1
-						if ran < 9:
-							ran = ran
-						image_link = result["items"][ran]["link"]
-						title = result["items"][ran]["title"]
-						displayLink = result["items"][ran]["displayLink"]
-						contextLink = result["items"][ran]["image"]["contextLink"]
+					if res.custom_id == "true":
+						if correct_answer == "True":
+							author_answer = "correct"
+						elif correct_answer == "False":
+							author_answer = "wrong"
+					elif res.custom_id == "false":
+						if correct_answer == "True":
+							author_answer = "wrong"
+						elif correct_answer == "False":
+							author_answer = "correct"
 
-						embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
-						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
-						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
-						embed.set_image(url=image_link)
-
-						await res.edit(embeds=embed)
-
-					elif res.custom_id == "previous":
-						ran -= 1
-						if ran < 0:
-							ran = 0
-						image_link = result["items"][ran]["link"]
-						title = result["items"][ran]["title"]
-						displayLink = result["items"][ran]["displayLink"]
-						contextLink = result["items"][ran]["image"]["contextLink"]
-
-						embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
-						embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
-						embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
-						embed.set_image(url=image_link)
-
-						await res.edit(embeds=embed)
+					if author_answer == "correct":
+						embed_ed.add_field(name="‎", value=f"{res.user.mention} had the correct answer.", inline=False)
+						await res.edit(embeds=embed, components=buttons_disabled)
+						await res.send(content=f"{res.user.mention}, you were correct.", ephemeral=True)
+						break
+					elif author_answer == "wrong":
+						embed_ed.add_field(name="‎", value=f"{res.user.mention} had the wrong answer.", inline=False)
+						await res.edit(embeds=embed, components=buttons_disabled)
+						await res.send(content=f"{res.user.mention}, you were wrong.", ephemeral=True)
+						break
 				else:
 					await res.edit()
+
 			except asyncio.TimeoutError:
-				...
+				await msg.edit(content="Time's up!", embeds=embed_ed, components=buttons_disabled)
+
+
+
+	# TODO: Rock_paper_scissors ai/human command
+	@command(
+		name="rock_paper_scissors_ai",
+		description="Play a game of rock paper scissors against the AI",
+	)
+	async def _rock_paper_scissors_ai(self, ctx: interactions.CommandContext):
+		rps_selection = interactions.SelectMenu(
+			options = [
+				interactions.SelectOption(
+					label = "Rock",
+					emoji = interactions.Emoji(name="🪨"),
+					value = "1",
+				),
+				interactions.SelectOption(
+					label = "Paper",
+					emoji = interactions.Emoji(name="📃"),
+					value = "2",
+				),
+				interactions.SelectOption(
+					label = "Scissors",
+					emoji = interactions.Emoji(name="✂"),
+					value = "3",
+				)
+			],
+			placeholder = "Choose your option",
+			custom_id = "rps_selection",
+			min_values = 1,
+			max_values = 1,
+		)
+		await ctx.defer()
+		msg = await ctx.send(content=f"{ctx.user.mention} vs **Articuno**", components=rps_selection)
+		while True:
+			try:
+				res = await self.bot.wait_for_component(components=rps_selection, messages=int(ctx.message.id), timeout=15)
+				if int(res.user.id) == int(ctx.user.id):
+					rps_selection.disabled=True
+					bot_choice = int(random.randint(1, 3))
+					user_choice = int(res.data.values[0])
+					if user_choice == bot_choice:
+						await res.edit(content=f"{res.user.mention} chose **{choice_convert[user_choice]}**.\n**Articuno** chose **{choice_convert[bot_choice]}**.\n\n> It's a tie!", components=rps_selection)
+					elif (user_choice - bot_choice) % 3 == 1:
+						await res.edit(content=f"{res.user.mention} chose **{choice_convert[user_choice]}**.\n**Articuno** chose **{choice_convert[bot_choice]}**.\n\n> {res.user.mention} wins!", components=rps_selection)
+					elif (user_choice - bot_choice) % 3 == 2:
+						await res.edit(content=f"{res.user.mention} chose **{choice_convert[user_choice]}**.\n**Articuno** chose **{choice_convert[bot_choice]}**.\n\n> **Articuno** wins!", components=rps_selection)
+					break
+				else:
+					pass
+			except asyncio.TimeoutError:
+				rps_selection.disabled = True
+				await msg.edit(content="Time's up!", components=rps_selection)
+				break
+		
+	
+	@command(
+		name="rock_paper_scissors_human",
+		description="Play a game of rock paper scissors against a user",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.USER,
+				name="user",
+				description="The user to play against",
+				required=True
+				)
+			],	
+		dm_permission=False
+	)
+	async def _rock_paper_scissors_human(self, ctx: interactions.CommandContext,
+		user: interactions.User
+	):
+		rps_selection = interactions.SelectMenu(
+			options = [
+				interactions.SelectOption(
+					label = "Rock",
+					emoji = interactions.Emoji(name="🪨"),
+					value = "1",
+				),
+				interactions.SelectOption(
+					label = "Paper",
+					emoji = interactions.Emoji(name="📃"),
+					value = "2",
+				),
+				interactions.SelectOption(
+					label = "Scissors",
+					emoji = interactions.Emoji(name="✂"),
+					value = "3",
+				)
+			],
+			placeholder = "Choose your option",
+			custom_id = "rps_selection",
+			min_values = 1,
+			max_values = 1,
+		)
+		accept_deny = [
+			interactions.ActionRow(
+				components = [
+					interactions.Button(
+						style=interactions.ButtonStyle.SUCCESS,
+						label="Accept",
+						custom_id="accept",
+					),
+					interactions.Button(
+						style=interactions.ButtonStyle.DANGER,
+						label="Deny",
+						custom_id="deny",
+					)
+				]
+			)
+		]
+		if int(user.id) == int(ctx.user.id):
+			return await ctx.send("You cannot challenge yourself.", ephemeral=True)
+		elif int(user.id) == int(self.bot.me.id):
+			return await ctx.send("To challenge me, do ``/rock_paper_scissors_ai`` instead.", ephemeral=True)
+		await ctx.defer()
+		msg = await ctx.send(content=f"{ctx.user.mention} challenged {user.mention}.", components=accept_deny)
+		while True:
+			try:
+				op: interactions.ComponentContext = await self.bot.wait_for_component(components=accept_deny, messages=int(ctx.message.id), timeout=15)
+				if int(op.user.id) == int(user.id):
+					if op.custom_id == "accept":
+						await op.edit(content=f"{ctx.user.mention} vs {user.mention}", components=rps_selection)
+						user1 = int(ctx.user.id)
+						user2 = int(user.id)
+						cmp_1 = 0
+						while True:
+							cmp1: interactions.ComponentContext = await self.bot.wait_for_component(components=rps_selection, messages=int(ctx.message.id), timeout=15)
+							if int(cmp1.user.id) == user1 or int(cmp1.user.id) == user2:
+								cmp_1 = int(cmp1.user.id)
+								await cmp1.edit(content=f"{cmp1.message.content}\n\n{cmp1.user.mention} has their option chosen.")
+								choice1 = int(cmp1.data.values[0])
+								break
+							else:
+								pass
+
+						while True:
+							cmp2: interactions.ComponentContext = await self.bot.wait_for_component(components=rps_selection, messages=int(ctx.message.id), timeout=15)
+							if int(cmp2.user.id) in {int(user1), int(user2)} and int(cmp2.user.id) != int(cmp_1):
+								rps_selection.disabled = True
+								choice2 = int(cmp2.data.values[0])
+								break
+							else:
+								pass
+
+						if choice1 == choice2:
+							await cmp2.edit(content=f"{ctx.user.mention} chose **{choice_convert[choice1]}**.\n{user.mention} chose **{choice_convert[choice2]}**.\n\n> It's a tie!", components=rps_selection)
+						elif (choice1 - choice2) % 3 == 1:
+							await cmp2.edit(content=f"{ctx.user.mention} chose **{choice_convert[choice1]}**.\n{user.mention} chose **{choice_convert[choice2]}**.\n\n> {ctx.user.mention} wins!", components=rps_selection)
+						elif (choice1 - choice2) % 3 == 2:
+							await cmp2.edit(content=f"{ctx.user.mention} chose **{choice_convert[choice1]}**.\n{user.mention} chose **{choice_convert[choice2]}**.\n\n> {user.mention} wins!", components=rps_selection)
+						break
+
+					elif op.custom_id == "deny":
+						await msg.edit(content=f"{user.mention} declined the challenge.", components=[])
+						break
+				elif int(op.user.id) != int(user.id) and int(op.user.id) == int(ctx.user.id) and op.custom_id == "deny":
+					await op.edit(f"{ctx.user.mention} cancelled the challenge.", components=[])
+					break
+				elif int(op.user.id) != int(user.id) and int(op.user.id) == int(ctx.user.id) and op.custom_id == "accept":
+					await op.send(f"You cannot accept the challenge by yourself.", components=[], ephemeral=True)
+				else:
+					pass
+			except asyncio.TimeoutError:
+				await msg.edit(content="Time's up!", components=[])
+				break
+						
+
+
+
 
 
 
