@@ -94,7 +94,7 @@ class Info(interactions.Extension):
 				early_supporter = "No"
 		else:
 			early_supporter = "No"
-			fields = [
+		fields = [
 			interactions.EmbedField(name="Name", value=f"{user.user.username}", inline=True),
 			interactions.EmbedField(name="Nickname", value=f"{nick}", inline=True),
 			interactions.EmbedField(name="ID", value=f"{user.user.id}", inline=True),
