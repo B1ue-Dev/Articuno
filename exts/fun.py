@@ -634,12 +634,12 @@ class Fun(interactions.Extension):
 				components=[
 					interactions.Button(
 						style=interactions.ButtonStyle.SUCCESS,
-						label="TRUE",
+						label="True",
 						custom_id="true"
 					),
 					interactions.Button(
 						style=interactions.ButtonStyle.DANGER,
-						label="FALSE",
+						label="False",
 						custom_id="false"
 					),
 				]
@@ -708,12 +708,12 @@ class Fun(interactions.Extension):
 
 					if author_answer == "correct":
 						embed_ed.add_field(name="‎", value=f"{res.user.mention} had the correct answer.", inline=False)
-						await res.edit(embeds=embed, components=buttons_disabled)
+						await res.edit(embeds=embed_ed, components=buttons_disabled)
 						await res.send(content=f"{res.user.mention}, you were correct.", ephemeral=True)
 						break
 					elif author_answer == "wrong":
 						embed_ed.add_field(name="‎", value=f"{res.user.mention} had the wrong answer.", inline=False)
-						await res.edit(embeds=embed, components=buttons_disabled)
+						await res.edit(embeds=embed_ed, components=buttons_disabled)
 						await res.send(content=f"{res.user.mention}, you were wrong.", ephemeral=True)
 						break
 				else:
