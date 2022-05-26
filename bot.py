@@ -1,5 +1,5 @@
 import interactions
-import os, logging, json, requests, utils.file_sending, utils.cache as cache, asyncio
+import os, logging, json, requests, utils.cache as cache, asyncio
 from interactions.ext.tasks import IntervalTrigger, create_task
 from dotenv import load_dotenv
 load_dotenv()
@@ -26,7 +26,7 @@ bot = interactions.Client(
 	#disable_sync=True
 )
 bot.load('utils.cache')
-
+bot.load('interactions.ext.files')
 
 bot.load('exts.automod')
 bot.load('exts.basic')
