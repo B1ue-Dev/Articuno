@@ -276,9 +276,12 @@ class Tag(interactions.Extension):
 			guild_id = str(ctx.guild_id)
 			tags = json.loads(open("./db/tag.json", "r").read())
 			if guild_id in tags:
+				desc = []
+				for tag in tags[guild_id]:
+					desc.append(f"``{tag}``")
 				embed = interactions.Embed(
 					title="Tags",
-					description="\n".join(tags[guild_id].keys()),
+					description="\n".join(desc),
 				)
 				await ctx.send(embeds=embed)
 			else:
@@ -296,11 +299,9 @@ class Tag(interactions.Extension):
 		with open("./db/tag.json", "r") as f:
 			tag1 = json.load(f)
 			if guild_id not in tag1:
-				guild_add = {
-					guild_id: {}
-				}
-				with open("./db/tag.json", "w") as f:
-					json.dump(guild_add, f, indent=4)
+				tag1[guild_id] = {}
+				with open("./db/tag.json", "w+") as f:
+					json.dump(tag1, f, indent=4)
 		tag = json.loads(open("./db/tag.json", "r").read())
 		tag[guild_id][tag_name] = {
 			"description": tag_description,
