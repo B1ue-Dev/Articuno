@@ -79,7 +79,7 @@ class Menus(interactions.Extension):
 		await ctx.send(embeds=embed, components=select_menu, ephemeral=True)
 
 		while True:
-			res = await self.bot.wait_for_component(components=select_menu)
+			res = await self.bot.wait_for_component(components=select_menu, messages=int(ctx.message.id), timeout=10)
 			selects = res.data.values[0]
 			if selects == "en":
 				await ctx.defer(ephemeral=True)
