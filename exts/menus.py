@@ -87,49 +87,49 @@ class Menus(interactions.Extension):
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "fr":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='fr')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "es":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='es')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "zh-CN":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='zh-CN')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "vi":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='vi')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "ja":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='ja')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 			elif selects == "ko":
 				await ctx.defer(ephemeral=True)
 				translation = translator.translate(content, dest='ko')
 				message1 = translation.text
 				embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
 				embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
-				await res.send(embeds=embed, components=select_menu, ephemeral=True)
+				await res.send(embeds=embed, ephemeral=True)
 	
 
 
