@@ -1,1 +1,5 @@
 .env
+/exts/__pycache__
+/utils/__pycache__
+/db
+/db/tag.json
