@@ -236,10 +236,9 @@ class Files(Extension):
                     _files = []
                 elif isinstance(files, list):
                     _files = [file._json_payload(id) for id, file in enumerate(files)]
-                    files = [file for file in files]
-                #else:
-                #    _files = [files._json_payload(0)]
-                #    files = [files]
+                else:
+                    _files = [files._json_payload(0)]
+                    files = [files]
                 payload["attachments"] = _files
 
             payload = Message(**payload)
