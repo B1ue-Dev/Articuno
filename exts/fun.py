@@ -29,6 +29,27 @@ choice_convert = {
 	3: 'Scissors'
 }
 
+buttons = [
+	interactions.ActionRow(
+		components=[
+			interactions.Button(
+				style=interactions.ButtonStyle.PRIMARY,
+				label="◄",
+				custom_id="previous",
+			),
+			interactions.Button(
+				style=interactions.ButtonStyle.PRIMARY,
+				label="►",
+				custom_id="next"
+			),
+			interactions.Button(
+				style=interactions.ButtonStyle.SECONDARY,
+				label="■",
+				custom_id="stop"
+			)
+		]
+	)
+]
 
 
 
@@ -436,6 +457,7 @@ class Fun(interactions.Extension):
 	async def _urban(self, ctx: interactions.CommandContext,
 		term: str,
 	):
+		_ran = 0
 		await ctx.defer()
 		url = "https://api.urbandictionary.com/v0/define"
 		params = {
@@ -449,23 +471,8 @@ class Fun(interactions.Extension):
 			await ctx.send(embeds=embed, ephemeral=True)
 		else:
 			ran = int(0)
+			_ran = ran
 			page = int(len(resp["list"]) - 1)
-			buttons = [
-				interactions.ActionRow(
-					components=[
-						interactions.Button(
-							style=interactions.ButtonStyle.PRIMARY,
-							label="◄",
-							custom_id="previous",
-						),
-						interactions.Button(
-							style=interactions.ButtonStyle.PRIMARY,
-							label="►",
-							custom_id="next"
-						)
-					]
-				)
-			]
 			definition = resp['list'][ran]['definition']
 			if len(definition) > 700:
 				definition = definition[:690] + "..."
@@ -489,8 +496,10 @@ class Fun(interactions.Extension):
 						if res.custom_id == "previous":
 							if ran == 0:
 								ran = int(0)
+								_ran = ran
 							else:
 								ran = int(ran - 1)
+								_ran = ran
 								definition = resp['list'][ran]['definition']
 								if len(definition) > 700:
 									definition = definition[:690] + "..."
@@ -509,8 +518,10 @@ class Fun(interactions.Extension):
 						elif res.custom_id == "next":
 							if ran == page:
 								ran = int(page)
+								_ran = ran
 							else:
 								ran = int(ran + 1)
+								_ran = ran
 								definition = resp['list'][ran]['definition']
 								if len(definition) > 700:
 									definition = definition[:690] + "..."
@@ -526,8 +537,25 @@ class Fun(interactions.Extension):
 								embed.add_field(name="Definition", value=f"{definition}", inline=True)
 								embed.add_field(name="Example", value=f"{example}", inline=True)
 								await res.edit(embeds=embed)
+						elif res.custom_id == "stop":
+							await msg.delete()
+							break
 				except asyncio.TimeoutError:
-					...
+					definition = resp['list'][_ran]['definition']
+					if len(definition) > 700:
+						definition = definition[:690] + "..."
+					example = resp['list'][_ran]['example']
+					if len(example) > 700:
+						example = example[:330] + "..."
+
+					footer = interactions.EmbedFooter(text=f"👍 {resp['list'][_ran]['thumbs_up']} • 👎 {resp['list'][_ran]['thumbs_down']} • Page {ran}/{page}", icon_url="https://store-images.s-microsoft.com/image/apps.20202.13510798884772369.4d67f3fd-b81b-4f91-b3a0-8dcf0c039f62.e5abe879-5dc9-4adf-8fd8-6aad8bd2fb91")
+					embed = interactions.Embed(
+						title=f"{resp['list'][_ran]['word']}",
+						footer=footer
+					)
+					embed.add_field(name="Definition", value=f"{definition}", inline=True)
+					embed.add_field(name="Example", value=f"{example}", inline=True)
+					await msg.edit(embeds=embed, components=[])
 
 
 
@@ -562,31 +590,18 @@ class Fun(interactions.Extension):
 			embed.set_footer(text=f"Google Search • Page {ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
 			embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
 			embed.set_image(url=image_link)
-			buttons = [
-				interactions.ActionRow(
-					components=[
-						interactions.Button(
-							style=interactions.ButtonStyle.PRIMARY,
-							label="◄",
-							custom_id="previous",
-						),
-						interactions.Button(
-							style=interactions.ButtonStyle.PRIMARY,
-							label="►",
-							custom_id="next"
-						),
-					]
-				)
-			]
+
 			msg = await ctx.send(embeds=embed, components=buttons)
+			_ran = 0
 			while True:
 				try:
-					res = await self.bot.wait_for_component(components=buttons, messages=int(msg.id), timeout = 8)
+					res = await self.bot.wait_for_component(components=buttons, messages=int(msg.id), timeout = 15)
 					if int(res.user.id) == int(ctx.user.id):
 						if res.custom_id == "next":
 							ran += 1
 							if ran < 9:
 								ran = ran
+								_ran = ran
 							image_link = result["items"][ran]["link"]
 							title = result["items"][ran]["title"]
 							displayLink = result["items"][ran]["displayLink"]
@@ -603,6 +618,7 @@ class Fun(interactions.Extension):
 							ran -= 1
 							if ran < 0:
 								ran = 0
+								_ran = ran
 							image_link = result["items"][ran]["link"]
 							title = result["items"][ran]["title"]
 							displayLink = result["items"][ran]["displayLink"]
@@ -614,10 +630,24 @@ class Fun(interactions.Extension):
 							embed.set_image(url=image_link)
 
 							await res.edit(embeds=embed)
+						
+						elif res.custom_id == "stop":
+							await msg.delete()
+							#await msg.delete()
+							break
 					else:
 						await res.edit()
 				except asyncio.TimeoutError:
-					...
+					image_link = result["items"][_ran]["link"]
+					title = result["items"][_ran]["title"]
+					displayLink = result["items"][_ran]["displayLink"]
+					contextLink = result["items"][_ran]["image"]["contextLink"]
+
+					embed = interactions.Embed(title=f"Image for: {query}", color=0x000000)
+					embed.set_footer(text=f"Google Search • Page {_ran}/9", icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png")
+					embed.add_field(name=f"**{displayLink}**", value=f"[{title}]({contextLink})", inline=False)
+					embed.set_image(url=image_link)
+					await msg.edit(embeds=embed, components=[])
 		except KeyError:
 			await ctx.send("No results found.")
 	
