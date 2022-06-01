@@ -1,5 +1,23 @@
 import interactions
-import textwrap, inspect, contextlib, io, traceback
+import textwrap, inspect, contextlib, io, traceback, asyncio
+from interactions.ext.paginator import Page, Paginator
+
+
+def page_paginator(text: str):
+	"""
+	This function takes a string and splits it into chunks of 1000 characters
+	"""
+	last = 0
+	pages = []
+	for curr in range(0, len(text)):
+		if curr % 1000 == 0:
+			pages.append(text[last:curr])
+			last = curr
+			appd_index = curr
+	if appd_index != len(text)-1:
+		pages.append(text[last:curr])
+	return list(filter(lambda a: a != '', pages))
+
 
 
 
@@ -22,10 +40,11 @@ class Eval(interactions.Extension):
 			)
 		]
 	)
-	async def _eval(self, ctx: interactions.CommandContext, code: str):
+	async def _eval_paginator(self, ctx: interactions.CommandContext, code: str):
 		if int(ctx.user.id) != 892080548342820925:
 			return await ctx.send("You must be the bot owner to use this command. Also, no.")
 		else:
+			await ctx.defer()
 
 			blocked_words = ['.delete()', 'os', 'subprocess', 'history()', '("token")', "('token')",
 							'aW1wb3J0IG9zCnJldHVybiBvcy5lbnZpcm9uLmdldCgndG9rZW4nKQ==', 'aW1wb3J0IG9zCnByaW50KG9zLmVudmlyb24uZ2V0KCd0b2tlbicpKQ==']
@@ -67,10 +86,18 @@ class Eval(interactions.Extension):
 				if value and len(value) < 1001:
 					await ctx.send(f'```py\n>>> {code}\n{value}\n```')
 				elif value:
-					file = io.StringIO(value)
-					with file as f:
-						file = interactions.File(filename='output.txt', fp=f)
-						await ctx.send(f'```py\n>>> {code}\n{value[:200]}...\n```', files=file)
+					out_pages = page_paginator(value)
+					pag_pages = []
+					for page in out_pages:
+						pag_pages.append(Page(f"```py\n{page}```"))
+					await Paginator(
+						client=self.bot,
+						ctx=ctx,
+						pages=pag_pages,
+						timeout=10,
+						use_select=False,
+						remove_after_timeout=True
+					).run()
 
 
 	@interactions.extension_listener(name="on_message_create")
@@ -125,6 +152,47 @@ class Eval(interactions.Extension):
 						await channel.send(f'```py\n{value[:200]}...\n```', files=file)
 
 
+
+	@interactions.extension_command(
+		name="shell",
+		description="Runs a shell command",
+		options=[
+			interactions.Option(
+				type=interactions.OptionType.STRING,
+				name="command",
+				description="The command to run",
+				required=True
+			)
+		]
+	)
+	async def _shell(self, ctx: interactions.CommandContext, command: str):
+		await ctx.defer()
+		if int(ctx.author.id) != 892080548342820925:
+			return await ctx.send("You must be the bot owner to use this command. Also, no.")
+		proc = await asyncio.create_subprocess_shell(
+			command,
+			stdout=asyncio.subprocess.PIPE,
+			stderr=asyncio.subprocess.PIPE
+		)
+		await proc.wait()
+		stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
+		out = stdout.decode() if stdout else stderr.decode()
+		if len(out) == 0:
+			return await ctx.send(f"```sh\n$ {command}\nReturn code {proc.returncode};\n```")
+		elif len(out) > 0 and len(out) < 1001:
+			return await ctx.send(f"```sh\n$ {command}\n\n{out}\n\nReturn code {proc.returncode};\n```")
+		out_pages = page_paginator(out)
+		pag_pages = []
+		for page in out_pages:
+			pag_pages.append(Page(f"```sh\n$ {command}\n\n{page}\n\nReturn code {proc.returncode};\n```"))
+		await Paginator(
+			client=self.bot,
+			ctx=ctx,
+			pages=pag_pages,
+			timeout=10,
+			use_select=False,
+			remove_after_timeout=True
+		).run()
 
 
 
