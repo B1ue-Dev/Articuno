@@ -1,6 +1,7 @@
 import interactions
 from interactions import extension_command as command
-import random, os, io, aiohttp, utils.file_sending
+import random, os, io, aiohttp
+from utils import get_response
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,23 +9,11 @@ apikey = os.getenv("APIKEY")
 
 
 
-async def get_response(url: str = None, params: dict = None):
-	async with aiohttp.ClientSession() as session:
-		async with session.get(url, params=params) as resp:
-			if resp.status == 200:
-				if resp.content_type == "application/json":
-					return await resp.json()
-				elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
-					return io.BytesIO(await resp.read())
-	await session.close()
-
-
 
 
 
 class Misc(interactions.Extension):
-	def __init__(self, bot) -> None:
-		super().__init__()
+	def __init__(self, bot):
 		self.bot = bot
 	
 
@@ -238,57 +227,7 @@ class Misc(interactions.Extension):
 		resp = await get_response(url, params)
 		img = interactions.File(filename="image.gif", fp=resp, description="Image")
 		await ctx.send(files=img)
-	
 
-
-	@command(
-		name="hug",
-		description="Hug someone",
-		options=[
-			interactions.Option(
-				type=interactions.OptionType.USER,
-				name="user",
-				description="Targeted user",
-				required=True
-			)
-		],
-		dm_permission=False
-	)
-	async def _hug(self, ctx: interactions.CommandContext,
-		user: interactions.Member,
-	):
-		apikey = "YPQ8IU0W2DBT"
-		limit = 50
-		search_term = ['anime hug', 'cute panda hug', 'cute anime hug']
-		search_term = random.choice(search_term)
-		choice = random.randint(1, 50)
-		try:
-			url = "https://api.tenor.com/v1/search?"
-			params = {
-				"q": search_term,
-				"key": apikey,
-				"limit": limit
-			}
-			resp = await get_response(url, params=params)
-			gif = resp['results'][choice]['media'][0]['gif']['url']
-			image = interactions.EmbedImageStruct(url=gif)
-			embed = interactions.Embed(
-				description=f"{ctx.member.name} hugged {user.name}",
-				color=0x3be801,
-				image=image
-			)
-			await ctx.send(embeds=embed)
-		except:
-			url = "https://some-random-api.ml/animu/hug"
-			resp = await get_response(url)
-			gif = resp['link']
-			image = interactions.EmbedImageStruct(url=gif)
-			embed = interactions.Embed(
-				description=f"{ctx.member.name} hugged {user.name}",
-				color=0x3be801,
-				image=image
-			)
-			await ctx.send(embeds=embed)
 
 
 
