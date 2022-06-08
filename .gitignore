@@ -1,5 +1,7 @@
 .env
 /exts/__pycache__
 /utils/__pycache__
+/__pycache__
 /db
-/db/tag.json
+/.idea
+bot_test.py
