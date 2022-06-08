@@ -1,3 +1,9 @@
+"""
+This module is for emoji management commands.
+
+(C) 2022 - Jimmy-Blue
+"""
+
 import io
 import re
 import interactions
