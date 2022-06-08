@@ -11,6 +11,7 @@ from interactions import extension_command as command
 import psutil
 from utils import cache
 from utils import utils
+from const import VERSION
 load_time = datetime.datetime.now()
 
 
@@ -55,7 +56,7 @@ class Basic(interactions.Extension):
         thread_counts = proc.num_threads()
         mem = f"{utils.natural_size(mems.rss)}\n{utils.natural_size(mems.vms)}"
         cpu = f"{cpus}%\n{thread_counts} Threads"
-        version = "v4.1.0"
+        version = VERSION
         latency = f"{self.bot.latency * 1:.0f}ms"
         python = platform.python_version()
         system = str(platform.platform())
