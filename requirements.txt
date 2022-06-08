@@ -8,6 +8,7 @@ git+https://github.com/Catalyst4222/interactions-tasks.git@master
 googletrans==3.1.0a0
 git+https://github.com/interactions-py/enhanced@main
 interactions-files
+dinteractions-Paginator
 colorama
 pyfiglet
 Pillow
