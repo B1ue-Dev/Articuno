@@ -12,6 +12,7 @@ import interactions
 from interactions import extension_command as command
 import pyfiglet
 from googleapiclient.discovery import build
+from better_profanity import profanity
 from utils.utils import get_response
 from const import AUTHORIZATION, GOOGLE_CLOUD, GOOGLE_CSE
 
@@ -584,9 +585,8 @@ class Fun(interactions.Extension):
         ]
     )
     async def _img(self, ctx: interactions.CommandContext, query: str):
-        channel = await ctx.get_channel()
-        if channel.nsfw is False:
-            return await ctx.send("Please use this command in a NSFW channel.", ephemeral=True)
+        if profanity.contains_profanity(query) is True:
+            return await ctx.send("No result found.", ephemeral=True)
         await ctx.defer()
         ran = int(0)
         resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
@@ -664,7 +664,7 @@ class Fun(interactions.Extension):
                     embed.set_image(url=image_link)
                     await msg.edit(embeds=embed, components=[])
         except KeyError:
-            await ctx.send("No results found.")
+            await ctx.send("No result found.", ephemeral=True)
 
 
     @command(
