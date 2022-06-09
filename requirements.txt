@@ -13,3 +13,4 @@ dinteractions-Paginator
 colorama
 pyfiglet
 Pillow
+better-profanity

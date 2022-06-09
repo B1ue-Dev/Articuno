@@ -51,7 +51,7 @@ bot.load('exts.mod')
 bot.load('exts.pokemon')
 bot.load('exts.snipe')
 bot.load('exts.tag')
-# bot.load('exts.tts')
+bot.load('exts.tts')
 
 _ON_READY_TRIGGER = 0
 
