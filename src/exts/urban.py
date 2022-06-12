@@ -123,5 +123,5 @@ class Urban(interactions.Extension):
                 await msg.edit(embeds=embed)
 
 
-def setup(bot):
-    Urban(bot)
+def setup(client):
+    Urban(client)
