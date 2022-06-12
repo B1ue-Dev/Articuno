@@ -289,5 +289,5 @@ class Fun(interactions.Extension):
             await ctx.send(embeds=embed)
 
 
-def setup(bot):
-    Fun(bot)
+def setup(client):
+    Fun(client)
