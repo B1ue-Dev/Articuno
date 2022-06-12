@@ -12,7 +12,7 @@ from utils.utils import get_response
 def _create_embed(resp: dict, ran: int) -> interactions.Embed:
     """
     A function to create an embed with the response from the API.
-    
+
     :param resp: The response from the API.
     :type resp: dict
     :param ran: The page number
@@ -22,14 +22,14 @@ def _create_embed(resp: dict, ran: int) -> interactions.Embed:
     _resp = resp
     _ran = ran
     page = int(len(_resp["list"]) - 1)
-    
-    definition = _resp['list'][_ran]['definition']
+
+    definition = _resp["list"][_ran]["definition"]
     if len(definition) > 700:
         definition = definition[:690] + "..."
-    example = _resp['list'][_ran]['example']
+    example = _resp["list"][_ran]["example"]
     if len(example) > 700:
         example = example[:330] + "..."
-    
+
     footer = interactions.EmbedFooter(
         text=f"👍 {resp['list'][ran]['thumbs_up']} • 👎 {resp['list'][ran]['thumbs_down']} • Page {ran}/{page}",
     )
@@ -96,8 +96,10 @@ class Urban(interactions.Extension):
         msg = await ctx.send(embeds=embed, components=buttons)
         while True:
             try:
-                res: interactions.ComponentContext = await self.client.wait_for_component(
-                    components=buttons, messages=int(msg.id), timeout=8
+                res: interactions.ComponentContext = (
+                    await self.client.wait_for_component(
+                        components=buttons, messages=int(msg.id), timeout=8
+                    )
                 )
                 if res.author.id == ctx.author.id:
                     if res.custom_id == "previous":
