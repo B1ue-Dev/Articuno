@@ -4,13 +4,10 @@ This module is for a list of fun commands that I have no idea what am I doing.
 (C) 2022 - Jimmy-Blue
 """
 
-import json
 import random
 import asyncio
-import io
 import datetime
 import interactions
-import aiohttp
 from utils.utils import get_response
 
 
@@ -246,7 +243,7 @@ class Fun(interactions.Extension):
         author = interactions.EmbedAuthor(
             name=f"{title}",
             url=f"https://xkcd.com/{page}/",
-            icon_url=f"https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67",
+            icon_url="https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67",
         )
         embed = interactions.Embed(
             description=alt,
