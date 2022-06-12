@@ -1,0 +1,3 @@
+.env
+/src/__pycache__
+/src/exts/__pycache__
