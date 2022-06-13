@@ -1,45 +1,34 @@
-import interactions
+"""
+Root bot file.
+
+(C) 2022 - Jimmy-Blue
+"""
+
 import os
-from dotenv import load_dotenv
-load_dotenv()
-bot_token = os.getenv("TOKEN")
+import interactions
+from interactions.ext.wait_for import setup
+from const import TOKEN
 
 
-bot = interactions.Client(token=bot_token,
-	intents=interactions.Intents.DEFAULT,
-	#disable_sync=False
+client = interactions.Client(
+    token=TOKEN,
+    intents=interactions.Intents.DEFAULT,
+    # disable_sync=False # Uncomment this if you want to disable the synchronization process.
 )
+setup(client)
 
 
-"""
-For .\utils\cache.py
-For autocomplete in .\exts\pokemon.py to function
-"""
-bot.load('utils.cache')
-bot.load('interactions.ext.enhanced')
+client.load("utils.cache")
+client.load("interactions.ext.files")
 
-"""
-Cogs for bot
-"""
-bot.load('exts.basic')
-bot.load('exts.fun')
-bot.load('exts.menus')
-bot.load('exts.mod')
-bot.load('exts.pokemon')
+[client.load(f"exts.{ext}") for ext in [file.replace(".py", "") for file in os.listdir('exts') if not file.startswith("_")]]
 
 
-
-
-
-@bot.event
+@client.event
 async def on_ready():
-	websocket = f"{bot.latency * 1:.0f}"
-	print('Ready!')
-	print(f'Latency: {websocket}ms')
+    websocket = f"{client.latency * 1:.0f}"
+    print("Ready!")
+    print(f"Latency: {websocket}ms")
 
 
-
-
-
-
-bot.start()
+client.start()

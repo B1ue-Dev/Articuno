@@ -9,9 +9,10 @@ A fun Discord Bot, written with interactions.py.
 # Running the bot
 Go figure it by yourself. This repository is for educational purposes and copying code will not make you a good developer.
 
-# Contributing
+# Contribution
 Contribution is welcomed. However, we require you to follow our set of rules:
 - Follow the repository schema. (Breaking it will result in your Pull Request get closed)
+- PRs are enforced under black **black**, **flake8** and **Conventional Commits**.
 - Must work with Python ``3.8.6`` and higher.
 - Breaking change/new feature implementation must be documented precisely.
 - We do not accept abstraction-based requests. (e.g. ``colour`` for ``color``)
