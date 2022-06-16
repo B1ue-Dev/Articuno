@@ -206,7 +206,7 @@ class Files(Extension):
 
             _ephemeral: int = (1 << 6) if ephemeral else 0
 
-            payload: Message = Message(
+            payload: dict = dict(
                 content=_content,
                 tts=_tts,
                 # files=file,
@@ -216,8 +216,6 @@ class Files(Extension):
                 components=_components,
                 flags=_ephemeral,
             )
-            self.message = payload
-            self.message._client = self.client
             return payload, files
 
         async def base_edit(
@@ -296,9 +294,6 @@ class Files(Extension):
                     files = [files]
                 payload["attachments"] = _files
 
-            payload = Message(**payload)
-            self.message._client = self.client
-
             return payload, files
 
         async def command_send(
@@ -309,14 +304,14 @@ class Files(Extension):
             if not self.deferred:
                 self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-            _payload: dict = {"type": self.callback.value, "data": payload._json}
+            _payload: dict = {"type": self.callback.value, "data": payload}
 
             msg = None
             if self.responded or self.deferred:
                 if self.deferred:
                     res = await edit_interaction_response(
                         self.client,
-                        data=payload._json,
+                        data=payload,
                         files=files,
                         token=self.token,
                         application_id=str(self.application_id),
@@ -325,7 +320,7 @@ class Files(Extension):
                     self.responded = True
                 else:
                     res = await self.client._post_followup(
-                        data=payload._json,
+                        data=payload,
                         token=self.token,
                         application_id=str(self.application_id),
                     )
@@ -356,7 +351,7 @@ class Files(Extension):
                     res = await self.client.edit_message(
                         int(self.channel_id),
                         int(self.message.id),
-                        payload=payload._json,
+                        payload=payload,
                         files=files,
                     )
                     self.message = msg = Message(**res, _client=self.client)
@@ -365,7 +360,7 @@ class Files(Extension):
                         self.client,
                         token=self.token,
                         application_id=str(self.id),
-                        data={"type": self.callback.value, "data": payload._json},
+                        data={"type": self.callback.value, "data": payload},
                         files=files,
                         message_id=self.message.id if self.message else "@original",
                     )
@@ -377,14 +372,14 @@ class Files(Extension):
                         await self.client.edit_message(
                             int(self.channel_id),
                             res["id"],
-                            payload=payload._json,
+                            payload=payload,
                             files=files,
                         )
                         self.message = msg = Message(**res, _client=self.client)
             else:
                 res = await edit_interaction_response(
                     self.client,
-                    data={"type": self.callback.value, "data": payload._json},
+                    data={"type": self.callback.value, "data": payload},
                     files=files,
                     token=self.token,
                     application_id=str(self.application_id),
@@ -395,7 +390,7 @@ class Files(Extension):
                     await self.client.edit_message(
                         int(self.channel_id),
                         res["id"],
-                        payload=payload._json,
+                        payload=payload,
                         files=files,
                     )
                     self.message = msg = Message(**res, _client=self.client)
@@ -412,7 +407,7 @@ class Files(Extension):
             if not self.deferred:
                 self.callback = InteractionCallbackType.CHANNEL_MESSAGE_WITH_SOURCE
 
-            _payload: dict = {"type": self.callback.value, "data": payload._json}
+            _payload: dict = {"type": self.callback.value, "data": payload}
 
             msg = None
             if (
@@ -423,7 +418,7 @@ class Files(Extension):
                 if self.deferred:
                     res = await edit_interaction_response(
                         self.client,
-                        data=payload._json,
+                        data=payload,
                         files=files,
                         token=self.token,
                         application_id=str(self.application_id),
@@ -433,7 +428,7 @@ class Files(Extension):
                 else:
                     res = await _post_followup(
                         self.client,
-                        data=payload._json,
+                        data=payload,
                         files=files,
                         token=self.token,
                         application_id=str(self.application_id),
@@ -470,7 +465,7 @@ class Files(Extension):
                     self.client,
                     token=self.token,
                     application_id=int(self.id),
-                    data={"type": self.callback.value, "data": payload._json},
+                    data={"type": self.callback.value, "data": payload},
                     files=files,
                 )
                 self.message = payload
@@ -478,7 +473,7 @@ class Files(Extension):
             elif self.callback != InteractionCallbackType.DEFERRED_UPDATE_MESSAGE:
                 await _post_followup(
                     self.client,
-                    data=payload._json,
+                    data=payload,
                     files=files,
                     token=self.token,
                     application_id=str(self.application_id),
@@ -486,7 +481,7 @@ class Files(Extension):
             else:
                 res = await edit_interaction_response(
                     self.client,
-                    data=payload._json,
+                    data=payload,
                     files=files,
                     token=self.token,
                     application_id=str(self.application_id),
