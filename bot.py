@@ -5,17 +5,14 @@ Root bot file.
 """
 
 import logging
-import json
 import asyncio
-import requests
 import interactions
 from interactions.ext.wait_for import setup
-from interactions.ext.tasks import IntervalTrigger, create_task
 from utils import cache
 from const import TOKEN, VERSION
 from status import WebSocketClient
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 bot = interactions.Client(
@@ -50,10 +47,8 @@ bot.load('exts.misc')
 bot.load('exts.mod')
 bot.load('exts.pokemon')
 bot.load('exts.snipe')
-bot.load('exts.tag')
+# bot.load('exts.tag')
 bot.load('exts.tts')
-
-_ON_READY_TRIGGER = 0
 
 
 @bot.event
@@ -74,43 +69,5 @@ async def on_ready():
     print(f'Latency: {websocket}ms')
     print(f'Connected to {guild_count} guilds with {user_count} users')
 
-    if _ON_READY_TRIGGER == 0:
-        url = "https://json.psty.io/api_v1/stores/backup"
-        headers = {
-            "Api-Key": "2f44b242-76ca-4129-b55e-7910078d6930",
-            "Content-Type": "application/json"
-        }
-        resp = requests.get(url, headers=headers)
-        with open('./db/tag.json', 'w', encoding='utf8') as cont:
-            json.dump(resp.json()['data'], cont, indent=4)
-        _ON_READY_TRIGGER = 1
-    else:
-        pass
 
-    await bot.change_presence(
-        interactions.ClientPresence(
-            activities=[
-                interactions.PresenceActivity(
-                    type=interactions.PresenceActivityType.WATCHING,
-                    name=f"for {VERSION}"
-                )
-            ],
-            status=interactions.StatusType.ONLINE
-        )
-    )
-
-
-@create_task(IntervalTrigger(1800))  # Trigger this task every 30 minutes
-async def _back_up():
-    url = "https://json.psty.io/api_v1/stores/backup"
-    headers = {
-        "Api-Key": "2f44b242-76ca-4129-b55e-7910078d6930",
-        "Content-Type": "application/json"
-    }
-    with open('./db/tag.json', 'r', encoding='utf8') as cont:
-        tag = json.load(cont)
-        requests.put(url, headers=headers, data=json.dumps(tag))
-
-
-_back_up.start()
 bot.start()
