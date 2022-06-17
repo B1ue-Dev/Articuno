@@ -4,6 +4,8 @@ This module is for Pokemon commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import random
+import asyncio
 import json
 import interactions
 from interactions import extension_command as command
@@ -202,6 +204,112 @@ class Pokemon(interactions.Extension):
                     image=interactions.EmbedImageStruct(url=img)
                 )
                 await channel.send(embeds=embed)
+
+
+    @interactions.extension_command(
+        name="who_is_that_pokemon",
+        description="Who's that Pokemon game",
+    )
+    async def whos_that_pokemon(self, ctx: interactions.CommandContext):
+        await ctx.defer()
+
+        _pokemon_list = {}
+        db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
+
+        for i in range(4):
+            _num = random.randint(1, 905)
+            _val = list(db.values())[_num]
+
+            _pokemon_list[i] = _val
+
+        _lists = {}
+        for i in range(4):
+            _lists[i] = {"num": _pokemon_list[i]['num'], "name": _pokemon_list[i]['name']}
+
+        _correct_pokemon = _lists[random.randint(0, 3)]
+
+        _button_list = []
+        for i in range(4):
+            _button_list.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.SECONDARY,
+                    label=f"{_lists[i]['name']}",
+                    custom_id=f"{_lists[i]['num']}"
+                )
+            )
+
+        embed = interactions.Embed(
+            title="Who's that Pokemon?",
+            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
+        )
+
+        msg = await ctx.send(embeds=embed, components=_button_list)
+
+        while True:
+            try:
+                res = await self.bot.wait_for_component(components=_button_list, messages=int(msg.id), timeout = 15)
+                if int(res.user.id) == int(ctx.user.id):
+                    if str(res.custom_id) == str(_correct_pokemon['num']):
+                        _button_disabled = []
+                        for i in range(4):
+                            _button_disabled.append(
+                                interactions.Button(
+                                    style=interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) else interactions.ButtonStyle.SUCCESS,
+                                    label=f"{_lists[i]['name']}",
+                                    custom_id=f"{_lists[i]['num']}",
+                                    disabled=True
+                                )
+                            )
+
+                        embed = interactions.Embed(
+                            title="Who's that Pokemon?",
+                            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
+                            description=f"It's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
+                        )
+
+                        await res.edit(embeds=embed, components=_button_disabled)
+                        break
+                    else:
+                        _button_disabled = []
+                        for i in range(4):
+                            _button_disabled.append(
+                                interactions.Button(
+                                    style=(
+                                        interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) and str(_lists[i]['num']) != str(res.custom_id)
+                                        else (interactions.ButtonStyle.DANGER if str(_lists[i]['num']) == str(res.custom_id) else interactions.ButtonStyle.SUCCESS)
+                                    ),
+                                    label=f"{_lists[i]['name']}",
+                                    custom_id=f"{_lists[i]['num']}",
+                                    disabled=True
+                                )
+                            )
+                        _action_rows = [
+                            interactions.ActionRow(
+                                components=_button_disabled
+                            ),
+                            interactions.ActionRow(
+                                components=[
+                                    interactions.Button(
+                                        style=interactions.ButtonStyle.LINK,
+                                        label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                    )
+                                ]
+                            )
+                        ]
+
+                        embed = interactions.Embed(
+                            title="Who's that Pokemon?",
+                            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
+                            description=f"It's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
+                        )
+
+                        await res.edit(embeds=embed, components=_action_rows)
+                        break
+
+            except asyncio.TimeoutError:
+                await msg.edit("Time out!")
+                break
 
 
 def setup(bot):
