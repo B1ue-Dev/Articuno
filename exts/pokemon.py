@@ -4,12 +4,23 @@ This module is for Pokemon commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import io
 import random
 import asyncio
 import json
 import interactions
 from interactions import extension_command as command
+import requests
+from PIL import Image
 from utils.utils import get_response
+
+
+def _pokemon_image(url: str):
+    _resp = requests.get(url)
+    if _resp.status_code == 200:
+        _pokemon = Image.open(io.BytesIO(_resp.content)).resize((500, 500)).convert('RGBA')
+
+        return _pokemon
 
 
 class Pokemon(interactions.Extension):
@@ -228,6 +239,8 @@ class Pokemon(interactions.Extension):
 
         _correct_pokemon = _lists[random.randint(0, 3)]
 
+        _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
+
         _button_list = []
         for i in range(4):
             _button_list.append(
@@ -238,17 +251,34 @@ class Pokemon(interactions.Extension):
                 )
             )
 
-        embed = interactions.Embed(
-            title="Who's that Pokemon?",
-            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
-        )
+        _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
+        _black_image = Image.new('RGBA', _image.size, (0, 0, 0))
 
-        msg = await ctx.send(embeds=embed, components=_button_list)
 
+        bg = Image.open("whos_that_pokemon.png")
+
+        text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+        text_img.paste(bg, (0, 0))
+        text_img.paste(_black_image, (325, 270), _image)
+
+        with io.BytesIO() as out:
+            text_img.save(out, format="PNG")
+            file = interactions.File(filename="image.png", fp=out.getvalue())
+
+        msg = await ctx.send(content="**Who's that Pokemon?**", components=_button_list, files=file)
         while True:
             try:
                 res = await self.bot.wait_for_component(components=_button_list, messages=int(msg.id), timeout = 15)
                 if int(res.user.id) == int(ctx.user.id):
+
+                    _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+                    _text_img.paste(bg, (0, 0))
+                    _text_img.paste(_image, (325, 270), _image)
+
+                    with io.BytesIO() as out:
+                        _text_img.save(out, format="PNG")
+                        _file = interactions.File(filename="_image.png", fp=out.getvalue())
+
                     if str(res.custom_id) == str(_correct_pokemon['num']):
                         _button_disabled = []
                         for i in range(4):
@@ -261,14 +291,9 @@ class Pokemon(interactions.Extension):
                                 )
                             )
 
-                        embed = interactions.Embed(
-                            title="Who's that Pokemon?",
-                            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
-                            description=f"It's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
-                        )
-
-                        await res.edit(embeds=embed, components=_button_disabled)
+                        await res.edit(content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.", components=_button_disabled, files=_file)
                         break
+
                     else:
                         _button_disabled = []
                         for i in range(4):
@@ -298,17 +323,44 @@ class Pokemon(interactions.Extension):
                             )
                         ]
 
-                        embed = interactions.Embed(
-                            title="Who's that Pokemon?",
-                            image=interactions.EmbedImageStruct(url=f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png"),
-                            description=f"It's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
-                        )
-
-                        await res.edit(embeds=embed, components=_action_rows)
+                        await res.edit(content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.", components=_button_disabled, files=_file)
                         break
 
             except asyncio.TimeoutError:
-                await msg.edit("Time out!")
+
+                _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+                _text_img.paste(bg, (0, 0))
+                _text_img.paste(_image, (325, 270), _image)
+
+                with io.BytesIO() as out:
+                    _text_img.save(out, format="PNG")
+                    _file = interactions.File(filename="_image.png", fp=out.getvalue())
+
+                _button_disabled = []
+                for i in range(4):
+                    _button_disabled.append(
+                        interactions.Button(
+                            style=interactions.ButtonStyle.SECONDARY,
+                            label=f"{_lists[i]['name']}",
+                            custom_id=f"{_lists[i]['num']}",
+                            disabled=True
+                        )
+                    )
+                _action_rows = [
+                    interactions.ActionRow(
+                        components=_button_disabled
+                    ),
+                    interactions.ActionRow(
+                        components=[
+                            interactions.Button(
+                                style=interactions.ButtonStyle.LINK,
+                                label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                            )
+                        ]
+                    )
+                ]
+                await msg.edit(content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!", components=_action_rows, files=_file)
                 break
 
 
