@@ -168,18 +168,30 @@ class Emoji(interactions.Extension):
         guild = await ctx.get_guild()
         boost = int(guild.premium_subscription_count)
         if boost <= 0:
-            emoji_limit = 50
+            static_emoji_limit = 50
+            animated_emoji_limit = 50
         elif 2 <= boost < 7:
-            emoji_limit = 100
+            static_emoji_limit = 100
+            animated_emoji_limit = 100
         elif 7 <= boost < 14:
-            emoji_limit = 150
+            static_emoji_limit = 150
+            animated_emoji_limit = 150
         elif boost >= 14:
-            emoji_limit = 250
+            static_emoji_limit = 200
+            animated_emoji_limit = 200
         _emojis = await guild.get_all_emoji()
-        if len(_emojis) >= emoji_limit:
-            return await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
+        static_emoji_count = 0
+        animated_emoji_count = 0
+        for _emoji in _emojis:
+            if _emoji.animated:
+                animated_emoji_count += 1
+            else:
+                static_emoji_count += 1
 
         if emoji.startswith("<") and not emoji.startswith("<a") and emoji.endswith(">"):
+            if static_emoji_count >= static_emoji_limit:
+                return await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
+
             emoji_id = get_emoji_id(emoji)
             if emoji_id:
                 if not emoji_name:
@@ -202,6 +214,9 @@ class Emoji(interactions.Extension):
                 return
 
         elif emoji.startswith("<a") and emoji.endswith(">"):
+            if animated_emoji_count >= animated_emoji_limit:
+                return await ctx.send(content="The server has reached maximum animated emoji slots.", ephemeral=True)
+
             emoji_id = get_emoji_id(emoji)
             if emoji_id:
                 if not emoji_name:
@@ -234,41 +249,50 @@ class Emoji(interactions.Extension):
         guild = await ctx.get_guild()
         boost = int(guild.premium_subscription_count)
         if boost <= 0:
-            emoji_limit = 50
+            static_emoji_limit = 50
+            animated_emoji_limit = 50
         elif 2 <= boost < 7:
-            emoji_limit = 100
+            static_emoji_limit = 100
+            animated_emoji_limit = 100
         elif 7 <= boost < 14:
-            emoji_limit = 150
+            static_emoji_limit = 150
+            animated_emoji_limit = 150
         elif boost >= 14:
-            emoji_limit = 250
+            static_emoji_limit = 200
+            animated_emoji_limit = 200
         _emojis = await guild.get_all_emoji()
-        if len(_emojis) >= emoji_limit:
-            await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
-            return
-        else:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    if resp.status == 200:
-                        if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
-                            _io = (io.BytesIO(await resp.read())).read()
-                            image = interactions.Image(
-                                fp=_io, file="unknown.png")
-                            guild = await ctx.get_guild()
-                            await guild.create_emoji(image=image, name=emoji_name)
-                            await ctx.send(content=f"Emoji `:{emoji_name}:` was created.")
-                        elif resp.content_type in {"image/gif"}:
-                            _io = (io.BytesIO(await resp.read())).read()
-                            image = interactions.Image(
-                                fp=_io, file="unknown.gif")
-                            guild = await ctx.get_guild()
-                            await guild.create_emoji(image=image, name=emoji_name)
-                            await ctx.send(content=f"Emoji `:{emoji_name}:` was created.")
-                        else:
-                            await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
-                            return
+        static_emoji_count = 0
+        animated_emoji_count = 0
+        for _emoji in _emojis:
+            if _emoji.animated:
+                animated_emoji_count += 1
+            else:
+                static_emoji_count += 1
+        
+        if static_emoji_count >= static_emoji_limit and animated_emoji_count >= animated_emoji_limit:
+            return await ctx.send(content="The server has reached maximum emoji slots.", ephemeral=True)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if resp.status == 200:
+                    if resp.content_type in {"image/png", "image/jpeg", "imgage/jpg, image/webp"}:
+                        _io = (io.BytesIO(await resp.read())).read()
+                        image = interactions.Image(
+                            fp=_io, file="unknown.png")
+                        guild = await ctx.get_guild()
+                        await guild.create_emoji(image=image, name=emoji_name)
+                        await ctx.send(content=f"Emoji `:{emoji_name}:` was created.")
+                    elif resp.content_type in {"image/gif"}:
+                        _io = (io.BytesIO(await resp.read())).read()
+                        image = interactions.Image(
+                            fp=_io, file="unknown.gif")
+                        guild = await ctx.get_guild()
+                        await guild.create_emoji(image=image, name=emoji_name)
+                        await ctx.send(content=f"Emoji `:{emoji_name}:` was created.")
                     else:
-                        await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
-                        return
+                        return await ctx.send(content="Invalid url. Please try again.\nSupported format: png, jpeg, jpg, webp, gif", ephemeral=True)
+                else:
+                    return await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
 
     async def _emoji_remove(self, ctx: interactions.CommandContext, emoji: str):
         if not (
@@ -277,6 +301,7 @@ class Emoji(interactions.Extension):
                            Permissions.ADMINISTRATOR)
         ):
             return await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+
         emoji_id = get_emoji_id(emoji)
         if emoji_id:
             _emoji = interactions.Emoji(**await self.bot._http.get_guild_emoji(int(ctx.guild_id), int(emoji_id)), _client=self.bot._http)
