@@ -10,6 +10,7 @@ import asyncio
 import json
 import interactions
 from interactions import extension_command as command
+from interactions.ext.wait_for import wait_for
 import requests
 from PIL import Image
 from utils.utils import get_response
@@ -18,7 +19,7 @@ from utils.utils import get_response
 def _pokemon_image(url: str):
     _resp = requests.get(url)
     if _resp.status_code == 200:
-        _pokemon = Image.open(io.BytesIO(_resp.content)).resize((500, 500)).convert('RGBA')
+        _pokemon = Image.open(io.BytesIO(_resp.content)).resize((720, 720)).convert('RGBA')
 
         return _pokemon
 
@@ -220,8 +221,20 @@ class Pokemon(interactions.Extension):
     @interactions.extension_command(
         name="who_is_that_pokemon",
         description="Who's that Pokemon game",
+        options=[
+            interactions.Option(
+                type=interactions.OptionType.STRING,
+                name="difficulty",
+                description="Difficulty of the game",
+                choices=[
+                    interactions.Choice(name="Easy", value="easy"),
+                    interactions.Choice(name="Hard", value="hard"),
+                ],
+                required=True,
+            )
+        ]
     )
-    async def whos_that_pokemon(self, ctx: interactions.CommandContext):
+    async def whos_that_pokemon(self, ctx: interactions.CommandContext, difficulty: str):
         await ctx.defer()
 
         _pokemon_list = {}
@@ -241,127 +254,255 @@ class Pokemon(interactions.Extension):
 
         _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
 
-        _button_list = []
-        for i in range(4):
-            _button_list.append(
-                interactions.Button(
-                    style=interactions.ButtonStyle.SECONDARY,
-                    label=f"{_lists[i]['name']}",
-                    custom_id=f"{_lists[i]['num']}"
-                )
-            )
-
         _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
         _black_image = Image.new('RGBA', _image.size, (0, 0, 0))
 
-
         bg = Image.open("whos_that_pokemon.png")
 
+        _num = (235, 180)
         text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
         text_img.paste(bg, (0, 0))
-        text_img.paste(_black_image, (325, 270), _image)
+        text_img.paste(_black_image, _num, _image)
 
         with io.BytesIO() as out:
             text_img.save(out, format="PNG")
             file = interactions.File(filename="image.png", fp=out.getvalue())
 
-        msg = await ctx.send(content="**Who's that Pokemon?**", components=_button_list, files=file)
-        while True:
-            try:
-                res = await self.bot.wait_for_component(components=_button_list, messages=int(msg.id), timeout = 15)
-                if int(res.user.id) == int(ctx.user.id):
+        _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+        _text_img.paste(bg, (0, 0))
+        _text_img.paste(_image, _num, _image)
 
-                    _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                    _text_img.paste(bg, (0, 0))
-                    _text_img.paste(_image, (325, 270), _image)
+        with io.BytesIO() as out:
+            _text_img.save(out, format="PNG")
+            _file = interactions.File(filename="_image.png", fp=out.getvalue())
 
-                    with io.BytesIO() as out:
-                        _text_img.save(out, format="PNG")
-                        _file = interactions.File(filename="_image.png", fp=out.getvalue())
+        if difficulty == "easy":
 
-                    if str(res.custom_id) == str(_correct_pokemon['num']):
-                        _button_disabled = []
-                        for i in range(4):
-                            _button_disabled.append(
-                                interactions.Button(
-                                    style=interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) else interactions.ButtonStyle.SUCCESS,
-                                    label=f"{_lists[i]['name']}",
-                                    custom_id=f"{_lists[i]['num']}",
-                                    disabled=True
-                                )
-                            )
+            _button_list = []
+            for i in range(4):
+                _button_list.append(
+                    interactions.Button(
+                        style=interactions.ButtonStyle.SECONDARY,
+                        label=f"{_lists[i]['name']}",
+                        custom_id=f"{_lists[i]['num']}"
+                    )
+                )
 
-                        await res.edit(content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.", components=_button_disabled, files=_file)
-                        break
+            msg = await ctx.send(content="**Who's that Pokemon?**", components=_button_list, files=file)
 
-                    else:
-                        _button_disabled = []
-                        for i in range(4):
-                            _button_disabled.append(
-                                interactions.Button(
-                                    style=(
-                                        interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) and str(_lists[i]['num']) != str(res.custom_id)
-                                        else (interactions.ButtonStyle.DANGER if str(_lists[i]['num']) == str(res.custom_id) else interactions.ButtonStyle.SUCCESS)
-                                    ),
-                                    label=f"{_lists[i]['name']}",
-                                    custom_id=f"{_lists[i]['num']}",
-                                    disabled=True
-                                )
-                            )
-                        _action_rows = [
-                            interactions.ActionRow(
-                                components=_button_disabled
-                            ),
-                            interactions.ActionRow(
-                                components=[
+            while True:
+                try:
+                    res = await self.bot.wait_for_component(components=_button_list, messages=int(msg.id), timeout = 15)
+                    if int(res.user.id) == int(ctx.user.id):
+                        if str(res.custom_id) == str(_correct_pokemon['num']):
+
+                            _button_disabled = []
+                            for i in range(4):
+                                _button_disabled.append(
                                     interactions.Button(
-                                        style=interactions.ButtonStyle.LINK,
-                                        label=f"{_correct_pokemon['name']} (Bulbapedia)",
-                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                        style=interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) else interactions.ButtonStyle.SUCCESS,
+                                        label=f"{_lists[i]['name']}",
+                                        custom_id=f"{_lists[i]['num']}",
+                                        disabled=True
                                     )
-                                ]
+                                )
+
+                            await res.edit(
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
+                                components=_button_disabled,
+                                files=_file
                             )
-                        ]
+                            break
 
-                        await res.edit(content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.", components=_button_disabled, files=_file)
-                        break
+                        else:
 
-            except asyncio.TimeoutError:
+                            _button_disabled = []
+                            for i in range(4):
+                                _button_disabled.append(
+                                    interactions.Button(
+                                        style=(
+                                            interactions.ButtonStyle.SECONDARY if str(_lists[i]['num']) != str(_correct_pokemon['num']) and str(_lists[i]['num']) != str(res.custom_id)
+                                            else (interactions.ButtonStyle.DANGER if str(_lists[i]['num']) == str(res.custom_id) else interactions.ButtonStyle.SUCCESS)
+                                        ),
+                                        label=f"{_lists[i]['name']}",
+                                        custom_id=f"{_lists[i]['num']}",
+                                        disabled=True
+                                    )
+                                )
 
-                _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                _text_img.paste(bg, (0, 0))
-                _text_img.paste(_image, (325, 270), _image)
+                            _action_rows = [
+                                interactions.ActionRow(
+                                    components=_button_disabled
+                                ),
+                                interactions.ActionRow(
+                                    components=[
+                                        interactions.Button(
+                                            style=interactions.ButtonStyle.LINK,
+                                            label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                            url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                        )
+                                    ]
+                                )
+                            ]
 
-                with io.BytesIO() as out:
-                    _text_img.save(out, format="PNG")
-                    _file = interactions.File(filename="_image.png", fp=out.getvalue())
+                            await res.edit(
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
+                                components=_button_disabled,
+                                files=_file
+                            )
+                            break
 
-                _button_disabled = []
-                for i in range(4):
-                    _button_disabled.append(
-                        interactions.Button(
-                            style=interactions.ButtonStyle.SECONDARY,
-                            label=f"{_lists[i]['name']}",
-                            custom_id=f"{_lists[i]['num']}",
-                            disabled=True
-                        )
-                    )
-                _action_rows = [
-                    interactions.ActionRow(
-                        components=_button_disabled
-                    ),
-                    interactions.ActionRow(
-                        components=[
+                except asyncio.TimeoutError:
+
+                    _button_disabled = []
+                    for i in range(4):
+                        _button_disabled.append(
                             interactions.Button(
-                                style=interactions.ButtonStyle.LINK,
-                                label=f"{_correct_pokemon['name']} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                style=interactions.ButtonStyle.SECONDARY,
+                                label=f"{_lists[i]['name']}",
+                                custom_id=f"{_lists[i]['num']}",
+                                disabled=True
                             )
-                        ]
+                        )
+
+                    _action_rows = [
+                        interactions.ActionRow(
+                            components=_button_disabled
+                        ),
+                        interactions.ActionRow(
+                            components=[
+                                interactions.Button(
+                                    style=interactions.ButtonStyle.LINK,
+                                    label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                )
+                            ]
+                        )
+                    ]
+
+                    await msg.edit(
+                        content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!",
+                        components=_action_rows,
+                        files=_file
                     )
-                ]
-                await msg.edit(content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!", components=_action_rows, files=_file)
-                break
+                    break
+        
+        elif difficulty == "hard":
+
+            button = interactions.Button(
+                style=interactions.ButtonStyle.SECONDARY,
+                label="Answer",
+                custom_id="answer"
+            )
+            msg = await ctx.send(content="**Who's that Pokemon?**", components=[button], files=file)
+
+            while True:
+                try:
+                    res = await self.bot.wait_for_component(components=[button], messages=int(msg.id), timeout = 15)
+                    if int(res.user.id) == int(ctx.user.id):
+                        
+                        modal = interactions.Modal(
+                            title="Who's that Pokemon?",
+                            custom_id="_wtp",
+                            components=[
+                                interactions.TextInput(
+                                    style=interactions.TextStyleType.SHORT,
+                                    label="Your answer",
+                                    placeholder="Ex: Pikachu ⚠ (Do not hit Cancel)",
+                                    custom_id="_answer",
+                                    max_length=100,
+                                ),
+                            ]
+                        )
+
+                        await res.popup(modal)
+                    
+                        def check(_ctx: interactions.CommandContext):
+                             return _ctx.data.custom_id == "_wtp" and _ctx.user.id == ctx.user.id
+
+                        _res: interactions.ComponentContext = await wait_for(self.bot, "on_modal", check=check, timeout=15)
+                        _answer = _res.data._json['components'][0].get('components')[0]['value']
+
+                        if _answer.lower() == _correct_pokemon['name'].lower():
+
+                            _button_disabled = interactions.Button(
+                                style=interactions.ButtonStyle.SECONDARY,
+                                label="Answer",
+                                custom_id="answer",
+                                disabled=True
+                            )
+
+                            await _res.send()
+                            await msg.edit(
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
+                                components=[_button_disabled],
+                                files=_file
+                            ) 
+                            break
+
+                        else:
+
+                            _action_rows = [
+                                interactions.ActionRow(
+                                    components=[
+                                        interactions.Button(
+                                            style=interactions.ButtonStyle.SECONDARY,
+                                            label="Answer",
+                                            custom_id="answer",
+                                            disabled=True
+                                        )
+                                    ]
+                                ),
+                                interactions.ActionRow(
+                                    components=[
+                                        interactions.Button(
+                                            style=interactions.ButtonStyle.LINK,
+                                            label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                            url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                        )
+                                    ]
+                                )
+                            ]
+
+                            await _res.send()
+                            await msg.edit(
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
+                                components=_action_rows,
+                                files=_file
+                            )
+                            break
+
+                except asyncio.TimeoutError:
+
+                    _action_rows = [
+                        interactions.ActionRow(
+                            components=[
+                                interactions.Button(
+                                    style=interactions.ButtonStyle.SECONDARY,
+                                    label="Answer",
+                                    custom_id="answer",
+                                    disabled=True
+                                )
+                            ]
+                        ),
+                        interactions.ActionRow(
+                            components=[
+                                interactions.Button(
+                                    style=interactions.ButtonStyle.LINK,
+                                    label=f"{_correct_pokemon['name']} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                )
+                            ]
+                        )
+                    ]
+
+                    await msg.edit(
+                        content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!",
+                        components=_action_rows,
+                        files=_file
+                    )
+                    break
+
 
 
 def setup(bot):
