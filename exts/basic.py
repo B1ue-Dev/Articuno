@@ -70,11 +70,18 @@ class Basic(interactions.Extension):
         user_count = len(_set_user_count)
         guild_count = len(_set_guild_count)
 
-        github = interactions.Button(
-            style=interactions.ButtonStyle.LINK,
-            label="GitHub",
-            url="https://github.com/Articuno-org/Articuno"
-        )
+        button = [
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="GitHub",
+                url="https://github.com/Articuno-org/Articuno"
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Top.gg",
+                url="https://top.gg/bot/809084067446259722"
+            )
+        ]
 
         fields = [
             interactions.EmbedField(
@@ -104,7 +111,7 @@ class Basic(interactions.Extension):
             fields=fields
         )
 
-        await ctx.send(embeds=embed, components=[github])
+        await ctx.send(embeds=embed, components=button)
 
 
     @command(
@@ -147,6 +154,11 @@ class Basic(interactions.Extension):
                 style=interactions.ButtonStyle.LINK,
                 label="Support server",
                 url="https://discord.gg/SPd5RNhwfY"
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Vote me on Top.gg",
+                url="https://top.gg/bot/809084067446259722/vote"
             )
         ]
 
