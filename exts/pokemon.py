@@ -231,17 +231,44 @@ class Pokemon(interactions.Extension):
                     interactions.Choice(name="Hard", value="hard"),
                 ],
                 required=True,
+            ),
+            interactions.Option(
+                type=interactions.OptionType.STRING,
+                name="generation",
+                description="Generation of the Pokemon",
+                choices=[interactions.Choice(name=f"Gen {i}", value=f"{i}") for i in range(1, 9)],
+                required=False,
             )
         ]
     )
-    async def whos_that_pokemon(self, ctx: interactions.CommandContext, difficulty: str):
+    async def whos_that_pokemon(self, ctx: interactions.CommandContext, difficulty: str, generation: str = None):
         await ctx.defer()
 
         _pokemon_list = {}
         db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
 
+        if generation is None:
+            generation = [1, 905]
+        else:
+            if generation == "1":
+                generation = [1, 151]
+            elif generation == "2":
+                generation = [152, 251]
+            elif generation == "3":
+                generation = [252, 386]
+            elif generation == "4":
+                generation = [387, 493]
+            elif generation == "5":
+                generation = [494, 649]
+            elif generation == "6":
+                generation = [650, 721]
+            elif generation == "7":
+                generation = [722, 809]
+            elif generation == "8":
+                generation = [810, 905]
+
         for i in range(4):
-            _num = random.randint(1, 905)
+            _num = random.randint(generation[0], generation[1])
             _val = list(db.values())[_num]
 
             _pokemon_list[i] = _val
@@ -251,6 +278,7 @@ class Pokemon(interactions.Extension):
             _lists[i] = {"num": _pokemon_list[i]['num'], "name": _pokemon_list[i]['name']}
 
         _correct_pokemon = _lists[random.randint(0, 3)]
+        _correct_pokemon_hard = _lists[0]
 
         _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
 
@@ -423,7 +451,7 @@ class Pokemon(interactions.Extension):
                         _res: interactions.ComponentContext = await wait_for(self.bot, "on_modal", check=check, timeout=15)
                         _answer = _res.data._json['components'][0].get('components')[0]['value']
 
-                        if _answer.lower() == _correct_pokemon['name'].lower():
+                        if _answer.lower().rstrip() == _correct_pokemon_hard['name'].lower():
 
                             _button_disabled = interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
@@ -434,7 +462,7 @@ class Pokemon(interactions.Extension):
 
                             await _res.send()
                             await msg.edit(
-                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon_hard['name']}**! {ctx.user.mention} had the right answer.",
                                 components=[_button_disabled],
                                 files=_file
                             ) 
@@ -458,7 +486,7 @@ class Pokemon(interactions.Extension):
                                         interactions.Button(
                                             style=interactions.ButtonStyle.LINK,
                                             label=f"{_correct_pokemon['name']} (Bulbapedia)",
-                                            url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                            url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon_hard['name']}_(Pokémon)",
                                         )
                                     ]
                                 )
@@ -466,7 +494,7 @@ class Pokemon(interactions.Extension):
 
                             await _res.send()
                             await msg.edit(
-                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
+                                content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon_hard['name']}**! {ctx.user.mention} had the wrong answer.",
                                 components=_action_rows,
                                 files=_file
                             )
@@ -489,15 +517,15 @@ class Pokemon(interactions.Extension):
                             components=[
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
-                                    label=f"{_correct_pokemon['name']} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
+                                    label=f"{_correct_pokemon_hard['name']} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon_hard['name']}_(Pokémon)",
                                 )
                             ]
                         )
                     ]
 
                     await msg.edit(
-                        content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!",
+                        content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon_hard['name']}**!",
                         components=_action_rows,
                         files=_file
                     )
