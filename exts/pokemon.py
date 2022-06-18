@@ -267,6 +267,9 @@ class Pokemon(interactions.Extension):
             elif generation == "8":
                 generation = [810, 905]
 
+        print(generation)
+
+        # Easy mode
         for i in range(4):
             _num = random.randint(generation[0], generation[1])
             _val = list(db.values())[_num]
@@ -278,7 +281,7 @@ class Pokemon(interactions.Extension):
             _lists[i] = {"num": _pokemon_list[i]['num'], "name": _pokemon_list[i]['name']}
 
         _correct_pokemon = _lists[random.randint(0, 3)]
-        _correct_pokemon_hard = _lists[0]
+        _correct_pokemon_hard = _lists[1]
 
         _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
 

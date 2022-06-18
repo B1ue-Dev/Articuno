@@ -49,6 +49,7 @@ bot.load('exts.pokemon')
 bot.load('exts.snipe')
 # bot.load('exts.tag')
 bot.load('exts.tts')
+bot.load('exts.whos_that_pokemon')
 
 
 @bot.event
