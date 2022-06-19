@@ -21,7 +21,7 @@ def _pokemon_image(url: str):
 
         return _pokemon
 
-def _get_pokemon_easy(generation: int = None):
+def _get_pokemon(generation: int = None):
 
     _pokemon_list = {}
     db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
@@ -47,8 +47,8 @@ def _get_pokemon_easy(generation: int = None):
             generation = [810, 905]
 
     for i in range(4):
-        _num = random.randint(generation[0], generation[1])
-        _val = list(db.values())[_num+1]
+        _num = random.randint(generation[0]-1, generation[1]-1)
+        _val = list(db.values())[_num]
 
         _pokemon_list[i] = _val
 
@@ -62,11 +62,8 @@ def _get_pokemon_easy(generation: int = None):
             else:
                 continue
 
-
     return _lists
     
-
-
 
 class WTP(interactions.Extension):
     def __init__(self, bot):
@@ -96,14 +93,11 @@ class WTP(interactions.Extension):
         ]
     )
     async def whos_that_pokemon(self, ctx: interactions.CommandContext, difficulty: str, generation: str = None):
-        _pokemon_list = _get_pokemon_easy(generation)
+        _pokemon_list = _get_pokemon(generation)
 
         await ctx.defer()
 
         _correct_pokemon = _pokemon_list[random.randint(0, 3)]
-
-        # print(_pokemon_list)
-        # print(_correct_pokemon)
 
         _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
 
