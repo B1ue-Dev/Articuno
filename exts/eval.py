@@ -54,12 +54,6 @@ class Eval(interactions.Extension):
 
         await ctx.defer()
 
-        blocked_words = ['.delete()', 'os', 'subprocess', 'history()', '("token")', "('token')",
-                        'aW1wb3J0IG9zCnJldHVybiBvcy5lbnZpcm9uLmdldCgndG9rZW4nKQ==', 'aW1wb3J0IG9zCnByaW50KG9zLmVudmlyb24uZ2V0KCd0b2tlbicpKQ==']
-        for x in blocked_words:
-            if x in code:
-                return await ctx.send('Your code contains certain blocked words.', ephemeral=True)
-
         env = {
             'ctx': ctx,
             'channel': await ctx.get_channel(),
@@ -68,7 +62,8 @@ class Eval(interactions.Extension):
             'guild': await ctx.get_guild(),
             'message': ctx.message,
             'source': inspect.getsource,
-            'interactions': interactions
+            'interactions': interactions,
+            'bot': self.bot
         }
 
         env.update(globals())
@@ -102,7 +97,7 @@ class Eval(interactions.Extension):
                     client=self.bot,
                     ctx=ctx,
                     pages=pag_pages,
-                    timeout=10,
+                    timeout=12,
                     use_select=False,
                     remove_after_timeout=True
                 ).run()
@@ -114,13 +109,9 @@ class Eval(interactions.Extension):
         if message.content.startswith("$eval"):
             if int(message.author.id) != 892080548342820925:
                 return await channel.send("You must be the bot owner to use this command. Also, no.")
+
             ends = int(len(message.content) - 6)
             code = str(message.content)[-ends:]
-            blocked_words = ['.delete()', 'os', 'subprocess', 'history()', '("token")', "('token')",
-                            'aW1wb3J0IG9zCnJldHVybiBvcy5lbnZpcm9uLmdldCgndG9rZW4nKQ==', 'aW1wb3J0IG9zCnByaW50KG9zLmVudmlyb24uZ2V0KCd0b2tlbicpKQ==']
-            for x in blocked_words:
-                if x in code:
-                    return await channel.send('Your code contains certain blocked words.', ephemeral=True)
 
             env = {
                 'ctx': channel,
@@ -130,7 +121,8 @@ class Eval(interactions.Extension):
                 'guild': await message.get_guild(),
                 'message': message,
                 'source': inspect.getsource,
-                'interactions': interactions
+                'interactions': interactions,
+                'bot': self.bot
             }
 
             env.update(globals())
@@ -176,12 +168,14 @@ class Eval(interactions.Extension):
         await ctx.defer()
         if int(ctx.author.id) != 892080548342820925:
             return await ctx.send("You must be the bot owner to use this command. Also, no.")
+
         proc = await asyncio.create_subprocess_shell(
             command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
         await proc.wait()
+
         stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
         out = stdout.decode() if stdout else stderr.decode()
         if len(out) == 0:
