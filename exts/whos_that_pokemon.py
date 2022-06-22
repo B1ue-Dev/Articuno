@@ -17,9 +17,13 @@ from PIL import Image
 def _pokemon_image(url: str):
     _resp = requests.get(url)
     if _resp.status_code == 200:
-        _pokemon = Image.open(io.BytesIO(_resp.content)).resize((720, 720)).convert('RGBA')
+        img = Image.open(io.BytesIO(_resp.content)).convert('RGBA')
+        if img.size[0] > 120 and img.size[1] > 240:
+            img = img.resize((int(img.width * 2.2), int(img.height * 2.2)))
+        else:
+            img = img.resize((int(img.width * 3), int(img.height * 3)))
 
-        return _pokemon
+        return img
 
 def _get_pokemon(generation: int = None):
 
@@ -99,13 +103,13 @@ class WTP(interactions.Extension):
 
         _correct_pokemon = _pokemon_list[random.randint(0, 3)]
 
-        _image = _pokemon_image(f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{_correct_pokemon['num']}.png")
+        _image = _pokemon_image(f"https://www.serebii.net/art/th/{_correct_pokemon['num']}.png")
 
         _black_image = Image.new('RGBA', _image.size, (0, 0, 0))
 
         bg = Image.open("whos_that_pokemon.png")
 
-        _num = (235, 180)
+        _num = (400, 230)
         text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
         text_img.paste(bg, (0, 0))
         text_img.paste(_black_image, _num, _image)
