@@ -4,9 +4,10 @@ This module is for Pokemon commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import io
 import json
 import interactions
-from interactions import extension_command as command
+import requests
 from utils.utils import get_response
 
 
@@ -14,7 +15,7 @@ class Pokemon(interactions.Extension):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(
+    @interactions.extension_command(
         name="pokedex",
         description="Show the information about a Pokemon",
         options=[
@@ -108,6 +109,12 @@ class Pokemon(interactions.Extension):
             data = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
             if name_lower in data:
                 name = data[name_lower]['name']
+                if name == "MissingNo.":
+                    _resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png")
+                    file = interactions.File("null.png", fp=io.BytesIO(_resp.content))
+                    embed = interactions.Embed(title="??????", description="".join("\n??????" for i in range(0, 3)))
+                    embed.set_thumbnail(url="attachment://null.png")
+                    return await ctx.send(embeds=embed, files=file)
                 id = data[name_lower]['num']	
                 types = str(data[name_lower]['types'])
                 types = types.replace("'","")
@@ -136,6 +143,10 @@ class Pokemon(interactions.Extension):
                     id = int(id)
                 sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
 
+                footer = interactions.EmbedFooter(
+                    text=f"First introduced in Generation {data[name_lower]['generation']}",
+                    icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png"
+                )
                 thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)
                 fields = [
                     interactions.EmbedField(name="Information", value=f"**Entry:** {id}\n**Type(s):** {types}\n**Egg Groups:** {egg_group}\n**Height:** {height}\n**Weight:** {weight}", inline=True),
@@ -143,6 +154,7 @@ class Pokemon(interactions.Extension):
                 ]
                 embed = interactions.Embed(
                     title=f"{name}",
+                    footer=footer,
                     thumbnail=thumbnail,
                     fields=fields,
                 )
