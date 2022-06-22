@@ -18,7 +18,7 @@ global U_KEY
 global U_SECRET
 
 TOKEN = os.getenv('TOKEN')
-VERSION = "v4.1.2"
+VERSION = "v4.1.3"
 
 APIKEY = os.getenv("APIKEY")
 AUTHORIZATION = os.getenv("AUTHORIZATION")
