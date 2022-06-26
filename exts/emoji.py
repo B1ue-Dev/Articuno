@@ -7,7 +7,6 @@ This module is for emoji management commands.
 import io
 import re
 import interactions
-from interactions import extension_command as command
 import aiohttp
 from utils.permission import Permissions, has_permission
 
@@ -29,10 +28,10 @@ def get_emoji_id(emoji: str):
 
 
 class Emoji(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="emoji",
         description="Emoji commands",
         options=[

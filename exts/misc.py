@@ -6,16 +6,15 @@ This module is for misc commands.
 
 import random
 import interactions
-from interactions import extension_command as command
 from utils.utils import get_response
 from const import APIKEY as apikey
 
 
 class Misc(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="hornycard",
         description="Send a hornycard",
         options=[
@@ -43,7 +42,7 @@ class Misc(interactions.Extension):
         await ctx.send(files=img)
 
 
-    @command(
+    @interactions.extension_command(
         name="simpcard",
         description="Send a simpcard",
         options=[
@@ -71,7 +70,7 @@ class Misc(interactions.Extension):
         await ctx.send(files=img)
 
 
-    @command(
+    @interactions.extension_command(
         name="tweet",
         description="Send a Twitter tweet",
         options=[
@@ -115,7 +114,7 @@ class Misc(interactions.Extension):
         await ctx.send(files=img)
 
 
-    @command(
+    @interactions.extension_command(
         name="youtube",
         description="Send a YouTube comment",
         options=[
@@ -150,7 +149,7 @@ class Misc(interactions.Extension):
         await ctx.send(files=img)
 
 
-    @command(
+    @interactions.extension_command(
         name="amogus",
         description="Amogus",
         options=[
@@ -177,7 +176,7 @@ class Misc(interactions.Extension):
         await ctx.send(files=img)
 
 
-    @command(
+    @interactions.extension_command(
         name="pet",
         description="Pet someone",
         options=[

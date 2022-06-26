@@ -7,7 +7,6 @@ This module is for TTS command.
 import io
 import asyncio
 import interactions
-from interactions import extension_command as command
 import aiohttp
 import requests
 from const import U_KEY, U_SECRET
@@ -33,10 +32,10 @@ _voice_name_convert = {
 
 
 class TTS(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="tts",
         description="Send a TTS message with different voices (Powered by Uberduck)",
         options=[

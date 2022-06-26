@@ -7,15 +7,14 @@ This is for base64, brainfuck commands.
 import base64 as b64
 import binascii
 import interactions
-from interactions import extension_command as command
 from utils import brainfuck
 
 
 class HackTool(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="base64",
         description="Base64 tools",
         options=[
@@ -65,7 +64,7 @@ class HackTool(interactions.Extension):
                 await ctx.send("```Invalid string. Please try again!```", ephemeral=True)
 
 
-    @command(
+    @interactions.extension_command(
         name="brainfuck",
         description="Brainfuck interpreter/converter",
         options=[
@@ -106,5 +105,5 @@ class HackTool(interactions.Extension):
             await ctx.send(f"```{string_bytes}```")
 
 
-def setup(client):
-    HackTool(client)
+def setup(bot):
+    HackTool(bot)

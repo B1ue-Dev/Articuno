@@ -6,9 +6,6 @@ This module is for snipe command.
 
 import asyncio
 import interactions
-from interactions import extension_listener as listener
-from interactions import extension_command as command
-
 
 _snipe_message_author = {}
 _snipe_message_author_id = {}
@@ -19,10 +16,10 @@ _snipe_message_attachments = {}
 
 
 class Snipe(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @listener(name="on_message_delete")
+    @interactions.extension_listener(name="on_message_delete")
     async def _message_delete(self, message: interactions.Message):
         _message: interactions.Message = self.bot._http.cache.messages.get(str(message.id))
         _channel_id = int(_message.channel_id)
@@ -45,7 +42,7 @@ class Snipe(interactions.Extension):
         del _snipe_message_attachments[_channel_id]
 
 
-    @command(
+    @interactions.extension_command(
         name="snipe",
         description="Snipe a deleted message",
         dm_permission=False

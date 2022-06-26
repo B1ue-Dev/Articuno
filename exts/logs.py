@@ -7,14 +7,13 @@ This module is for message logs.
 import datetime
 import random
 import interactions
-from interactions import extension_listener as listener
 
 
 class Logs(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @listener(name="on_message_delete")
+    @interactions.extension_listener(name="on_message_delete")
     async def _message_delete(self, message: interactions.Message):
         if int(message.guild_id) == 859030372783751168 and message.guild_id is not None:
             _message: interactions.Message = self.bot._http.cache.messages.get(str(message.id))
@@ -64,34 +63,12 @@ class Logs(interactions.Extension):
                         if _message.attachments:
                             embed.set_thumbnail(url=_message.attachments[0].url)
                         await channel.send(embeds=embed)
-                        break
-                if str(channel.name) == "amogus" and int(channel.guild_id) == 946606961594597376:
-                    _message: interactions.Message = self.bot._http.cache.messages.get(str(message.id))
-                    if _message is not None:
-                        author = interactions.EmbedAuthor(name=f"{_message.author.username}#{_message.author.discriminator}", icon_url=_message.author.avatar_url)
-                        footer = interactions.EmbedFooter(text=f"Message ID: {_message.id}")
-                        fields = [
-                            interactions.EmbedField(name="Member", value=f"{_message.member.mention}", inline=True),
-                            interactions.EmbedField(name="Channel", value=f"<#{_message.channel_id}>", inline=True)
-                        ]
-                        embed = interactions.Embed(
-                            color=0xe03c3c,
-                            author=author,
-                            footer=footer,
-                            timestamp=datetime.datetime.utcnow(),
-                            fields=fields
-                        )
-                        if _message.attachments:
-                            embed.set_thumbnail(url=_message.attachments[0].url)
-                        if _message.content:
-                            embed.add_field(name="Deleted message content", value=f"{_message.content}", inline=False)
-                        await channel.send(embeds=embed)
-                        break				
+                        break			
                 else:
                     continue
 
 
-    @listener(name="on_guild_member_add")
+    @interactions.extension_listener(name="on_guild_member_add")
     async def _guild_member_add(self, member: interactions.GuildMember):
         guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
         if int(member.guild_id) == 859030372783751168:
@@ -121,7 +98,7 @@ class Logs(interactions.Extension):
                     await channel.send(embeds=embed)
     
 
-    @listener(name="on_guild_member_remove")
+    @interactions.extension_listener(name="on_guild_member_remove")
     async def _guild_member_remove(self, member: interactions.GuildMember):
         guild = interactions.Guild(**await self.bot._http.get_guild(int(member.guild_id)), _client=self.bot._http)
         if int(member.guild_id) == 859030372783751168:

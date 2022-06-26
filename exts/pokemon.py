@@ -12,8 +12,8 @@ from utils.utils import get_response
 
 
 class Pokemon(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
     @interactions.extension_command(
         name="pokedex",

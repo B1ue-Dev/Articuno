@@ -6,15 +6,14 @@ This module is for moderation commands.
 
 import datetime
 import interactions
-from interactions import extension_command as command
 from utils.permission import Permissions, has_permission
 
 
 class Admin(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="user",
         description="Moderation commands",
         default_member_permissions=interactions.Permissions.KICK_MEMBERS,
@@ -347,7 +346,7 @@ class Admin(interactions.Extension):
     """
 
 
-    @command(
+    @interactions.extension_command(
         name="purge",
         description="(Admin only) Purge messages (default to 5 and max out of 20)",
         options=[

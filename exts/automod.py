@@ -6,14 +6,13 @@ This module is used to handle auto moderation actions.
 
 import re
 import interactions
-from interactions import extension_listener as listener
 
 
 class Automod(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @listener(name="on_message_create")
+    @interactions.extension_listener(name="on_message_create")
     async def _message_create(self, message: interactions.Message):
         message_content = str(message.content.lower())
         if int(message.guild_id) == 859030372783751168 and int(message.guild_id) is not None:

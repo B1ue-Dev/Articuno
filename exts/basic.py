@@ -7,7 +7,6 @@ This module is for basic bot information command.
 import datetime
 import platform
 import interactions
-from interactions import extension_command as command
 import psutil
 from utils import cache
 from utils import utils
@@ -16,10 +15,10 @@ load_time = datetime.datetime.now()
 
 
 class Basic(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name='ping',
         description='Ping Articuno'
     )
@@ -45,7 +44,7 @@ class Basic(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="stats",
         description="Shows the stats of Articuno"
     )
@@ -114,7 +113,7 @@ class Basic(interactions.Extension):
         await ctx.send(embeds=embed, components=button)
 
 
-    @command(
+    @interactions.extension_command(
         name="credits",
         description="Developers/Contributors to this project"
     )
@@ -139,7 +138,7 @@ class Basic(interactions.Extension):
         await ctx.send(embeds=embed, components=[profile])
 
 
-    @command(
+    @interactions.extension_command(
         name="invite",
         description="Invite Articuno to your server"
     )

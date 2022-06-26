@@ -11,7 +11,6 @@ import contextlib
 import traceback
 import asyncio
 import interactions
-from interactions import extension_command as command
 from interactions.ext.paginator import Page, Paginator
 
 
@@ -32,11 +31,11 @@ def page_paginator(text: str):
 
 
 class Eval(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
 
-    @command(
+    @interactions.extension_command(
         name='eval',
         description='Evaluates some code',
         options=[
@@ -152,7 +151,7 @@ class Eval(interactions.Extension):
                         await channel.send(f'```py\n{value[:200]}...\n```', files=file)
 
 
-    @command(
+    @interactions.extension_command(
         name="shell",
         description="Runs a shell command",
         options=[
