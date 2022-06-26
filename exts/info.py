@@ -6,14 +6,13 @@ This module is for information commands.
 
 import random
 import interactions
-from interactions import extension_command as command
 
 
 class Info(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="info",
         description="Information command",
         options=[

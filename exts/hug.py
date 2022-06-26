@@ -6,7 +6,6 @@ This module is for hug command.
 
 import io
 import interactions
-from interactions import extension_command as command
 import requests
 from PIL import Image, ImageDraw, ImageOps
 
@@ -43,10 +42,10 @@ def _fixed_icon(user_id: str, user_avatar: str):
 
 
 class Hug(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="hug",
         description="Hugs someone",
         options=[
@@ -67,7 +66,7 @@ class Hug(interactions.Extension):
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + _user_icon.size, fill=255)
 
-        background = Image.open("./background.png")
+        background = Image.open("./img/hug.png")
         background.paste(_author_icon, (190, 90), mask=mask)
         background.paste(_user_icon, (285, 157), mask=mask)
         with io.BytesIO() as out:

@@ -70,8 +70,8 @@ def _get_pokemon(generation: int = None):
     
 
 class WTP(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
     @interactions.extension_command(
         name="who_is_that_pokemon",
@@ -107,7 +107,7 @@ class WTP(interactions.Extension):
 
         _black_image = Image.new('RGBA', _image.size, (0, 0, 0))
 
-        bg = Image.open("whos_that_pokemon.png")
+        bg = Image.open("./img/whos_that_pokemon.png")
 
         _num = (400, 230)
         text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))

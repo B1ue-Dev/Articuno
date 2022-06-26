@@ -9,7 +9,6 @@ import asyncio
 import datetime
 import base64 as b64
 import interactions
-from interactions import extension_command as command
 import pyfiglet
 from googleapiclient.discovery import build
 from better_profanity import profanity
@@ -72,10 +71,10 @@ rps_selection = interactions.SelectMenu(
 
 
 class Fun(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @command(
+    @interactions.extension_command(
         name="coffee",
         description="Send an image of coffee"
     )
@@ -94,7 +93,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="ship",
         description="Ship 2 users",
         options=[
@@ -224,7 +223,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="roll",
         description="Roll a dice"
     )
@@ -235,7 +234,7 @@ class Fun(interactions.Extension):
         await ctx.edit("The number is **{}**.".format(dice))
 
 
-    @command(
+    @interactions.extension_command(
         name="flip",
         description="Flip a coin"
     )
@@ -246,7 +245,7 @@ class Fun(interactions.Extension):
         await ctx.edit("The coin landed on **{}**.".format(coin))
 
 
-    @command(
+    @interactions.extension_command(
         name="gay",
         description="Calculate the gay percentage of a user",
         options=[
@@ -272,7 +271,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="ascii",
         description="Make an ASCII art word",
         options=[
@@ -292,7 +291,7 @@ class Fun(interactions.Extension):
             await ctx.send(f"```\n{ascii_art}```")
 
 
-    @command(
+    @interactions.extension_command(
         name="joke",
         description="Send a random joke"
     )
@@ -308,7 +307,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="quote",
         description="Send a quote"
     )
@@ -330,7 +329,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="xkcd",
         description="Send a xkcd comic page",
         options=[
@@ -378,7 +377,7 @@ class Fun(interactions.Extension):
             await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="dictionary",
         description="Define a word",
         options=[
@@ -413,7 +412,7 @@ class Fun(interactions.Extension):
             await ctx.send(embeds=embed)
 
 
-    @command(
+    @interactions.extension_command(
         name="ai",
         description="Chat with an AI",
         options=[
@@ -443,7 +442,7 @@ class Fun(interactions.Extension):
         await ctx.send(msg)
 
 
-    @command(
+    @interactions.extension_command(
         name="urban",
         description="Define a word on Urban Dictionary",
         options=[
@@ -572,7 +571,7 @@ class Fun(interactions.Extension):
                     await msg.edit(embeds=embed, components=[])
 
 
-    @command(
+    @interactions.extension_command(
         name="img",
         description="Search for images using Google Images",
         options=[
@@ -667,7 +666,7 @@ class Fun(interactions.Extension):
             await ctx.send("No result found.", ephemeral=True)
 
 
-    @command(
+    @interactions.extension_command(
         name="trivia",
         description="Play a game of trivia",
     )
@@ -767,18 +766,19 @@ class Fun(interactions.Extension):
                 await msg.edit(content="Time's up!", embeds=embed_ed, components=buttons_disabled)
 
 
-    @command(
+    @interactions.extension_command(
         name="rock_paper_scissors_ai",
         description="Play a game of rock paper scissors against the AI",
     )
     async def _rock_paper_scissors_ai(self, ctx: interactions.CommandContext):
+        rps_selection.disabled = False
         await ctx.defer()
         msg = await ctx.send(content=f"{ctx.user.mention} vs **Articuno**", components=rps_selection)
         while True:
             try:
                 res = await self.bot.wait_for_component(components=rps_selection, messages=int(ctx.message.id), timeout=15)
                 if int(res.user.id) == int(ctx.user.id):
-                    rps_selection.disabled=True
+                    rps_selection.disabled = True
                     bot_choice = int(random.randint(1, 3))
                     user_choice = int(res.data.values[0])
                     if user_choice == bot_choice:
@@ -805,7 +805,7 @@ class Fun(interactions.Extension):
                 break
 
 
-    @command(
+    @interactions.extension_command(
         name="rock_paper_scissors_human",
         description="Play a game of rock paper scissors against a user",
         options=[
@@ -819,6 +819,8 @@ class Fun(interactions.Extension):
         dm_permission=False
     )
     async def _rock_paper_scissors_human(self, ctx: interactions.CommandContext, user: interactions.User):
+        rps_selection.disabled = False
+        await ctx.defer()
         accept_deny = [
             interactions.ActionRow(
                 components=[

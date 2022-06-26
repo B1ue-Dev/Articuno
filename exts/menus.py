@@ -6,16 +6,14 @@ This module is for user command and message command.
 
 import asyncio
 import interactions
-from interactions import extension_user_command as user_command
-from interactions import extension_message_command as message_command
 from googletrans import Translator
 
 
 class Menus(interactions.Extension):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, bot: interactions.Client):
+        self.bot: interactions.Client = bot
 
-    @message_command(
+    @interactions.extension_message_command(
         name="Translate"
     )
     async def _translate(self, ctx: interactions.CommandContext):
@@ -96,7 +94,7 @@ class Menus(interactions.Extension):
                 break
 
 
-    @user_command(
+    @interactions.extension_user_command(
         name="User Information",
         dm_permission=False
     )
