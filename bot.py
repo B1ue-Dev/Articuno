@@ -17,7 +17,9 @@ from status import WebSocketClient
 
 bot = interactions.Client(
     token=TOKEN,
-    intents=interactions.Intents.ALL,
+    intents=interactions.Intents.DEFAULT |
+            interactions.Intents.GUILD_MEMBERS |
+            interactions.Intents.GUILD_MESSAGE_CONTENT,
     presence=interactions.ClientPresence(
         activities=[
             interactions.PresenceActivity(
