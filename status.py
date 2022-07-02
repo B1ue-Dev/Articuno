@@ -1,7 +1,4 @@
-try:
-    from orjson import dumps, loads
-except ImportError:
-    from json import dumps, loads
+from json import dumps, loads
 
 from asyncio import (
     Event,
@@ -24,7 +21,7 @@ from interactions.client.enums import InteractionType, OptionType
 from interactions.client.models import Option
 from interactions.api.dispatch import Listener
 from interactions.api.enums import OpCodeType
-from interactions.api.error import GatewayException
+from interactions.api.error import LibraryException
 from interactions.api.http.client import HTTPClient
 from interactions.api.models.flags import Intents
 from interactions.api.models.misc import MISSING
@@ -186,7 +183,7 @@ class WebSocketClient:
                     break
 
                 if self._client.close_code in range(4010, 4014) or self._client.close_code == 4004:
-                    raise GatewayException(self._client.close_code)
+                    raise LibraryException(self._client.close_code)
 
                 await self._handle_connection(stream, shard, presence)
 
