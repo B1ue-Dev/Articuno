@@ -11,6 +11,7 @@ import interactions
 
 class Ping(interactions.Extension):
     """Extension for /ping command."""
+
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
