@@ -72,7 +72,8 @@ class Eval(interactions.Extension):
             'message': ctx.message,
             'source': inspect.getsource,
             'interactions': interactions,
-            'client': self.client
+            'client': self.client,
+            'self.client': self.client,
         }
 
         env.update(globals())
@@ -132,7 +133,8 @@ class Eval(interactions.Extension):
                 'message': message,
                 'source': inspect.getsource,
                 'interactions': interactions,
-                'client': self.client
+                'client': self.client,
+                'self.client': self.client,
             }
 
             env.update(globals())
