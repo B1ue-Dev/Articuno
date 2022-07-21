@@ -46,7 +46,7 @@ def get_user_flags(flags: UserFlags) -> str|None:
 class Info(interactions.Extension):
     """Extesion for /info commannd."""
 
-    def __init__(self, client: interactions.Client):
+    def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
     @interactions.extension_command(
