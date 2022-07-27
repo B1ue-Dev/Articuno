@@ -380,7 +380,8 @@ class WTP(interactions.Extension):
                     await msg.edit(
                         content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!",
                         components=_action_rows,
-                        files=_file
+                        attachments=[],
+                        files=_file,
                     )
                     break
 
