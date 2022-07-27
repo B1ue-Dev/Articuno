@@ -2,13 +2,13 @@ python-dotenv
 psutil
 requests
 google-api-python-client
-git+https://github.com/interactions-py/library.git@71efd32de2958bf4701a9b65d9e5be1f5f1481f8
+git+https://github.com/interactions-py/library.git@unstable
 interactions-wait-for
 git+https://github.com/Catalyst4222/interactions-tasks.git@master
 googletrans==3.1.0a0
 git+https://github.com/interactions-py/enhanced@main
 dinteractions-Paginator
-interactions-files
+git+https://github.com/interactions-py/files.git@unstable
 dinteractions-Paginator
 colorama
 pyfiglet
