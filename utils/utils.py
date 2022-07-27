@@ -3,10 +3,6 @@ import math
 import io
 from datetime import datetime
 
-def setup(bot):
-
-	pass
-
 
 async def async_dl(url, headers = None):
 	# print("Attempting to download {}".format(url))
