@@ -14,7 +14,7 @@ import interactions
 from interactions.ext.wait_for import wait_for, wait_for_component
 import requests
 from PIL import Image
-from interactions.ext.files import component_edit
+from interactions.ext.files import component_edit, command_send
 
 
 def _pokemon_image(url: str) -> Image.Image:
@@ -160,7 +160,7 @@ class WTP(interactions.Extension):
                     )
                 )
 
-            msg = await ctx.send(content="**Who's that Pokemon?**", components=_button_list, files=file)
+            msg = await command_send(ctx, content="**Who's that Pokemon?**", components=_button_list, files=file)
 
             while True:
                 try:
@@ -260,7 +260,8 @@ class WTP(interactions.Extension):
                     await msg.edit(
                         content=f"**Who's that Pokemon?**\n\nTimeout! It's **{_correct_pokemon['name']}**!",
                         components=_action_rows,
-                        files=_file
+                        attachments=[],
+                        files=_file,
                     )
                     break
         
