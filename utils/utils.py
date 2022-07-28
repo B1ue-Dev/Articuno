@@ -5,6 +5,8 @@ from datetime import datetime
 
 
 async def async_dl(url, headers = None):
+	"""I don't know what this does."""
+
 	# print("Attempting to download {}".format(url))
 	total_size = 0
 	data = b""
@@ -25,13 +27,17 @@ async def async_dl(url, headers = None):
 
 
 async def async_text(url, headers = None):
+	"""Again."""
+
 	data = await async_dl(url, headers)
 	if data != None:
 		return data.decode("utf-8", "replace")
 	else:
 		return data
 
+
 async def get_response(url: str = None, params: dict = None, headers: dict = None):
+	"""Return the data type from the request."""
 	async with aiohttp.ClientSession() as session:
 		async with session.get(url, params=params, headers=headers) as resp:
 			if resp.status == 200:
@@ -43,17 +49,19 @@ async def get_response(url: str = None, params: dict = None, headers: dict = Non
 
 
 def natural_size(size_in_bytes: int):
+	"""Returns the natural human-friendly size format."""
 	units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
 	power = int(math.log(size_in_bytes, 1024))
 	return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
-def timestamp(times: str):
+def timestamp(times: str) -> int:
+	"""Return the round() format of a timestamp."""
 	res = int(f"{times.timestamp():.0f}")
 	return f"{res}"
 
 
-def pretty_date(time: int):
+def pretty_date(time: int) -> str:
 	"""
 	Get a datetime object or a int() Epoch timestamp and return a
 	pretty string like 'an hour ago', 'Yesterday', '3 months ago',
