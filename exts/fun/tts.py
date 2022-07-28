@@ -88,6 +88,7 @@ class TTS(interactions.Extension):
     async def _tts(
         self, ctx: interactions.CommandContext, text: str, voice: str = None
     ):
+        """/tts command."""
         check_voice = [
             "sonic-jason-griffith",
             "tails-colleen",
@@ -129,7 +130,7 @@ class TTS(interactions.Extension):
                                 await asyncio.sleep(1)
                                 continue
 
-                            raise Exception("Failed to get audio.")
+                            raise TimeoutError("Failed to get audio.")
 
                         async with session.get(_json["path"]) as resp:
                             audio = interactions.File(
@@ -143,7 +144,7 @@ class TTS(interactions.Extension):
 
             await session.close()
 
-        except Exception:
+        except TimeoutError:
             await ctx.send("Aww! Snap.", ephemeral=True)
 
 
