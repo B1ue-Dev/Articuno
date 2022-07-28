@@ -1,1 +1,1 @@
-None is none. Now shut the freak up.
+I will write this later.
