@@ -29,13 +29,14 @@ def _pokemon_image(url: str) -> Image.Image:
 
     _resp = requests.get(url)
     if _resp.status_code == 200:
-        img = Image.open(io.BytesIO(_resp.content)).convert('RGBA')
+        img = Image.open(io.BytesIO(_resp.content)).convert("RGBA")
         if img.size[0] > 120 and img.size[1] > 240:
             img = img.resize((int(img.width * 2.2), int(img.height * 2.2)))
         else:
             img = img.resize((int(img.width * 3), int(img.height * 3)))
 
         return img
+
 
 def _get_pokemon(generation: int = None) -> list:
     """
@@ -71,7 +72,7 @@ def _get_pokemon(generation: int = None) -> list:
             generation = [810, 905]
 
     for i in range(4):
-        _num = random.randint(generation[0]-1, generation[1]-1)
+        _num = random.randint(generation[0] - 1, generation[1] - 1)
         _val = list(db.values())[_num]
 
         _pokemon_list[i] = _val
@@ -81,13 +82,16 @@ def _get_pokemon(generation: int = None) -> list:
     for i in range(4):
         if len(_list_number) < 5:
             if i not in _list_number:
-                _lists[i] = {"num": _pokemon_list[i]['num'], "name": _pokemon_list[i]['name']}
+                _lists[i] = {
+                    "num": _pokemon_list[i]["num"],
+                    "name": _pokemon_list[i]["name"],
+                }
                 _list_number.append(i)
             else:
                 continue
 
     return _lists
-    
+
 
 class WTP(interactions.Extension):
     """Extension for /whos_that_pokemon command."""
@@ -113,21 +117,28 @@ class WTP(interactions.Extension):
                 type=interactions.OptionType.STRING,
                 name="generation",
                 description="Generation of the Pokemon",
-                choices=[interactions.Choice(name=f"Gen {i}", value=f"{i}") for i in range(1, 9)],
+                choices=[
+                    interactions.Choice(name=f"Gen {i}", value=f"{i}")
+                    for i in range(1, 9)
+                ],
                 required=False,
-            )
-        ]
+            ),
+        ],
     )
-    async def whos_that_pokemon(self, ctx: interactions.CommandContext, difficulty: str, generation: str = None):
+    async def whos_that_pokemon(
+        self, ctx: interactions.CommandContext, difficulty: str, generation: str = None
+    ):
         _pokemon_list = _get_pokemon(generation)
 
         await ctx.defer()
 
         _correct_pokemon = _pokemon_list[random.randint(0, 3)]
 
-        _image = _pokemon_image(f"https://www.serebii.net/art/th/{_correct_pokemon['num']}.png")
+        _image = _pokemon_image(
+            f"https://www.serebii.net/art/th/{_correct_pokemon['num']}.png"
+        )
 
-        _black_image = Image.new('RGBA', _image.size, (0, 0, 0))
+        _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
 
         bg = Image.open("./img/whos_that_pokemon.png")
 
@@ -156,29 +167,46 @@ class WTP(interactions.Extension):
                     interactions.Button(
                         style=interactions.ButtonStyle.SECONDARY,
                         label=f"{_pokemon_list[i]['name']}",
-                        custom_id=f"{_pokemon_list[i]['num']}"
+                        custom_id=f"{_pokemon_list[i]['num']}",
                     )
                 )
 
-            msg = await command_send(ctx, content="**Who's that Pokemon?**", components=_button_list, files=file)
+            msg = await command_send(
+                ctx,
+                content="**Who's that Pokemon?**",
+                components=_button_list,
+                files=file,
+            )
 
             while True:
                 try:
-                    def check(_ctx: interactions.CommandContext):
-                        return _ctx.data.custom_id == "_wtp" and _ctx.user.id == ctx.user.id
 
-                    res: interactions.ComponentContext = await wait_for_component(self.client, components=_button_list, messages=int(msg.id), timeout = 15)
+                    def check(_ctx: interactions.CommandContext):
+                        return (
+                            _ctx.data.custom_id == "_wtp"
+                            and _ctx.user.id == ctx.user.id
+                        )
+
+                    res: interactions.ComponentContext = await wait_for_component(
+                        self.client,
+                        components=_button_list,
+                        messages=int(msg.id),
+                        timeout=15,
+                    )
                     if int(res.user.id) == int(ctx.user.id):
-                        if str(res.custom_id) == str(_correct_pokemon['num']):
+                        if str(res.custom_id) == str(_correct_pokemon["num"]):
 
                             _button_disabled = []
                             for i in range(4):
                                 _button_disabled.append(
                                     interactions.Button(
-                                        style=interactions.ButtonStyle.SECONDARY if str(_pokemon_list[i]['num']) != str(_correct_pokemon['num']) else interactions.ButtonStyle.SUCCESS,
+                                        style=interactions.ButtonStyle.SECONDARY
+                                        if str(_pokemon_list[i]["num"])
+                                        != str(_correct_pokemon["num"])
+                                        else interactions.ButtonStyle.SUCCESS,
                                         label=f"{_pokemon_list[i]['name']}",
                                         custom_id=f"{_pokemon_list[i]['num']}",
-                                        disabled=True
+                                        disabled=True,
                                     )
                                 )
 
@@ -186,7 +214,7 @@ class WTP(interactions.Extension):
                                 res,
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
                                 components=_button_disabled,
-                                files=_file
+                                files=_file,
                             )
                             break
 
@@ -197,19 +225,26 @@ class WTP(interactions.Extension):
                                 _button_disabled.append(
                                     interactions.Button(
                                         style=(
-                                            interactions.ButtonStyle.SECONDARY if str(_pokemon_list[i]['num']) != str(_correct_pokemon['num']) and str(_pokemon_list[i]['num']) != str(res.custom_id)
-                                            else (interactions.ButtonStyle.DANGER if str(_pokemon_list[i]['num']) == str(res.custom_id) else interactions.ButtonStyle.SUCCESS)
+                                            interactions.ButtonStyle.SECONDARY
+                                            if str(_pokemon_list[i]["num"])
+                                            != str(_correct_pokemon["num"])
+                                            and str(_pokemon_list[i]["num"])
+                                            != str(res.custom_id)
+                                            else (
+                                                interactions.ButtonStyle.DANGER
+                                                if str(_pokemon_list[i]["num"])
+                                                == str(res.custom_id)
+                                                else interactions.ButtonStyle.SUCCESS
+                                            )
                                         ),
                                         label=f"{_pokemon_list[i]['name']}",
                                         custom_id=f"{_pokemon_list[i]['num']}",
-                                        disabled=True
+                                        disabled=True,
                                     )
                                 )
 
                             _action_rows = [
-                                interactions.ActionRow(
-                                    components=_button_disabled
-                                ),
+                                interactions.ActionRow(components=_button_disabled),
                                 interactions.ActionRow(
                                     components=[
                                         interactions.Button(
@@ -218,14 +253,14 @@ class WTP(interactions.Extension):
                                             url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
                                         )
                                     ]
-                                )
+                                ),
                             ]
 
                             await component_edit(
                                 res,
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
                                 components=_button_disabled,
-                                files=_file
+                                files=_file,
                             )
                             break
 
@@ -238,14 +273,12 @@ class WTP(interactions.Extension):
                                 style=interactions.ButtonStyle.SECONDARY,
                                 label=f"{_pokemon_list[i]['name']}",
                                 custom_id=f"{_pokemon_list[i]['num']}",
-                                disabled=True
+                                disabled=True,
                             )
                         )
 
                     _action_rows = [
-                        interactions.ActionRow(
-                            components=_button_disabled
-                        ),
+                        interactions.ActionRow(components=_button_disabled),
                         interactions.ActionRow(
                             components=[
                                 interactions.Button(
@@ -254,7 +287,7 @@ class WTP(interactions.Extension):
                                     url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
                                 )
                             ]
-                        )
+                        ),
                     ]
 
                     await msg.edit(
@@ -264,24 +297,35 @@ class WTP(interactions.Extension):
                         files=_file,
                     )
                     break
-        
+
         elif difficulty == "hard":
 
             button = interactions.Button(
                 style=interactions.ButtonStyle.SECONDARY,
                 label="Answer",
-                custom_id="answer"
+                custom_id="answer",
             )
-            msg = await ctx.send(content="**Who's that Pokemon?**", components=[button], files=file)
+            msg = await ctx.send(
+                content="**Who's that Pokemon?**", components=[button], files=file
+            )
 
             while True:
                 try:
-                    def check(_ctx: interactions.CommandContext):
-                        return _ctx.data.custom_id == "answer" and _ctx.user.id == ctx.user.id
 
-                    res = await wait_for_component(self.client, components=[button], messages=int(msg.id), timeout = 15)
+                    def check(_ctx: interactions.CommandContext):
+                        return (
+                            _ctx.data.custom_id == "answer"
+                            and _ctx.user.id == ctx.user.id
+                        )
+
+                    res = await wait_for_component(
+                        self.client,
+                        components=[button],
+                        messages=int(msg.id),
+                        timeout=15,
+                    )
                     if int(res.user.id) == int(ctx.user.id):
-                        
+
                         modal = interactions.Modal(
                             title="Who's that Pokemon?",
                             custom_id="_wtp",
@@ -293,32 +337,39 @@ class WTP(interactions.Extension):
                                     custom_id="_answer",
                                     max_length=100,
                                 ),
-                            ]
+                            ],
                         )
 
                         await res.popup(modal)
-                    
+
                         def check(_ctx: interactions.CommandContext):
-                            return _ctx.data.custom_id == "_wtp" and _ctx.user.id == ctx.user.id
+                            return (
+                                _ctx.data.custom_id == "_wtp"
+                                and _ctx.user.id == ctx.user.id
+                            )
 
-                        _res = await wait_for(self.client, "on_modal", check=check, timeout=15)
-                        _answer = _res.data._json['components'][0].get('components')[0]['value']
+                        _res = await wait_for(
+                            self.client, "on_modal", check=check, timeout=15
+                        )
+                        _answer = _res.data._json["components"][0].get("components")[0][
+                            "value"
+                        ]
 
-                        if _answer.lower().rstrip() == _correct_pokemon['name'].lower():
+                        if _answer.lower().rstrip() == _correct_pokemon["name"].lower():
 
                             _button_disabled = interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
                                 label="Answer",
                                 custom_id="answer",
-                                disabled=True
+                                disabled=True,
                             )
 
                             await component_edit(
                                 _res,
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
                                 components=[_button_disabled],
-                                files=_file
-                            ) 
+                                files=_file,
+                            )
                             break
 
                         else:
@@ -330,7 +381,7 @@ class WTP(interactions.Extension):
                                             style=interactions.ButtonStyle.SECONDARY,
                                             label="Answer",
                                             custom_id="answer",
-                                            disabled=True
+                                            disabled=True,
                                         )
                                     ]
                                 ),
@@ -342,14 +393,14 @@ class WTP(interactions.Extension):
                                             url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
                                         )
                                     ]
-                                )
+                                ),
                             ]
 
                             await component_edit(
                                 _res,
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
                                 components=_action_rows,
-                                files=_file
+                                files=_file,
                             )
                             break
 
@@ -362,7 +413,7 @@ class WTP(interactions.Extension):
                                     style=interactions.ButtonStyle.SECONDARY,
                                     label="Answer",
                                     custom_id="answer",
-                                    disabled=True
+                                    disabled=True,
                                 )
                             ]
                         ),
@@ -374,7 +425,7 @@ class WTP(interactions.Extension):
                                     url=f"https://bulbapedia.bulbagarden.net/wiki/{_correct_pokemon['name']}_(Pokémon)",
                                 )
                             ]
-                        )
+                        ),
                     ]
 
                     await msg.edit(
@@ -388,9 +439,9 @@ class WTP(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.now() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     WTP(client)
     logging.debug("""[%s] Loaded WTP extension.""", log_time)
     print(f"[{log_time}] Loaded WTP extension.")

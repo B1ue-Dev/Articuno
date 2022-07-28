@@ -1,9 +1,11 @@
 """
-This module is for TTS command.
+Text-to-speech command.
 
 (C) 2022 - Jimmy-Blue
 """
 
+import datetime
+import logging
 import io
 import asyncio
 import interactions
@@ -11,10 +13,21 @@ import aiohttp
 import requests
 from const import U_KEY, U_SECRET
 
-def _get_audio(uuid: str):
+
+def _get_audio(uuid: str) -> dict:
+    """
+    Get the audio file from Uberduck AI.
+
+    :param uuid: The UUID of the request.
+    :type uuid: str
+    :return: The json data.
+    :rtype: dict
+    """
+
     response = requests.get(url=f"https://api.uberduck.ai/speak-status?uuid={uuid}")
     json: dict = response.json()
     return json if json.get("path") else False
+
 
 _voice_name_convert = {
     "sonic-jason-griffith": "Sonic the Hedgehog",
@@ -27,13 +40,15 @@ _voice_name_convert = {
     "donut-lord": "Tom Wachowski",
     "ash-ketchum": "Ash Ketchum",
     "professor-oak": "Professor Oak",
-    "meowth": "Meowth"
+    "meowth": "Meowth",
 }
 
 
 class TTS(interactions.Extension):
-    def __init__(self, bot: interactions.Client):
-        self.bot: interactions.Client = bot
+    """Extension for /tts command."""
+
+    def __init__(self, client: interactions.Client) -> None:
+        self.client: interactions.Client = client
 
     @interactions.extension_command(
         name="tts",
@@ -56,12 +71,16 @@ class TTS(interactions.Extension):
                     interactions.Choice(name="Amy", value="amy-rose-cr"),
                     interactions.Choice(name="Knuckles", value="knuckles"),
                     interactions.Choice(name="Shadow", value="shadow-david-humphrey"),
-                    interactions.Choice(name="Cosmo the Seedrian", value="cosmo-the-seedrian"),
-                    interactions.Choice(name="Chris Thorndyke", value="chris-thorndyke"),
+                    interactions.Choice(
+                        name="Cosmo the Seedrian", value="cosmo-the-seedrian"
+                    ),
+                    interactions.Choice(
+                        name="Chris Thorndyke", value="chris-thorndyke"
+                    ),
                     interactions.Choice(name="Tom Wachowski", value="donut-lord"),
                     interactions.Choice(name="Ash Ketchum", value="ash-ketchum"),
                     interactions.Choice(name="Professor Oak", value="professor-oak"),
-                    interactions.Choice(name="Meowth", value="meowth")
+                    interactions.Choice(name="Meowth", value="meowth"),
                 ],
             ),
         ],
@@ -80,12 +99,13 @@ class TTS(interactions.Extension):
             "donut-lord",
             "ash-ketchum",
             "professor-oak",
-            "meowth"
+            "meowth",
         ]
         if not voice:
             voice = "tails-colleen"
         elif voice and voice not in check_voice:
             return await ctx.send("Invalid voice. Please try again.", ephemeral=True)
+
         await ctx.defer()
 
         url = "https://api.uberduck.ai/speak"
@@ -108,15 +128,18 @@ class TTS(interactions.Extension):
                                 failed_time += 1
                                 await asyncio.sleep(1)
                                 continue
-                            else:
-                                raise Exception("Failed to get audio")
+
+                            raise Exception("Failed to get audio.")
 
                         async with session.get(_json["path"]) as resp:
                             audio = interactions.File(
                                 filename="audio.wav",
                                 fp=io.BytesIO(await resp.read()),
                             )
-                            await ctx.send(content=f"Message: {text}\nVoice: {_voice_name_convert[voice]}", files=audio)
+                            await ctx.send(
+                                content=f"Message: {text}\nVoice: {_voice_name_convert[voice]}",
+                                files=audio,
+                            )
 
             await session.close()
 
@@ -124,5 +147,11 @@ class TTS(interactions.Extension):
             await ctx.send("Aww! Snap.", ephemeral=True)
 
 
-def setup(bot):
-    TTS(bot)
+def setup(client) -> None:
+    """Setup the extension."""
+    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
+    TTS(client)
+    logging.debug("""[%s] Loaded TTS extension.""", log_time)
+    print(f"[{log_time}] Loaded TTS extension.")
