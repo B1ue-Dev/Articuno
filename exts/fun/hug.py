@@ -4,6 +4,8 @@ This module is for hug command.
 (C) 2022 - Jimmy-Blue
 """
 
+import logging
+import datetime
 import io
 import interactions
 import requests
@@ -12,16 +14,14 @@ from PIL import Image, ImageDraw, ImageOps
 
 def _fixed_icon(user_id: str, user_avatar: str):
     """
-    Return Image object from an icon link
+    Return Image object from an icon link.
 
-    :param user_id: The user ID
+    :param user_id: The user ID.
     :type user_id: str
-    :param user_avatar: The user icon hash
+    :param user_avatar: The user icon hash.
     :type user_avatar: str
-    :param size: The size of the image (default to (102, 102) if None)
-    :type size: tuple
-    :return Image object
-    :rtype Image
+    :return: Image object.
+    :rtype: Image
     """
     _user_avatar = f"https://cdn.discordapp.com/avatars/{str(user_id)}/{str(user_avatar)}.png"
     _resp = requests.get(_user_avatar)
@@ -42,8 +42,10 @@ def _fixed_icon(user_id: str, user_avatar: str):
 
 
 class Hug(interactions.Extension):
-    def __init__(self, bot: interactions.Client):
-        self.bot: interactions.Client = bot
+    """Extension for /hug command."""
+
+    def __init__(self, client: interactions.Client) -> None:
+        self.client: interactions.Client = client
 
     @interactions.extension_command(
         name="hug",
@@ -58,7 +60,13 @@ class Hug(interactions.Extension):
         ],
         dm_permission=False
     )
-    async def _hug(self, ctx: interactions.CommandContext, user: interactions.Member):
+    async def _hug(
+        self, ctx: interactions.CommandContext, user: interactions.Member
+    ):
+        """/hug command."""
+        if int(ctx.user.id) == int(user.id):
+            return await ctx.send("You cannot hug yourself.", ephemeral=True)
+
         _user_icon = _fixed_icon(user.user.id, user.user.avatar)
         _author_icon = _fixed_icon(ctx.author.id, ctx.author.avatar)
 
@@ -76,5 +84,11 @@ class Hug(interactions.Extension):
             await ctx.send(files=file)
 
 
-def setup(bot):
-    Hug(bot)
+def setup(client) -> None:
+    """Setup the extension."""
+    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
+    Hug(client)
+    logging.debug("""[%s] Loaded Hug extension.""", log_time)
+    print(f"[{log_time}] Loaded Hug extension.")

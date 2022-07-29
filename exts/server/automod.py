@@ -73,7 +73,9 @@ class Automod(interactions.Extension):
 
 def setup(client) -> None:
     """Loads the Automod extension."""
-    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Automod(client)
     logging.debug("""[%s] Loaded Automod extension.""", log_time)
     print(f"[{log_time}] Loaded Automod extension.")
