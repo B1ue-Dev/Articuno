@@ -30,13 +30,13 @@ class Mod(interactions.Extension):
                         type=interactions.OptionType.USER,
                         name="user",
                         description="The user you wish to kick",
-                        required=True
+                        required=True,
                     ),
                     interactions.Option(
                         type=interactions.OptionType.STRING,
                         name="reason",
                         description="The reason behind the kick",
-                        required=False
+                        required=False,
                     ),
                 ],
             ),
@@ -49,21 +49,24 @@ class Mod(interactions.Extension):
                         type=interactions.OptionType.USER,
                         name="user",
                         description="The user you wish to ban",
-                        required=True
+                        required=True,
                     ),
                     interactions.Option(
                         type=interactions.OptionType.STRING,
                         name="reason",
                         description="The reason behind the ban",
-                        required=False
+                        required=False,
                     ),
                     interactions.Option(
                         name="delete_message_days",
                         type=interactions.OptionType.INTEGER,
                         description="The number of days to delete messages for (0-7)",
-                        choices=[interactions.Choice(name=f"{i} days", value=i) for i in range(0, 8)],
-                        required=False
-                    )
+                        choices=[
+                            interactions.Choice(name=f"{i} days", value=i)
+                            for i in range(0, 8)
+                        ],
+                        required=False,
+                    ),
                 ],
             ),
             interactions.Option(
@@ -75,13 +78,13 @@ class Mod(interactions.Extension):
                         type=interactions.OptionType.STRING,
                         name="id",
                         description="The ID of the user you wish to ban",
-                        required=True
+                        required=True,
                     ),
                     interactions.Option(
                         type=interactions.OptionType.STRING,
                         name="reason",
                         description="The reason behind the ban",
-                        required=False
+                        required=False,
                     ),
                 ],
             ),
@@ -94,13 +97,13 @@ class Mod(interactions.Extension):
                         type=interactions.OptionType.STRING,
                         name="id",
                         description="The ID of the user you wish to unban",
-                        required=True
+                        required=True,
                     ),
                     interactions.Option(
                         type=interactions.OptionType.STRING,
                         name="reason",
                         description="The reason behind the unban",
-                        required=False
+                        required=False,
                     ),
                 ],
             ),
@@ -191,11 +194,14 @@ class Mod(interactions.Extension):
                         required=False,
                     ),
                 ],
-            )
+            ),
         ],
-        dm_permission=False
+        dm_permission=False,
     )
-    async def _user(self, ctx: interactions.CommandContext, sub_command: str,
+    async def _user(
+        self,
+        ctx: interactions.CommandContext,
+        sub_command: str,
         user: interactions.Member = None,
         id: str = None,
         reason: str = "N/A",
@@ -220,13 +226,20 @@ class Mod(interactions.Extension):
             case "purge":
                 await self._purge_channel(ctx, amount, channel, reason)
 
-    async def _kick_member(self, ctx: interactions.CommandContext, member: interactions.Member, reason: str = "N/A"):
+    async def _kick_member(
+        self,
+        ctx: interactions.CommandContext,
+        member: interactions.Member,
+        reason: str = "N/A",
+    ):
         """Kick a member from the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.KICK_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.KICK_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have kick permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have kick permission.", ephemeral=True
+            )
 
         if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot kick yourself.", ephemeral=True)
@@ -234,105 +247,168 @@ class Mod(interactions.Extension):
         try:
             await member.kick(guild_id=int(ctx.guild_id), reason=reason)
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{member.user.username}#{member.user.discriminator} was not kicked.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to kick the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{member.user.username}#{member.user.discriminator} was not kicked.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to kick the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{member.user.username}#{member.user.discriminator} was kicked.\nReason: {reason}")
+        await ctx.send(
+            content=f"{member.user.username}#{member.user.discriminator} was kicked.\nReason: {reason}"
+        )
 
-    async def _ban_member(self, ctx: interactions.CommandContext, member: interactions.Member, reason: str = "N/A", delete_message_days: int = 0):
+    async def _ban_member(
+        self,
+        ctx: interactions.CommandContext,
+        member: interactions.Member,
+        reason: str = "N/A",
+        delete_message_days: int = 0,
+    ):
         """Ban a member from the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have ban permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have ban permission.", ephemeral=True
+            )
 
         if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot ban yourself.", ephemeral=True)
 
         try:
-            await member.ban(guild_id=int(ctx.guild_id), reason=reason, delete_message_days=delete_message_days)
+            await member.ban(
+                guild_id=int(ctx.guild_id),
+                reason=reason,
+                delete_message_days=delete_message_days,
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{member.user.username}#{member.user.discriminator} was not banned.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to ban the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{member.user.username}#{member.user.discriminator} was not banned.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to ban the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{member.user.username}#{member.user.discriminator} was banned.\nReason: {reason}")
+        await ctx.send(
+            content=f"{member.user.username}#{member.user.discriminator} was banned.\nReason: {reason}"
+        )
 
-    async def _hackban_member(self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"):
+    async def _hackban_member(
+        self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"
+    ):
         """Ban a member who is not in the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have ban permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have ban permission.", ephemeral=True
+            )
 
         if int(id) == int(ctx.member.id):
             return await ctx.send("You cannot ban yourself.", ephemeral=True)
 
         try:
-            user = interactions.User(**await self.client._http.get_user(user_id=int(id)), _client=self.client._http)
+            user = interactions.User(
+                **await self.client._http.get_user(user_id=int(id)),
+                _client=self.client._http,
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="Unknown User. Please check the ID again.", ephemeral=True)
+            return await ctx.send(
+                content="Unknown User. Please check the ID again.", ephemeral=True
+            )
 
         try:
-            await self.client._http.create_guild_ban(guild_id=int(ctx.guild_id), user_id=int(id), reason=reason)
+            await self.client._http.create_guild_ban(
+                guild_id=int(ctx.guild_id), user_id=int(id), reason=reason
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{user.username}#{user.discriminator} ({user.id}) was not banned.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to ban the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{user.username}#{user.discriminator} ({user.id}) was not banned.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to ban the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{user.username}#{user.discriminator} ({user.id}) was banned.\nReason: {reason}")
+        await ctx.send(
+            content=f"{user.username}#{user.discriminator} ({user.id}) was banned.\nReason: {reason}"
+        )
 
-    async def _unban_member(self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"):
+    async def _unban_member(
+        self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"
+    ):
         """Unban a member from the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have ban permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have ban permission.", ephemeral=True
+            )
 
         if int(id) == int(ctx.member.id):
             return await ctx.send("You cannot unban yourself.", ephemeral=True)
 
         try:
-            user = interactions.User(**await self.client._http.get_user(user_id=int(id)), _client=self.client._http)
+            user = interactions.User(
+                **await self.client._http.get_user(user_id=int(id)),
+                _client=self.client._http,
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="Unknown User. Please check the ID again.", ephemeral=True)
+            return await ctx.send(
+                content="Unknown User. Please check the ID again.", ephemeral=True
+            )
 
         try:
-            await self.client._http.remove_guild_ban(guild_id=int(ctx.guild_id), user_id=int(id), reason=reason)
+            await self.client._http.remove_guild_ban(
+                guild_id=int(ctx.guild_id), user_id=int(id), reason=reason
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{id} was not unbanned.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to ban the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{id} was not unbanned.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to ban the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{user.username}#{user.discriminator} ({user.id}) was unbanned.")
+        await ctx.send(
+            content=f"{user.username}#{user.discriminator} ({user.id}) was unbanned."
+        )
 
-    async def _timeout_member(self, ctx: interactions.CommandContext, member: interactions.Member, reason: str = "N/A", hours: int = 1, **kwargs: dict):
+    async def _timeout_member(
+        self,
+        ctx: interactions.CommandContext,
+        member: interactions.Member,
+        reason: str = "N/A",
+        hours: int = 1,
+        **kwargs: dict,
+    ):
         """Timeout a member from the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have timeout permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have timeout permission.", ephemeral=True
+            )
 
         if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot timeout yourself.", ephemeral=True)
@@ -344,59 +420,97 @@ class Mod(interactions.Extension):
             time += datetime.timedelta(hours=hours)
 
         try:
-            await member.modify(guild_id=int(ctx.guild_id), communication_disabled_until=time.isoformat(), reason=reason)
+            await member.modify(
+                guild_id=int(ctx.guild_id),
+                communication_disabled_until=time.isoformat(),
+                reason=reason,
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{member.user.username}#{member.user.discriminator} was not timed out.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to timeout the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{member.user.username}#{member.user.discriminator} was not timed out.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to timeout the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{member.user.username}#{member.user.discriminator} was timed out.\nReason: {reason}")
+        await ctx.send(
+            content=f"{member.user.username}#{member.user.discriminator} was timed out.\nReason: {reason}"
+        )
 
-    async def _untimeout_member(self, ctx: interactions.CommandContext, member: interactions.Member, reason: str = "N/A"):
+    async def _untimeout_member(
+        self,
+        ctx: interactions.CommandContext,
+        member: interactions.Member,
+        reason: str = "N/A",
+    ):
         """Untimeout a member from the server."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have timeout permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have timeout permission.", ephemeral=True
+            )
 
         if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot untimeout yourself.", ephemeral=True)
 
         if member.communication_disabled_until is None:
-            return await ctx.send(content="".join(
-                [
-                    f"{member.user.username}#{member.user.discriminator} was not timed out.",
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{member.user.username}#{member.user.discriminator} was not timed out.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
         try:
-            await member.modify(guild_id=int(ctx.guild_id), communication_disabled_until=None, reason=reason)
+            await member.modify(
+                guild_id=int(ctx.guild_id),
+                communication_disabled_until=None,
+                reason=reason,
+            )
         except interactions.LibraryException:
-            return await ctx.send(content="".join(
-                [
-                    f"{member.user.username}#{member.user.discriminator} was not untimed out.\n",
-                    "Please check whenever I am higher than the user's role or I have enough ",
-                    "permissions to untimeout the user."
-                ]
-            ), ephemeral=True)
+            return await ctx.send(
+                content="".join(
+                    [
+                        f"{member.user.username}#{member.user.discriminator} time-out was not removed.\n",
+                        "Please check whenever I am higher than the user's role or I have enough ",
+                        "permissions to untimeout the user.",
+                    ]
+                ),
+                ephemeral=True,
+            )
 
-        await ctx.send(content=f"{member.user.username}#{member.user.discriminator} was untimed out.\nReason: {reason}")
+        await ctx.send(
+            content=f"{member.user.username}#{member.user.discriminator} time-out was removed.\nReason: {reason}"
+        )
 
-    async def _purge_channel(self, ctx: interactions.CommandContext, amount: int = 5, channel: interactions.Channel = None, reason: str = "N/A"):
+    async def _purge_channel(
+        self,
+        ctx: interactions.CommandContext,
+        amount: int = 5,
+        channel: interactions.Channel = None,
+        reason: str = "N/A",
+    ):
         """Purges an amount of messages from a channel."""
         if not (
-            has_permission(int(ctx.member.permissions), Permissions.MANAGE_MESSAGES) or
-            has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+            has_permission(int(ctx.member.permissions), Permissions.MANAGE_MESSAGES)
+            or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have manage messages permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have manage messages permission.", ephemeral=True
+            )
 
         if amount > 21:
-            return await ctx.send(content="You cannot purge more than 20 messages.", ephemeral=True)
+            return await ctx.send(
+                content="You cannot purge more than 20 messages.", ephemeral=True
+            )
 
         if not channel:
             channel = await ctx.get_channel()
@@ -407,9 +521,9 @@ class Mod(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.now() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Mod(client)
     logging.debug("""[%s] Loaded Mod extension.""", log_time)
     print(f"[{log_time}] Loaded Mod extension.")

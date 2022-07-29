@@ -72,7 +72,7 @@ class Logs(interactions.Extension):
 
             except AttributeError:
                 cache.Storage()._logs[str(guild.id)] = None
-        
+
         elif str(_message.guild_id) in cache.Storage()._logs and cache.Storage()._logs[str(_message.guild_id)] is None:
             pass
 
@@ -88,10 +88,10 @@ class Logs(interactions.Extension):
                 if str(channel.name) == "logs":
                     _var = 1
                     await channel.send(embeds=embed)
-                    break			
+                    break
                 else:
                     continue
-            
+
             if _var == 0:
                 cache.Storage()._logs[str(guild.id)] = None
             elif _var == 1:
@@ -147,7 +147,7 @@ class Logs(interactions.Extension):
 
             except AttributeError:
                 cache.Storage()._welcome_goodbye[str(member.guild_id)] = None
-        
+
         elif str(member.guild_id) in cache.Storage()._welcome_goodbye and cache.Storage()._welcome_goodbye[str(member.guild_id)] is None:
             pass
 
@@ -301,7 +301,7 @@ class Logs(interactions.Extension):
 
             except AttributeError:
                 cache.Storage()._logs[str(_guild.id)] = None
-        
+
         elif str(guild_id) in cache.Storage()._logs and cache.Storage()._logs[str(guild_id)] is None:
             pass
 
@@ -320,7 +320,7 @@ class Logs(interactions.Extension):
                     break
                 else:
                     continue
-            
+
             if _var == 0:
                 cache.Storage()._logs[str(_guild.id)] = None
             elif _var == 1:
@@ -378,7 +378,7 @@ class Logs(interactions.Extension):
 
             except AttributeError:
                 cache.Storage()._logs[str(_guild.id)] = None
-        
+
         elif str(guild_id) in cache.Storage()._logs and cache.Storage()._logs[str(guild_id)] is None:
             pass
 
@@ -397,7 +397,7 @@ class Logs(interactions.Extension):
                     break
                 else:
                     continue
-            
+
             if _var == 0:
                 cache.Storage()._logs[str(_guild.id)] = None
             elif _var == 1:
@@ -431,7 +431,7 @@ class Logs(interactions.Extension):
             reason = _timeout.get("audit_log_entries")[0].get("reason")
             moderator = _timeout.get("audit_log_entries")[0].get("user_id")
             embed = interactions.Embed(
-                title="User timed out!",
+                title="User time-out removed!",
                 timestamp=datetime.datetime.utcnow(),
                 color=0xfdff7a,
                 footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
@@ -475,7 +475,7 @@ class Logs(interactions.Extension):
 
             except AttributeError:
                 cache.Storage()._logs[str(_guild.id)] = None
-        
+
         elif str(guild_id) in cache.Storage()._logs and cache.Storage()._logs[str(guild_id)] is None:
             pass
 
@@ -494,12 +494,12 @@ class Logs(interactions.Extension):
                     break
                 else:
                     continue
-            
+
             if _var == 0:
                 cache.Storage()._logs[str(_guild.id)] = None
             elif _var == 1:
                 cache.Storage().add_logs(str(_guild.id), str(channel.id))
-        
+
 
 def setup(client) -> None:
     """Setup the extension."""
