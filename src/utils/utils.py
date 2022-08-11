@@ -1,5 +1,5 @@
 """
-An ultility for Articuno.
+A ultility for Articuno.
 
 (C) 2022 - Jimmy-Blue
 """
