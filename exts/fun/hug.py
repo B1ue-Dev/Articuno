@@ -23,7 +23,9 @@ def _fixed_icon(user_id: str, user_avatar: str):
     :return: Image object.
     :rtype: Image
     """
-    _user_avatar = f"https://cdn.discordapp.com/avatars/{str(user_id)}/{str(user_avatar)}.png"
+    _user_avatar = (
+        f"https://cdn.discordapp.com/avatars/{str(user_id)}/{str(user_avatar)}.png"
+    )
     _resp = requests.get(_user_avatar)
     if _resp.status_code == 200:
         _icon = Image.open(io.BytesIO(_resp.content)).resize((102, 102))
@@ -55,14 +57,12 @@ class Hug(interactions.Extension):
                 type=interactions.OptionType.USER,
                 name="user",
                 description="User to hug",
-                required=True
+                required=True,
             )
         ],
-        dm_permission=False
+        dm_permission=False,
     )
-    async def _hug(
-        self, ctx: interactions.CommandContext, user: interactions.Member
-    ):
+    async def _hug(self, ctx: interactions.CommandContext, user: interactions.Member):
         """/hug command."""
         if int(ctx.user.id) == int(user.id):
             return await ctx.send("You cannot hug yourself.", ephemeral=True)
@@ -70,7 +70,7 @@ class Hug(interactions.Extension):
         _user_icon = _fixed_icon(user.user.id, user.user.avatar)
         _author_icon = _fixed_icon(ctx.author.id, ctx.author.avatar)
 
-        mask = Image.new('L', _user_icon.size, 0)
+        mask = Image.new("L", _user_icon.size, 0)
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + _user_icon.size, fill=255)
 
@@ -86,9 +86,9 @@ class Hug(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.now() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.now() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     Hug(client)
     logging.debug("""[%s] Loaded Hug extension.""", log_time)
     print(f"[{log_time}] Loaded Hug extension.")
