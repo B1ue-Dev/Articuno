@@ -10,23 +10,25 @@ import io
 import asyncio
 import interactions
 import aiohttp
-import requests
 from const import U_KEY, U_SECRET
 
 
-def _get_audio(uuid: str) -> dict:
+async def _get_audio(uuid: str) -> dict | bool:
     """
     Get the audio file from Uberduck AI.
 
     :param uuid: The UUID of the request.
     :type uuid: str
-    :return: The json data.
-    :rtype: dict
+    :return: The json data, or False if None.
+    :rtype: dict | bool
     """
 
-    response = requests.get(url=f"https://api.uberduck.ai/speak-status?uuid={uuid}")
-    json: dict = response.json()
-    return json if json.get("path") else False
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://api.uberduck.ai/speak-status?uuid={uuid}") as _resp:
+            json: dict = await _resp.json()
+            await session.close()
+
+            return json if json.get("path") else False
 
 
 _voice_name_convert = {
@@ -107,6 +109,9 @@ class TTS(interactions.Extension):
         elif voice and voice not in check_voice:
             return await ctx.send("Invalid voice. Please try again.", ephemeral=True)
 
+        if len(text) > 1000:
+            return await ctx.send("Text too large. Please try something shorter.", ephemeral=True)
+
         await ctx.defer()
 
         url = "https://api.uberduck.ai/speak"
@@ -121,7 +126,7 @@ class TTS(interactions.Extension):
                         _json = None
                         while True:
                             failed_time = 0
-                            audio = _get_audio(uuid)
+                            audio = await _get_audio(uuid)
                             if failed_time < 10:
                                 if audio is not False:
                                     _json = audio
