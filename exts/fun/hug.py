@@ -8,11 +8,11 @@ import logging
 import datetime
 import io
 import interactions
-import requests
+import aiohttp
 from PIL import Image, ImageDraw, ImageOps
 
 
-def _fixed_icon(user_id: str, user_avatar: str):
+async def _fixed_icon(user_id: str, user_avatar: str):
     """
     Return Image object from an icon link.
 
@@ -26,21 +26,26 @@ def _fixed_icon(user_id: str, user_avatar: str):
     _user_avatar = (
         f"https://cdn.discordapp.com/avatars/{str(user_id)}/{str(user_avatar)}.png"
     )
-    _resp = requests.get(_user_avatar)
-    if _resp.status_code == 200:
-        _icon = Image.open(io.BytesIO(_resp.content)).resize((102, 102))
 
-        _mask = Image.new("L", _icon.size, 0)
-        _draw = ImageDraw.Draw(_mask)
-        _draw.ellipse((0, 0) + _icon.size, fill=255)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(_user_avatar) as _resp:
+            if _resp.status == 200:
 
-        _icon = ImageOps.fit(_icon, _mask.size, centering=(0, 0))
-        _icon.putalpha(_mask)
+                _icon = Image.open(io.BytesIO(await _resp.content.read())).resize((102, 102))
 
-        _icon_background = Image.new("RGBA", _icon.size, (255, 255, 255))
-        icon = Image.alpha_composite(_icon_background, _icon)
+                await session.close()
 
-        return icon
+                _mask = Image.new("L", _icon.size, 0)
+                _draw = ImageDraw.Draw(_mask)
+                _draw.ellipse((0, 0) + _icon.size, fill=255)
+
+                _icon = ImageOps.fit(_icon, _mask.size, centering=(0, 0))
+                _icon.putalpha(_mask)
+
+                _icon_background = Image.new("RGBA", _icon.size, (255, 255, 255))
+                icon = Image.alpha_composite(_icon_background, _icon)
+
+                return icon
 
 
 class Hug(interactions.Extension):
@@ -67,8 +72,8 @@ class Hug(interactions.Extension):
         if int(ctx.user.id) == int(user.id):
             return await ctx.send("You cannot hug yourself.", ephemeral=True)
 
-        _user_icon = _fixed_icon(user.user.id, user.user.avatar)
-        _author_icon = _fixed_icon(ctx.author.id, ctx.author.avatar)
+        _user_icon = await _fixed_icon(user.user.id, user.user.avatar)
+        _author_icon = await _fixed_icon(ctx.author.id, ctx.author.avatar)
 
         mask = Image.new("L", _user_icon.size, 0)
         draw = ImageDraw.Draw(mask)
