@@ -4,16 +4,19 @@ This module is for Pokemon commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import logging
+import datetime
 import io
 import json
 import interactions
-import requests
 from utils.utils import get_response
 
 
 class Pokemon(interactions.Extension):
-    def __init__(self, bot: interactions.Client):
-        self.bot: interactions.Client = bot
+    """Extension for /pokedex command."""
+
+    def __init__(self, client: interactions.Client) -> None:
+        self.client: interactions.Client = client
 
     @interactions.extension_command(
         name="pokedex",
@@ -24,33 +27,43 @@ class Pokemon(interactions.Extension):
                 name="pokemon_name",
                 description="Pokemon name",
                 required=True,
-                autocomplete=True
-            )
-        ]
+                autocomplete=True,
+            ),
+        ],
     )
-    async def _pokemon(self, ctx: interactions.CommandContext, pokemon_name: str):
+    async def _pokedex(
+        self, ctx: interactions.CommandContext, pokemon_name: str
+    ):
         name_lower = pokemon_name.lower()
-        url = "https://some-random-api.ml/pokedex"
-        params = {
-            "pokemon": pokemon_name
-        }
-        resp = await get_response(url, params)
-        try:
-            desp = resp['description']
-            gen = resp['generation']
-            id = resp['id']
-            abilities = str(resp['abilities'])
-            abilities = abilities.replace("'", "")
-            abilities = abilities.replace("[", "")
-            abilities = abilities.replace("]", "")
-            evs = int(resp['family']['evolutionStage'])
-            if evs != 0:
-                evs = str(resp['family']['evolutionLine'])
-                evs = evs.replace("'", "")
-                evs = evs.replace("[", "")
-                evs = evs.replace("]", "")
-            else:
-                evs = None
+        db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
+        if name_lower in db:
+            name = db[name_lower]['name']
+
+            if name == "MissingNo.":
+                _resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png")
+                file = interactions.File("null.png", fp=io.BytesIO(_resp.content))
+                embed = interactions.Embed(title="??????", description="".join("\n??????" for i in range(0, 3)))
+                embed.set_thumbnail(url="attachment://null.png")
+                return await ctx.send(embeds=embed, files=file)
+
+            id = db[name_lower]['num']
+            types = ", ".join(db[name_lower]['types'])
+            desp = db[name_lower]['description']
+            stats = "".join(
+                [
+                    f"**HP:** {db[name_lower]['baseStats']['hp']}\n",
+                    f"**Attack:** {db[name_lower]['baseStats']['atk']}\n",
+                    f"**Defense:** {db[name_lower]['baseStats']['def']}\n",
+                    f"**Special Attack:** {db[name_lower]['baseStats']['spa']}\n",
+                    f"**Special Defense:** {db[name_lower]['baseStats']['spd']}\n",
+                    f"**Speed:** {db[name_lower]['baseStats']['spe']}\n",
+                ]
+            )
+            abilities = ", ".join(list(db['bulbasaur']['abilities'].values()))
+            egg_group = ", ".join(db[name_lower]['eggGroups'])
+            height = db[name_lower]['heightm']
+            weight = db[name_lower]['weightkg']
+
             if int(id) < int(10):
                 id = "00" + str(id)
                 id = int(id)
@@ -59,113 +72,54 @@ class Pokemon(interactions.Extension):
                 id = int(id)
             else:
                 id = int(id)
-            sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
-            data = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
-            if name_lower in data:
-                name = data[name_lower]['name']
-                types = str(data[name_lower]['types'])
-                types = types.replace("'","")
-                types = types.replace("[","")
-                types = types.replace("]","")
-                hp = data[name_lower]['baseStats']['hp']
-                atk = data[name_lower]['baseStats']['atk']
-                defe = data[name_lower]['baseStats']['def']
-                spa = data[name_lower]['baseStats']['spa']
-                spd = data[name_lower]['baseStats']['spd']
-                spe = data[name_lower]['baseStats']['spe']
-                stats = "**HP:** {}\n**Attack:** {}\n**Defense:** {}\n**Special Attack:** {}\n**Special Defense:** {}\n**Speed:** {}".format(hp, atk, defe, spa, spd, spe)
-                egg_group = str(data[name_lower]['eggGroups'])
-                egg_group = egg_group.replace("'","")
-                egg_group = egg_group.replace("[","")
-                egg_group = egg_group.replace("]","")
-                height = data[name_lower]['heightm']
-                weight = data[name_lower]['weightkg']
 
-                footer = interactions.EmbedFooter(
-                    text=f"First introduced in Generation {gen}",
-                    icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png"
-                )
-                thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)
-                fields = [
-                    interactions.EmbedField(
-                        name="Information",
-                        value=f"**Entry:** {id}\n**Type(s):** {types}\n**Abilities:** {abilities}\n**Egg Groups:** {egg_group}\n**Height:** {height}\n**Weight:** {weight}", inline=True
-                    ),
-                    interactions.EmbedField(name="Stats", value=stats, inline=True)
-                ]
-                embed = interactions.Embed(
-                    title=f"{name}",
-                    description=f"{desp}",
-                    footer=footer,
-                    thumbnail=thumbnail,
-                    fields=fields,
-                )
-                if evs is not None:
-                    embed.add_field(name="Evolution Line", value=evs, inline=True)
-                await ctx.send(embeds=embed)
+            evs = db[name_lower]['evolutionLine']
+            if str(evs) != "[]":
+                evs = "\n".join(evs)
             else:
-                await ctx.send("Pokemon not found.")
-        except TypeError:
-            data = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
-            if name_lower in data:
-                name = data[name_lower]['name']
-                if name == "MissingNo.":
-                    _resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png")
-                    file = interactions.File("null.png", fp=io.BytesIO(_resp.content))
-                    embed = interactions.Embed(title="??????", description="".join("\n??????" for i in range(0, 3)))
-                    embed.set_thumbnail(url="attachment://null.png")
-                    return await ctx.send(embeds=embed, files=file)
-                id = data[name_lower]['num']	
-                types = str(data[name_lower]['types'])
-                types = types.replace("'","")
-                types = types.replace("[","")
-                types = types.replace("]","")
-                hp = data[name_lower]['baseStats']['hp']
-                atk = data[name_lower]['baseStats']['atk']
-                defe = data[name_lower]['baseStats']['def']
-                spa = data[name_lower]['baseStats']['spa']
-                spd = data[name_lower]['baseStats']['spd']
-                spe = data[name_lower]['baseStats']['spe']
-                stats = "**HP:** {}\n**Attack:** {}\n**Defense:** {}\n**Special Attack:** {}\n**Special Defense:** {}\n**Speed:** {}".format(hp, atk, defe, spa, spd, spe)
-                egg_group = str(data[name_lower]['eggGroups'])
-                egg_group = egg_group.replace("'","")
-                egg_group = egg_group.replace("[","")
-                egg_group = egg_group.replace("]","")
-                height = data[name_lower]['heightm']
-                weight = data[name_lower]['weightkg']
-                if int(id) < int(10):
-                    id = "00" + str(id)
-                    id = int(id)
-                elif int(id) < int(100):
-                    id = "0" + str(id)
-                    id = int(id)
-                else:
-                    id = int(id)
-                sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
+                evs = None
 
-                footer = interactions.EmbedFooter(
-                    text=f"First introduced in Generation {data[name_lower]['generation']}",
-                    icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png"
-                )
-                thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)
-                fields = [
-                    interactions.EmbedField(name="Information", value=f"**Entry:** {id}\n**Type(s):** {types}\n**Egg Groups:** {egg_group}\n**Height:** {height}\n**Weight:** {weight}", inline=True),
-                    interactions.EmbedField(name="Stats", value=stats, inline=True)
-                ]
-                embed = interactions.Embed(
-                    title=f"{name}",
-                    footer=footer,
-                    thumbnail=thumbnail,
-                    fields=fields,
-                )
-                await ctx.send(embeds=embed)
+            sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
+
+            footer = interactions.EmbedFooter(
+                text=f"First introduced in Generation {db[name_lower]['generation']}",
+                icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png"
+            )
+            thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)
+            fields = [
+                interactions.EmbedField(
+                    name="Information",
+                    value=f"".join(
+                        [
+                            f"**Entry:** {id}\n",
+                            f"**Type(s):** {types}\n",
+                            f"**Egg Groups:** {egg_group}\n",
+                            f"**Height:** {height}\n",
+                            f"**Weight:** {weight}",
+                        ]
+                    ),
+                    inline=True
+                ),
+                interactions.EmbedField(name="Stats", value=stats, inline=True)
+            ]
+            embed = interactions.Embed(
+                title=f"{name}",
+                description=f"{desp}",
+                footer=footer,
+                thumbnail=thumbnail,
+                fields=fields,
+            )
+            if evs is not None:
+                embed.add_field(name="Evolution Line", value=evs, inline=True)
+
+            await ctx.send(embeds=embed)
 
 
     @interactions.extension_autocomplete(
         command="pokedex",
         name="pokemon_name"
     )
-    async def auto_complete(self, ctx:interactions.CommandContext, pokemon_name: str = ""):
+    async def auto_complete(self, ctx: interactions.CommandContext, pokemon_name: str = ""):
         if pokemon_name != "":
             letters: list = pokemon_name
         else:
@@ -175,9 +129,12 @@ class Pokemon(interactions.Extension):
             await ctx.populate(
                 [
                     interactions.Choice(
-                        name=name[0].capitalize(), value=name[0].capitalize()) for name in (
-                            list(data.items())[0:9] if len(data) > 10 else list(data.items()
-                        )
+                        name=name[0].capitalize(),
+                        value=name[0].capitalize()
+                    ) for name in (
+                        list(data.items())[0:9]
+                        if len(data) > 10
+                        else list(data.items())
                     )
                 ]
             )
@@ -186,7 +143,11 @@ class Pokemon(interactions.Extension):
             for pkmn_name in data:
                 focus: str = "".join(letters)
                 if focus.lower() in pkmn_name and len(choices) < 20:
-                    choices.append(interactions.Choice(name=pkmn_name.capitalize(), value=pkmn_name.capitalize()))
+                    choices.append(
+                    interactions.Choice(
+                        name=pkmn_name.capitalize(),
+                        value=pkmn_name.capitalize())
+                    )
             await ctx.populate(choices)
 
 
@@ -216,5 +177,11 @@ class Pokemon(interactions.Extension):
                 await channel.send(embeds=embed)
 
 
-def setup(bot):
-    Pokemon(bot)
+def setup(client) -> None:
+    """Setup the extension."""
+    log_time = (
+        datetime.datetime.now() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
+    Pokemon(client)
+    logging.debug("""[%s] Loaded Pokemon extension.""", log_time)
+    print(f"[{log_time}] Loaded Pokemon extension.")
