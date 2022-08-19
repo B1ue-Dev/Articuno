@@ -18,9 +18,11 @@ class Author(interactions.Extension):
 
     @interactions.extension_command(
         name="about",
-        description="About Articuno"
+        description="Information about Articuno."
     )
     async def _about(self, ctx: interactions.CommandContext):
+        """Information about Articuno."""
+
         button = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -56,9 +58,11 @@ class Author(interactions.Extension):
 
     @interactions.extension_command(
         name="credits",
-        description="Developers/Contributors to this project"
+        description="Developers/Contributors to this project."
     )
     async def _credits(self, ctx: interactions.CommandContext):
+        """Developers/Contributors to this project."""
+
         profile = interactions.Button(
             style=interactions.ButtonStyle.LINK,
             label="Profile",
@@ -80,9 +84,11 @@ class Author(interactions.Extension):
 
     @interactions.extension_command(
         name="invite",
-        description="Invite Articuno to your server"
+        description="Invite Articuno to your server."
     )
     async def _invite(self, ctx: interactions.CommandContext):
+        """Invite Articuno to your server."""
+
         buttons = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,

@@ -24,9 +24,11 @@ class Stats(interactions.Extension):
 
     @interactions.extension_command(
         name="stats",
-        description="Shows the stats of Articuno",
+        description="Shows the stats of Articuno.",
     )
     async def _stats(self, ctx: interactions.CommandContext):
+        """Shows the stats of Articuno."""
+
         proc = psutil.Process()
         mem = f"""{utils.natural_size(proc.memory_full_info().rss)}
             {utils.natural_size(proc.memory_full_info().vms)}"""

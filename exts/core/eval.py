@@ -47,17 +47,19 @@ class Eval(interactions.Extension):
 
     @interactions.extension_command(
         name="eval",
-        description="Evaluates some code",
+        description="Evaluates some code.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
                 name="code",
-                description="Code to evaluate",
+                description="Code to evaluate.",
                 required=True
             )
         ]
     )
     async def _eval(self, ctx: interactions.CommandContext, code: str):
+        """Evaluates some code."""
+
         if int(ctx.user.id) != 892080548342820925:
             return await ctx.send("You must be the bot owner to use this command. Also, no.")
 
@@ -168,17 +170,19 @@ class Eval(interactions.Extension):
 
     @interactions.extension_command(
         name="shell",
-        description="Runs a shell command",
+        description="Runs a shell command.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
                 name="command",
-                description="The command to run",
+                description="The command to run.",
                 required=True
             )
         ]
     )
     async def _shell(self, ctx: interactions.CommandContext, command: str):
+        """Runs a shell command."""
+
         await ctx.defer()
         if int(ctx.author.id) != 892080548342820925:
             return await ctx.send("You must be the bot owner to use this command. Also, no.")

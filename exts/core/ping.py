@@ -17,9 +17,11 @@ class Ping(interactions.Extension):
 
     @interactions.extension_command(
         name="ping",
-        description="Ping Articuno",
+        description="Ping Articuno.",
     )
     async def _ping(self, ctx: interactions.CommandContext):
+        """Ping Articuno."""
+
         websocket = int(f"{self.client.latency * 1:.0f}")
         if websocket < 100:
             color = 0x3ba55d
