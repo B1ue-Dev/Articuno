@@ -69,60 +69,15 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
-        name="info",
-        description="Information command",
-        options=[
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="user",
-                description="Shows information of targeted user",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="Targeted user",
-                        required=True,
-                    )
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="avatar",
-                description="Shows avatar of targeted user",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="Targeted user",
-                        required=True,
-                    )
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="server",
-                description="Shows information of current server",
-            ),
-        ],
-    )
-    async def _info(
-        self,
-        ctx: interactions.CommandContext,
-        sub_command: str,
-        user: interactions.Member = None,
-    ):
-        match sub_command:
-            case "user":
-                await self._info_user(ctx, user)
-            case "avatar":
-                await self._info_avatar(ctx, user)
-            case "server":
-                await self._info_server(ctx)
+    @interactions.extension_command(name="info")
+    async def _info(self, *args, **kwargs):
+        ...
 
-    async def _info_user(
-        self, ctx: interactions.CommandContext, user: interactions.Member
-    ):
+    @_info.subcommand(name="user")
+    @interactions.option("Target user")
+    async def _info_user(self, ctx: interactions.CommandContext, user: interactions.Member):
+        """Shows information about a user."""
+
         nick = user.nick
         joined_at = round(user.joined_at.timestamp())
         created_at = user.user.id.epoch
@@ -146,10 +101,10 @@ class Info(interactions.Extension):
             interactions.EmbedField(name="Nickname", value=f"{nick}", inline=True),
             interactions.EmbedField(name="ID", value=f"{user.user.id}", inline=True),
             interactions.EmbedField(
-                name="Joined at", value=f"<t:{joined_at}>", inline=True
+                name="Joined at", value=f"<t:{joined_at}:F>", inline=True
             ),
             interactions.EmbedField(
-                name="Created on", value=f"<t:{created_at}>", inline=True
+                name="Created on", value=f"<t:{created_at}:F>", inline=True
             ),
             interactions.EmbedField(
                 name="HypeSquad", value=f"{hypesquad}", inline=True
@@ -179,9 +134,11 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    async def _info_avatar(
-        self, ctx: interactions.CommandContext, user: interactions.Member
-    ):
+    @_info.subcommand(name="avatar")
+    @interactions.option("Target user")
+    async def _info_avatar(self, ctx: interactions.CommandContext, user: interactions.Member):
+        """Get the profile picture URL of a user."""
+
         def clamp(x):
             return max(0, min(x, 255))
 
@@ -195,26 +152,48 @@ class Info(interactions.Extension):
         avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
         avatar_png = user.user.avatar_url[:-4] + ".png"
         avatar_webp = user.user.avatar_url[:-4] + ".webp"
-        message = f"[JPG]({avatar_jpg})  [PNG]({avatar_png})  [WEBP]({avatar_webp})"
-        if user.avatar.startswith("a_"):
-            message += "  [GIF]" + "(" + avatar[:-4] + ".gif)"
+        format = f"".join(
+            [
+                f"**[** [**JPG**]({avatar_jpg}) **]** | ",
+                f"**[** [**PNG**]({avatar_png}) **]** | ",
+                f"**[** [**WEBP**]({avatar_webp}) **]**",
+            ]
+        )
+        if user.user.avatar.startswith("a_"):
+            format += " | **[** [**GIF**]" + "(" + avatar[:-4] + ".gif) **]**"
+
+        size = f"".join(
+            [
+                f"**[** [**128**]({avatar_url}?size=128) **]** | ",
+                f"**[** [**256**]({avatar_url}?size=256) **]** | ",
+                f"**[** [**512**]({avatar_url}?size=512) **]** | ",
+                f"**[** [**1024**]({avatar_url}?size=1024) **]**",
+            ]
+        )
 
         embed = interactions.Embed(
             title=f"{user.user.username}#{user.user.discriminator}",
-            description=f"{message}",
             color=color,
-            image=interactions.EmbedImageStruct(url=avatar),
+            image=interactions.EmbedImageStruct(url=f"{avatar_url}?size=512"),
             footer=interactions.EmbedFooter(
                 text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=f"{ctx.user.avatar_url}",
+                icon_url=f"{ctx.user.avatar_url}?size=512",
             ),
+            fields=[
+                interactions.EmbedField(name="Format", value=format, inline=False),
+                interactions.EmbedField(name="Size", value=size, inline=False),
+            ]
         )
 
         await ctx.send(embeds=embed)
 
+    @_info.subcommand(name="server")
     async def _info_server(self, ctx: interactions.CommandContext):
+        """Shows information about the server."""
+
         guild = interactions.Guild(
-            **await self.client._http.get_guild(ctx.guild_id), _client=self.client._http
+            **await self.client._http.get_guild(ctx.guild_id, True),
+            _client=self.client._http
         )
         user = interactions.User(
             **await self.client._http.get_user(int(guild.owner_id)),
@@ -224,15 +203,7 @@ class Info(interactions.Extension):
         id = str(guild.id)
         icon = guild.icon_url
         boost = guild.premium_subscription_count
-        members = cache.Storage()._special_guilds[guild]
-        member_counts = len(members)
-        human = 0
-        bot = 0
-        for member in members:
-            if member.bot is True:
-                bot += 1
-            else:
-                human += 1
+        members = guild.approximate_member_count
         channels = await guild.get_all_channels()
         text_channels = 0
         voice_channels = 0
@@ -279,7 +250,7 @@ class Info(interactions.Extension):
         role_count = len(guild.roles)
         emoji_count = len(guild.emojis)
         sticker_count = len(guild.stickers)
-        region = guild.region
+        preferred_locale = guild.preferred_locale
         joined_at = guild.id.epoch
         premium_progress_bar = guild.premium_progress_bar_enabled
         if premium_progress_bar is True:
@@ -295,12 +266,10 @@ class Info(interactions.Extension):
                 inline=True,
             ),
             interactions.EmbedField(
-                name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True
+                name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True,
             ),
             interactions.EmbedField(
-                name="Member",
-                value=f"Total: {member_counts}\nHuman: {human}\nBot: {bot}",
-                inline=True,
+                name="Members", value=f"Total: {members}", inline=True,
             ),
             interactions.EmbedField(
                 name="Channel",
@@ -313,17 +282,17 @@ class Info(interactions.Extension):
                 inline=True,
             ),
             interactions.EmbedField(
-                name="Created on", value=f"<t:{joined_at}>", inline=True
+                name="Created on", value=f"<t:{joined_at}:F>", inline=True,
             ),
-            interactions.EmbedField(name="Region", value=f"{region}", inline=True),
+            interactions.EmbedField(name="Preferred Locale", value=f"{preferred_locale}", inline=True),
             interactions.EmbedField(
-                name="Roles", value=f"{role_count} roles", inline=True
-            ),
-            interactions.EmbedField(
-                name="Emojis", value=f"{emoji_count} emojis", inline=True
+                name="Roles", value=f"{role_count} roles", inline=True,
             ),
             interactions.EmbedField(
-                name="Stickers", value=f"{sticker_count} stickers", inline=True
+                name="Emojis", value=f"{emoji_count} emojis", inline=True,
+            ),
+            interactions.EmbedField(
+                name="Stickers", value=f"{sticker_count} stickers", inline=True,
             ),
             interactions.EmbedField(
                 name="Premium Progress Bar",
@@ -343,29 +312,40 @@ class Info(interactions.Extension):
             thumbnail=thumbnail,
             fields=fields,
         )
+
+        components = []
+
         if splash_bool is True and guild.splash_url is not None:
-            embed.add_field(
-                name="Splash URL",
-                value=f"[Splash_url]({guild.splash_url})",
-                inline=True,
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label="Splash URL",
+                    url=f"{guild.splash_url}",
+                )
             )
         if banner_bool is True and guild.banner_url is not None:
-            embed.add_field(
-                name="Banner URL",
-                value=f"[Banner_url]({guild.banner_url})",
-                inline=True,
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label="Banner URL",
+                    url=f"{guild.banner_url}",
+                )
             )
         if vanity_url_code_bool is True and guild.vanity_url_code is not None:
-            embed.add_field(
-                name="Vanity URL Code",
-                value=f"discord.gg/{guild.vanity_url_code}",
-                inline=True,
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label=f"{guild.vanity_url_code}",
+                    url=f"https://discord.gg/{guild.vanity_url_code}",
+                )
             )
 
-        await ctx.send(embeds=embed)
+        await ctx.send(embeds=embed, components=components)
 
     @interactions.extension_user_command(name="User Information", dm_permission=False)
     async def _user_information(self, ctx: interactions.CommandContext):
+        """User context menu for information."""
+
         name = ctx.target.user.username
         discriminator = str(ctx.target.user.discriminator)
         user_id = str(ctx.target.user.id)
@@ -385,10 +365,10 @@ class Info(interactions.Extension):
             ),
             interactions.EmbedField(name="ID", value=user_id, inline=True),
             interactions.EmbedField(
-                name="Joined at", value=f"<t:{joined_at}>", inline=False
+                name="Joined at", value=f"<t:{joined_at}:F>", inline=False
             ),
             interactions.EmbedField(
-                name="Created on", value=f"<t:{created_at}>", inline=False
+                name="Created on", value=f"<t:{created_at}:F>", inline=False
             ),
             interactions.EmbedField(name="Bot?", value=bot, inline=True),
             interactions.EmbedField(
