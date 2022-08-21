@@ -34,15 +34,6 @@ class Automod(interactions.Extension):
                 )
                 return
 
-            # If someone mentions @everyone or @here
-            if "@everyone" in message_content or "@here" in message_content:
-                channel = await message.get_channel()
-                await message.delete()
-                await channel.send(
-                    f"{message.member.mention}, please do not ping everyone."
-                )
-                return
-
             # If someone mentions the bot
             if (
                 f"@{self.client.me.id}" in message_content
