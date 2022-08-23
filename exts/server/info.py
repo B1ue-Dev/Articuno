@@ -69,7 +69,7 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(name="info")
+    @interactions.extension_command(name="info", dm_permission=False)
     async def _info(self, *args, **kwargs):
         ...
 

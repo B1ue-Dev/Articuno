@@ -18,221 +18,29 @@ class Mod(interactions.Extension):
 
     @interactions.extension_command(
         name="mod",
-        description="Moderation commands for moderating a member",
-        default_member_permissions=interactions.Permissions.KICK_MEMBERS,
-        options=[
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="kick",
-                description="Kicks a user from the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="The user you wish to kick",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the kick",
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="ban",
-                description="Bans a user from the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="The user you wish to ban",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the ban",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        name="delete_message_days",
-                        type=interactions.OptionType.INTEGER,
-                        description="The number of days to delete messages for (0-7)",
-                        choices=[
-                            interactions.Choice(name=f"{i} days", value=i)
-                            for i in range(0, 8)
-                        ],
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="hackban",
-                description="Bans a user that is not in the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="id",
-                        description="The ID of the user you wish to ban",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the ban",
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="unban",
-                description="Unbans a user from the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="id",
-                        description="The ID of the user you wish to unban",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the unban",
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="timeout",
-                description="Timeouts a user from the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="The user you wish to timeout (Default to 1 hour)",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.INTEGER,
-                        name="days",
-                        description="Days to timeout the user for (Default to 0)",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.INTEGER,
-                        name="hours",
-                        description="Hours to timeout the user for (Default to 1)",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.INTEGER,
-                        name="minutes",
-                        description="Minutes to timeout the user for (Default to 0)",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.INTEGER,
-                        name="seconds",
-                        description="Seconds to timeout the user for (Default to 0)",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the timeout",
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="untimeout",
-                description="Untimeouts a user from the server",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.USER,
-                        name="user",
-                        description="The user you wish to untimeout",
-                        required=True,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the untimeout",
-                        required=False,
-                    ),
-                ],
-            ),
-            interactions.Option(
-                type=interactions.OptionType.SUB_COMMAND,
-                name="purge",
-                description="Purges a number of messages from a channel",
-                options=[
-                    interactions.Option(
-                        type=interactions.OptionType.INTEGER,
-                        name="amount",
-                        description="The number of messages to purge (Default to 5)",
-                        required=False,
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.CHANNEL,
-                        name="channel",
-                        description="The channel to purge messages from (Default to the current channel)",
-                        required=False,
-                        channel_types=[interactions.ChannelType.GUILD_TEXT],
-                    ),
-                    interactions.Option(
-                        type=interactions.OptionType.STRING,
-                        name="reason",
-                        description="The reason behind the purge",
-                        required=False,
-                    ),
-                ],
-            ),
-        ],
+        # default_member_permissions=interactions.Permissions.KICK_MEMBERS,
         dm_permission=False,
     )
-    async def _user(
-        self,
-        ctx: interactions.CommandContext,
-        sub_command: str,
-        user: interactions.Member = None,
-        id: str = None,
-        reason: str = "N/A",
-        delete_message_days: int = 0,
-        amount: int = 5,
-        channel: interactions.Channel = None,
-        **kwargs,
-    ):
-        match sub_command:
-            case "kick":
-                await self._kick_member(ctx, user, reason)
-            case "ban":
-                await self._ban_member(ctx, user, reason, delete_message_days)
-            case "hackban":
-                await self._hackban_member(ctx, id, reason)
-            case "unban":
-                await self._unban_member(ctx, id, reason)
-            case "timeout":
-                await self._timeout_member(ctx, user, reason, **kwargs)
-            case "untimeout":
-                await self._untimeout_member(ctx, user, reason)
-            case "purge":
-                await self._purge_channel(ctx, amount, channel, reason)
+    async def _mod(self, ctx: interactions.CommandContext, **kwargs):
+        """Handles all moderation aspects."""
+        ...
 
-    async def _kick_member(
+
+    @_mod.group(name="user")
+    async def _user(self, *args, **kwargs):
+        ...
+
+    @_user.subcommand(name="kick")
+    @interactions.option("The user you wish to kick")
+    @interactions.option("The reason behind the kick")
+    async def _user_kick(
         self,
         ctx: interactions.CommandContext,
-        member: interactions.Member,
+        user: interactions.Member,
         reason: str = "N/A",
     ):
-        """Kick a member from the server."""
+        """Kicks a member from the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.KICK_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -241,7 +49,7 @@ class Mod(interactions.Extension):
                 content="You do not have kick permission.", ephemeral=True
             )
 
-        if int(member.user.id) == int(ctx.member.id):
+        if int(user.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot kick yourself.", ephemeral=True)
 
         try:
@@ -259,17 +67,28 @@ class Mod(interactions.Extension):
             )
 
         await ctx.send(
-            content=f"{member.user.username}#{member.user.discriminator} was kicked.\nReason: {reason}"
+            content=f"{user.user.username}#{user.user.discriminator} was kicked.\nReason: {reason}"
         )
 
-    async def _ban_member(
+    @_user.subcommand(name="ban")
+    @interactions.option("The user you wish to kick")
+    @interactions.option("The reason behind the ban")
+    @interactions.option("The number of days to delete messages for (0-7)",
+        choices=[
+            interactions.Choice(name=f"{i} days", value=i)
+            for i in range(0, 8)
+        ],
+        required=False,
+    )
+    async def _user_ban(
         self,
         ctx: interactions.CommandContext,
         member: interactions.Member,
         reason: str = "N/A",
         delete_message_days: int = 0,
     ):
-        """Ban a member from the server."""
+        """Bans a member from the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -303,10 +122,13 @@ class Mod(interactions.Extension):
             content=f"{member.user.username}#{member.user.discriminator} was banned.\nReason: {reason}"
         )
 
-    async def _hackban_member(
+    @_user.subcommand(name="hackban")
+    @interactions.option("The ID of the user you wish to ban")
+    @interactions.option("The reason behind the ban")
+    async def _user_hackban(
         self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"
     ):
-        """Ban a member who is not in the server."""
+        """Banss a member who is not in the server."""
         if not (
             has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -348,10 +170,14 @@ class Mod(interactions.Extension):
             content=f"{user.username}#{user.discriminator} ({user.id}) was banned.\nReason: {reason}"
         )
 
-    async def _unban_member(
+    @_user.subcommand(name="unban")
+    @interactions.option("The user you wish to unban")
+    @interactions.option("The reason behind the unban")
+    async def _user_unban(
         self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"
     ):
-        """Unban a member from the server."""
+        """Unbans a member from the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -393,31 +219,43 @@ class Mod(interactions.Extension):
             content=f"{user.username}#{user.discriminator} ({user.id}) was unbanned."
         )
 
-    async def _timeout_member(
+    @_user.subcommand(name="timeout")
+    @interactions.option("The user you wish to timeout")
+    @interactions.option("The reason behind the timeout")
+    @interactions.option("How long the user should be timeouted in days")
+    @interactions.option("How long the user should be timeouted in hours")
+    @interactions.option("How long the user should be timeouted in minutes")
+    @interactions.option("How long the user should be timeouted in seconds")
+    async def _user_timeout(
         self,
         ctx: interactions.CommandContext,
         member: interactions.Member,
         reason: str = "N/A",
-        hours: int = 1,
-        **kwargs: dict,
+        days: int = 0,
+        hours: int = 0,
+        minutes: int = 0,
+        seconds: int = 0,
     ):
-        """Timeout a member from the server."""
+        """Timeouts a member from the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
         ):
             return await ctx.send(
-                content="You do not have timeout permission.", ephemeral=True
+                content="You do not have moderate members permission.", ephemeral=True
             )
 
         if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot timeout yourself.", ephemeral=True)
 
+        if not days and not hours and not minutes and not seconds:
+            return await ctx.send(
+                content="Please indicate the length of the timeout.", ephemeral=True
+            )
+
         time = datetime.datetime.utcnow()
-        if kwargs:
-            time += datetime.timedelta(**kwargs)
-        else:
-            time += datetime.timedelta(hours=hours)
+        time += timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
         try:
             await member.modify(
@@ -441,13 +279,17 @@ class Mod(interactions.Extension):
             content=f"{member.user.username}#{member.user.discriminator} was timed out.\nReason: {reason}"
         )
 
-    async def _untimeout_member(
+    @_user.subcommand(name="untimeout")
+    @interactions.option("The user you wish to untimeout")
+    @interactions.option("The reason behind the untimeout")
+    async def _user_untimeout(
         self,
         ctx: interactions.CommandContext,
         member: interactions.Member,
         reason: str = "N/A",
     ):
-        """Untimeout a member from the server."""
+        """Untimeouts a member from the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.MODERATE_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -491,7 +333,15 @@ class Mod(interactions.Extension):
             content=f"{member.user.username}#{member.user.discriminator} time-out was removed.\nReason: {reason}"
         )
 
-    async def _purge_channel(
+    @_mod.group(name="channel")
+    async def _channel(self, *args, **kwargs):
+        ...
+
+    @_channel.subcommand(name="purge")
+    @interactions.option("The amount of message you want to purge")
+    @interactions.option("The channel you wish to purge", channel_types=[interactions.ChannelType.GUILD_TEXT])
+    @interactions.option("The reason behind the purge")
+    async def _channel_purge(
         self,
         ctx: interactions.CommandContext,
         amount: int = 5,
@@ -499,6 +349,7 @@ class Mod(interactions.Extension):
         reason: str = "N/A",
     ):
         """Purges an amount of messages from a channel."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.MANAGE_MESSAGES)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -517,6 +368,93 @@ class Mod(interactions.Extension):
 
         await channel.purge(amount=amount, bulk=True, reason=reason)
         await ctx.send(f"Purged {amount} messages in #{channel.name}.", ephemeral=True)
+
+    # TODO: Adding these once channel permissions can be get.
+    # @_channel.subcommand(name="lock")
+    # @interactions.option("The channel you wish to lock", channel_types=[interactions.ChannelType.GUILD_TEXT])
+    # @interactions.option("The reason behind the lock")
+    # async def _channel_lock(
+    #     self,
+    #     ctx: interactions.CommandContext,
+    #     channel: interactions.Channel = None,
+    #     reason: str = "N/A",
+    # ):
+    #     """Locks a channel in the server."""
+
+    #     if not (
+    #         has_permission(int(ctx.member.permissions), Permissions.MANAGE_CHANNELS)
+    #         or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+    #     ):
+    #         return await ctx.send(
+    #             content="You do not have manage channels permission.", ephemeral=True
+    #         )
+
+    #     await ctx.defer()
+
+    #     if not channel:
+    #         channel = await ctx.get_channel()
+
+    #     overwrites = channel.permission_overwrites
+
+    #     for overwrite in overwrites:
+    #         if int(overwrite.id) == int(ctx.guild_id):
+    #             overwrite.deny |= interactions.Permissions.SEND_MESSAGES
+    #             break
+    #     else:
+    #         overwrites.append(
+    #             interactions.Overwrite(
+    #                 id=str(ctx.guild_id),
+    #                 deny=interactions.Permissions.SEND_MESSAGES,
+    #                 type=0,
+    #             )
+    #         )
+    #         print(channel.permissions)
+
+    #     await channel.modify(reason=reason, permission_overwrites=overwrites)
+    #     await ctx.send(content=f"{channel.mention} was locked.")
+
+    # @_channel.subcommand(name="unlock")
+    # @interactions.option("The channel you wish to unlock", channel_types=[interactions.ChannelType.GUILD_TEXT])
+    # @interactions.option("The reason behind the unlock")
+    # async def _channel_unlock(
+    #     self,
+    #     ctx: interactions.CommandContext,
+    #     channel: interactions.Channel = None,
+    #     reason: str = "N/A",
+    # ):
+    #     """Unlocks a channel in the server."""
+
+    #     if not (
+    #         has_permission(int(ctx.member.permissions), Permissions.MANAGE_CHANNELS)
+    #         or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
+    #     ):
+    #         return await ctx.send(
+    #             content="You do not have manage channels permission.", ephemeral=True
+    #         )
+
+    #     await ctx.defer()
+
+    #     if not channel:
+    #         channel = await ctx.get_channel()
+
+    #     overwrites = channel.permission_overwrites
+
+    #     for overwrite in overwrites:
+    #         if int(overwrite.id) == int(ctx.guild_id):
+    #             overwrite.deny &= ~interactions.Permissions.SEND_MESSAGES
+    #             overwrite.allow |= interactions.Permissions.SEND_MESSAGES
+    #             break
+    #     else:
+    #         overwrites.append(
+    #             interactions.Overwrite(
+    #                 id=str(ctx.guild_id),
+    #                 allow=interactions.Permissions.SEND_MESSAGES,
+    #                 type=0,
+    #             )
+    #         )
+
+    #     await channel.modify(reason=reason, permission_overwrites=overwrites)
+    #     await ctx.send(content=f"{channel.mention} was unlocked.")
 
 
 def setup(client) -> None:
