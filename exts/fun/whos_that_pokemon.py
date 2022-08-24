@@ -101,7 +101,7 @@ class WTP(interactions.Extension):
 
     @interactions.extension_command(
         name="whos_that_pokemon",
-        description="Who's that Pokemon game",
+        description="Who's that Pokemon game.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
