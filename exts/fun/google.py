@@ -13,20 +13,18 @@ from interactions.ext.wait_for import wait_for_component
 from interactions.ext.wait_for import wait_for
 from googleapiclient.discovery import build
 from better_profanity import profanity
-from utils.utils import get_response
-from const import AUTHORIZATION, GOOGLE_CLOUD, GOOGLE_CSE
-from pprint import pprint
+from const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
 class Google(interactions.Extension):
-    """Extension for /img seach command."""
+    """Extension for Google related seach command."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
     @interactions.extension_command(
         name="img",
-        description="Search for images (Powered by Google)",
+        description="Search for images (Powered by Google).",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
@@ -37,6 +35,7 @@ class Google(interactions.Extension):
         ],
     )
     async def _img(self, ctx: interactions.CommandContext, query: str):
+        """Search for images (Powered by Google)."""
 
         buttons = [
             interactions.Button(
@@ -92,7 +91,7 @@ class Google(interactions.Extension):
 
             embed = interactions.Embed(
                 title=f"Image for: {query}",
-                color=0x000000
+                color=0x000000,
             )
             embed.set_footer(
                 text=f"Google Search • Page {ran}/9",
@@ -113,7 +112,7 @@ class Google(interactions.Extension):
                         self.client,
                         components=buttons,
                         messages=int(msg.id),
-                        timeout = 15
+                        timeout=15,
                     )
                     if int(res.user.id) == int(ctx.user.id):
                         if res.custom_id == "next":
@@ -129,7 +128,7 @@ class Google(interactions.Extension):
 
                             embed = interactions.Embed(
                                 title=f"Image for: {query}",
-                                color=0x000000
+                                color=0x000000,
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
@@ -157,7 +156,7 @@ class Google(interactions.Extension):
 
                             embed = interactions.Embed(
                                 title=f"Image for: {query}",
-                                color=0x000000
+                                color=0x000000,
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
@@ -182,7 +181,7 @@ class Google(interactions.Extension):
 
                             embed = interactions.Embed(
                                 title=f"Image for: {query}",
-                                color=0x000000
+                                color=0x000000,
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
@@ -229,7 +228,7 @@ class Google(interactions.Extension):
 
                                 embed = interactions.Embed(
                                     title=f"Image for: {query}",
-                                    color=0x000000
+                                    color=0x000000,
                                 )
                                 embed.set_footer(
                                     text=f"Google Search • Page {ran}/9",
@@ -247,7 +246,7 @@ class Google(interactions.Extension):
                                 msg = await msg.edit(embeds=embed, components=buttons)
 
                         elif res.custom_id == "stop":
-                            await msg.delete()
+                            await res.edit(components=[])
                             break
                     else:
                         msg = await res.edit()
