@@ -504,7 +504,7 @@ class Logs(interactions.Extension):
 def setup(client) -> None:
     """Setup the extension."""
     log_time = (
-        datetime.datetime.now() + datetime.timedelta(hours=7)
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     ).strftime("%d/%m/%Y %H:%M:%S")
     Logs(client)
     logging.debug("""[%s] Loaded Logs extension.""", log_time)

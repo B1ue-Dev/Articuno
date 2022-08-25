@@ -156,7 +156,7 @@ class TTS(interactions.Extension):
 def setup(client) -> None:
     """Setup the extension."""
     log_time = (
-        datetime.datetime.now() + datetime.timedelta(hours=7)
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     ).strftime("%d/%m/%Y %H:%M:%S")
     TTS(client)
     logging.debug("""[%s] Loaded TTS extension.""", log_time)
