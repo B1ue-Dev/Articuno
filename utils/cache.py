@@ -40,7 +40,10 @@ class Storage:
 
         self._guilds.remove(str(guild_id))
         self._guild.pop(str(guild_id))
-        self._logs.pop(str(guild_id))
+        try:
+            self._logs.pop(str(guild_id))
+        except:
+            pass
 
     def get_all_guilds(self):
         """Return the list of all guilds."""
@@ -228,7 +231,7 @@ class Cache(interactions.Extension):
 def setup(client):
     """Setup the extension."""
     log_time = (
-        datetime.datetime.now() + datetime.timedelta(hours=7)
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     ).strftime("%d/%m/%Y %H:%M:%S")
     Cache(client)
     logging.debug("""[%s] Loaded Cache extension.""", log_time)
