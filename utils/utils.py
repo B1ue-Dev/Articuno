@@ -76,7 +76,7 @@ def pretty_date(time: int) -> str:
     :rtype: str
     """
 
-    now = datetime.now()
+    now = datetime.utcnow()
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time, datetime):
