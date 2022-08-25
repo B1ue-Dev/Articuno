@@ -85,7 +85,7 @@ class Error(interactions.Extension):
                 fields=[
                     interactions.EmbedField(
                         name="Traceback",
-                        value=f"```py\n{traceb}\n```",
+                        value=f"```py\n{traceb}\n```" if len(traceb) < 1024 else f"```py\n...{traceb[-1000:]}\n```",
                     )
                 ]
             )
@@ -151,7 +151,7 @@ class Error(interactions.Extension):
                 fields=[
                     interactions.EmbedField(
                         name="Traceback",
-                        value=f"```py\n{traceb}\n```",
+                        value=f"```py\n{traceb}\n```" if len(traceb) < 1024 else f"```py\n...{traceb[-1000:]}\n```",
                     )
                 ]
             )
