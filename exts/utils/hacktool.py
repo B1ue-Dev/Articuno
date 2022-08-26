@@ -4,6 +4,8 @@ This is for base64, brainfuck commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import logging
+import datetime
 import base64 as b64
 import binascii
 import interactions
