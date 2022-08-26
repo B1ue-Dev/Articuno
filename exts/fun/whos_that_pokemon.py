@@ -215,6 +215,7 @@ class WTP(interactions.Extension):
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
                                 components=_button_disabled,
                                 files=_file,
+                                attachments=[],
                             )
                             break
 
@@ -261,6 +262,7 @@ class WTP(interactions.Extension):
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
                                 components=_button_disabled,
                                 files=_file,
+                                attachments=[],
                             )
                             break
 
@@ -369,6 +371,7 @@ class WTP(interactions.Extension):
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the right answer.",
                                 components=[_button_disabled],
                                 files=_file,
+                                attachments=[],
                             )
                             break
 
@@ -401,6 +404,7 @@ class WTP(interactions.Extension):
                                 content=f"**Who's that Pokemon?**\n\nIt's **{_correct_pokemon['name']}**! {ctx.user.mention} had the wrong answer.",
                                 components=_action_rows,
                                 files=_file,
+                                attachments=[],
                             )
                             break
 
