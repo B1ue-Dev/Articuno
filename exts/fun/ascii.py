@@ -182,17 +182,16 @@ class ASCII(interactions.Extension):
         await ctx.defer()
         if len(text) > 100:
             return await ctx.send("Text too long.", ephemeral=True)
-        if len(text) > 10:
+        if len(text) < 16:
             ascii_art = pyfiglet.figlet_format(text)
             return await ctx.send(f"```\n{ascii_art}```")
 
         s = ""
         text_split = page_paginator(text)
-        print(text_split)
         for t in text_split:
             s += t
 
-        if len(ascii_art) > 1999:
+        if len(text) > 1999:
             return await ctx.send("Text too long.")
 
         ascii_art = pyfiglet.figlet_format(s)
