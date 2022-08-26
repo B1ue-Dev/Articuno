@@ -4,6 +4,7 @@ This module is for fun commands.
 (C) 2022 - Jimmy-Blue
 """
 
+import logging
 import random
 import asyncio
 import datetime
@@ -165,7 +166,7 @@ class Fun(interactions.Extension):
         dice = random.randint(1, 6)
         await ctx.send("I am rolling the dice...")
         await asyncio.sleep(1.5)
-        await ctx.edit(f"The number is **{}**.".format(dice))
+        await ctx.edit(f"The number is **{dice}**.")
 
     @interactions.extension_command(
         name="flip",
@@ -205,6 +206,10 @@ class Fun(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+
+    @interactions.extension_command(
+        name="joke",
+        description="Send a random joke.",
     )
     async def _joke(self, ctx: interactions.CommandContext):
         """Send a random joke."""
