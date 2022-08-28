@@ -52,14 +52,30 @@ class Stats(interactions.Extension):
 
         fields = [
             interactions.EmbedField(name="Version", value=VERSION, inline=True),
-            interactions.EmbedField(name="Guilds", value=guild_count, inline=True),
+            interactions.EmbedField(
+                name="Guilds",
+                value=guild_count,
+                inline=True,
+            ),
             interactions.EmbedField(name="Users", value=user_count, inline=True),
             interactions.EmbedField(name="Latency", value=latency, inline=True),
-            interactions.EmbedField(name="Python", value=self.python, inline=True),
-            interactions.EmbedField(name="Uptime", value=self.uptime, inline=True),
+            interactions.EmbedField(
+                name="Python",
+                value=self.python,
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Uptime",
+                value=self.uptime,
+                inline=True,
+            ),
             interactions.EmbedField(name="CPU", value=cpu, inline=True),
             interactions.EmbedField(name="Memory", value=mem, inline=True),
-            interactions.EmbedField(name="System", value=self.system, inline=True),
+            interactions.EmbedField(
+                name="System",
+                value=self.system,
+                inline=True,
+            ),
         ]
         thumbnail = interactions.EmbedImageStruct(url=self.client.me.icon_url)
         footer = interactions.EmbedFooter(

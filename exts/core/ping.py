@@ -24,11 +24,11 @@ class Ping(interactions.Extension):
 
         websocket = int(f"{self.client.latency * 1:.0f}")
         if websocket < 100:
-            color = 0x3ba55d
+            color = 0x3BA55D
         elif 100 <= websocket < 175:
-            color = 0xcb8515
+            color = 0xCB8515
         elif 175 <= websocket:
-            color = 0xed4245
+            color = 0xED4245
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
@@ -46,9 +46,9 @@ class Ping(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Ping(client)
     logging.debug("""[%s] Loaded Ping extension.""", log_time)
     print(f"[{log_time}] Loaded Ping extension.")

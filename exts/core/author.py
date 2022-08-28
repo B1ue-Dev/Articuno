@@ -18,7 +18,7 @@ class Author(interactions.Extension):
 
     @interactions.extension_command(
         name="about",
-        description="Information about Articuno."
+        description="Information about Articuno.",
     )
     async def _about(self, ctx: interactions.CommandContext):
         """Information about Articuno."""
@@ -47,18 +47,20 @@ class Author(interactions.Extension):
                     " setup.\n\nArticuno is a side-project that I work on, so commands can be broken sometimes. If",
                     " you encounter any issue, be sure to use `/invite` and join the support server to report the ",
                     "problem.\n\nWhenever that is creating tags with autocomplete, bringing joys to members, moderating",
-                    " the server, Articuno has you covered."
+                    " the server, Articuno has you covered.",
                 ]
             ),
-            color=0x7cb7d3,
-            footer=interactions.EmbedFooter(text=f"Maintained by Blue#2095 • Version {VERSION}"),
+            color=0x7CB7D3,
+            footer=interactions.EmbedFooter(
+                text=f"Maintained by Blue#2095 • Version {VERSION}"
+            ),
         )
 
         await ctx.send(embeds=embed, components=button)
 
     @interactions.extension_command(
         name="credits",
-        description="Developers/Contributors to this project."
+        description="Developers/Contributors to this project.",
     )
     async def _credits(self, ctx: interactions.CommandContext):
         """Developers/Contributors to this project."""
@@ -76,7 +78,7 @@ class Author(interactions.Extension):
         embed = interactions.Embed(
             title="Credits",
             description="Articuno is being maintained, developed and improved by Blue#2095.",
-            color=0x7cb7d3,
+            color=0x7CB7D3,
             footer=footer,
         )
 
@@ -84,7 +86,7 @@ class Author(interactions.Extension):
 
     @interactions.extension_command(
         name="invite",
-        description="Invite Articuno to your server."
+        description="Invite Articuno to your server.",
     )
     async def _invite(self, ctx: interactions.CommandContext):
         """Invite Articuno to your server."""
@@ -114,7 +116,7 @@ class Author(interactions.Extension):
         embed = interactions.Embed(
             title="Invite Articuno to your server",
             description="Click the button below to invite Articuno to your server.\n\nIf you have any questions, feel free to join the support server.",
-            color=0x7cb7d3,
+            color=0x7CB7D3,
             footer=footer,
         )
 
@@ -123,9 +125,9 @@ class Author(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Author(client)
     logging.debug("""[%s] Loaded Author extension.""", log_time)
     print(f"[{log_time}] Loaded Author extension.")
