@@ -1,2 +1,2 @@
-I will write this later.
-It won't work. How?
+# Articuno
+A Discord bot by Blue.
