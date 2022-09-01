@@ -18,9 +18,7 @@ class Stats(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime = (
-            f"<t:{round(datetime.datetime.utcnow().timestamp())}:R>"
-        )
+        self.uptime = f"<t:{round(datetime.datetime.utcnow().timestamp())}:R>"
         self.python = platform.python_version()
         self.system = str(platform.platform())
 
@@ -53,20 +51,14 @@ class Stats(interactions.Extension):
         ]
 
         fields = [
-            interactions.EmbedField(
-                name="Version", value=VERSION, inline=True
-            ),
+            interactions.EmbedField(name="Version", value=VERSION, inline=True),
             interactions.EmbedField(
                 name="Guilds",
                 value=guild_count,
                 inline=True,
             ),
-            interactions.EmbedField(
-                name="Users", value=user_count, inline=True
-            ),
-            interactions.EmbedField(
-                name="Latency", value=latency, inline=True
-            ),
+            interactions.EmbedField(name="Users", value=user_count, inline=True),
+            interactions.EmbedField(name="Latency", value=latency, inline=True),
             interactions.EmbedField(
                 name="Python",
                 value=self.python,
@@ -85,9 +77,7 @@ class Stats(interactions.Extension):
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedImageStruct(
-            url=self.client.me.icon_url
-        )
+        thumbnail = interactions.EmbedImageStruct(url=self.client.me.icon_url)
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
             icon_url=f"{ctx.user.avatar_url}",
@@ -105,8 +95,8 @@ class Stats(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Stats(client)
     logging.debug("""[%s] Loaded Stats extension.""", log_time)

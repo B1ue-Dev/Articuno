@@ -135,9 +135,7 @@ class Eval(interactions.Extension):
                 "channel": channel,
                 "author": message.author,
                 "user": interactions.User(
-                    **await self.client._http.get_user(
-                        int(message.author.id)
-                    ),
+                    **await self.client._http.get_user(int(message.author.id)),
                     _client=self.client._http,
                 ),
                 "guild": await message.get_guild(),
@@ -151,15 +149,11 @@ class Eval(interactions.Extension):
             env.update(globals())
             stdout = io.StringIO()
 
-            to_compile = (
-                f'async def func():\n{textwrap.indent(code, "  ")}'
-            )
+            to_compile = f'async def func():\n{textwrap.indent(code, "  ")}'
             try:
                 exec(to_compile, env)
             except Exception:
-                return await channel.send(
-                    f"```py\n{traceback.format_exc()}\n```"
-                )
+                return await channel.send(f"```py\n{traceback.format_exc()}\n```")
 
             func = env["func"]
             try:
@@ -177,9 +171,7 @@ class Eval(interactions.Extension):
                 elif value:
                     file = io.StringIO(value)
                     with file as f:
-                        file = interactions.File(
-                            filename="output.txt", fp=f
-                        )
+                        file = interactions.File(filename="output.txt", fp=f)
                         await channel.send(
                             f"```py\n{value[:200]}...\n```",
                             files=file,
@@ -215,9 +207,7 @@ class Eval(interactions.Extension):
         )
         await proc.wait()
 
-        stdout, stderr = await asyncio.wait_for(
-            proc.communicate(), timeout=10
-        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
         out = stdout.decode() if stdout else stderr.decode()
         if len(out) == 0:
             return await ctx.send(
@@ -247,8 +237,8 @@ class Eval(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Eval(client)
     logging.debug("""[%s] Loaded Eval extension.""", log_time)
