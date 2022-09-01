@@ -25,7 +25,6 @@ class Mod(interactions.Extension):
         """Handles all moderation aspects."""
         ...
 
-
     @_mod.group(name="user")
     async def _user(self, *args, **kwargs):
         ...
@@ -73,11 +72,9 @@ class Mod(interactions.Extension):
     @_user.subcommand(name="ban")
     @interactions.option("The user you wish to kick")
     @interactions.option("The reason behind the ban")
-    @interactions.option("The number of days to delete messages for (0-7)",
-        choices=[
-            interactions.Choice(name=f"{i} days", value=i)
-            for i in range(0, 8)
-        ],
+    @interactions.option(
+        "The number of days to delete messages for (0-7)",
+        choices=[interactions.Choice(name=f"{i} days", value=i) for i in range(0, 8)],
         required=False,
     )
     async def _user_ban(
@@ -128,7 +125,8 @@ class Mod(interactions.Extension):
     async def _user_hackban(
         self, ctx: interactions.CommandContext, id: str, reason: str = "N/A"
     ):
-        """Banss a member who is not in the server."""
+        """Bans a member who is not in the server."""
+
         if not (
             has_permission(int(ctx.member.permissions), Permissions.BAN_MEMBERS)
             or has_permission(int(ctx.member.permissions), Permissions.ADMINISTRATOR)
@@ -339,7 +337,10 @@ class Mod(interactions.Extension):
 
     @_channel.subcommand(name="purge")
     @interactions.option("The amount of message you want to purge")
-    @interactions.option("The channel you wish to purge", channel_types=[interactions.ChannelType.GUILD_TEXT])
+    @interactions.option(
+        "The channel you wish to purge",
+        channel_types=[interactions.ChannelType.GUILD_TEXT],
+    )
     @interactions.option("The reason behind the purge")
     async def _channel_purge(
         self,
@@ -464,4 +465,3 @@ def setup(client) -> None:
     )
     Mod(client)
     logging.debug("""[%s] Loaded Mod extension.""", log_time)
-    print(f"[{log_time}] Loaded Mod extension.")

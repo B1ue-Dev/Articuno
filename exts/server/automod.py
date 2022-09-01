@@ -69,4 +69,3 @@ def setup(client) -> None:
     )
     Automod(client)
     logging.debug("""[%s] Loaded Automod extension.""", log_time)
-    print(f"[{log_time}] Loaded Automod extension.")
