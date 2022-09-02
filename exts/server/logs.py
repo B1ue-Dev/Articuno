@@ -55,7 +55,11 @@ class Logs(interactions.Extension):
                 inline=False,
             )
         if message.attachments:
-            embed.set_thumbnail(url=message.attachments[0].url)
+            embed.add_field(
+                name="Attachment",
+                value="\n".join(attachment.url for attachment in message.attachments),
+                inline=False,
+            )
 
         if (
             str(message.guild_id) in cache.Storage()._logs

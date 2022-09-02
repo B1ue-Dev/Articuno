@@ -71,6 +71,7 @@ class Snipe(interactions.Extension):
             )
             if str(_snipe_message_attachments[int(ctx.channel_id)]) is not None:
                 embed.set_thumbnail(url=_snipe_message_attachments[int(ctx.channel_id)])
+                embed.add_field(name="Attachment", value=_snipe_message_attachments[int(ctx.channel_id)])
             await ctx.send(embeds=embed)
 
         except KeyError:
