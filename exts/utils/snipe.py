@@ -48,11 +48,11 @@ class Snipe(interactions.Extension):
 
     @interactions.extension_command(
         name="snipe",
-        description="Snipe the last deleted message from the current channel.",
+        description="Snipes the last deleted message from the current channel.",
         dm_permission=False,
     )
     async def _snipe(self, ctx: interactions.CommandContext):
-        """Snipe the last deleted message from the current channel."""
+        """Snipes the last deleted message from the current channel."""
 
         channel_id = int(ctx.channel_id)
         try:

@@ -250,7 +250,7 @@ class Emoji(interactions.Extension):
     async def _emoji_add(
         self, ctx: interactions.CommandContext, url: str, emoji_name: str
     ):
-        """Creates an emoji from an URL."""
+        """Creates an emoji from a URL."""
 
         if not (
             has_permission(

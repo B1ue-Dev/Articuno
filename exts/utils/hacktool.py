@@ -26,7 +26,7 @@ class HackTool(interactions.Extension):
     @_base64.subcommand(name="encode")
     @interactions.option("The string you want to encode" "")
     async def _base64_encode(self, ctx: interactions.CommandContext, string: str):
-        """Encode a string using base64."""
+        """Encodes a string using base64."""
 
         string_message = string
         string_bytes = string_message.encode("utf-8")
@@ -37,7 +37,7 @@ class HackTool(interactions.Extension):
     @_base64.subcommand(name="decode")
     @interactions.option("The string you want to decode")
     async def _base64_decode(self, ctx: interactions.CommandContext, string: str):
-        """Decode a string using base64."""
+        """Decodes a string using base64."""
 
         string_message = string
         string_bytes = string_message.encode("utf-8")
@@ -56,7 +56,7 @@ class HackTool(interactions.Extension):
     @_brainfuck.subcommand(name="convert")
     @interactions.option("The string to convert")
     async def _brainfuck_convert(self, ctx: interactions.CommandContext, string: str):
-        """Convert a string into brainfuck code."""
+        """Converts a string into brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().convert(string)
         await ctx.send(f"```{string_bytes}```")
@@ -64,7 +64,7 @@ class HackTool(interactions.Extension):
     @_brainfuck.subcommand(name="interpret")
     @interactions.option("The code to interpret")
     async def _brainfuck_interpret(self, ctx: interactions.CommandContext, code: str):
-        """Interpret a brainfuck code."""
+        """Interprets a brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().interpret(code)
         await ctx.send(f"```{string_bytes}```")
