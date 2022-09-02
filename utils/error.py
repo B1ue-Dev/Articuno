@@ -18,13 +18,17 @@ class Error(interactions.Extension):
         self.client: interactions.Client = client
 
     @interactions.extension_listener(name="on_command_error")
-    async def on_command_error(self, ctx: interactions.CommandContext, error: Exception):
+    async def on_command_error(
+        self, ctx: interactions.CommandContext, error: Exception
+    ):
         """For every Exception callback."""
 
         if isinstance(error, LibraryException):
 
             if int(error.code) == 50013:
-                return await ctx.send("You do not have permission to perform this action." ,ephemeral=True)
+                return await ctx.send(
+                    "You do not have permission to perform this action.", ephemeral=True
+                )
 
             error_time = datetime.datetime.utcnow().timestamp()
 
@@ -35,11 +39,11 @@ class Error(interactions.Extension):
                 limit=1000,
             )
             traceb = "".join(traceb2)
-            traceb = traceb.replace("`","")
-            traceb = traceb.replace("\\n","\n")
-            traceb = traceb.replace("\\t","\t")
-            traceb = traceb.replace("\\r","\r")
-            traceb = traceb.replace("\\","/")
+            traceb = traceb.replace("`", "")
+            traceb = traceb.replace("\\n", "\n")
+            traceb = traceb.replace("\\t", "\t")
+            traceb = traceb.replace("\\r", "\r")
+            traceb = traceb.replace("\\", "/")
             er = ""
             for i in traceb:
                 er = er + f"{i}"
@@ -51,10 +55,10 @@ class Error(interactions.Extension):
                 description="".join(
                     [
                         "An error occurred. The developer team is dealing with the problem now.\n",
-                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help."
+                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
                     ]
                 ),
-                color=0xed4245,
+                color=0xED4245,
                 fields=[
                     interactions.EmbedField(
                         name="Error",
@@ -81,13 +85,15 @@ class Error(interactions.Extension):
                         f"Occurred on: <t:{round(error_time)}:F>",
                     ]
                 ),
-                color=0xed4245,
+                color=0xED4245,
                 fields=[
                     interactions.EmbedField(
                         name="Traceback",
-                        value=f"```py\n{traceb}\n```" if len(traceb) < 1024 else f"```py\n...{traceb[-1000:]}\n```",
+                        value=f"```py\n{traceb}\n```"
+                        if len(traceb) < 1024
+                        else f"```py\n...{traceb[-1000:]}\n```",
                     )
-                ]
+                ],
             )
             await log_channel.send(embeds=log_error)
 
@@ -101,11 +107,11 @@ class Error(interactions.Extension):
                 limit=1000,
             )
             traceb = "".join(traceb2)
-            traceb = traceb.replace("`","")
-            traceb = traceb.replace("\\n","\n")
-            traceb = traceb.replace("\\t","\t")
-            traceb = traceb.replace("\\r","\r")
-            traceb = traceb.replace("\\","/")
+            traceb = traceb.replace("`", "")
+            traceb = traceb.replace("\\n", "\n")
+            traceb = traceb.replace("\\t", "\t")
+            traceb = traceb.replace("\\r", "\r")
+            traceb = traceb.replace("\\", "/")
             er = ""
             for i in traceb:
                 er = er + f"{i}"
@@ -117,10 +123,10 @@ class Error(interactions.Extension):
                 description="".join(
                     [
                         "An error occurred. The developer team is dealing with the problem now.\n",
-                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help."
+                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
                     ]
                 ),
-                color=0xed4245,
+                color=0xED4245,
                 fields=[
                     interactions.EmbedField(
                         name="Error",
@@ -147,17 +153,17 @@ class Error(interactions.Extension):
                         f"Occurred on: <t:{round(error_time)}:F>",
                     ]
                 ),
-                color=0xed4245,
+                color=0xED4245,
                 fields=[
                     interactions.EmbedField(
                         name="Traceback",
-                        value=f"```py\n{traceb}\n```" if len(traceb) < 1024 else f"```py\n...{traceb[-1000:]}\n```",
+                        value=f"```py\n{traceb}\n```"
+                        if len(traceb) < 1024
+                        else f"```py\n...{traceb[-1000:]}\n```",
                     )
-                ]
+                ],
             )
             await log_channel.send(embeds=log_error)
-
-
 
 
 def setup(client) -> None:

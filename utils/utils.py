@@ -4,7 +4,7 @@ import io
 from datetime import datetime
 
 
-async def async_dl(url, headers = None):
+async def async_dl(url, headers=None):
     """I don't know what this does."""
 
     # print("Attempting to download {}".format(url))
@@ -14,7 +14,7 @@ async def async_dl(url, headers = None):
         async with session.get(url) as response:
             assert response.status == 200
             while True:
-                chunk = await response.content.read(4*1024) # 4k
+                chunk = await response.content.read(4 * 1024)  # 4k
                 data += chunk
                 total_size += len(chunk)
                 if not chunk:
@@ -26,7 +26,7 @@ async def async_dl(url, headers = None):
     return data
 
 
-async def async_text(url, headers = None):
+async def async_text(url, headers=None):
     """Again."""
 
     data = await async_dl(url, headers)
@@ -52,7 +52,7 @@ async def get_response(url: str = None, params: dict = None, headers: dict = Non
 def natural_size(size_in_bytes: int) -> str:
     """Returns the natural human-friendly size format."""
 
-    units = ('B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB')
+    units = ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB")
     power = int(math.log(size_in_bytes, 1024))
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
@@ -87,7 +87,7 @@ def pretty_date(time: int) -> str:
     day_diff = diff.days
 
     if day_diff < 0:
-        return ''
+        return ""
 
     if day_diff == 0:
         if second_diff < 10:
