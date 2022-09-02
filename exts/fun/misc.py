@@ -20,7 +20,7 @@ class Misc(interactions.Extension):
 
     @interactions.extension_command(
         name="hornycard",
-        description="Send a hornycard.",
+        description="Sends a hornycard.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.USER,
@@ -33,12 +33,12 @@ class Misc(interactions.Extension):
     async def _hornycard(
         self, ctx: interactions.CommandContext, user: interactions.Member = None
     ):
-        """Send a hornycard."""
+        """Sends a hornycard."""
 
         if user is None:
-            user = ctx.user.user
+            user = ctx.member
 
-        avatar_url = user.avatar_url
+        avatar_url = user.user.avatar_url
         url = "https://some-random-api.ml/canvas/horny"
         params = {
             "avatar": avatar_url,
@@ -49,7 +49,7 @@ class Misc(interactions.Extension):
 
     @interactions.extension_command(
         name="simpcard",
-        description="Send a simpcard.",
+        description="Sends a simpcard.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.USER,
@@ -62,12 +62,12 @@ class Misc(interactions.Extension):
     async def _simpcard(
         self, ctx: interactions.CommandContext, user: interactions.Member = None
     ):
-        """Send a simpcard."""
+        """Sends a simpcard."""
 
         if user is None:
-            user = ctx.user
+            user = ctx.member
 
-        avatar_url = user.avatar_url
+        avatar_url = user.user.avatar_url
         url = "https://some-random-api.ml/canvas/simpcard"
         params = {"avatar": avatar_url}
         resp = await get_response(url, params)
@@ -76,7 +76,7 @@ class Misc(interactions.Extension):
 
     @interactions.extension_command(
         name="tweet",
-        description="Send a Twitter tweet.",
+        description="Sends a Twitter tweet.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.USER,
@@ -111,7 +111,7 @@ class Misc(interactions.Extension):
         comment: str,
         background: str = "dark",
     ):
-        """/tweet command."""
+        """Sends a Twitter tweet."""
         if len(user.user.username) >= 15:
             username = user.user.username[:12] + "..."
         else:
@@ -137,7 +137,7 @@ class Misc(interactions.Extension):
 
     @interactions.extension_command(
         name="youtube",
-        description="Send a YouTube comment.",
+        description="Sends a YouTube comment.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.USER,
@@ -157,7 +157,7 @@ class Misc(interactions.Extension):
     async def _youtube(
         self, ctx: interactions.CommandContext, user: interactions.Member, comment: str
     ):
-        """Send a YouTube comment."""
+        """Sends a YouTube comment."""
 
         if len(user.user.username) >= 15:
             username = user.user.username[:12] + "..."
@@ -190,6 +190,7 @@ class Misc(interactions.Extension):
         self, ctx: interactions.CommandContext, user: interactions.Member
     ):
         """Amogus."""
+
         await ctx.defer()
         url = "https://some-random-api.ml/premium/amongus"
         params = {
