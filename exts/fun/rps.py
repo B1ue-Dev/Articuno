@@ -374,4 +374,3 @@ def setup(client) -> None:
     )
     RPS(client)
     logging.debug("""[%s] Loaded RPS extension.""", log_time)
-    print(f"[{log_time}] Loaded RPS extension.")
