@@ -329,8 +329,6 @@ class Emoji(interactions.Extension):
 
         emote = Emote.get_emoji(emoji)
 
-        guild = await ctx.get_guild()
-
         if emote.id is not None:
             try:
                 _emoji = await interactions.get(
