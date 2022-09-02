@@ -66,10 +66,7 @@ class Emote:
                 else:
                     return Emote(name=parsed[0], id=parsed[1], animated=False)
 
-        elif (
-            emoji_str.isnumeric()
-            and len(emoji_str) > 0
-        ):
+        elif emoji_str.isnumeric() and len(emoji_str) > 0:
             return Emote(id=int(emoji_str))
 
         else:
@@ -105,13 +102,13 @@ class Emoji(interactions.Extension):
             except interactions.LibraryException:
                 return await ctx.send(
                     content="".join(
-                            [
-                                "Invalid emoji. Please try again and make",
-                                " sure that it is **from** this server.",
-                            ]
-                        ),
-                        ephemeral=True,
-                    )
+                        [
+                            "Invalid emoji. Please try again and make",
+                            " sure that it is **from** this server.",
+                        ]
+                    ),
+                    ephemeral=True,
+                )
 
             if _emoji is None:
                 return await ctx.send(
@@ -126,10 +123,12 @@ class Emoji(interactions.Extension):
 
             image = interactions.EmbedImageStruct(url=_emoji.url)
             embed = interactions.Embed(
-                title=f"``<a:{_emoji.name}:{_emoji.id}>``" if _emoji.animated else f"``<:{_emoji.name}:{_emoji.id}>``",
+                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
+                if _emoji.animated
+                else f"``<:{_emoji.name}:{_emoji.id}>``",
                 description=f"[Emoji link]({_emoji.url})",
-                color=0x788cdc,
-                image=image
+                color=0x788CDC,
+                image=image,
             )
             await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
 
@@ -157,10 +156,12 @@ class Emoji(interactions.Extension):
 
             image = interactions.EmbedImageStruct(url=_emoji.url)
             embed = interactions.Embed(
-                title=f"``<a:{_emoji.name}:{_emoji.id}>``" if _emoji.animated else f"``<:{_emoji.name}:{_emoji.id}>``",
+                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
+                if _emoji.animated
+                else f"``<:{_emoji.name}:{_emoji.id}>``",
                 description=f"[Emoji link]({_emoji.url})",
-                color=0x788cdc,
-                image=image
+                color=0x788CDC,
+                image=image,
             )
             await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
 
@@ -187,11 +188,15 @@ class Emoji(interactions.Extension):
         """Steals an emoji from another server and adds it to the current one."""
 
         if not (
-            has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
-            has_permission(int(ctx.author.permissions),
-                           Permissions.ADMINISTRATOR)
+            has_permission(
+                int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS
+            )
+            or has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have manage emojis and stickers permission.",
+                ephemeral=True,
+            )
 
         emote = Emote.get_emoji(emoji)
 
@@ -201,7 +206,11 @@ class Emoji(interactions.Extension):
             and emote.animated is not None
         ):
             guild = await ctx.get_guild()
-            _url = f"https://cdn.discordapp.com/emojis/{emote.id}" + ".gif" if emote.animated else ".png"
+            _url = (
+                f"https://cdn.discordapp.com/emojis/{emote.id}" + ".gif"
+                if emote.animated
+                else ".png"
+            )
 
             if emoji_name is None:
                 emoji_name = emote.name
@@ -209,7 +218,9 @@ class Emoji(interactions.Extension):
             async with aiohttp.ClientSession() as session:
                 async with session.get(_url) as resp:
                     if resp.status != 200:
-                        return await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+                        return await ctx.send(
+                            "Invalid emoji. Please try again.", ephemeral=True
+                        )
 
                     _io = (io.BytesIO(await resp.read())).read()
                     image = interactions.Image(
@@ -219,11 +230,14 @@ class Emoji(interactions.Extension):
                     try:
                         e = await guild.create_emoji(image=image, name=emoji_name)
                     except interactions.LibraryException:
-                        return await ctx.send("Your server has maxed out emoji slots.", ephemeral=True)
+                        return await ctx.send(
+                            "Your server has maxed out emoji slots.", ephemeral=True
+                        )
 
                     await ctx.send(
                         content=(
-                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created." if e.animated is not True
+                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                            if e.animated is not True
                             else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
                         )
                     )
@@ -233,24 +247,38 @@ class Emoji(interactions.Extension):
     @_emoji.subcommand(name="add")
     @interactions.option("The URL of the image")
     @interactions.option("The name of the emoji you want to create")
-    async def _emoji_add(self, ctx: interactions.CommandContext, url: str, emoji_name: str):
+    async def _emoji_add(
+        self, ctx: interactions.CommandContext, url: str, emoji_name: str
+    ):
         """Creates an emoji from an URL."""
 
         if not (
-            has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
-            has_permission(int(ctx.author.permissions),
-                           Permissions.ADMINISTRATOR)
+            has_permission(
+                int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS
+            )
+            or has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have manage emojis and stickers permission.",
+                ephemeral=True,
+            )
 
         guild = await ctx.get_guild()
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 if resp.status != 200:
-                    return await ctx.send(content="Invalid url. Please try again.", ephemeral=True)
+                    return await ctx.send(
+                        content="Invalid url. Please try again.", ephemeral=True
+                    )
 
-                if resp.content_type not in {"image/png", "image/jpeg", "imgage/jpg", "image/webp", "image/gif"}:
+                if resp.content_type not in {
+                    "image/png",
+                    "image/jpeg",
+                    "imgage/jpg",
+                    "image/webp",
+                    "image/gif",
+                }:
                     return await ctx.send(
                         content="".join(
                             [
@@ -264,16 +292,21 @@ class Emoji(interactions.Extension):
                 _io = (io.BytesIO(await resp.read())).read()
                 image = interactions.Image(
                     fp=_io,
-                    file="unknown.gif" if resp.content_type == "image/gif" else "unknown.png",
+                    file="unknown.gif"
+                    if resp.content_type == "image/gif"
+                    else "unknown.png",
                 )
                 try:
                     e = await guild.create_emoji(image=image, name=emoji_name)
                 except interactions.LibraryException:
-                    return await ctx.send("Your server has maxed out emoji slots.", ephemeral=True)
+                    return await ctx.send(
+                        "Your server has maxed out emoji slots.", ephemeral=True
+                    )
 
                 await ctx.send(
                     content=(
-                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created." if e.animated is not True
+                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                        if e.animated is not True
                         else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
                     )
                 )
@@ -284,11 +317,15 @@ class Emoji(interactions.Extension):
         """Deletes an emoji from the server."""
 
         if not (
-            has_permission(int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS) or
-            has_permission(int(ctx.author.permissions),
-                           Permissions.ADMINISTRATOR)
+            has_permission(
+                int(ctx.author.permissions), Permissions.MANAGE_EMOJIS_AND_STICKERS
+            )
+            or has_permission(int(ctx.author.permissions), Permissions.ADMINISTRATOR)
         ):
-            return await ctx.send(content="You do not have manage emojis and stickers permission.", ephemeral=True)
+            return await ctx.send(
+                content="You do not have manage emojis and stickers permission.",
+                ephemeral=True,
+            )
 
         emote = Emote.get_emoji(emoji)
 
@@ -305,13 +342,13 @@ class Emoji(interactions.Extension):
             except interactions.LibraryException:
                 return await ctx.send(
                     content="".join(
-                            [
-                                "Invalid emoji. Please try again and make",
-                                " sure that it is **from** this server.",
-                            ]
-                        ),
-                        ephemeral=True,
-                    )
+                        [
+                            "Invalid emoji. Please try again and make",
+                            " sure that it is **from** this server.",
+                        ]
+                    ),
+                    ephemeral=True,
+                )
 
             await _emoji.delete(int(ctx.guild_id))
             await ctx.send(content=f"Emoji `:{_emoji.name}:` was deleted.")
@@ -328,7 +365,9 @@ class Emoji(interactions.Extension):
                     continue
 
             if not _emoji:
-                return await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+                return await ctx.send(
+                    "Invalid emoji. Please try again.", ephemeral=True
+                )
 
             await _emoji.delete(int(ctx.guild_id))
             await ctx.send(content=f"Emoji `:{_emoji.name}:` was deleted.")
@@ -339,9 +378,8 @@ class Emoji(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Emoji(client)
     logging.debug("""[%s] Loaded Emoji extension.""", log_time)
-    print(f"[{log_time}] Loaded Emoji extension.")

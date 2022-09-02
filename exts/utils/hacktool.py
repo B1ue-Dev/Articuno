@@ -24,7 +24,7 @@ class HackTool(interactions.Extension):
         ...
 
     @_base64.subcommand(name="encode")
-    @interactions.option("The string you want to encode""")
+    @interactions.option("The string you want to encode" "")
     async def _base64_encode(self, ctx: interactions.CommandContext, string: str):
         """Encode a string using base64."""
 
@@ -72,9 +72,8 @@ class HackTool(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     HackTool(client)
     logging.debug("""[%s] Loaded HackTool extension.""", log_time)
-    print(f"[{log_time}] Loaded HackTool extension.")

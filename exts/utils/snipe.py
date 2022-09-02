@@ -84,4 +84,3 @@ def setup(client) -> None:
     )
     Snipe(client)
     logging.debug("""[%s] Loaded Snipe extension.""", log_time)
-    print(f"[{log_time}] Loaded Snipe extension.")

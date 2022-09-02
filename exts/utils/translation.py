@@ -33,7 +33,7 @@ class Translation(interactions.Extension):
 
         footer = interactions.EmbedFooter(
             text="Powered by Google Translate",
-            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
         )
         embed = interactions.Embed(
             title=f"Detected language: {lang}",
@@ -125,7 +125,7 @@ class Translation(interactions.Extension):
                 ),
             ],
             placeholder="Select a language",
-            custom_id="select_menu"
+            custom_id="select_menu",
         )
         await ctx.send(embeds=embed, components=select_menu, ephemeral=True)
 
@@ -135,15 +135,20 @@ class Translation(interactions.Extension):
                     self.client,
                     components=select_menu,
                     messages=int(ctx.message.id),
-                    timeout=10
+                    timeout=10,
                 )
                 selects = res.data.values[0]
                 await ctx.defer(ephemeral=True)
                 translation = translator.translate(content, dest=selects)
                 message1 = translation.text
 
-                embed = interactions.Embed(title=f"Detected language: {lang}", description=f"```{message1}```")
-                embed.set_footer(icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png", text="Google Translate")
+                embed = interactions.Embed(
+                    title=f"Detected language: {lang}", description=f"```{message1}```"
+                )
+                embed.set_footer(
+                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
+                    text="Google Translate",
+                )
 
                 await res.edit(embeds=embed, components=select_menu)
             except asyncio.TimeoutError:
@@ -157,4 +162,3 @@ def setup(client) -> None:
     )
     Translation(client)
     logging.debug("""[%s] Loaded Translation extension.""", log_time)
-    print(f"[{log_time}] Loaded Translation extension.")
