@@ -6,11 +6,9 @@ Information commands.
 
 import logging
 import datetime
-from io import BytesIO
 import interactions
 from interactions import UserFlags
 from utils.utils import get_response
-from utils import cache
 from utils.colorthief import ColorThief
 
 
@@ -71,6 +69,7 @@ class Info(interactions.Extension):
 
     @interactions.extension_command(name="info", dm_permission=False)
     async def _info(self, *args, **kwargs):
+        """For all information aspects."""
         ...
 
     @_info.subcommand(name="user")
@@ -78,7 +77,7 @@ class Info(interactions.Extension):
     async def _info_user(
         self, ctx: interactions.CommandContext, user: interactions.Member
     ):
-        """Shows information about a user."""
+        """Shows the information about a user."""
 
         nick = user.nick
         joined_at = round(user.joined_at.timestamp())
@@ -141,7 +140,7 @@ class Info(interactions.Extension):
     async def _info_avatar(
         self, ctx: interactions.CommandContext, user: interactions.Member
     ):
-        """Get the profile picture URL of a user."""
+        """Shows the profile picture URL of a user."""
 
         def clamp(x):
             return max(0, min(x, 255))
@@ -158,7 +157,7 @@ class Info(interactions.Extension):
         avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
         avatar_png = user.user.avatar_url[:-4] + ".png"
         avatar_webp = user.user.avatar_url[:-4] + ".webp"
-        format = f"".join(
+        format = "".join(
             [
                 f"**[** [**JPG**]({avatar_jpg}) **]** | ",
                 f"**[** [**PNG**]({avatar_png}) **]** | ",
@@ -168,7 +167,7 @@ class Info(interactions.Extension):
         if user.user.avatar.startswith("a_"):
             format += " | **[** [**GIF**]" + "(" + avatar[:-4] + ".gif) **]**"
 
-        size = f"".join(
+        size = "".join(
             [
                 f"**[** [**128**]({avatar_url}?size=128) **]** | ",
                 f"**[** [**256**]({avatar_url}?size=256) **]** | ",
@@ -195,7 +194,7 @@ class Info(interactions.Extension):
 
     @_info.subcommand(name="server")
     async def _info_server(self, ctx: interactions.CommandContext):
-        """Shows information about the server."""
+        """Shows the information about the server."""
 
         guild = interactions.Guild(
             **await self.client._http.get_guild(ctx.guild_id, True),
