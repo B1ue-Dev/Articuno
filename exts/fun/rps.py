@@ -91,16 +91,19 @@ class RPS(interactions.Extension):
 
     @interactions.extension_command(
         name="rock_paper_scissors",
-        description="Play a game of Rock-Paper-Scissors",
+        description="Play a game of Rock-Paper-Scissors.",
     )
     async def rock_paper_scissors(self, *args, **kwargs):
+        """Play a game of Rock-Paper-Scissors."""
         ...
 
     @rock_paper_scissors.subcommand(
         name="ai",
-        description="Play against Articuno",
+        description="Play against Articuno.",
     )
     async def rock_paper_scissors_ai(self, ctx: interactions.CommandContext):
+        """Play against Articuno."""
+
         rps_selection.disabled = False
 
         msg = await ctx.send(
@@ -176,7 +179,7 @@ class RPS(interactions.Extension):
 
     @rock_paper_scissors.subcommand(
         name="human",
-        description="Play against someone else",
+        description="Play against someone else.",
     )
     @interactions.option(
         type=interactions.OptionType.USER,
@@ -186,6 +189,8 @@ class RPS(interactions.Extension):
     async def rock_paper_scissors_human(
         self, ctx: interactions.CommandContext, user: interactions.User
     ):
+        """Play against someone else."""
+
         # if int(ctx.user.id) == int(user.id):
         #     return await ctx.send("You cannot challenge yourself.", ephemeral=True)
 

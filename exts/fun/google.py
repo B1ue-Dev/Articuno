@@ -261,4 +261,3 @@ def setup(client) -> None:
     )
     Google(client)
     logging.debug("""[%s] Loaded Google extension.""", log_time)
-    print(f"[{log_time}] Loaded Google extension.")

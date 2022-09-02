@@ -56,7 +56,7 @@ class TTS(interactions.Extension):
 
     @interactions.extension_command(
         name="tts",
-        description="Send a TTS message with different voices (Powered by Uberduck)",
+        description="Sends a TTS message with different voices (Powered by Uberduck).",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
@@ -92,7 +92,8 @@ class TTS(interactions.Extension):
     async def _tts(
         self, ctx: interactions.CommandContext, text: str, voice: str = None
     ):
-        """/tts command."""
+        """Send a TTS message with different voices (Powered by Uberduck).."""
+
         check_voice = [
             "sonic-jason-griffith",
             "tails-colleen",
@@ -164,4 +165,3 @@ def setup(client) -> None:
     )
     TTS(client)
     logging.debug("""[%s] Loaded TTS extension.""", log_time)
-    print(f"[{log_time}] Loaded TTS extension.")

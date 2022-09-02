@@ -223,4 +223,3 @@ def setup(client) -> None:
     )
     Trivia(client)
     logging.debug("""[%s] Loaded Trivia extension.""", log_time)
-    print(f"[{log_time}] Loaded Trivia extension.")

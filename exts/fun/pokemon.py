@@ -20,7 +20,7 @@ class Pokemon(interactions.Extension):
 
     @interactions.extension_command(
         name="pokedex",
-        description="Show the information about a Pokemon",
+        description="Shows the information about a Pokemon.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.STRING,
@@ -32,6 +32,8 @@ class Pokemon(interactions.Extension):
         ],
     )
     async def _pokedex(self, ctx: interactions.CommandContext, pokemon_name: str):
+        """Shows the information about a Pokemon."""
+
         name_lower = pokemon_name.lower()
         db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
         if name_lower in db:
@@ -179,4 +181,3 @@ def setup(client) -> None:
     )
     Pokemon(client)
     logging.debug("""[%s] Loaded Pokemon extension.""", log_time)
-    print(f"[{log_time}] Loaded Pokemon extension.")

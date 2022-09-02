@@ -103,7 +103,8 @@ class ASCII(interactions.Extension):
         user: interactions.Member = None,
         url: str = None,
     ):
-        """Turn an image into ASCII art."""
+        """Turns an image into ASCII art."""
+
         custom = False
         if user is not None and url is not None:
             return await ctx.send(
@@ -281,4 +282,3 @@ def setup(client) -> None:
     )
     ASCII(client)
     logging.debug("""[%s] Loaded ASCII extension.""", log_time)
-    print(f"[{log_time}] Loaded ASCII extension.")

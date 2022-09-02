@@ -212,4 +212,3 @@ def setup(client) -> None:
     )
     Urban(client)
     logging.debug("""[%s] Loaded Urban extension.""", log_time)
-    print(f"[{log_time}] Loaded Urban extension.")

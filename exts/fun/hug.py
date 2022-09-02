@@ -58,19 +58,20 @@ class Hug(interactions.Extension):
 
     @interactions.extension_command(
         name="hug",
-        description="Hugs someone",
+        description="Hugs a user.",
         options=[
             interactions.Option(
                 type=interactions.OptionType.USER,
                 name="user",
-                description="User to hug",
+                description="The user you wish to hug",
                 required=True,
             )
         ],
         dm_permission=False,
     )
     async def _hug(self, ctx: interactions.CommandContext, user: interactions.Member):
-        """/hug command."""
+        """Hugs a user."""
+
         if int(ctx.user.id) == int(user.id):
             return await ctx.send("You cannot hug yourself.", ephemeral=True)
 
@@ -98,4 +99,3 @@ def setup(client) -> None:
     )
     Hug(client)
     logging.debug("""[%s] Loaded Hug extension.""", log_time)
-    print(f"[{log_time}] Loaded Hug extension.")

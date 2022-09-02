@@ -26,7 +26,7 @@ class Fun(interactions.Extension):
         name="coffee", description="Send an image of coffee."
     )
     async def _coffee(self, ctx: interactions.CommandContext):
-        """Send an image of coffee."""
+        """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
         resp = await get_response(url)
@@ -164,7 +164,7 @@ class Fun(interactions.Extension):
         description="Roll a dice.",
     )
     async def _roll(self, ctx: interactions.CommandContext):
-        """Roll a dice."""
+        """Rolls a dice."""
 
         dice = random.randint(1, 6)
         await ctx.send("I am rolling the dice...")
@@ -176,7 +176,7 @@ class Fun(interactions.Extension):
         description="Flip a coin.",
     )
     async def _flip(self, ctx: interactions.CommandContext):
-        """Flip a coin."""
+        """Flips a coin."""
 
         coin = random.choice(["heads", "tails"])
         await ctx.send("I am flipping the coin...")
@@ -196,7 +196,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def _gay(self, ctx: interactions.CommandContext, user: str = None):
-        """Calculate the gay percentage of a user."""
+        """Calculates the gay percentage of a user."""
 
         if not user:
             user = ctx.user.username
@@ -215,7 +215,7 @@ class Fun(interactions.Extension):
         description="Send a random joke.",
     )
     async def _joke(self, ctx: interactions.CommandContext):
-        """Send a random joke."""
+        """Sends a random joke."""
 
         url = "https://some-random-api.ml/joke"
         resp = await get_response(url)
@@ -232,7 +232,7 @@ class Fun(interactions.Extension):
         description="Send a quote.",
     )
     async def _quote(self, ctx: interactions.CommandContext):
-        """Send a quote."""
+        """Sends a quote."""
 
         url = "https://api.quotable.io/random"
         resp = await get_response(url)
@@ -263,7 +263,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def _xkcd(self, ctx: interactions.CommandContext, page: int = None):
-        """Send a xkcd comic page."""
+        """Sends a xkcd comic page."""
 
         url = "https://xkcd.com/info.0.json"
         resp = await get_response(url)
@@ -314,7 +314,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def _dictionary(self, ctx: interactions.CommandContext, word: str):
-        """Define a word."""
+        """Defines a word."""
 
         url = "https://some-random-api.ml/dictionary"
         params = {"word": word}
@@ -372,4 +372,3 @@ def setup(client) -> None:
     )
     Fun(client)
     logging.debug("""[%s] Loaded Fun extension.""", log_time)
-    print(f"[{log_time}] Loaded Fun extension.")

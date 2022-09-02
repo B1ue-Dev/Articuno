@@ -128,6 +128,8 @@ class WTP(interactions.Extension):
     async def whos_that_pokemon(
         self, ctx: interactions.CommandContext, difficulty: str, generation: str = None
     ):
+        """Who's that Pokemon game."""
+
         _pokemon_list = _get_pokemon(generation)
 
         await ctx.defer()
@@ -448,4 +450,3 @@ def setup(client) -> None:
     )
     WTP(client)
     logging.debug("""[%s] Loaded WTP extension.""", log_time)
-    print(f"[{log_time}] Loaded WTP extension.")

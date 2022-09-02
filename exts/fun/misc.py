@@ -235,4 +235,3 @@ def setup(client) -> None:
     )
     Misc(client)
     logging.debug("""[%s] Loaded Misc extension.""", log_time)
-    print(f"[{log_time}] Loaded Misc extension.")
