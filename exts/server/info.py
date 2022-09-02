@@ -75,7 +75,9 @@ class Info(interactions.Extension):
 
     @_info.subcommand(name="user")
     @interactions.option("Target user")
-    async def _info_user(self, ctx: interactions.CommandContext, user: interactions.Member):
+    async def _info_user(
+        self, ctx: interactions.CommandContext, user: interactions.Member
+    ):
         """Shows information about a user."""
 
         nick = user.nick
@@ -136,7 +138,9 @@ class Info(interactions.Extension):
 
     @_info.subcommand(name="avatar")
     @interactions.option("Target user")
-    async def _info_avatar(self, ctx: interactions.CommandContext, user: interactions.Member):
+    async def _info_avatar(
+        self, ctx: interactions.CommandContext, user: interactions.Member
+    ):
         """Get the profile picture URL of a user."""
 
         def clamp(x):
@@ -146,8 +150,10 @@ class Info(interactions.Extension):
         avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar)}.png"
         color = await get_response(avatar_url)
         color = await get_color(color)
-        color = "#{0:02x}{1:02x}{2:02x}".format(clamp(color[0]), clamp(color[1]), clamp(color[2]))
-        color = str('0x' + color[1:])
+        color = "#{0:02x}{1:02x}{2:02x}".format(
+            clamp(color[0]), clamp(color[1]), clamp(color[2])
+        )
+        color = str("0x" + color[1:])
         color = int(color, 16)
         avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
         avatar_png = user.user.avatar_url[:-4] + ".png"
@@ -182,7 +188,7 @@ class Info(interactions.Extension):
             fields=[
                 interactions.EmbedField(name="Format", value=format, inline=False),
                 interactions.EmbedField(name="Size", value=size, inline=False),
-            ]
+            ],
         )
 
         await ctx.send(embeds=embed)
@@ -193,7 +199,7 @@ class Info(interactions.Extension):
 
         guild = interactions.Guild(
             **await self.client._http.get_guild(ctx.guild_id, True),
-            _client=self.client._http
+            _client=self.client._http,
         )
         user = interactions.User(
             **await self.client._http.get_user(int(guild.owner_id)),
@@ -266,10 +272,14 @@ class Info(interactions.Extension):
                 inline=True,
             ),
             interactions.EmbedField(
-                name="Boosts", value=f"Number: {boost}\n{boost_comment}", inline=True,
+                name="Boosts",
+                value=f"Number: {boost}\n{boost_comment}",
+                inline=True,
             ),
             interactions.EmbedField(
-                name="Members", value=f"Total: {members}", inline=True,
+                name="Members",
+                value=f"Total: {members}",
+                inline=True,
             ),
             interactions.EmbedField(
                 name="Channel",
@@ -282,17 +292,27 @@ class Info(interactions.Extension):
                 inline=True,
             ),
             interactions.EmbedField(
-                name="Created on", value=f"<t:{joined_at}:F>", inline=True,
-            ),
-            interactions.EmbedField(name="Preferred Locale", value=f"{preferred_locale}", inline=True),
-            interactions.EmbedField(
-                name="Roles", value=f"{role_count} roles", inline=True,
+                name="Created on",
+                value=f"<t:{joined_at}:F>",
+                inline=True,
             ),
             interactions.EmbedField(
-                name="Emojis", value=f"{emoji_count} emojis", inline=True,
+                name="Preferred Locale", value=f"{preferred_locale}", inline=True
             ),
             interactions.EmbedField(
-                name="Stickers", value=f"{sticker_count} stickers", inline=True,
+                name="Roles",
+                value=f"{role_count} roles",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Emojis",
+                value=f"{emoji_count} emojis",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Stickers",
+                value=f"{sticker_count} stickers",
+                inline=True,
             ),
             interactions.EmbedField(
                 name="Premium Progress Bar",
@@ -394,4 +414,3 @@ def setup(client) -> None:
     )
     Info(client)
     logging.debug("""[%s] Loaded Info extension.""", log_time)
-    print(f"[{log_time}] Loaded Info extension.")
