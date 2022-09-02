@@ -1,1 +1,2 @@
-None is none. Now shut the freak up.
+# Articuno
+A Discord bot by Blue.
