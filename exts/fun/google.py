@@ -71,16 +71,9 @@ class Google(interactions.Extension):
         await ctx.defer()
 
         ran = int(0)
-        resource = build(
-            "customsearch",
-            "v1",
-            developerKey=GOOGLE_CLOUD
-        ).cse()
+        resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
         result = resource.list(
-            q=f"{query}",
-            cx=GOOGLE_CSE,
-            searchType="image",
-            sort="date"
+            q=f"{query}", cx=GOOGLE_CSE, searchType="image", sort="date"
         ).execute()
 
         try:
@@ -95,12 +88,12 @@ class Google(interactions.Extension):
             )
             embed.set_footer(
                 text=f"Google Search • Page {ran}/9",
-                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
             )
             embed.add_field(
                 name=f"**{displayLink}**",
                 value=f"[{title}]({contextLink})",
-                inline=False
+                inline=False,
             )
             embed.set_image(url=image_link)
 
@@ -132,12 +125,12 @@ class Google(interactions.Extension):
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
-                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                             )
                             embed.add_field(
                                 name=f"**{displayLink}**",
                                 value=f"[{title}]({contextLink})",
-                                inline=False
+                                inline=False,
                             )
                             embed.set_image(url=image_link)
 
@@ -160,12 +153,12 @@ class Google(interactions.Extension):
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
-                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                             )
                             embed.add_field(
                                 name=f"**{displayLink}**",
                                 value=f"[{title}]({contextLink})",
-                                inline=False
+                                inline=False,
                             )
                             embed.set_image(url=image_link)
 
@@ -185,12 +178,12 @@ class Google(interactions.Extension):
                             )
                             embed.set_footer(
                                 text=f"Google Search • Page {ran}/9",
-                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+                                icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                             )
                             embed.add_field(
                                 name=f"**{displayLink}**",
                                 value=f"[{title}]({contextLink})",
-                                inline=False
+                                inline=False,
                             )
                             embed.set_image(url=image_link)
 
@@ -201,10 +194,9 @@ class Google(interactions.Extension):
                             await res.send("Which page?", ephemeral=True)
 
                             async def check(_message: interactions.Message):
-                                if (
-                                    int(_message.author.id) == int(ctx.user.id)
-                                    and int(_message.channel_id) == int(ctx.channel_id)
-                                ):
+                                if int(_message.author.id) == int(ctx.user.id) and int(
+                                    _message.channel_id
+                                ) == int(ctx.channel_id):
                                     return True
                                 else:
                                     return False
@@ -217,14 +209,18 @@ class Google(interactions.Extension):
                             )
 
                             if _msg.content.isdigit() is False:
-                                await res.send("That is not a valid number", ephemeral=True)
+                                await res.send(
+                                    "That is not a valid number", ephemeral=True
+                                )
                             else:
                                 ran = int(_msg.content)
 
                                 image_link = result["items"][ran]["link"]
                                 title = result["items"][ran]["title"]
                                 displayLink = result["items"][ran]["displayLink"]
-                                contextLink = result["items"][ran]["image"]["contextLink"]
+                                contextLink = result["items"][ran]["image"][
+                                    "contextLink"
+                                ]
 
                                 embed = interactions.Embed(
                                     title=f"Image for: {query}",
@@ -232,12 +228,12 @@ class Google(interactions.Extension):
                                 )
                                 embed.set_footer(
                                     text=f"Google Search • Page {ran}/9",
-                                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+                                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                                 )
                                 embed.add_field(
                                     name=f"**{displayLink}**",
                                     value=f"[{title}]({contextLink})",
-                                    inline=False
+                                    inline=False,
                                 )
                                 embed.set_image(url=image_link)
 
@@ -260,9 +256,9 @@ class Google(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Google(client)
     logging.debug("""[%s] Loaded Google extension.""", log_time)
     print(f"[{log_time}] Loaded Google extension.")

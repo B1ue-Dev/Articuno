@@ -49,10 +49,7 @@ class Trivia(interactions.Extension):
                         name="Computers",
                         value=18,
                     ),
-                    interactions.Choice(
-                        name="Sports",
-                        value=21
-                    ),
+                    interactions.Choice(name="Sports", value=21),
                     interactions.Choice(
                         name="Comics",
                         value=29,
@@ -90,7 +87,6 @@ class Trivia(interactions.Extension):
         ctx: interactions.CommandContext,
         category: int = 9,
         difficulty: str = "",
-
     ):
         """Plays a game of trivia."""
 
@@ -133,11 +129,10 @@ class Trivia(interactions.Extension):
             description=f"**{category}**: {question}",
             author=interactions.EmbedAuthor(
                 name=f"{ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url
-            )
+                icon_url=ctx.user.avatar_url,
+            ),
         )
         msg = await ctx.send(embeds=embed, components=buttons)
-
 
         while True:
             embed_ed = interactions.Embed(
@@ -145,8 +140,8 @@ class Trivia(interactions.Extension):
                 description=f"**{category}**: {question}",
                 author=interactions.EmbedAuthor(
                     name=f"{ctx.user.username}#{ctx.user.discriminator}",
-                    icon_url=ctx.user.avatar_url
-                )
+                    icon_url=ctx.user.avatar_url,
+                ),
             )
             buttons_disabled = [
                 interactions.Button(
@@ -164,11 +159,11 @@ class Trivia(interactions.Extension):
             ]
 
             try:
+
                 def check(_ctx: interactions.ComponentContext) -> bool:
-                    if (
-                        int(_ctx.author.id) == int(ctx.user.id)
-                        and int(_ctx.channel_id) == int(ctx.channel_id)
-                    ):
+                    if int(_ctx.author.id) == int(ctx.user.id) and int(
+                        _ctx.channel_id
+                    ) == int(ctx.channel_id):
                         return True
                     else:
                         return False
@@ -193,25 +188,39 @@ class Trivia(interactions.Extension):
                         author_answer = "correct"
 
                 if author_answer == "correct":
-                    embed_ed.add_field(name="‎", value=f"{res.user.mention} had the correct answer.", inline=False)
+                    embed_ed.add_field(
+                        name="‎",
+                        value=f"{res.user.mention} had the correct answer.",
+                        inline=False,
+                    )
                     await res.edit(embeds=embed_ed, components=buttons_disabled)
-                    await res.send(content=f"{res.user.mention}, you were correct.", ephemeral=True)
+                    await res.send(
+                        content=f"{res.user.mention}, you were correct.", ephemeral=True
+                    )
                     break
                 elif author_answer == "wrong":
-                    embed_ed.add_field(name="‎", value=f"{res.user.mention} had the wrong answer.", inline=False)
+                    embed_ed.add_field(
+                        name="‎",
+                        value=f"{res.user.mention} had the wrong answer.",
+                        inline=False,
+                    )
                     await res.edit(embeds=embed_ed, components=buttons_disabled)
-                    await res.send(content=f"{res.user.mention}, you were wrong.", ephemeral=True)
+                    await res.send(
+                        content=f"{res.user.mention}, you were wrong.", ephemeral=True
+                    )
                     break
 
-
             except asyncio.TimeoutError:
-                await msg.edit(content="Time's up!", embeds=embed_ed, components=buttons_disabled)
+                await msg.edit(
+                    content="Time's up!", embeds=embed_ed, components=buttons_disabled
+                )
+
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Trivia(client)
     logging.debug("""[%s] Loaded Trivia extension.""", log_time)
     print(f"[{log_time}] Loaded Trivia extension.")

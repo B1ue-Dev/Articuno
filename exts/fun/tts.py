@@ -24,7 +24,9 @@ async def _get_audio(uuid: str) -> dict | bool:
     """
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"https://api.uberduck.ai/speak-status?uuid={uuid}") as _resp:
+        async with session.get(
+            f"https://api.uberduck.ai/speak-status?uuid={uuid}"
+        ) as _resp:
             json: dict = await _resp.json()
             await session.close()
 
@@ -110,7 +112,9 @@ class TTS(interactions.Extension):
             return await ctx.send("Invalid voice. Please try again.", ephemeral=True)
 
         if len(text) > 1000:
-            return await ctx.send("Text too large. Please try something shorter.", ephemeral=True)
+            return await ctx.send(
+                "Text too large. Please try something shorter.", ephemeral=True
+            )
 
         await ctx.defer()
 
@@ -155,9 +159,9 @@ class TTS(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     TTS(client)
     logging.debug("""[%s] Loaded TTS extension.""", log_time)
     print(f"[{log_time}] Loaded TTS extension.")

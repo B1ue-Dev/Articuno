@@ -87,11 +87,7 @@ class RPS(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.choice_convert: dict = {
-            1: 'Rock',
-            2: 'Paper',
-            3: 'Scissors'
-        }
+        self.choice_convert: dict = {1: "Rock", 2: "Paper", 3: "Scissors"}
 
     @interactions.extension_command(
         name="rock_paper_scissors",
@@ -110,7 +106,7 @@ class RPS(interactions.Extension):
         msg = await ctx.send(
             content=f"{ctx.user.mention} vs **Articuno**",
             components=rps_selection,
-            allowed_mentions={"users": []}
+            allowed_mentions={"users": []},
         )
 
         while True:
@@ -185,14 +181,19 @@ class RPS(interactions.Extension):
     @interactions.option(
         type=interactions.OptionType.USER,
         name="user",
-        description="The user to play against"
+        description="The user to play against",
     )
-    async def rock_paper_scissors_human(self, ctx: interactions.CommandContext, user: interactions.User):
+    async def rock_paper_scissors_human(
+        self, ctx: interactions.CommandContext, user: interactions.User
+    ):
         # if int(ctx.user.id) == int(user.id):
         #     return await ctx.send("You cannot challenge yourself.", ephemeral=True)
 
         if int(user.id) == int(self.client.me.id):
-            return await ctx.send("To challenge me, do ``/rock_paper_scissors ai`` instead.", ephemeral=True)
+            return await ctx.send(
+                "To challenge me, do ``/rock_paper_scissors ai`` instead.",
+                ephemeral=True,
+            )
 
         rps_selection.disabled = False
 
@@ -202,13 +203,13 @@ class RPS(interactions.Extension):
                     interactions.Button(
                         style=interactions.ButtonStyle.SUCCESS,
                         label="Accept",
-                        custom_id="accept"
+                        custom_id="accept",
                     ),
                     interactions.Button(
                         style=interactions.ButtonStyle.DANGER,
                         label="Deny",
-                        custom_id="deny"
-                    )
+                        custom_id="deny",
+                    ),
                 ]
             )
         ]
@@ -216,9 +217,7 @@ class RPS(interactions.Extension):
         msg = await ctx.send(
             content=f"{ctx.user.mention} challenged {user.mention}.",
             components=accept_deny,
-            allowed_mentions={
-                "users": [int(user.id)]
-            }
+            allowed_mentions={"users": [int(user.id)]},
         )
 
         while True:
@@ -233,22 +232,29 @@ class RPS(interactions.Extension):
                 if int(op.user.id) == int(user.id):
                     if op.custom_id == "accept":
 
-                        await op.edit(content=f"{ctx.user.mention} vs {user.mention}", components=rps_selection)
+                        await op.edit(
+                            content=f"{ctx.user.mention} vs {user.mention}",
+                            components=rps_selection,
+                        )
                         user1 = int(ctx.user.id)
                         user2 = int(user.id)
                         cmp_1 = 0
 
                         while True:
-                            cmp1: interactions.ComponentContext = await wait_for_component(
-                                self.client,
-                                components=rps_selection,
-                                messages=int(ctx.message.id),
-                                timeout=15,
+                            cmp1: interactions.ComponentContext = (
+                                await wait_for_component(
+                                    self.client,
+                                    components=rps_selection,
+                                    messages=int(ctx.message.id),
+                                    timeout=15,
+                                )
                             )
 
                             if int(cmp1.user.id) == user1 or int(cmp1.user.id) == user2:
                                 cmp_1 = int(cmp1.user.id)
-                                await cmp1.edit(content=f"{cmp1.message.content}\n\n{cmp1.user.mention} has their option chosen.")
+                                await cmp1.edit(
+                                    content=f"{cmp1.message.content}\n\n{cmp1.user.mention} has their option chosen."
+                                )
                                 choice1 = int(cmp1.data.values[0])
                                 break
 
@@ -256,14 +262,18 @@ class RPS(interactions.Extension):
                                 pass
 
                         while True:
-                            cmp2: interactions.ComponentContext = await wait_for_component(
-                                self.client,
-                                components=rps_selection,
-                                messages=int(ctx.message.id),
-                                timeout=15
+                            cmp2: interactions.ComponentContext = (
+                                await wait_for_component(
+                                    self.client,
+                                    components=rps_selection,
+                                    messages=int(ctx.message.id),
+                                    timeout=15,
+                                )
                             )
 
-                            if int(cmp2.user.id) in {int(user1), int(user2)} and int(cmp2.user.id) != int(cmp_1):
+                            if int(cmp2.user.id) in {int(user1), int(user2)} and int(
+                                cmp2.user.id
+                            ) != int(cmp_1):
                                 rps_selection.disabled = True
                                 choice2 = int(cmp2.data.values[0])
                                 break
@@ -309,7 +319,7 @@ class RPS(interactions.Extension):
                                     ]
                                 ),
                                 components=rps_selection,
-                                allowed_mentions={"users": [int(user.id)]}
+                                allowed_mentions={"users": [int(user.id)]},
                             )
 
                         break
@@ -323,12 +333,26 @@ class RPS(interactions.Extension):
 
                         break
 
-                elif int(op.user.id) != int(user.id) and int(op.user.id) == int(ctx.user.id) and op.custom_id == "deny":
-                    await op.edit(f"{ctx.user.mention} cancelled the challenge.", components=[])
+                elif (
+                    int(op.user.id) != int(user.id)
+                    and int(op.user.id) == int(ctx.user.id)
+                    and op.custom_id == "deny"
+                ):
+                    await op.edit(
+                        f"{ctx.user.mention} cancelled the challenge.", components=[]
+                    )
                     break
 
-                elif int(op.user.id) != int(user.id) and int(op.user.id) == int(ctx.user.id) and op.custom_id == "accept":
-                    await op.send("You cannot accept the challenge by yourself.", components=[], ephemeral=True)
+                elif (
+                    int(op.user.id) != int(user.id)
+                    and int(op.user.id) == int(ctx.user.id)
+                    and op.custom_id == "accept"
+                ):
+                    await op.send(
+                        "You cannot accept the challenge by yourself.",
+                        components=[],
+                        ephemeral=True,
+                    )
 
                 else:
                     pass

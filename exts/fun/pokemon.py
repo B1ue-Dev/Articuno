@@ -31,24 +31,26 @@ class Pokemon(interactions.Extension):
             ),
         ],
     )
-    async def _pokedex(
-        self, ctx: interactions.CommandContext, pokemon_name: str
-    ):
+    async def _pokedex(self, ctx: interactions.CommandContext, pokemon_name: str):
         name_lower = pokemon_name.lower()
         db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
         if name_lower in db:
-            name = db[name_lower]['name']
+            name = db[name_lower]["name"]
 
             if name == "MissingNo.":
-                _resp = requests.get("https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png")
+                _resp = requests.get(
+                    "https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png"
+                )
                 file = interactions.File("null.png", fp=io.BytesIO(_resp.content))
-                embed = interactions.Embed(title="??????", description="".join("\n??????" for i in range(0, 3)))
+                embed = interactions.Embed(
+                    title="??????", description="".join("\n??????" for i in range(0, 3))
+                )
                 embed.set_thumbnail(url="attachment://null.png")
                 return await ctx.send(embeds=embed, files=file)
 
-            id = db[name_lower]['num']
-            types = ", ".join(db[name_lower]['types'])
-            desp = db[name_lower]['description']
+            id = db[name_lower]["num"]
+            types = ", ".join(db[name_lower]["types"])
+            desp = db[name_lower]["description"]
             stats = "".join(
                 [
                     f"**HP:** {db[name_lower]['baseStats']['hp']}\n",
@@ -59,10 +61,10 @@ class Pokemon(interactions.Extension):
                     f"**Speed:** {db[name_lower]['baseStats']['spe']}\n",
                 ]
             )
-            abilities = ", ".join(list(db['bulbasaur']['abilities'].values()))
-            egg_group = ", ".join(db[name_lower]['eggGroups'])
-            height = db[name_lower]['heightm']
-            weight = db[name_lower]['weightkg']
+            abilities = ", ".join(list(db["bulbasaur"]["abilities"].values()))
+            egg_group = ", ".join(db[name_lower]["eggGroups"])
+            height = db[name_lower]["heightm"]
+            weight = db[name_lower]["weightkg"]
 
             if int(id) < int(10):
                 id = "00" + str(id)
@@ -73,7 +75,7 @@ class Pokemon(interactions.Extension):
             else:
                 id = int(id)
 
-            evs = db[name_lower]['evolutionLine']
+            evs = db[name_lower]["evolutionLine"]
             if str(evs) != "[]":
                 evs = "\n".join(evs)
             else:
@@ -83,7 +85,7 @@ class Pokemon(interactions.Extension):
 
             footer = interactions.EmbedFooter(
                 text=f"First introduced in Generation {db[name_lower]['generation']}",
-                icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png"
+                icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png",
             )
             thumbnail = interactions.EmbedImageStruct(url=sprites_url_still)
             fields = [
@@ -98,9 +100,9 @@ class Pokemon(interactions.Extension):
                             f"**Weight:** {weight}",
                         ]
                     ),
-                    inline=True
+                    inline=True,
                 ),
-                interactions.EmbedField(name="Stats", value=stats, inline=True)
+                interactions.EmbedField(name="Stats", value=stats, inline=True),
             ]
             embed = interactions.Embed(
                 title=f"{name}",
@@ -114,12 +116,10 @@ class Pokemon(interactions.Extension):
 
             await ctx.send(embeds=embed)
 
-
-    @interactions.extension_autocomplete(
-        command="pokedex",
-        name="pokemon_name"
-    )
-    async def auto_complete(self, ctx: interactions.CommandContext, pokemon_name: str = ""):
+    @interactions.extension_autocomplete(command="pokedex", name="pokemon_name")
+    async def auto_complete(
+        self, ctx: interactions.CommandContext, pokemon_name: str = ""
+    ):
         if pokemon_name != "":
             letters: list = pokemon_name
         else:
@@ -129,9 +129,9 @@ class Pokemon(interactions.Extension):
             await ctx.populate(
                 [
                     interactions.Choice(
-                        name=name[0].capitalize(),
-                        value=name[0].capitalize()
-                    ) for name in (
+                        name=name[0].capitalize(), value=name[0].capitalize()
+                    )
+                    for name in (
                         list(data.items())[0:9]
                         if len(data) > 10
                         else list(data.items())
@@ -144,12 +144,11 @@ class Pokemon(interactions.Extension):
                 focus: str = "".join(letters)
                 if focus.lower() in pkmn_name and len(choices) < 20:
                     choices.append(
-                    interactions.Choice(
-                        name=pkmn_name.capitalize(),
-                        value=pkmn_name.capitalize())
+                        interactions.Choice(
+                            name=pkmn_name.capitalize(), value=pkmn_name.capitalize()
+                        )
                     )
             await ctx.populate(choices)
-
 
     @interactions.extension_listener(name="on_message_create")
     async def message_create(self, message: interactions.Message):
@@ -160,9 +159,7 @@ class Pokemon(interactions.Extension):
             data = json.loads(open("./db/pokemon.json", "r").read())
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{msg}.gif"
-                embed = interactions.Embed(
-                    image=interactions.EmbedImageStruct(url=img)
-                )
+                embed = interactions.Embed(image=interactions.EmbedImageStruct(url=img))
                 await channel.send(embeds=embed)
 
         elif message.content.startswith("$"):
@@ -171,17 +168,15 @@ class Pokemon(interactions.Extension):
             data = json.loads(open("./db/pokemon.json", "r").read())
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani/{msg}.gif"
-                embed = interactions.Embed(
-                    image=interactions.EmbedImageStruct(url=img)
-                )
+                embed = interactions.Embed(image=interactions.EmbedImageStruct(url=img))
                 await channel.send(embeds=embed)
 
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
     Pokemon(client)
     logging.debug("""[%s] Loaded Pokemon extension.""", log_time)
     print(f"[{log_time}] Loaded Pokemon extension.")
