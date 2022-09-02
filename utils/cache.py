@@ -86,7 +86,6 @@ class Cache(interactions.Extension):
 
     @interactions.extension_listener(name="on_raw_channel_update")
     async def _channel_update(self, channel: interactions.Channel):
-        print("Called updated.")
         guild_id = str(channel.guild_id)
         if guild_id in self.storage._logs:
             _cache_channel_id = self.storage._logs[guild_id]
@@ -122,7 +121,6 @@ class Cache(interactions.Extension):
 
     @interactions.extension_listener(name="on_channel_delete")
     async def _channel_delete(self, channel: interactions.Channel):
-        print("Called deleted.")
         guild_id = str(channel.guild_id)
         if guild_id in self.storage._logs:
             if self.storage._logs[guild_id] == str(channel.id):
