@@ -7,7 +7,6 @@ This module is for message logs.
 import asyncio
 import logging
 import datetime
-import random
 import interactions
 from utils import cache
 
@@ -462,7 +461,7 @@ class Logs(interactions.Extension):
                 ),
                 interactions.EmbedField(
                     name="Moderator",
-                    value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                    value="".join(f"<@{moderator}>" if moderator else "N/A"),
                     inline=True,
                 ),
                 interactions.EmbedField(
@@ -562,7 +561,7 @@ class Logs(interactions.Extension):
                 ),
                 interactions.EmbedField(
                     name="Moderator",
-                    value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                    value="".join(f"<@{moderator}>" if moderator else "N/A"),
                     inline=True,
                 ),
                 interactions.EmbedField(
@@ -666,7 +665,7 @@ class Logs(interactions.Extension):
                     ),
                     interactions.EmbedField(
                         name="Moderator",
-                        value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
                         inline=True,
                     ),
                     interactions.EmbedField(
@@ -703,7 +702,7 @@ class Logs(interactions.Extension):
                     ),
                     interactions.EmbedField(
                         name="Moderator",
-                        value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
                         inline=True,
                     ),
                     interactions.EmbedField(
