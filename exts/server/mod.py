@@ -35,7 +35,7 @@ class Mod(interactions.Extension):
     async def _user_kick(
         self,
         ctx: interactions.CommandContext,
-        user: interactions.Member,
+        member: interactions.Member,
         reason: str = "N/A",
     ):
         """Kicks a member from the server."""
@@ -48,7 +48,7 @@ class Mod(interactions.Extension):
                 content="You do not have kick permission.", ephemeral=True
             )
 
-        if int(user.user.id) == int(ctx.member.id):
+        if int(member.user.id) == int(ctx.member.id):
             return await ctx.send("You cannot kick yourself.", ephemeral=True)
 
         try:
@@ -66,7 +66,7 @@ class Mod(interactions.Extension):
             )
 
         await ctx.send(
-            content=f"{user.user.username}#{user.user.discriminator} was kicked.\nReason: {reason}"
+            content=f"{member.user.username}#{member.user.discriminator} was kicked.\nReason: {reason}"
         )
 
     @_user.subcommand(name="ban")
@@ -252,8 +252,14 @@ class Mod(interactions.Extension):
                 content="Please indicate the length of the timeout.", ephemeral=True
             )
 
+        if days > 28:
+            return await ctx.send(
+                content="The maximum is 27 days. Please try again. [Learn more](<https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ>)",
+                ephemeral=True,
+            )
+
         time = datetime.datetime.utcnow()
-        time += timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        time += datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
         try:
             await member.modify(
