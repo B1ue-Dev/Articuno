@@ -23,7 +23,7 @@ client = interactions.Client(
         ],
         status=interactions.StatusType.ONLINE,
     ),
-    disable_sync=True,
+    # disable_sync=True,
 )
 setup(client)
 client.load("interactions.ext.files")
