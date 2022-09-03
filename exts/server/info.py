@@ -224,7 +224,7 @@ class Info(interactions.Extension):
         splash_bool = False
         banner_bool = False
         vanity_url_code_bool = False
-        if boost <= 2:
+        if boost < 2:
             boost_comment = "Level 0"
         elif 2 <= boost < 7:
             boost_comment = "Level 1"
