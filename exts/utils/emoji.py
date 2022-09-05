@@ -209,7 +209,7 @@ class Emoji(interactions.Extension):
             _url = (
                 f"https://cdn.discordapp.com/emojis/{emote.id}" + ".gif"
                 if emote.animated
-                else ".png"
+                else f"https://cdn.discordapp.com/emojis/{emote.id}" + ".png"
             )
 
             if emoji_name is None:
