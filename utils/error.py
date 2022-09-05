@@ -142,12 +142,19 @@ class Error(interactions.Extension):
                 _client=self.client._http,
             )
             command_name = ctx.data._json["name"]
+            subcommand_name = ctx.data._json.get("options", None)
+            if subcommand_name:
+                subcommand_name = subcommand_name[0]
+                if subcommand_name["type"] == 1:
+                    subcommand_name = subcommand_name["name"]
+                else:
+                    subcommand_name = None
 
             log_error = interactions.Embed(
                 title="An error occurred!",
                 description="".join(
                     [
-                        f"Caused by **/{command_name}**.\n",
+                        f"""Caused by **/{command_name}{" " + subcommand_name if subcommand_name else ""}**\n""",
                         f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
                         f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
                         f"Occurred on: <t:{round(error_time)}:F>",
