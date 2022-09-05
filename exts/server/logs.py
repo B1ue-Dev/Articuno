@@ -131,6 +131,8 @@ class Logs(interactions.Extension):
         self, before: interactions.Message, after: interactions.Message
     ):
         """on_message_update gateway event."""
+        if before and after and before.content == after.content:
+            return
 
         author = interactions.EmbedAuthor(
             name=f"{after.author.username}#{after.author.discriminator}",
@@ -159,7 +161,7 @@ class Logs(interactions.Extension):
         embed.add_field(
             name="Message before edit", value=before.content if before else "N/A"
         )
-        embed.add_field(name="Message after edit", value=after.content)
+        embed.add_field(name="Message after edit", value=after.content if after.content != [] else "N/A")
 
         if (
             str(after.guild_id) in cache.Storage()._logs
