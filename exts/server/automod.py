@@ -30,7 +30,7 @@ class Automod(interactions.Extension):
                 channel = await message.get_channel()
                 await message.delete()
                 await channel.send(
-                    f"{message.member.mention}, your message was deleted because it contained an unauthorized invite link."
+                    f"{message.author.mention}, your message was deleted because it contained an unauthorized invite link."
                 )
                 return
 
