@@ -73,7 +73,7 @@ class Google(interactions.Extension):
         ran = int(0)
         resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
         result = resource.list(
-            q=f"{query}", cx=GOOGLE_CSE, searchType="image", sort="date"
+            q=f"{query}", cx=GOOGLE_CSE, searchType="image", # sort="date"
         ).execute()
 
         try:
