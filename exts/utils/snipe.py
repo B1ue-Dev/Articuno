@@ -14,7 +14,7 @@ _snipe_message_author_id = {}
 _snipe_message_author_avatar_url = {}
 _snipe_message_content = {}
 _snipe_message_content_id = {}
-_snipe_message_attachments = {}
+# _snipe_message_attachments = {}
 
 
 class Snipe(interactions.Extension):
@@ -34,17 +34,17 @@ class Snipe(interactions.Extension):
         _snipe_message_author_avatar_url[_channel_id] = str(message.author.avatar_url)
         _snipe_message_content[_channel_id] = str(message.content)
         _snipe_message_content_id[_channel_id] = int(message.id)
-        if message.attachments == []:
-            _snipe_message_attachments[_channel_id] = None
-        else:
-            _snipe_message_attachments[_channel_id] = str(message.attachments[0].url)
+        # if message.attachments == []:
+        #     _snipe_message_attachments[_channel_id] = None
+        # else:
+        #     _snipe_message_attachments[_channel_id] = str(message.attachments[0].url)
         await asyncio.sleep(120)
         del _snipe_message_author[_channel_id]
         del _snipe_message_author_id[_channel_id]
         del _snipe_message_author_avatar_url[_channel_id]
         del _snipe_message_content[_channel_id]
         del _snipe_message_content_id[_channel_id]
-        del _snipe_message_attachments[_channel_id]
+        # del _snipe_message_attachments[_channel_id]
 
     @interactions.extension_command(
         name="snipe",
@@ -69,9 +69,9 @@ class Snipe(interactions.Extension):
                 author=author,
                 footer=footer,
             )
-            if str(_snipe_message_attachments[int(ctx.channel_id)]) is not None:
-                embed.set_thumbnail(url=_snipe_message_attachments[int(ctx.channel_id)])
-                embed.add_field(name="Attachment", value=_snipe_message_attachments[int(ctx.channel_id)])
+            # if str(_snipe_message_attachments[int(ctx.channel_id)]) is not None:
+            #     embed.set_thumbnail(url=_snipe_message_attachments[int(ctx.channel_id)])
+            #     embed.add_field(name="Attachment", value=_snipe_message_attachments[int(ctx.channel_id)])
             await ctx.send(embeds=embed)
 
         except KeyError:
