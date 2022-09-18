@@ -42,9 +42,9 @@ class Storage:
         """Add a new log channel id to the storage."""
         self._logs[str(guild_id)] = str(channel_id)
 
-    # def add_welcome_goodbye(self, guild_id: str, channel_id: str):
-    #     """Add a new welcome goodbye channel id to the storage."""
-    #     self._welcome_goodbye[str(guild_id)] = str(channel_id)
+    def add_welcome_goodbye(self, guild_id: str, channel_id: str):
+        """Add a new welcome goodbye channel id to the storage."""
+        self._welcome_goodbye[str(guild_id)] = str(channel_id)
 
 
 class Cache(interactions.Extension):
@@ -76,13 +76,13 @@ class Cache(interactions.Extension):
         ):
             self.storage.add_logs(guild_id, str(channel.id))
 
-        # elif (
-        #     channel.name == "welcome-goodbye"
-        #     and guild_id not in self.storage._welcome_goodbye
-        #     or self.storage._welcome_goodbye[guild_id] == None
-        # ):
-        #     print("welcome-goodbye created")
-        #     self.storage.add_welcome_goodbye(guild_id, str(channel.id))
+        elif (
+            channel.name == "welcome-goodbye"
+            and guild_id not in self.storage._welcome_goodbye
+            or self.storage._welcome_goodbye[guild_id] == None
+        ):
+            print("welcome-goodbye created")
+            self.storage.add_welcome_goodbye(guild_id, str(channel.id))
 
     @interactions.extension_listener(name="on_raw_channel_update")
     async def _channel_update(self, channel: interactions.Channel):
@@ -103,21 +103,21 @@ class Cache(interactions.Extension):
             ):
                 self.storage._logs[guild_id] = str(channel.id)
 
-        # elif guild_id in self.storage._welcome_goodbye:
-        #     _cache_channel_id = self.storage._welcome_goodbye[guild_id]
+        elif guild_id in self.storage._welcome_goodbye:
+            _cache_channel_id = self.storage._welcome_goodbye[guild_id]
 
-        #     if (
-        #         str(channel.id) == _cache_channel_id
-        #         and channel.type != interactions.ChannelType.GUILD_TEXT
-        #         or channel.name != "welcome-goodbye"
-        #     ):
-        #         self.storage._welcome_goodbye[guild_id] = None
+            if (
+                str(channel.id) == _cache_channel_id
+                and channel.type != interactions.ChannelType.GUILD_TEXT
+                or channel.name != "welcome-goodbye"
+            ):
+                self.storage._welcome_goodbye[guild_id] = None
 
-        #     elif (
-        #         channel.name == "welcome-goodbye"
-        #         and channel.type == interactions.ChannelType.GUILD_TEXT
-        #     ):
-        #         self.storage._welcome_goodbye[guild_id] = str(channel.id)
+            elif (
+                channel.name == "welcome-goodbye"
+                and channel.type == interactions.ChannelType.GUILD_TEXT
+            ):
+                self.storage._welcome_goodbye[guild_id] = str(channel.id)
 
     @interactions.extension_listener(name="on_channel_delete")
     async def _channel_delete(self, channel: interactions.Channel):
@@ -126,9 +126,9 @@ class Cache(interactions.Extension):
             if self.storage._logs[guild_id] == str(channel.id):
                 self.storage._logs[guild_id] = None
 
-        # elif guild_id in self.storage._welcome_goodbye:
-        #     if self.storage._welcome_goodbye[guild_id] == str(channel.id):
-        #         self.storage._welcome_goodbye[guild_id] = None
+        elif guild_id in self.storage._welcome_goodbye:
+            if self.storage._welcome_goodbye[guild_id] == str(channel.id):
+                self.storage._welcome_goodbye[guild_id] = None
 
 
 def setup(client):
