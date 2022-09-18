@@ -23,7 +23,7 @@ global U_KEY
 global U_SECRET
 
 TOKEN = os.getenv("TOKEN")
-VERSION = "v4.2.1"
+VERSION = "v4.2.2"
 EXT_CORE = [
     file.replace(".py", "")
     for file in os.listdir("exts/core")
