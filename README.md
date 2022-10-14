@@ -1,2 +1,2 @@
 # Articuno
-A Discord bot by Blue.
+UNDER CONSTRUCTION!
