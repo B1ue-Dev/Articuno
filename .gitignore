@@ -1,12 +1,5 @@
 .env
-/exts/__pycache__
-/exts/core/__pycache__
-/exts/fun/__pycache__
-/exts/server/__pycache__
-/exts/utils/__pycache__
-/utils/__pycache__
-/utils/__pycache__
-/__pycache__
+/**/__pycache__
 /db
 /.idea
 bot_test.py
