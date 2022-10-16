@@ -60,7 +60,7 @@ rps_selection = interactions.SelectMenu(
 )
 
 
-def rps_get_winner(a_choice, b_choice) -> bool | None:
+def rps_get_winner(a_choice, b_choice):
     """
     Decide if the author is the winner in a Rock-Paper-Scissors match.
 
