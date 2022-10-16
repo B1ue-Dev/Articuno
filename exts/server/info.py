@@ -28,7 +28,7 @@ async def get_color(img):
     return dominant_color
 
 
-def get_user_flags(flags: UserFlags) -> str | None:
+def get_user_flags(flags: UserFlags):
     """
     Get user flags and return them as a string.
 
