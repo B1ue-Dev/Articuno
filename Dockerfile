@@ -1,13 +1,14 @@
-FROM debian:11-slim AS build
-RUN apt-get update
-RUN apt-get install --no-install-suggests --no-install-recommends --yes python3-venv gcc libpython3-dev
-RUN apt-get clean
-RUN python3 -m venv /venv
-FROM build AS export-req
-COPY requirements.txt /
-RUN /venv/bin/pip install -r requirements.txt
-FROM gcr.io/distroless/python3-debian11
-COPY --from=export-req /venv /venv
-COPY . /app
+FROM python:3.9-slim
+
 WORKDIR /app
-ENTRYPOINT ["/venv/bin/python3", "bot.py"]
+RUN apt-get update && apt-get install -y --no-install-recommends libjemalloc2 git && rm -rf /var/lib/apt/lists/*
+ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
+
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-dev
+
+COPY . .
+CMD ["python", "bot.py"]
