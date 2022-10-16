@@ -13,7 +13,7 @@ import aiohttp
 from const import U_KEY, U_SECRET
 
 
-async def _get_audio(uuid: str) -> dict | bool:
+async def _get_audio(uuid: str):
     """
     Get the audio file from Uberduck AI.
 
