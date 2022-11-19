@@ -7,7 +7,6 @@ Turn image into ASCII art.
 import logging
 import datetime
 import io
-import json
 import re
 import string
 import interactions
@@ -94,30 +93,16 @@ class ASCII(interactions.Extension):
     async def _ascii(self, *args, **kwargs):
         ...
 
-    @_ascii.subcommand(name="image")
+    @_ascii.subcommand(name="user")
     @interactions.option("Target user")
-    @interactions.option("The URL of the image")
-    async def _ascii_image(
+    async def _ascii_user(
         self,
         ctx: interactions.CommandContext,
-        user: interactions.Member = None,
-        url: str = None,
+        user: interactions.Member,
     ):
-        """Turns an image into ASCII art."""
+        """Turns a user profile picture into ASCII art."""
 
-        custom = False
-        if user is not None and url is not None:
-            return await ctx.send(
-                "You can only choose between `user` or `url`.", ephemeral=True
-            )
-        elif user is None and url is None:
-            return await ctx.send("Please choose 1 argument.", ephemeral=True)
-
-        if user is None:
-            custom = True
-            pass
-        elif url is None:
-            url = user.user.avatar_url[:-4] + ".png"
+        url = user.user.avatar_url[:-4] + ".png"
 
         # x = re.search("(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?", url)
 
@@ -201,20 +186,12 @@ class ASCII(interactions.Extension):
 
         # print("("+str(WIDTH_LIMIT)+", "+str(HEIGHT_LIMIT)+")")
         # print(len(final))
-        if custom is False:
-            i = Image.new("RGB", (235, 290), color="black")
-            I = ImageDraw.Draw(i)
-            I.text((5, 5), final, fill=(34, 139, 34))
-            with io.BytesIO() as out:
-                i.save(out, format="JPEG")
-                file = interactions.File(filename="image.jpg", fp=out.getvalue())
-        elif custom is True:
-            i = Image.new("RGB", (WIDTH_LIMIT * 6, HEIGHT_LIMIT * 16), color="black")
-            I = ImageDraw.Draw(i)
-            I.text((0, 6), final, fill=(34, 139, 34))
-            with io.BytesIO() as out:
-                i.save(out, format="JPEG")
-                file = interactions.File(filename="image.jpg", fp=out.getvalue())
+        i = Image.new("RGB", (235, 290), color="black")
+        I = ImageDraw.Draw(i)
+        I.text((5, 5), final, fill=(34, 139, 34))
+        with io.BytesIO() as out:
+            i.save(out, format="JPEG")
+            file = interactions.File(filename="image.jpg", fp=out.getvalue())
 
         await ctx.send(files=file)
 
