@@ -344,21 +344,30 @@ class Fun(interactions.Extension):
         ],
     )
     async def _ai(self, ctx: interactions.CommandContext, message: str):
-        url = "https://random-stuff-api.p.rapidapi.com/ai"
-        params = {
-            "msg": message,
-            "bot_name": "Articuno",
-            "bot_gender": "male",
-            "bot_master": "Blue",
+        customize_url = "https://v6.rsa-api.xyz/ai/customize"
+        response_url = "https://v6.rsa-api.xyz/ai/response"
+        param = {
+            "user_id": str(ctx.user.id),
+            "message": message,
         }
         headers = {
-            "authorization": AUTHORIZATION,
-            "x-rapidapi-host": "random-stuff-api.p.rapidapi.com",
-            "x-rapidapi-key": "aad44bed6dmshba8fa4c3f4d92c2p118235jsne1aae4f19e3f",
+            "Authorization": AUTHORIZATION,
         }
-        resp = await get_response(url, params=params, headers=headers)
-        msg = resp["AIResponse"]
-        await ctx.send(msg)
+        params = {
+            "BotName": "Articuno",
+            "BotMaster": "Blue",
+            "BotGender": "Male",
+        }
+        async with aiohttp.ClientSession() as session:
+            async with session.post(customize_url, headers=headers, data=params) as res:
+                async with session.get(
+                    response_url, params=param, headers=headers
+                ) as resp:
+                    if resp.status == 200:
+                        if resp.content_type == "application/json":
+                            resp = await resp.json()
+
+                            await ctx.send(content=resp["message"])
 
 
 def setup(client) -> None:
