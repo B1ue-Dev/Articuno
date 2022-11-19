@@ -5,7 +5,6 @@ Trivia command.
 """
 
 import logging
-import random
 import asyncio
 import datetime
 import base64 as b64
@@ -34,6 +33,10 @@ class Trivia(interactions.Extension):
                         value=9,
                     ),
                     interactions.Choice(
+                        name="Book",
+                        value=10,
+                    ),
+                    interactions.Choice(
                         name="Film",
                         value=11,
                     ),
@@ -42,8 +45,20 @@ class Trivia(interactions.Extension):
                         value=12,
                     ),
                     interactions.Choice(
+                        name="Musicals & Theatres",
+                        value=13,
+                    ),
+                    interactions.Choice(
+                        name="Television",
+                        value=14,
+                    ),
+                    interactions.Choice(
                         name="Video Games",
                         value=15,
+                    ),
+                    interactions.Choice(
+                        name="Nature",
+                        value=17,
                     ),
                     interactions.Choice(
                         name="Computers",
@@ -51,12 +66,32 @@ class Trivia(interactions.Extension):
                     ),
                     interactions.Choice(name="Sports", value=21),
                     interactions.Choice(
+                        name="Geography",
+                        value=22,
+                    ),
+                    interactions.Choice(
+                        name="History",
+                        value=23,
+                    ),
+                    interactions.Choice(
+                        name="Animal",
+                        value=27,
+                    ),
+                    interactions.Choice(
+                        name="Vehicles",
+                        value=28,
+                    ),
+                    interactions.Choice(
                         name="Comics",
                         value=29,
                     ),
                     interactions.Choice(
                         name="Japanese Anime & Manga",
                         value=31,
+                    ),
+                    interactions.Choice(
+                        name="Cartoons",
+                        value=32,
                     ),
                 ],
                 required=False,
