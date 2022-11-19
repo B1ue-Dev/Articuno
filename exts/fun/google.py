@@ -12,7 +12,6 @@ import interactions
 from interactions.ext.wait_for import wait_for_component
 from interactions.ext.wait_for import wait_for
 from googleapiclient.discovery import build
-from better_profanity import profanity
 from const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
@@ -64,9 +63,6 @@ class Google(interactions.Extension):
                 custom_id="stop",
             ),
         ]
-
-        if profanity.contains_profanity(query) is True:
-            return await ctx.send("No result found.", ephemeral=True)
 
         await ctx.defer()
 
