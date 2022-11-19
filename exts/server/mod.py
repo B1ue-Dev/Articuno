@@ -259,7 +259,9 @@ class Mod(interactions.Extension):
             )
 
         time = datetime.datetime.utcnow()
-        time += datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        time += datetime.timedelta(
+            days=days, hours=hours, minutes=minutes, seconds=seconds
+        )
 
         try:
             await member.modify(
