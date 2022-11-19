@@ -8,12 +8,13 @@ import logging
 import datetime
 import platform
 import interactions
+from interactions.ext import molter
 import psutil
 from utils import cache, utils
 from const import VERSION
 
 
-class Stats(interactions.Extension):
+class Stats(molter.MolterExtension):
     """Extension for /stats command."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -27,6 +28,73 @@ class Stats(interactions.Extension):
         description="Shows the stats of Articuno.",
     )
     async def _stats(self, ctx: interactions.CommandContext):
+        """Shows the stats of Articuno."""
+
+        proc = psutil.Process()
+        mem = f"""{utils.natural_size(proc.memory_full_info().rss)}
+            {utils.natural_size(proc.memory_full_info().vms)}"""
+        cpu = f"{psutil.cpu_percent()}%\n{proc.num_threads()} Threads"
+        latency = f"{self.client.latency * 1:.0f}ms"
+        guild_count = len(cache.Storage().get_all_guilds())
+        user_count = cache.Storage().get_all_users()
+
+        button = [
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="GitHub",
+                url="https://github.com/Articuno-org/Articuno",
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Top.gg",
+                url="https://top.gg/bot/809084067446259722",
+            ),
+        ]
+
+        fields = [
+            interactions.EmbedField(name="Version", value=VERSION, inline=True),
+            interactions.EmbedField(
+                name="Guilds",
+                value=guild_count,
+                inline=True,
+            ),
+            interactions.EmbedField(name="Users", value=user_count, inline=True),
+            interactions.EmbedField(name="Latency", value=latency, inline=True),
+            interactions.EmbedField(
+                name="Python",
+                value=self.python,
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Uptime",
+                value=self.uptime,
+                inline=True,
+            ),
+            interactions.EmbedField(name="CPU", value=cpu, inline=True),
+            interactions.EmbedField(name="Memory", value=mem, inline=True),
+            interactions.EmbedField(
+                name="System",
+                value=self.system,
+                inline=True,
+            ),
+        ]
+        thumbnail = interactions.EmbedImageStruct(url=self.client.me.icon_url)
+        footer = interactions.EmbedFooter(
+            text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+            icon_url=f"{ctx.user.avatar_url}",
+        )
+        embed = interactions.Embed(
+            title="Articuno Stats",
+            color=0x7CB7D3,
+            footer=footer,
+            thumbnail=thumbnail,
+            fields=fields,
+        )
+
+        await ctx.send(embeds=embed, components=button)
+    
+    @molter.prefixed_command(name="stats")
+    async def _stats_msg(self, ctx: molter.MolterContext):
         """Shows the stats of Articuno."""
 
         proc = psutil.Process()
