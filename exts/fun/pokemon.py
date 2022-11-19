@@ -6,10 +6,8 @@ This module is for Pokemon commands.
 
 import logging
 import datetime
-import io
 import json
 import interactions
-from utils.utils import get_response
 
 
 class Pokemon(interactions.Extension):
@@ -38,18 +36,6 @@ class Pokemon(interactions.Extension):
         db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
         if name_lower in db:
             name = db[name_lower]["name"]
-
-            if name == "MissingNo.":
-                _resp = requests.get(
-                    "https://upload.wikimedia.org/wikipedia/commons/6/62/MissingNo.png"
-                )
-                file = interactions.File("null.png", fp=io.BytesIO(_resp.content))
-                embed = interactions.Embed(
-                    title="??????", description="".join("\n??????" for i in range(0, 3))
-                )
-                embed.set_thumbnail(url="attachment://null.png")
-                return await ctx.send(embeds=embed, files=file)
-
             id = db[name_lower]["num"]
             types = ", ".join(db[name_lower]["types"])
             desp = db[name_lower]["description"]
@@ -63,7 +49,7 @@ class Pokemon(interactions.Extension):
                     f"**Speed:** {db[name_lower]['baseStats']['spe']}\n",
                 ]
             )
-            abilities = ", ".join(list(db["bulbasaur"]["abilities"].values()))
+            abilities = ", ".join(list(db[name_lower]["abilities"].values()))
             egg_group = ", ".join(db[name_lower]["eggGroups"])
             height = db[name_lower]["heightm"]
             weight = db[name_lower]["weightkg"]
@@ -99,7 +85,8 @@ class Pokemon(interactions.Extension):
                             f"**Type(s):** {types}\n",
                             f"**Egg Groups:** {egg_group}\n",
                             f"**Height:** {height}\n",
-                            f"**Weight:** {weight}",
+                            f"**Weight:** {weight}\n",
+                            f"**Abilities:** {abilities}",
                         ]
                     ),
                     inline=True,
