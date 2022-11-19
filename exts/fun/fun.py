@@ -8,12 +8,8 @@ import logging
 import random
 import asyncio
 import datetime
-import base64 as b64
-import interactions
 import aiohttp
-import pyfiglet
-from googleapiclient.discovery import build
-from better_profanity import profanity
+import interactions
 from utils.utils import get_response
 from const import AUTHORIZATION
 
