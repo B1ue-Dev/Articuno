@@ -31,7 +31,7 @@ class Error(interactions.Extension):
                     "You do not have permission to perform this action.", ephemeral=True
                 )
 
-            error_time = datetime.datetime.utcnow().timestamp()
+            error_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp()
 
             traceb2 = traceback.format_exception(
                 type(error),
@@ -99,7 +99,7 @@ class Error(interactions.Extension):
             await log_channel.send(embeds=log_error)
 
         else:
-            error_time = datetime.datetime.utcnow().timestamp()
+            error_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp()
 
             traceb2 = traceback.format_exception(
                 type(error),
@@ -175,69 +175,69 @@ class Error(interactions.Extension):
 
     @interactions.extension_listener(name="on_molter_command_error")    
     async def on_molter_command_error(self, ctx: molter.MolterContext, error: Exception):
-            error_time = datetime.datetime.utcnow().timestamp()
+        error_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp()
 
-            traceb2 = traceback.format_exception(
-                type(error),
-                value=error,
-                tb=error.__traceback__,
-                limit=1000,
-            )
-            traceb = "".join(traceb2)
-            traceb = traceb.replace("`", "")
-            traceb = traceb.replace("\\n", "\n")
-            traceb = traceb.replace("\\t", "\t")
-            traceb = traceb.replace("\\r", "\r")
-            traceb = traceb.replace("\\", "/")
-            er = ""
-            for i in traceb:
-                er = er + f"{i}"
+        traceb2 = traceback.format_exception(
+            type(error),
+            value=error,
+            tb=error.__traceback__,
+            limit=1000,
+        )
+        traceb = "".join(traceb2)
+        traceb = traceb.replace("`", "")
+        traceb = traceb.replace("\\n", "\n")
+        traceb = traceb.replace("\\t", "\t")
+        traceb = traceb.replace("\\r", "\r")
+        traceb = traceb.replace("\\", "/")
+        er = ""
+        for i in traceb:
+            er = er + f"{i}"
 
-            embed = interactions.Embed(
-                title="**Uh oh...**",
-                description="".join(
-                    [
-                        "An error occurred. The developer team is dealing with the problem now.\n",
-                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
-                    ]
+        embed = interactions.Embed(
+            title="**Uh oh...**",
+            description="".join(
+                [
+                    "An error occurred. The developer team is dealing with the problem now.\n",
+                    "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
+                ]
+            ),
+            color=0xED4245,
+            fields=[
+                interactions.EmbedField(
+                    name="Error",
+                    value=f"```py\n{type(error).__name__}: {error}\n```",
                 ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Error",
-                        value=f"```py\n{type(error).__name__}: {error}\n```",
-                    ),
-                ],
-            )
+            ],
+        )
 
-            await ctx.send(embeds=embed)
+        await ctx.send(embeds=embed)
 
-            log_channel = interactions.Channel(
-                **await self.client._http.get_channel(977280065668804668),
-                _client=self.client._http,
-            )
+        log_channel = interactions.Channel(
+            **await self.client._http.get_channel(977280065668804668),
+            _client=self.client._http,
+        )
 
-            log_error = interactions.Embed(
-                title="An error occurred!",
-                description="".join(
-                    [
-                        f"""Caused by **${ctx.invoked_name}**\n""",
-                        f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
-                        f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
-                        f"Occurred on: <t:{round(error_time)}:F>",
-                    ]
-                ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Traceback",
-                        value=f"```py\n{traceb}\n```"
-                        if len(traceb) < 1024
-                        else f"```py\n...{traceb[-1000:]}\n```",
-                    )
-                ],
-            )
-            await log_channel.send(embeds=log_error)
+        log_error = interactions.Embed(
+            title="An error occurred!",
+            description="".join(
+                [
+                    f"""Caused by **${ctx.invoked_name}**\n""",
+                    f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
+                    f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
+                    f"Occurred on: <t:{round(error_time)}:F>",
+                ]
+            ),
+            color=0xED4245,
+            fields=[
+                interactions.EmbedField(
+                    name="Traceback",
+                    value=f"```py\n{traceb}\n```"
+                    if len(traceb) < 1024
+                    else f"```py\n...{traceb[-1000:]}\n```",
+                )
+            ],
+        )
+        await log_channel.send(embeds=log_error)
 
 
 def setup(client) -> None:
