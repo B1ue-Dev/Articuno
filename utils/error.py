@@ -9,6 +9,7 @@ import datetime
 import traceback
 import interactions
 from interactions import LibraryException
+from interactions.ext import molter
 
 
 class Error(interactions.Extension):
@@ -155,6 +156,72 @@ class Error(interactions.Extension):
                 description="".join(
                     [
                         f"""Caused by **/{command_name}{" " + subcommand_name if subcommand_name else ""}**\n""",
+                        f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
+                        f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
+                        f"Occurred on: <t:{round(error_time)}:F>",
+                    ]
+                ),
+                color=0xED4245,
+                fields=[
+                    interactions.EmbedField(
+                        name="Traceback",
+                        value=f"```py\n{traceb}\n```"
+                        if len(traceb) < 1024
+                        else f"```py\n...{traceb[-1000:]}\n```",
+                    )
+                ],
+            )
+            await log_channel.send(embeds=log_error)
+
+    @interactions.extension_listener(name="on_molter_command_error")    
+    async def on_molter_command_error(self, ctx: molter.MolterContext, error: Exception):
+            error_time = datetime.datetime.utcnow().timestamp()
+
+            traceb2 = traceback.format_exception(
+                type(error),
+                value=error,
+                tb=error.__traceback__,
+                limit=1000,
+            )
+            traceb = "".join(traceb2)
+            traceb = traceb.replace("`", "")
+            traceb = traceb.replace("\\n", "\n")
+            traceb = traceb.replace("\\t", "\t")
+            traceb = traceb.replace("\\r", "\r")
+            traceb = traceb.replace("\\", "/")
+            er = ""
+            for i in traceb:
+                er = er + f"{i}"
+
+            embed = interactions.Embed(
+                title="**Uh oh...**",
+                description="".join(
+                    [
+                        "An error occurred. The developer team is dealing with the problem now.\n",
+                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
+                    ]
+                ),
+                color=0xED4245,
+                fields=[
+                    interactions.EmbedField(
+                        name="Error",
+                        value=f"```py\n{type(error).__name__}: {error}\n```",
+                    ),
+                ],
+            )
+
+            await ctx.send(embeds=embed)
+
+            log_channel = interactions.Channel(
+                **await self.client._http.get_channel(977280065668804668),
+                _client=self.client._http,
+            )
+
+            log_error = interactions.Embed(
+                title="An error occurred!",
+                description="".join(
+                    [
+                        f"""Caused by **${ctx.invoked_name}**\n""",
                         f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
                         f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
                         f"Occurred on: <t:{round(error_time)}:F>",
