@@ -641,7 +641,7 @@ class Logs(interactions.Extension):
                     ),
                     interactions.EmbedField(
                         name="Moderator",
-                        value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
                         inline=True,
                     ),
                     interactions.EmbedField(
@@ -676,7 +676,7 @@ class Logs(interactions.Extension):
                     ),
                     interactions.EmbedField(
                         name="Moderator",
-                        value=f"".join(f"<@{moderator}>" if moderator else "N/A"),
+                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
                         inline=True,
                     ),
                     interactions.EmbedField(
