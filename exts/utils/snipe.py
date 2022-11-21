@@ -8,6 +8,7 @@ import logging
 import datetime
 import asyncio
 import interactions
+from interactions.ext import molter
 
 _snipe_message_author = {}
 _snipe_message_author_id = {}
@@ -17,7 +18,7 @@ _snipe_message_content_id = {}
 # _snipe_message_attachments = {}
 
 
-class Snipe(interactions.Extension):
+class Snipe(molter.MolterExtension):
     """Extension for /snipe command."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -52,6 +53,33 @@ class Snipe(interactions.Extension):
         dm_permission=False,
     )
     async def _snipe(self, ctx: interactions.CommandContext):
+        """Snipes the last deleted message from the current channel."""
+
+        channel_id = int(ctx.channel_id)
+        try:
+            author = interactions.EmbedAuthor(
+                name=_snipe_message_author[channel_id],
+                icon_url=_snipe_message_author_avatar_url[channel_id],
+            )
+            footer = interactions.EmbedFooter(
+                name=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+                icon_url=ctx.author.user.avatar_url,
+            )
+            embed = interactions.Embed(
+                description=f"<@{_snipe_message_author_id[channel_id]}> said: {_snipe_message_content[channel_id]}",
+                author=author,
+                footer=footer,
+            )
+            # if str(_snipe_message_attachments[int(ctx.channel_id)]) is not None:
+            #     embed.set_thumbnail(url=_snipe_message_attachments[int(ctx.channel_id)])
+            #     embed.add_field(name="Attachment", value=_snipe_message_attachments[int(ctx.channel_id)])
+            await ctx.send(embeds=embed)
+
+        except KeyError:
+            await ctx.send("No message to snipe.", ephemeral=True)
+
+    @molter.prefixed_command(name="snipe")
+    async def _msg_snipe(self, ctx: molter.MolterContext):
         """Snipes the last deleted message from the current channel."""
 
         channel_id = int(ctx.channel_id)
