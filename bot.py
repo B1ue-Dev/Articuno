@@ -8,6 +8,7 @@ import logging
 import datetime
 import interactions
 from interactions.ext.wait_for import setup
+from interactions.ext import molter
 from const import TOKEN, VERSION
 
 # logging.basicConfig(level=logging.DEBUG)
@@ -26,6 +27,7 @@ client = interactions.Client(
     # disable_sync=True,
 )
 setup(client)
+molter.setup(client, default_prefix="$")
 client.load("interactions.ext.files")
 client.load("utils.cache")
 client.load("utils.error")
@@ -33,6 +35,7 @@ client.load("exts.core.__init__")
 client.load("exts.server.__init__")
 client.load("exts.fun.__init__")
 client.load("exts.utils.__init__")
+client.load("exts.msg_exts.fun.__init__")
 
 
 @client.event
