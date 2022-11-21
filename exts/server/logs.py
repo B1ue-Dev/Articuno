@@ -10,6 +10,7 @@ import datetime
 import random
 import interactions
 from utils import cache
+from .mod import Get_mod
 
 
 class Logs(interactions.Extension):
@@ -625,7 +626,13 @@ class Logs(interactions.Extension):
                 guild_id=guild_id, action_type=24, limit=1
             )
             reason = _timeout.get("audit_log_entries")[0].get("reason")
-            moderator = _timeout.get("audit_log_entries")[0].get("user_id")
+            get_moderator_id = _timeout.get("audit_log_entries")[0].get("user_id")
+            moderator = await interactions.get(self.client, interactions.User, object_id=get_moderator_id)
+            if moderator.bot is True:
+                moderator = (Get_mod().get_mod()).id
+            else:
+                moderator = moderator.id
+                Get_mod().add_mod(None)
             embed = interactions.Embed(
                 title="User timed out!",
                 timestamp=datetime.datetime.utcnow(),
@@ -659,8 +666,17 @@ class Logs(interactions.Extension):
             _timeout = await self.client._http.get_guild_auditlog(
                 guild_id=guild_id, action_type=24, limit=1
             )
+            if str(_timeout.get("audit_log_entries")[0].get("changes")[0].get("key")) != "communication_disabled_until":
+                return
+
             reason = _timeout.get("audit_log_entries")[0].get("reason")
-            moderator = _timeout.get("audit_log_entries")[0].get("user_id")
+            get_moderator_id = _timeout.get("audit_log_entries")[0].get("user_id")
+            moderator = await interactions.get(self.client, interactions.User, object_id=get_moderator_id)
+            if moderator.bot is True:
+                moderator = (Get_mod().get_mod()).id
+            else:
+                moderator = moderator.id
+                Get_mod().add_mod(None)
             embed = interactions.Embed(
                 title="User timeout removed!",
                 timestamp=datetime.datetime.utcnow(),
