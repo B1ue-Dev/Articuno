@@ -54,6 +54,8 @@ class Google(molter.MolterExtension):
             ),
         ]
 
+        _res = await ctx.reply("<a:typing:988186611676246087> Generating...")
+
         ran = int(0)
         resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
         result = resource.list(
@@ -83,7 +85,7 @@ class Google(molter.MolterExtension):
             )
             embed.set_image(url=image_link)
 
-            msg = await ctx.send(embeds=embed, components=buttons)
+            msg = await _res.edit("", embeds=embed, components=buttons)
 
             while True:
                 try:
@@ -235,7 +237,7 @@ class Google(molter.MolterExtension):
                     await msg.edit(components=[])
 
         except KeyError:
-            await ctx.send("No result found.")
+            await ctx.reply("No result found.")
 
 
 def setup(client) -> None:

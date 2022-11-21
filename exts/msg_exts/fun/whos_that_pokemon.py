@@ -104,7 +104,9 @@ class WTP(molter.MolterExtension):
         self, ctx: molter.MolterContext, generation: str = None
     ):
         """Who's that Pokemon game."""
-        
+
+        _res = await ctx.reply("<a:typing:988186611676246087> Generating...")
+
         if generation is not None and int(generation) not in range(1, 9):
             return await ctx.send("Invalid `generation`. Accepted value: From `1` to `8`.")
 
@@ -137,7 +139,6 @@ class WTP(molter.MolterExtension):
             _text_img.save(out, format="PNG")
             _file = interactions.File(filename="_image.png", fp=out.getvalue())
 
-
         _button_list = []
         for i in range(4):
             _button_list.append(
@@ -148,7 +149,7 @@ class WTP(molter.MolterExtension):
                 )
             )
 
-        msg = await ctx.reply(
+        msg = await _res.edit(
             content="**Who's that Pokemon?**",
             components=_button_list,
             files=file,
