@@ -9,18 +9,6 @@ import dotenv
 
 dotenv.load_dotenv()
 
-global TOKEN
-global VERSION
-global EXT_CORE
-global EXT_FUN
-global EXT_SERVER
-global EXT_UTILS
-global APIKEY
-global AUTHORIZATION
-global GOOGLE_CLOUD
-global GOOGLE_CSE
-global U_KEY
-global U_SECRET
 
 TOKEN = os.getenv("TOKEN")
 VERSION = "v4.2.2"
