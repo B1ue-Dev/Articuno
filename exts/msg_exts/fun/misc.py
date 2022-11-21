@@ -106,9 +106,7 @@ class Misc(molter.MolterExtension):
         await ctx.send(files=img)
 
     @molter.prefixed_command(name="amogus")
-    async def _amogus(
-        self, ctx: molter.MolterContext, user: interactions.Member
-    ):
+    async def _amogus(self, ctx: molter.MolterContext, user: interactions.Member):
         """Amogus."""
 
         url = "https://some-random-api.ml/premium/amongus"

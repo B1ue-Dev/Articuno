@@ -233,7 +233,8 @@ class Translation(interactions.Extension):
         ],
     )
     async def _translate_text(
-        self, ctx: interactions.CommandContext,
+        self,
+        ctx: interactions.CommandContext,
         text: str,
         lang: str = "en",
     ):

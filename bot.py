@@ -15,7 +15,9 @@ from const import TOKEN, VERSION
 
 client = interactions.Client(
     token=TOKEN,
-    intents=interactions.Intents.DEFAULT | interactions.Intents.GUILD_MESSAGE_CONTENT | interactions.Intents.GUILD_MEMBERS,
+    intents=interactions.Intents.DEFAULT
+    | interactions.Intents.GUILD_MESSAGE_CONTENT
+    | interactions.Intents.GUILD_MEMBERS,
     presence=interactions.ClientPresence(
         activities=[
             interactions.PresenceActivity(

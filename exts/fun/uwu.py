@@ -63,7 +63,7 @@ class OwO:
         "(*^.^*)",
         "(*￣з￣)",
         "(つ✧ω✧)つ",
-        "(/ =ω=)/"
+        "(/ =ω=)/",
     ]
 
     mappings = [
@@ -74,7 +74,7 @@ class OwO:
         ["nu", "nyu"],
         ["ne", "nye"],
         ["no", "nyo"],
-        ["ove", "uv"]
+        ["ove", "uv"],
     ]
 
     prefixes = [

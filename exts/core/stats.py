@@ -92,7 +92,7 @@ class Stats(molter.MolterExtension):
         )
 
         await ctx.send(embeds=embed, components=button)
-    
+
     @molter.prefixed_command(name="stats")
     async def _stats_msg(self, ctx: molter.MolterContext):
         """Shows the stats of Articuno."""

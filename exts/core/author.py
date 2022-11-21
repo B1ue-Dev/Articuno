@@ -123,7 +123,7 @@ class Author(molter.MolterExtension):
         )
 
         await ctx.send(embeds=embed, components=[profile])
-    
+
     @molter.prefixed_command(name="credits")
     async def _msg_credits(self, ctx: molter.MolterContext):
         """Developers/Contributors to this project."""

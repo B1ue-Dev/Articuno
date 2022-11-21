@@ -108,7 +108,9 @@ class WTP(molter.MolterExtension):
         _res = await ctx.reply("<a:typing:988186611676246087> Generating...")
 
         if generation is not None and int(generation) not in range(1, 9):
-            return await ctx.send("Invalid `generation`. Accepted value: From `1` to `8`.")
+            return await ctx.send(
+                "Invalid `generation`. Accepted value: From `1` to `8`."
+            )
 
         _pokemon_list = _get_pokemon(generation)
 
@@ -159,10 +161,7 @@ class WTP(molter.MolterExtension):
             try:
 
                 def check(_ctx: interactions.CommandContext):
-                    return (
-                        _ctx.data.custom_id == "_wtp"
-                        and _ctx.user.id == ctx.user.id
-                    )
+                    return _ctx.data.custom_id == "_wtp" and _ctx.user.id == ctx.user.id
 
                 res: interactions.ComponentContext = await wait_for_component(
                     self.client,

@@ -107,16 +107,24 @@ class ASCII(molter.MolterExtension):
             usr = re.compile("<?(\d*)>")
             parsed = usr.findall(param)
             try:
-                url = await interactions.get(self.client, interactions.User, object_id=parsed[0])
+                url = await interactions.get(
+                    self.client, interactions.User, object_id=parsed[0]
+                )
                 url = url.avatar_url[:-4] + ".png"
             except:
-                return await ctx.send("Invalid param. Please check if it is a valid user.")
+                return await ctx.send(
+                    "Invalid param. Please check if it is a valid user."
+                )
         elif param.isdigit() is True:
             try:
-                url = await interactions.get(self.client, interactions.User, object_id=param)
+                url = await interactions.get(
+                    self.client, interactions.User, object_id=param
+                )
                 url = url.avatar_url[:-4] + ".png"
             except:
-                return await ctx.send("Invalid param. Please check if it is a valid user.")
+                return await ctx.send(
+                    "Invalid param. Please check if it is a valid user."
+                )
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
@@ -224,11 +232,7 @@ class ASCII(molter.MolterExtension):
 
         img = Image.new("RGB", (width, height), color="black")
         i = ImageDraw.Draw(img)
-        i.text(
-            (1, 1),
-            ascii_art,
-            fill=(102, 255, 0)
-        )
+        i.text((1, 1), ascii_art, fill=(102, 255, 0))
         with io.BytesIO() as out:
             img.save(out, format="JPEG")
             file = interactions.File(filename="image.jpg", fp=out.getvalue())

@@ -14,6 +14,7 @@ from functools import lru_cache
 @lru_cache(maxsize=1024)
 class Get_mod:
     """Getting the User of the moderator."""
+
     def __init__(self):
         self.mod = None
 

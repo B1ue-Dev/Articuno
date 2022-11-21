@@ -43,7 +43,7 @@ class Ping(molter.MolterExtension):
         )
 
         await ctx.send(embeds=embed)
-    
+
     @molter.prefixed_command(name="ping")
     async def _ping_msg(self, ctx: molter.MolterContext):
         """Ping Articuno."""
