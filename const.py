@@ -44,6 +44,11 @@ EXT_UTILS = [
     for file in os.listdir("exts/utils")
     if not file.startswith("_")
 ]
+MSG_EXT_FUN = [
+    file.replace(".py", "")
+    for file in os.listdir("exts/msg_exts/fun")
+    if not file.startswith("_")
+]
 APIKEY = os.getenv("APIKEY")
 AUTHORIZATION = os.getenv("AUTHORIZATION")
 GOOGLE_CLOUD = os.getenv("GOOGLE_CLOUD")
