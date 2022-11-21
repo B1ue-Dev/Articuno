@@ -31,6 +31,9 @@ class Error(interactions.Extension):
                     "You do not have permission to perform this action.", ephemeral=True
                 )
 
+            if int(error.code) == 10008:
+                return
+
             error_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp()
 
             traceb2 = traceback.format_exception(
@@ -173,7 +176,7 @@ class Error(interactions.Extension):
             )
             await log_channel.send(embeds=log_error)
 
-    @interactions.extension_listener(name="on_molter_command_error")    
+    @interactions.extension_listener(name="on_molter_command_error")
     async def on_molter_command_error(self, ctx: molter.MolterContext, error: Exception):
         error_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp()
 
