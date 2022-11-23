@@ -17,6 +17,7 @@ class Error(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
+        self.log_channel: int = 957090401418899526
 
     @interactions.extension_listener(name="on_command_error")
     async def on_command_error(
@@ -76,7 +77,7 @@ class Error(interactions.Extension):
             await ctx.send(embeds=embed, ephemeral=True)
 
             log_channel = interactions.Channel(
-                **await self.client._http.get_channel(957090401418899526),
+                **await self.client._http.get_channel(self.log_channel),
                 _client=self.client._http,
             )
             command_name = ctx.data._json["name"]
@@ -146,7 +147,7 @@ class Error(interactions.Extension):
             await ctx.send(embeds=embed, ephemeral=True)
 
             log_channel = interactions.Channel(
-                **await self.client._http.get_channel(957090401418899526),
+                **await self.client._http.get_channel(self.log_channel),
                 _client=self.client._http,
             )
             command_name = ctx.data._json["name"]
@@ -224,7 +225,7 @@ class Error(interactions.Extension):
         await ctx.send(embeds=embed)
 
         log_channel = interactions.Channel(
-            **await self.client._http.get_channel(977280065668804668),
+            **await self.client._http.get_channel(self.log_channel),
             _client=self.client._http,
         )
 
