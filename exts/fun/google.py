@@ -12,7 +12,6 @@ import interactions
 from interactions.ext.wait_for import wait_for_component
 from interactions.ext.wait_for import wait_for
 from googleapiclient.discovery import build
-from better_profanity import profanity
 from const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
@@ -65,15 +64,14 @@ class Google(interactions.Extension):
             ),
         ]
 
-        if profanity.contains_profanity(query) is True:
-            return await ctx.send("No result found.", ephemeral=True)
-
         await ctx.defer()
 
         ran = int(0)
         resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
         result = resource.list(
-            q=f"{query}", cx=GOOGLE_CSE, searchType="image", # sort="date"
+            q=f"{query}",
+            cx=GOOGLE_CSE,
+            searchType="image",  # sort="date"
         ).execute()
 
         try:

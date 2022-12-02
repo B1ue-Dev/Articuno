@@ -10,12 +10,13 @@ import io
 import re
 import string
 import interactions
+from interactions.ext import molter
 import pyfiglet
 import aiohttp
 from PIL import Image, ImageDraw, ImageColor
 
 
-def rgb2gray(rgb: str) -> int:
+def rgb2gray(rgb: str):
     """
     Return the gray color from RGB color.
 
@@ -24,11 +25,12 @@ def rgb2gray(rgb: str) -> int:
     :return: The gray color.
     :rtype: int
     """
-
-    r, g, b = rgb[0], rgb[1], rgb[2]
-    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-
-    return gray
+    try:
+        r, g, b = rgb[0], rgb[1], rgb[2]
+        gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
+        return gray
+    except TypeError:
+        return 255
 
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -77,7 +79,7 @@ def page_paginator(text: str) -> list[str]:
     return pages
 
 
-class ASCII(interactions.Extension):
+class ASCII(molter.MolterExtension):
     """Extension for /ascii command."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -86,28 +88,43 @@ class ASCII(interactions.Extension):
             "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^'´. "
         )
 
-    @interactions.extension_command(
+    @molter.prefixed_command(
         name="ascii",
-        description="ASCII art command.",
     )
-    async def _ascii(self, *args, **kwargs):
+    async def _ascii(self, ctx: molter.MolterContext, text: str = None):
         ...
 
     @_ascii.subcommand(name="user")
-    @interactions.option("Target user")
-    async def _ascii_user(
-        self,
-        ctx: interactions.CommandContext,
-        user: interactions.Member,
-    ):
+    async def _ascii_image(self, ctx: interactions.CommandContext, param: str):
         """Turns a user profile picture into ASCII art."""
-
-        url = user.user.avatar_url[:-4] + ".png"
 
         # x = re.search("(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?", url)
 
         # if not x:
         #     return await ctx.send("Invalid URL. (re)")
+        user_obj = bool(re.match(r"<?([@!]|[@])(\d*)>", param))
+        if user_obj is True:
+            usr = re.compile("<?(\d*)>")
+            parsed = usr.findall(param)
+            try:
+                url = await interactions.get(
+                    self.client, interactions.User, object_id=parsed[0]
+                )
+                url = url.avatar_url[:-4] + ".png"
+            except:
+                return await ctx.send(
+                    "Invalid param. Please check if it is a valid user."
+                )
+        elif param.isdigit() is True:
+            try:
+                url = await interactions.get(
+                    self.client, interactions.User, object_id=param
+                )
+                url = url.avatar_url[:-4] + ".png"
+            except:
+                return await ctx.send(
+                    "Invalid param. Please check if it is a valid user."
+                )
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
@@ -196,32 +213,8 @@ class ASCII(interactions.Extension):
         await ctx.send(files=file)
 
     @_ascii.subcommand(name="text")
-    @interactions.option("The text you want to convert")
-    @interactions.option("The color of the text (hex code)")
-    async def _ascii_text(
-        self, ctx: interactions.CommandContext, text: str, color: str = None
-    ):
+    async def _ascii_text(self, ctx: molter.MolterContext, *, text: str):
         """Turn texts into ASCII art word."""
-
-        if color is None:
-            pass
-        else:
-            match = re.search(r"^(?:[0-9a-fA-F]{3}){1,2}$", color)
-            if not match:
-                return await ctx.send(
-                    content="".join(
-                        [
-                            "Invalid hex code. Please try again.\n",
-                            "In case you do not know about hex code, have a look at the [gif](https://cdn.discordapp.com/attachments/862636687226044436/1014917397519552703/guide.gif) ",
-                            "below and use [this site](<https://www.w3schools.com/colors/colors_picker.asp>) ",
-                            "to get the color hex code.",
-                        ]
-                    ),
-                    ephemeral=True,
-                )
-            custom_color = ImageColor.getcolor(
-                color if color.startswith("#") else "#" + color, "RGB"
-            )
 
         s = ""
         text_split = page_paginator(text)
@@ -239,13 +232,7 @@ class ASCII(interactions.Extension):
 
         img = Image.new("RGB", (width, height), color="black")
         i = ImageDraw.Draw(img)
-        i.text(
-            (1, 1),
-            ascii_art,
-            fill=(102, 255, 0)
-            if color is None
-            else (custom_color[0], custom_color[1], custom_color[2]),
-        )
+        i.text((1, 1), ascii_art, fill=(102, 255, 0))
         with io.BytesIO() as out:
             img.save(out, format="JPEG")
             file = interactions.File(filename="image.jpg", fp=out.getvalue())

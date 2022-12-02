@@ -8,6 +8,21 @@ import logging
 import datetime
 import interactions
 from utils.permission import Permissions, has_permission
+from functools import lru_cache
+
+
+@lru_cache(maxsize=1024)
+class Get_mod:
+    """Getting the User of the moderator."""
+
+    def __init__(self):
+        self.mod = None
+
+    def add_mod(self, user):
+        self.mod = user
+
+    def get_mod(self):
+        return self.mod
 
 
 class Mod(interactions.Extension):
@@ -259,15 +274,19 @@ class Mod(interactions.Extension):
             )
 
         time = datetime.datetime.utcnow()
-        time += datetime.timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+        time += datetime.timedelta(
+            days=days, hours=hours, minutes=minutes, seconds=seconds
+        )
 
         try:
+            Get_mod().add_mod(ctx.user)
             await member.modify(
                 guild_id=int(ctx.guild_id),
                 communication_disabled_until=time.isoformat(),
                 reason=reason,
             )
         except interactions.LibraryException:
+            Get_mod().add_mod(None)
             return await ctx.send(
                 content="".join(
                     [
@@ -316,12 +335,14 @@ class Mod(interactions.Extension):
             )
 
         try:
+            Get_mod().add_mod(ctx.user)
             await member.modify(
                 guild_id=int(ctx.guild_id),
                 communication_disabled_until=None,
                 reason=reason,
             )
         except interactions.LibraryException:
+            Get_mod().add_mod(None)
             return await ctx.send(
                 content="".join(
                     [

@@ -8,7 +8,6 @@ import logging
 import datetime
 import random
 import asyncio
-import pprint
 import interactions
 from interactions.ext.wait_for import wait_for_component
 

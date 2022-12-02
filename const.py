@@ -9,21 +9,9 @@ import dotenv
 
 dotenv.load_dotenv()
 
-global TOKEN
-global VERSION
-global EXT_CORE
-global EXT_FUN
-global EXT_SERVER
-global EXT_UTILS
-global APIKEY
-global AUTHORIZATION
-global GOOGLE_CLOUD
-global GOOGLE_CSE
-global U_KEY
-global U_SECRET
 
 TOKEN = os.getenv("TOKEN")
-VERSION = "v4.2.2"
+VERSION = "v4.2.3"
 EXT_CORE = [
     file.replace(".py", "")
     for file in os.listdir("exts/core")
@@ -42,6 +30,11 @@ EXT_SERVER = [
 EXT_UTILS = [
     file.replace(".py", "")
     for file in os.listdir("exts/utils")
+    if not file.startswith("_")
+]
+MSG_EXT_FUN = [
+    file.replace(".py", "")
+    for file in os.listdir("exts/msg_exts/fun")
     if not file.startswith("_")
 ]
 APIKEY = os.getenv("APIKEY")

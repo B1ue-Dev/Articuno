@@ -19,10 +19,7 @@ class Automod(interactions.Extension):
     @interactions.extension_listener(name="on_message_create")
     async def _message_create(self, message: interactions.Message):
         message_content = str(message.content.lower())
-        if (
-            int(message.guild_id) == 859030372783751168
-            and int(message.guild_id) is not None
-        ):
+        if message.guild_id is not None and int(message.guild_id) == 859030372783751168:
 
             # If someone sends an invite link
             discord_invite = r"(?:(?:discord.?(?:gg|io|me|li)|discord(?:app)?.?com[/\\]{1,}(?:invite))(?:[\S]+)?[/\\]{1,}([^\s/]+?)(?=\b))|discord://-/invite/([^\s/]+?)(?=\b)"

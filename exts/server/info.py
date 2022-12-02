@@ -12,7 +12,7 @@ from utils.utils import get_response
 from utils.colorthief import ColorThief
 
 
-async def get_color(img):
+async def get_color(img) -> str:
     """
     Get the dominant color of an image.
 
@@ -28,27 +28,28 @@ async def get_color(img):
     return dominant_color
 
 
-def get_user_flags(flags: UserFlags):
+def get_user_flags(flags: UserFlags) -> str:
     """
     Get user flags and return them as a string.
 
     :param flags: User flags.
     :type flags: UserFlags
     :return: User flags as a string.
-    :rtype: str|None
+    :rtype: str
     """
 
     user_flags: list = []
     discord_flags = {
-        "STAFF": "Discord Employee",
-        "PARTNER": "Partnered Server Owner",
-        "HYPESQUAD": "HypeSquad Events Member",
-        "BUG_HUNTER_LEVEL_1": "Bug Hunter Level 1",
-        "PREMIUM_EARLY_SUPPORTER": "Early Nitro Supporter",
-        "BUG_HUNTER_LEVEL_2": "Bug Hunter Level 2",
-        "VERIFIED_BOT": "Verified Bot",
-        "VERIFIED_DEVELOPER": "Early Verified Bot Developer",
-        "DISCORD_CERTIFIED_MODERATOR": "Discord Certified Moderator",
+        "STAFF": "<:BadgeDiscordStaff:1043234580813066270> Discord Employee",
+        "PARTNER": "<:BadgeDiscordPartner:1043234716079366184> Partnered Server Owner",
+        "HYPESQUAD": "<:BadgeHypesquadEvent:1043234630075158548> HypeSquad Events Member",
+        "BUG_HUNTER_LEVEL_1": "<:BadgeDiscordBugHunterLv1:1043234778914242701> Bug Hunter Level 1",
+        "PREMIUM_EARLY_SUPPORTER": "<:BadgeEarlySupporter:1043234890566619246> Early Nitro Supporter",
+        "BUG_HUNTER_LEVEL_2": "<:BadgeDiscordBugHunterLv2:1043234838255259698> Bug Hunter Level 2",
+        "VERIFIED_BOT": "<:BadgeVerifiedBot:1043235024704634900> Verified Bot",
+        "VERIFIED_DEVELOPER": "<:BadgeEarlyVerifiedDeveloper:1043234961219657829> Early Verified Bot Developer",
+        "DISCORD_CERTIFIED_MODERATOR": "<:BadgeDiscordCertifiedModerator:1043235073169825923> Discord Certified Moderator",
+        "ACTIVE_DEVELOPER": "<:BadgeActiveDev:1042443072186896476> Active Developer",
     }
 
     for flag in UserFlags:

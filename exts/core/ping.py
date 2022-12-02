@@ -7,9 +7,10 @@ Ping command.
 import logging
 import datetime
 import interactions
+from interactions.ext import molter
 
 
-class Ping(interactions.Extension):
+class Ping(molter.MolterExtension):
     """Extension for /ping command."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -20,6 +21,31 @@ class Ping(interactions.Extension):
         description="Ping Articuno.",
     )
     async def _ping(self, ctx: interactions.CommandContext):
+        """Ping Articuno."""
+
+        websocket = int(f"{self.client.latency * 1:.0f}")
+        if websocket < 100:
+            color = 0x3BA55D
+        elif 100 <= websocket < 175:
+            color = 0xCB8515
+        elif 175 <= websocket:
+            color = 0xED4245
+
+        footer = interactions.EmbedFooter(
+            text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+            icon_url=f"{ctx.user.avatar_url}",
+        )
+        embed = interactions.Embed(
+            title=":ping_pong: Pong!",
+            description=f"Websocket: {websocket}ms",
+            color=color,
+            footer=footer,
+        )
+
+        await ctx.send(embeds=embed)
+
+    @molter.prefixed_command(name="ping")
+    async def _ping_msg(self, ctx: molter.MolterContext):
         """Ping Articuno."""
 
         websocket = int(f"{self.client.latency * 1:.0f}")
