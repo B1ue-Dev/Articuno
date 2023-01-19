@@ -28,7 +28,7 @@ class Author(molter.MolterExtension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Articuno-org/Articuno",
+                url="https://github.com/Jimmy-Blue/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -67,7 +67,7 @@ class Author(molter.MolterExtension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Articuno-org/Articuno",
+                url="https://github.com/Jimmy-Blue/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,

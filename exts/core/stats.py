@@ -19,7 +19,7 @@ class Stats(molter.MolterExtension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime = f"<t:{round((datetime.datetime.utcnow() + datetime.timedelta(hours=7)).timestamp())}:R>"
+        self.uptime = f"<t:{round(datetime.datetime.utcnow().timestamp())}:R>"
         self.python = platform.python_version()
         self.system = str(platform.platform())
 
@@ -42,7 +42,7 @@ class Stats(molter.MolterExtension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Articuno-org/Articuno",
+                url="https://github.com/Jimmy-Blue/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -109,7 +109,7 @@ class Stats(molter.MolterExtension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Articuno-org/Articuno",
+                url="https://github.com/Jimmy-Blue/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
