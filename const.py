@@ -11,7 +11,7 @@ dotenv.load_dotenv()
 
 
 TOKEN = os.getenv("TOKEN")
-VERSION = "v4.2.3"
+VERSION = "v4.2.4"
 EXT_CORE = [
     file.replace(".py", "")
     for file in os.listdir("exts/core")
