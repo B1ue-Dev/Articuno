@@ -1,4 +1,4 @@
-# Articuno [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge) [![wakatime](https://wakatime.com/badge/github/Articuno-org/Articuno.svg)](https://wakatime.com/badge/github/Jimmy-Blue/Articuno)
+# Articuno [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge) [![wakatime](https://wakatime.com/badge/user/4a61584b-76a5-4b28-9ec2-4ebad12be49f/project/c8e18506-9fbe-440b-955f-34219e1ecf5f.svg)](https://wakatime.com/badge/github/Jimmy-Blue/Articuno)
 A fun Discord Bot, written with interactions.py.
 
 ![banner.png](./articuno_banner.png)
@@ -48,7 +48,7 @@ Articuno has a good range of miscellaneous commands, such as ``amogus``, ``gay``
 Contribution is welcomed. However, we require you to follow our set of rules:
 - Follow the repository schema. (Breaking it will result in your Pull Request get closed)
 - PRs are enforced under black **black**, **flake8** and **Conventional Commits**.
-- Must work with Python ``3.8.6`` and higher.
+- Must work with Python version requirement ``>=3.10.0, <3.11``.
 - Breaking change/new feature implementation must be documented precisely.
 - We do not accept abstraction-based requests. (e.g. ``colour`` for ``color``)
 - You must be willing to change/adhere to reviews from participants where necessary. (Pull Request/Issues may be closed if we do not feel it is necessary to be added)
