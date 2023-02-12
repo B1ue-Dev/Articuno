@@ -7,23 +7,24 @@ Ping command.
 import logging
 import datetime
 import interactions
-from interactions.ext import molter
+from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
 
 
-class Ping(molter.MolterExtension):
+class Ping(interactions.Extension):
     """Extension for /ping command."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="ping",
         description="Ping Articuno.",
     )
-    async def _ping(self, ctx: interactions.CommandContext):
+    async def ping(self, ctx: interactions.InteractionContext) -> None:
         """Ping Articuno."""
 
-        websocket = int(f"{self.client.latency * 1:.0f}")
+        websocket: int = int(f"{self.client.latency * 1000:.0f}")
+        color: int = 0
         if websocket < 100:
             color = 0x3BA55D
         elif 100 <= websocket < 175:
@@ -33,7 +34,7 @@ class Ping(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title=":ping_pong: Pong!",
@@ -44,11 +45,12 @@ class Ping(molter.MolterExtension):
 
         await ctx.send(embeds=embed)
 
-    @molter.prefixed_command(name="ping")
-    async def _ping_msg(self, ctx: molter.MolterContext):
+    @prefixed_command(name="ping")
+    async def _ping(self, ctx: PrefixedContext) -> None:
         """Ping Articuno."""
 
-        websocket = int(f"{self.client.latency * 1:.0f}")
+        websocket: int = int(f"{self.client.latency * 1000:.0f}")
+        color: int = 0
         if websocket < 100:
             color = 0x3BA55D
         elif 100 <= websocket < 175:
@@ -58,7 +60,7 @@ class Ping(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title=":ping_pong: Pong!",
