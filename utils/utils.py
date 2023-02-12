@@ -76,13 +76,14 @@ def pretty_date(time: int) -> str:
     :rtype: str
     """
 
-    now = datetime.utcnow()
+    now = datetime.now()
+    diff = now - now
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time, datetime):
         diff = now - time
     elif not time:
-        diff = 0
+        diff = now - now
     second_diff = diff.seconds
     day_diff = diff.days
 
