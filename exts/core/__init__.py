@@ -15,7 +15,7 @@ class Core(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        [self.client.load(f"exts.core.{ext}") for ext in EXT_CORE]
+        [self.client.load_extension(f"exts.core.{ext}") for ext in EXT_CORE]
 
 
 def setup(client) -> None:
