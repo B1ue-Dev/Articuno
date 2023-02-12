@@ -7,21 +7,21 @@ This module is for author commands.
 import logging
 import datetime
 import interactions
-from interactions.ext import molter
+from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
 from const import VERSION
 
 
-class Author(molter.MolterExtension):
+class Author(interactions.Extension):
     """Extension for author commands."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="about",
         description="Information about Articuno.",
     )
-    async def _about(self, ctx: interactions.CommandContext):
+    async def about(self, ctx: interactions.InteractionContext) -> None:
         """Information about Articuno."""
 
         button = [
@@ -53,14 +53,14 @@ class Author(molter.MolterExtension):
             ),
             color=0x7CB7D3,
             footer=interactions.EmbedFooter(
-                text=f"Maintained by Blue#2095 • Version {VERSION}"
+                text=f"Maintained by Blue#2095  •  Version {VERSION}"
             ),
         )
 
         await ctx.send(embeds=embed, components=button)
 
-    @molter.prefixed_command(name="about")
-    async def _msg_about(self, ctx: molter.MolterContext):
+    @prefixed_command(name="about")
+    async def _about(self, ctx: PrefixedContext) -> None:
         """Information about Articuno."""
 
         button = [
@@ -92,17 +92,17 @@ class Author(molter.MolterExtension):
             ),
             color=0x7CB7D3,
             footer=interactions.EmbedFooter(
-                text=f"Maintained by Blue#2095 • Version {VERSION}"
+                text=f"Maintained by Blue#2095  •  Version {VERSION}"
             ),
         )
 
         await ctx.send(embeds=embed, components=button)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="credits",
         description="Developers/Contributors to this project.",
     )
-    async def _credits(self, ctx: interactions.CommandContext):
+    async def credits(self, ctx: interactions.InteractionContext) -> None:
         """Developers/Contributors to this project."""
 
         profile = interactions.Button(
@@ -113,7 +113,7 @@ class Author(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Credits",
@@ -124,8 +124,8 @@ class Author(molter.MolterExtension):
 
         await ctx.send(embeds=embed, components=[profile])
 
-    @molter.prefixed_command(name="credits")
-    async def _msg_credits(self, ctx: molter.MolterContext):
+    @prefixed_command(name="credits")
+    async def _credits(self, ctx: PrefixedContext) -> None:
         """Developers/Contributors to this project."""
 
         profile = interactions.Button(
@@ -136,7 +136,7 @@ class Author(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Credits",
@@ -147,11 +147,11 @@ class Author(molter.MolterExtension):
 
         await ctx.send(embeds=embed, components=[profile])
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="invite",
         description="Invite Articuno to your server.",
     )
-    async def _invite(self, ctx: interactions.CommandContext):
+    async def invite(self, ctx: interactions.InteractionContext) -> None:
         """Invite Articuno to your server."""
 
         buttons = [
@@ -174,7 +174,7 @@ class Author(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Invite Articuno to your server",
@@ -185,8 +185,8 @@ class Author(molter.MolterExtension):
 
         await ctx.send(embeds=embed, components=buttons)
 
-    @molter.prefixed_command(name="invite")
-    async def _msg_invite(self, ctx: molter.MolterContext):
+    @prefixed_command(name="invite")
+    async def _msg_invite(self, ctx: PrefixedContext) -> None:
         """Invite Articuno to your server."""
 
         buttons = [
@@ -209,7 +209,7 @@ class Author(molter.MolterExtension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Invite Articuno to your server",
