@@ -1,7 +1,7 @@
 """
 This module is for author commands.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - Jimmy-Blue
 """
 
 import logging
