@@ -8,7 +8,10 @@ import logging
 import datetime
 import platform
 import interactions
-from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 import psutil
 from utils import utils
 from const import VERSION
@@ -97,7 +100,9 @@ class Stats(interactions.Extension):
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedAttachment(url=self.client.user.avatar.url)
+        thumbnail = interactions.EmbedAttachment(
+            url=self.client.user.avatar.url
+        )
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
             icon_url=f"{ctx.user.avatar.url}",
@@ -183,7 +188,9 @@ class Stats(interactions.Extension):
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedAttachment(url=self.client.user.avatar.url)
+        thumbnail = interactions.EmbedAttachment(
+            url=self.client.user.avatar.url
+        )
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
             icon_url=f"{ctx.user.avatar.url}",
@@ -201,8 +208,8 @@ class Stats(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     Stats(client)
     logging.debug("""[%s] Loaded Stats extension.""", log_time)

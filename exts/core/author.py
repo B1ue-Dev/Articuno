@@ -7,7 +7,10 @@ This module is for author commands.
 import logging
 import datetime
 import interactions
-from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 from const import VERSION
 
 
@@ -223,8 +226,8 @@ class Author(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     Author(client)
     logging.debug("""[%s] Loaded Author extension.""", log_time)

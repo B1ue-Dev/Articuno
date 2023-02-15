@@ -7,7 +7,10 @@ Ping command.
 import logging
 import datetime
 import interactions
-from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 
 
 class Ping(interactions.Extension):
@@ -74,8 +77,8 @@ class Ping(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     Ping(client)
     logging.debug("""[%s] Loaded Ping extension.""", log_time)

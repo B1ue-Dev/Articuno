@@ -16,7 +16,10 @@ import traceback
 import asyncio
 import interactions
 from interactions.ext.paginators import Paginator
-from interactions.ext.prefixed_commands import prefixed_command, PrefixedContext
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 
 
 def page_paginator(text: str) -> list[str]:
@@ -71,7 +74,9 @@ class Eval(interactions.Extension):
             )
         ],
     )
-    async def eval(self, ctx: interactions.InteractionContext, code: str) -> None:
+    async def eval(
+        self, ctx: interactions.InteractionContext, code: str
+    ) -> None:
         """Evaluates some code."""
 
         if int(ctx.user.id) != 892080548342820925:
@@ -204,7 +209,9 @@ class Eval(interactions.Extension):
             )
         ],
     )
-    async def shell(self, ctx: interactions.InteractionContext, command: str) -> None:
+    async def shell(
+        self, ctx: interactions.InteractionContext, command: str
+    ) -> None:
         """Runs a shell command."""
 
         await ctx.defer()
@@ -248,8 +255,8 @@ class Eval(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     Eval(client)
     logging.debug("""[%s] Loaded Eval extension.""", log_time)
