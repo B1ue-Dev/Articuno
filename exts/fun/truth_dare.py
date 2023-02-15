@@ -9,6 +9,7 @@ import datetime
 import interactions
 from utils.utils import get_response
 
+
 def _buttons() -> "list[interactions.Button]":
     """
     :return: The button list for the command.
@@ -44,16 +45,18 @@ class TruthDare(interactions.Extension):
         self.client: interactions.Client = client
         self.base_url: str = "https://api.truthordarebot.xyz/v1"
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="truth_dare",
-        description="NaN.",
+        description="Starts a Truth or Dare game.",
     )
-    async def truth_dare(self, ctx: interactions.CommandContext) -> None:
-        """NaN."""
+    async def truth_dare(self, ctx: interactions.InteractionContext) -> None:
+        """Starts a Truth or Dare game."""
 
-        await ctx.send("Select one of the topic to get started.", components=_buttons())
+        await ctx.send(
+            "Select one of the topic to get started.", components=_buttons()
+        )
 
-    @interactions.extension_component("/truth")
+    @interactions.component_callback("/truth")
     async def _truth(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /truth."""
 
@@ -64,10 +67,10 @@ class TruthDare(interactions.Extension):
 
         embed = interactions.Embed(
             description=f"```\n{_question}\n```",
-            color=0x2d7d46,
+            color=0x2D7D46,
             author=interactions.EmbedAuthor(
                 name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url,
+                icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: TRUTH  •  ID: {_id}  •  Rating: PG"
@@ -76,7 +79,7 @@ class TruthDare(interactions.Extension):
         )
         await ctx.send(embeds=embed, components=_buttons())
 
-    @interactions.extension_component("/dare")
+    @interactions.component_callback("/dare")
     async def _dare(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /dare."""
 
@@ -87,10 +90,10 @@ class TruthDare(interactions.Extension):
 
         embed = interactions.Embed(
             description=f"```\n{_question}\n```",
-            color=0xd83c3e,
+            color=0xD83C3E,
             author=interactions.EmbedAuthor(
                 name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url,
+                icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: DARE  •  ID: {_id}  •  Rating: PG"
@@ -99,7 +102,7 @@ class TruthDare(interactions.Extension):
         )
         await ctx.send(embeds=embed, components=_buttons())
 
-    @interactions.extension_component("/wyr")
+    @interactions.component_callback("/wyr")
     async def _wyr(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /wyr."""
 
@@ -110,10 +113,10 @@ class TruthDare(interactions.Extension):
 
         embed = interactions.Embed(
             description=f"```\n{_question}\n```",
-            color=0x5865f2,
+            color=0x5865F2,
             author=interactions.EmbedAuthor(
                 name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url,
+                icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: Would you rather...  •  ID: {_id}  •  Rating: PG"
@@ -122,7 +125,7 @@ class TruthDare(interactions.Extension):
         )
         await ctx.send(embeds=embed, components=_buttons())
 
-    @interactions.extension_component("/paranoia")
+    @interactions.component_callback("/paranoia")
     async def _paranoia(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /paranoia."""
 
@@ -133,10 +136,10 @@ class TruthDare(interactions.Extension):
 
         embed = interactions.Embed(
             description=f"```\n{_question}\n```",
-            color=0x4f545c,
+            color=0x4F545C,
             author=interactions.EmbedAuthor(
                 name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url,
+                icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: Paranoia  •  ID: {_id}  •  Rating: PG"
@@ -148,8 +151,8 @@ class TruthDare(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     TruthDare(client)
     logging.debug("""[%s] Loaded TruthDare extension.""", log_time)
