@@ -1,7 +1,7 @@
 """
 Text-to-speech command.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - Jimmy-Blue
 """
 
 import datetime
@@ -13,7 +13,7 @@ import aiohttp
 from const import U_KEY, U_SECRET
 
 
-async def _get_audio(uuid: str):
+async def get_audio(uuid: str):
     """
     Get the audio file from Uberduck AI.
 
@@ -33,7 +33,7 @@ async def _get_audio(uuid: str):
             return json if json.get("path") else False
 
 
-_voice_name_convert = {
+voice_name_convert = {
     "sonic-jason-griffith": "Sonic the Hedgehog",
     "tails-colleen": "Tails",
     "amy-rose-cr": "Amy Rose",
@@ -54,44 +54,65 @@ class TTS(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="tts",
         description="Sends a TTS message with different voices (Powered by Uberduck).",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="text",
                 description="Text to convert to speech",
                 required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="voice",
                 description="Voice to use",
                 required=False,
                 choices=[
-                    interactions.Choice(name="Sonic", value="sonic-jason-griffith"),
-                    interactions.Choice(name="Tails", value="tails-colleen"),
-                    interactions.Choice(name="Amy", value="amy-rose-cr"),
-                    interactions.Choice(name="Knuckles", value="knuckles"),
-                    interactions.Choice(name="Shadow", value="shadow-david-humphrey"),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
+                        name="Sonic", value="sonic-jason-griffith"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Tails", value="tails-colleen"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Amy", value="amy-rose-cr"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Knuckles", value="knuckles"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Shadow", value="shadow-david-humphrey"
+                    ),
+                    interactions.SlashCommandChoice(
                         name="Cosmo the Seedrian", value="cosmo-the-seedrian"
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Chris Thorndyke", value="chris-thorndyke"
                     ),
-                    interactions.Choice(name="Tom Wachowski", value="donut-lord"),
-                    interactions.Choice(name="Ash Ketchum", value="ash-ketchum"),
-                    interactions.Choice(name="Professor Oak", value="professor-oak"),
-                    interactions.Choice(name="Meowth", value="meowth"),
+                    interactions.SlashCommandChoice(
+                        name="Tom Wachowski", value="donut-lord"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Ash Ketchum", value="ash-ketchum"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Professor Oak", value="professor-oak"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Meowth", value="meowth"
+                    ),
                 ],
             ),
         ],
     )
-    async def _tts(
-        self, ctx: interactions.CommandContext, text: str, voice: str = None
-    ):
+    async def tts(
+        self,
+        ctx: interactions.InteractionContext,
+        text: str,
+        voice: str = None,
+    ) -> None:
         """Send a TTS message with different voices (Powered by Uberduck).."""
 
         check_voice = [
@@ -110,7 +131,9 @@ class TTS(interactions.Extension):
         if not voice:
             voice = "tails-colleen"
         elif voice and voice not in check_voice:
-            return await ctx.send("Invalid voice. Please try again.", ephemeral=True)
+            return await ctx.send(
+                "Invalid voice. Please try again.", ephemeral=True
+            )
 
         if len(text) > 1000:
             return await ctx.send(
@@ -131,7 +154,7 @@ class TTS(interactions.Extension):
                         _json = None
                         while True:
                             failed_time = 0
-                            audio = await _get_audio(uuid)
+                            audio = await get_audio(uuid)
                             if failed_time < 10:
                                 if audio is not False:
                                     _json = audio
@@ -148,7 +171,7 @@ class TTS(interactions.Extension):
                                 fp=io.BytesIO(await resp.read()),
                             )
                             await ctx.send(
-                                content=f"Message: {text}\nVoice: {_voice_name_convert[voice]}",
+                                content=f"Message: {text}\nVoice: {voice_name_convert[voice]}",
                                 files=audio,
                             )
 
@@ -160,8 +183,8 @@ class TTS(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     TTS(client)
     logging.debug("""[%s] Loaded TTS extension.""", log_time)
