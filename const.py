@@ -43,13 +43,6 @@ EXT_UTILS = [
 ]
 """List of utils commands extension."""
 
-MSG_EXT_FUN = [
-    file.replace(".py", "")
-    for file in os.listdir("exts/msg_exts/fun")
-    if not file.startswith("_")
-]
-"""(Prefixed command) List of fun commands extension."""
-
 APIKEY = os.getenv("APIKEY")
 """API key for some-random-api."""
 
