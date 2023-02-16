@@ -1,7 +1,7 @@
 """
 Turn image into ASCII art.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - Jimmy-Blue
 """
 
 import logging
