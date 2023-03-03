@@ -4,7 +4,6 @@ Stats command.
 (C) 2022-2023 - Jimmy-Blue
 """
 
-import logging
 import datetime
 import platform
 import interactions
@@ -22,7 +21,7 @@ class Stats(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime: int = int(round(datetime.datetime.now().timestamp()))
+        self.uptime: int = round(datetime.datetime.utcnow().timestamp())
         self.python: str = platform.python_version()
         self.system: str = str(platform.platform())
 
@@ -204,12 +203,3 @@ class Stats(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, components=button)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
-    Stats(client)
-    logging.debug("""[%s] Loaded Stats extension.""", log_time)

@@ -4,8 +4,6 @@ This module is for author commands.
 (C) 2022-2023 - Jimmy-Blue
 """
 
-import logging
-import datetime
 import interactions
 from interactions.ext.prefixed_commands import (
     prefixed_command,
@@ -222,12 +220,3 @@ class Author(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, components=buttons)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
-    Author(client)
-    logging.debug("""[%s] Loaded Author extension.""", log_time)

@@ -4,8 +4,6 @@ Ping command.
 (C) 2022-2023 - Jimmy-Blue
 """
 
-import logging
-import datetime
 import interactions
 from interactions.ext.prefixed_commands import (
     prefixed_command,
@@ -73,12 +71,3 @@ class Ping(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
-    Ping(client)
-    logging.debug("""[%s] Loaded Ping extension.""", log_time)

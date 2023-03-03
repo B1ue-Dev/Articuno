@@ -4,8 +4,6 @@ Eval command.
 (C) 2022-2023 - Jimmy-Blue
 """
 
-import logging
-import datetime
 import io
 import textwrap
 import inspect
@@ -215,12 +213,3 @@ class Eval(interactions.Extension):
         )
 
         await paginator.send(ctx)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
-    Eval(client)
-    logging.debug("""[%s] Loaded Eval extension.""", log_time)
