@@ -7,53 +7,18 @@ Eval command.
 import logging
 import datetime
 import io
-import string
-import re
 import textwrap
 import inspect
 import contextlib
 import traceback
 import asyncio
 import interactions
+from jedi import Script
 from interactions.ext.paginators import Paginator
 from interactions.ext.prefixed_commands import (
     prefixed_command,
     PrefixedContext,
 )
-
-
-def page_paginator(text: str) -> list[str]:
-    """
-    This function takes a string and splits it into chunks of 1000 characters.
-
-    :param text: The string to split.
-    :type text: str
-    :return: A list of strings.
-    :rtype: list
-    """
-
-    words = [
-        re.sub("^[{0}]+|[{0}]+$".format(string.punctuation), "", w)
-        for w in text.split()
-    ]
-    pages = []
-    s = ""
-    for i in range(len(words)):
-        if len(s) < 1000:
-            if i == len(words) - 1:
-                s += f"{words[i]} "
-                pages.append(s)
-            else:
-                s += f"{words[i]} "
-        else:
-            pages.append(s)
-            s = ""
-            if i == len(words) - 1:
-                s += f"\n{words[i]} "
-                pages.append(s)
-            else:
-                s += f"\n{words[i]} "
-    return pages
 
 
 class Eval(interactions.Extension):
@@ -71,6 +36,7 @@ class Eval(interactions.Extension):
                 name="code",
                 description="Code to evaluate.",
                 required=True,
+                autocomplete=True,
             )
         ],
     )
@@ -106,7 +72,7 @@ class Eval(interactions.Extension):
         try:
             exec(to_compile, env)
         except Exception:
-            return await ctx.send(f"```py\n{traceback.format_exc()}\n```")
+            return await ctx.send(f"{traceback.format_exc()}")
 
         func = env["func"]
         try:
@@ -114,27 +80,38 @@ class Eval(interactions.Extension):
                 await func()
         except Exception:
             value = stdout.getvalue()
-            await ctx.send(f"```py\n{value}{traceback.format_exc()}\n```")
+            await ctx.send(f"{value}{traceback.format_exc()}")
         else:
             value = stdout.getvalue()
             if value and len(value) < 1001:
-                await ctx.send(f"```py\n{value}\n```")
+                await ctx.send(f"{value}")
 
             elif value and len(value) > 0:
-                out_pages = page_paginator(value)
-                pag_pages = []
-                for page in out_pages:
-                    pag_pages.append(f"```py\n{page}\n```")
-
-                paginator = Paginator.create_from_list(
+                paginator = Paginator.create_from_string(
                     self.client,
-                    content=pag_pages,
+                    content=value,
                     page_size=2000,
                 )
 
                 await paginator.send(ctx)
             else:
-                await ctx.send("```py\nNone\n```", ephemeral=True)
+                await ctx.send("None", ephemeral=True)
+
+    @interactions.global_autocomplete("code")
+    async def code_autocomplete(
+        self, ctx: interactions.AutocompleteContext
+    ) -> None:
+        """Autocomplete for `code`"""
+        s = Script(ctx.input_text).complete()[0:20]
+        await ctx.send(
+            [
+                {
+                    "name": f"{ctx.input_text + x.complete}",
+                    "value": f"{ctx.input_text + x.complete}",
+                }
+                for x in (s if len(s) < 26 else s[0:25])
+            ]
+        )
 
     @prefixed_command(name="eval")
     async def _eval(self, ctx: PrefixedContext, *, code: str) -> None:
@@ -165,7 +142,7 @@ class Eval(interactions.Extension):
         try:
             exec(to_compile, env)
         except Exception:
-            return await ctx.send(f"```py\n{traceback.format_exc()}\n```")
+            return await ctx.send(f"{traceback.format_exc()}")
 
         func = env["func"]
         try:
@@ -173,29 +150,22 @@ class Eval(interactions.Extension):
                 await func()
         except Exception:
             value = stdout.getvalue()
-            return await ctx.send(
-                f"```py\n{value}{traceback.format_exc()}\n```"
-            )
+            return await ctx.send(f"{value}{traceback.format_exc()}")
         else:
             value = stdout.getvalue()
             if value and len(value) < 1001:
-                await ctx.send(f"```py\n{value}\n```")
+                await ctx.send(f"{value}")
 
             elif value and len(value) > 0:
-                out_pages = page_paginator(value)
-                pag_pages = []
-                for page in out_pages:
-                    pag_pages.append(f"```py\n{page}\n```")
-
-                paginator = Paginator.create_from_list(
+                paginator = Paginator.create_from_string(
                     self.client,
-                    content=pag_pages,
+                    content=value,
                     page_size=2000,
                 )
 
                 await paginator.send(ctx)
             else:
-                await ctx.send("```py\nNone\n```", ephemeral=True)
+                await ctx.send("None", ephemeral=True)
 
     @interactions.slash_command(
         name="shell",
@@ -237,16 +207,10 @@ class Eval(interactions.Extension):
             return await ctx.send(
                 f"```sh\n$ {command}\n\n{out}\n\nReturn code {proc.returncode};\n```"
             )
-        out_pages = page_paginator(out)
-        pag_pages = []
-        for page in out_pages:
-            pag_pages.append(
-                f"```sh\n$ {command}\n\n{page}\n\nReturn code {proc.returncode};\n```"
-            )
 
-        paginator = Paginator.create_from_list(
+        paginator = Paginator.create_from_string(
             self.client,
-            content=pag_pages,
+            content=out,
             page_size=2000,
         )
 
