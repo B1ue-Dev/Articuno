@@ -204,7 +204,9 @@ class WTP(interactions.Extension):
                 try:
 
                     def _check(_ctx):
-                        return int(_ctx.ctx.user.id) == int(ctx.user.id)
+                        return int(_ctx.ctx.user.id) == int(
+                            ctx.user.id
+                        ) and int(_ctx.ctx.channel_id) == int(ctx.channel_id)
 
                     res = await self.client.wait_for_component(
                         components=_button_list,

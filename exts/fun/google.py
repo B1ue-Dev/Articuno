@@ -128,10 +128,9 @@ class Google(interactions.Extension):
                 try:
 
                     def _check(_ctx):
-                        if int(_ctx.ctx.user.id) == int(ctx.user.id):
-                            return True
-                        else:
-                            return False
+                        return int(_ctx.ctx.user.id) == int(
+                            ctx.user.id
+                        ) and int(_ctx.ctx.channel_id) == int(ctx.channel_id)
 
                     res = await self.client.wait_for_component(
                         components=buttons,
@@ -279,12 +278,3 @@ class Google(interactions.Extension):
 
         except KeyError:
             await ctx.send("No result found.", ephemeral=True)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
-    Google(client)
-    logging.debug("""[%s] Loaded Google extension.""", log_time)
