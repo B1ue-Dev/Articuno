@@ -1,14 +1,15 @@
 """
-UwU
+UwU related commands.
 
-2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import random
 import interactions
-from interactions.ext import molter
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 
 
 class OwO:
@@ -83,7 +84,7 @@ class OwO:
         "*blushes*",
     ]
 
-    def create_uwu_text(text: str) -> str:
+    def create_uwu_text(self, text: str) -> str:
         """
         Create UwU text from a given text.
         :param text: The text to UwU.
@@ -101,44 +102,44 @@ class OwO:
         return text
 
 
-class UwU(molter.MolterExtension):
+class UwU(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="uwu",
         description="UwU a text.",
     )
-    @interactions.option("The text to UwU.")
-    async def _uwu(self, ctx: interactions.CommandContext, text: str):
-        if len(text) > 1000:
-            return await ctx.send("Text too long. Please try again.", ephemeral=True)
-
-        res = OwO.create_uwu_text(text)
-        await ctx.send(res)
-
-    @molter.prefixed_command(name="uwu")
-    async def _msg_uwu(self, ctx: molter.MolterContext, *, text: str):
-        if len(text) > 1000:
-            return await ctx.send("Text too long. Please try again.")
-
-        res = OwO.create_uwu_text(text)
-        await ctx.send(res)
-
-    @interactions.extension_message_command(name="UwU-fier")
-    async def _translate(self, ctx: interactions.CommandContext):
-        text = ctx.target.content
-        if len(text) > 1000:
-            return await ctx.send("Text too long. Please try again.", ephemeral=True)
-
-        res = OwO.create_uwu_text(text)
-        await ctx.send(res)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
+    @interactions.slash_option(
+        name="text",
+        description="The text to UwU.",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        max_length=700,
     )
-    UwU(client)
-    logging.debug("""[%s] Loaded Fun extension.""", log_time)
+    async def uwu(self, ctx: interactions.SlashContext, text: str) -> None:
+        """UwU a text."""
+
+        res = OwO.create_uwu_text(self, text)
+        await ctx.send(res)
+
+    @prefixed_command(name="uwu")
+    async def _uwu(self, ctx: PrefixedContext, *, text: str) -> None:
+        """UwU a text."""
+
+        res = OwO.create_uwu_text(self, text)
+        await ctx.send(res)
+
+    @interactions.context_menu(
+        name="UwU-fier",
+        context_type=interactions.CommandType.MESSAGE,
+    )
+    async def uwu_fier(self, ctx: interactions.InteractionContext) -> None:
+        text: interactions.Message = ctx.target
+        if len(text.content) > 1000:
+            return await ctx.send(
+                "Text too long. Please try again.", ephemeral=True
+            )
+
+        res = OwO.create_uwu_text(self, text=text.content)
+        await ctx.send(res)
