@@ -1,7 +1,7 @@
 """
-/truth_dare command.
+Truth n Dare command.
 
-(C) 2023 - Jimmy-Blue
+(C) 2023 - B1ue-Dev
 """
 
 import logging
