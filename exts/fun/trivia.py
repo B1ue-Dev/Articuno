@@ -1,15 +1,12 @@
 """
 Trivia command.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import asyncio
-import datetime
 import base64 as b64
 import interactions
-from interactions.ext.wait_for import wait_for_component
 from utils.utils import get_response
 
 
@@ -19,113 +16,129 @@ class Trivia(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    async def get_question(self, category: str, difficulty: str) -> list:
+        """Get a list of 50 questions."""
+
+        url = f"https://opentdb.com/api.php"
+        params = {
+            "amount": "10",
+            "type": "boolean",
+            "encode": "base64",
+            "category": category,
+            "difficulty": difficulty,
+        }
+        resp = await get_response(url=url, params=params)
+
+        return resp
+
+    @interactions.slash_command(
         name="trivia",
         description="Play a game of trivia.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.INTEGER,
                 name="category",
                 description="The category you want to play",
                 choices=[
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="General Knowledge",
                         value=9,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Book",
                         value=10,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Film",
                         value=11,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Music",
                         value=12,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Musicals & Theatres",
                         value=13,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Television",
                         value=14,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Video Games",
                         value=15,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Nature",
                         value=17,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Computers",
                         value=18,
                     ),
-                    interactions.Choice(name="Sports", value=21),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(name="Sports", value=21),
+                    interactions.SlashCommandChoice(
                         name="Geography",
                         value=22,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="History",
                         value=23,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Animal",
                         value=27,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Vehicles",
                         value=28,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Comics",
                         value=29,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Japanese Anime & Manga",
                         value=31,
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Cartoons",
                         value=32,
                     ),
                 ],
-                required=False,
+                required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="difficulty",
                 description="The difficulty level",
                 choices=[
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Easy",
                         value="easy",
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Medium",
                         value="medium",
                     ),
-                    interactions.Choice(
+                    interactions.SlashCommandChoice(
                         name="Hard",
                         value="hard",
                     ),
                 ],
+                required=True,
             ),
         ],
     )
-    async def _trivia(
+    async def trivia(
         self,
-        ctx: interactions.CommandContext,
-        category: int = 9,
-        difficulty: str = "",
+        ctx: interactions.SlashContext,
+        category: int,
+        difficulty: str,
     ):
         """Plays a game of trivia."""
 
-        await ctx.defer()
+        _msg = await ctx.send(content="Getting question...")
 
         buttons = [
             interactions.Button(
@@ -140,42 +153,46 @@ class Trivia(interactions.Extension):
             ),
         ]
 
-        url = f"https://opentdb.com/api.php"
-        params = {
-            "amount": "1",
-            "type": "boolean",
-            "encode": "base64",
-            "category": category,
-            "difficulty": difficulty,
-        }
-        resp = await get_response(url=url, params=params)
-
-        if resp["response_code"] != 0:
-            return await ctx.send("An error occured", ephemeral=True)
-
-        _category = b64.b64decode(resp["results"][0]["category"])
-        category = _category.decode("utf-8")
-        _question = b64.b64decode(resp["results"][0]["question"])
-        question = _question.decode("utf-8")
-        _correct_answer = b64.b64decode(resp["results"][0]["correct_answer"])
-        correct_answer = _correct_answer.decode("utf-8")
-        embed = interactions.Embed(
-            title="Trivia",
-            description=f"**{category}**: {question}",
-            author=interactions.EmbedAuthor(
-                name=f"{ctx.user.username}#{ctx.user.discriminator}",
-                icon_url=ctx.user.avatar_url,
-            ),
+        cnt, i = 0, 0
+        _selected_category: str = category
+        _selected_difficulty: str = difficulty
+        resp = await Trivia.get_question(
+            self, _selected_category, _selected_difficulty
         )
-        msg = await ctx.send(embeds=embed, components=buttons)
 
         while True:
-            embed_ed = interactions.Embed(
+            if i != 9:
+                pass
+            else:
+                i = 0
+                resp = await Trivia.get_question(
+                    self, _selected_category, _selected_difficulty
+                )
+
+            _category = b64.b64decode(resp["results"][i]["category"])
+            category = _category.decode("utf-8")
+            _question = b64.b64decode(resp["results"][i]["question"])
+            question = _question.decode("utf-8")
+            _correct_answer = b64.b64decode(
+                resp["results"][i]["correct_answer"]
+            )
+            correct_answer = _correct_answer.decode("utf-8")
+            embed = interactions.Embed(
                 title="Trivia",
                 description=f"**{category}**: {question}",
                 author=interactions.EmbedAuthor(
                     name=f"{ctx.user.username}#{ctx.user.discriminator}",
                     icon_url=ctx.user.avatar_url,
+                ),
+            )
+            msg = await _msg.edit(content="", embeds=embed, components=buttons)
+
+            embed_ed = interactions.Embed(
+                title="Trivia",
+                description=f"**{category}**: {question}",
+                author=interactions.EmbedAuthor(
+                    name=f"{ctx.user.username}#{ctx.user.discriminator}",
+                    icon_url=ctx.user.avatar.url,
                 ),
             )
             buttons_disabled = [
@@ -195,28 +212,25 @@ class Trivia(interactions.Extension):
 
             try:
 
-                def check(_ctx: interactions.ComponentContext) -> bool:
-                    if int(_ctx.author.id) == int(ctx.user.id) and int(
-                        _ctx.channel_id
-                    ) == int(ctx.channel_id):
-                        return True
-                    else:
-                        return False
+                def _check(_ctx):
+                    return int(_ctx.ctx.user.id) == int(ctx.user.id) and int(
+                        _ctx.ctx.channel_id
+                    ) == int(ctx.channel_id)
 
-                res: interactions.ComponentContext = await wait_for_component(
-                    self.client,
+                res = await self.client.wait_for_component(
                     components=buttons,
-                    messages=int(ctx.message.id),
-                    check=check,
+                    messages=int(_msg.id),
+                    check=_check,
                     timeout=15,
                 )
 
-                if res.custom_id == "true":
+                author_answer: str = ""
+                if res.ctx.custom_id == "true":
                     if correct_answer == "True":
                         author_answer = "correct"
                     elif correct_answer == "False":
                         author_answer = "wrong"
-                elif res.custom_id == "false":
+                elif res.ctx.custom_id == "false":
                     if correct_answer == "True":
                         author_answer = "wrong"
                     elif correct_answer == "False":
@@ -225,36 +239,42 @@ class Trivia(interactions.Extension):
                 if author_answer == "correct":
                     embed_ed.add_field(
                         name="‎",
-                        value=f"{res.user.mention} had the correct answer.",
+                        value=f"{res.ctx.user.mention} had the correct answer.",
                         inline=False,
                     )
-                    await res.edit(embeds=embed_ed, components=buttons_disabled)
-                    await res.send(
-                        content=f"{res.user.mention}, you were correct.", ephemeral=True
+                    await res.ctx.edit_origin(
+                        content="",
+                        embeds=embed_ed,
+                        components=buttons_disabled,
                     )
-                    break
+                    cnt += 1
+                    await asyncio.sleep(3)
+                    await msg.edit(
+                        content=f"Getting question...\nStreak: {cnt}",
+                        components=[],
+                        embeds=[],
+                    )
+                    await asyncio.sleep(3)
+                    i += 1
+                    continue
+
                 elif author_answer == "wrong":
                     embed_ed.add_field(
                         name="‎",
-                        value=f"{res.user.mention} had the wrong answer.",
+                        value=f"{res.ctx.user.mention} had the wrong answer.",
                         inline=False,
                     )
-                    await res.edit(embeds=embed_ed, components=buttons_disabled)
-                    await res.send(
-                        content=f"{res.user.mention}, you were wrong.", ephemeral=True
+                    await res.ctx.edit_origin(
+                        content=f"Streak: {cnt}",
+                        embeds=embed_ed,
+                        components=buttons_disabled,
                     )
                     break
 
             except asyncio.TimeoutError:
                 await msg.edit(
-                    content="Time's up!", embeds=embed_ed, components=buttons_disabled
+                    content=f"Time's up! Streak: {cnt}",
+                    embeds=embed_ed,
+                    components=buttons_disabled,
                 )
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Trivia(client)
-    logging.debug("""[%s] Loaded Trivia extension.""", log_time)
+                break
