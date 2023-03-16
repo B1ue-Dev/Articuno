@@ -1,11 +1,9 @@
 """
 Image search command.
 
-(C) 2022-2023 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import asyncio
 import random
 import interactions
