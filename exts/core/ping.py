@@ -1,7 +1,7 @@
 """
-Ping command.
+/ping command.
 
-(C) 2022-2023 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
 import interactions
