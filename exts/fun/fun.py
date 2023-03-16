@@ -1,10 +1,9 @@
 """
-This module is for fun commands.
+Fun related commands.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import random
 import asyncio
 import datetime
@@ -18,48 +17,53 @@ class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
-        name="coffee", description="Send an image of coffee."
+    @interactions.slash_command(
+        name="coffee",
+        description="Send an image of coffee.",
     )
-    async def _coffee(self, ctx: interactions.CommandContext):
+    async def coffee(self, ctx: interactions.SlashContext) -> None:
         """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
         resp = await get_response(url)
         file = resp["file"]
 
-        image = interactions.EmbedImageStruct(url=file)
-        embed = interactions.Embed(title="Coffee ☕", color=0xC4771D, image=image)
+        image = interactions.EmbedAttachment(url=file)
+        embed = interactions.Embed(
+            title="Coffee ☕", color=0xC4771D, image=image
+        )
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="ship",
         description="Ship 2 users.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="user1",
                 description="User 1",
-                required=False,
+                required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="user2",
                 description="User 2",
-                required=False,
+                required=True,
             ),
         ],
     )
-    async def _ship(
+    async def ship(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.SlashContext,
         user1: str,
         user2: str,
-    ):
+    ) -> None:
         """Ship 2 users."""
 
-        shipnumber = int(random.randint(0, 100))
+        shipnumber: int = int(random.randint(0, 100))
+        heart: str = ""
+        comment: str = ""
 
         if 0 <= shipnumber <= 30:
             comment = "Really low! {}".format(
@@ -72,6 +76,7 @@ class Fun(interactions.Extension):
                         "Still in that friendzone ;(",
                         "No, just no!",
                         "But there is a small sense of romance from one person!",
+                        "Awful. 😢",
                     ]
                 )
             )
@@ -143,47 +148,46 @@ class Fun(interactions.Extension):
         else:
             shipColor = 0x3BE801
 
-        field = [
-            interactions.EmbedField(name=f"Result: {shipnumber}%", value=f"{comment}"),
-        ]
         embed = interactions.Embed(
-            title=f"**{user1}**    {heart}    **{user2}**",
+            title="💗 MATCHMAKING 💗",
+            description=f"**{user1}** {heart} **{user2}**",
             color=shipColor,
-            fields=field,
-            timestamp=datetime.datetime.utcnow(),
         )
+        embed.add_field(name=f"Result: {shipnumber}%", value=f"{comment}")
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="roll",
         description="Roll a dice.",
     )
-    async def _roll(self, ctx: interactions.CommandContext):
+    async def roll(self, ctx: interactions.SlashContext) -> None:
         """Rolls a dice."""
 
         dice = random.randint(1, 6)
-        await ctx.send("I am rolling the dice...")
+        msg = await ctx.send("I am rolling the dice...")
         await asyncio.sleep(1.5)
-        await ctx.edit(f"The number is **{dice}**.")
+        await ctx.edit(message=msg.id, content=f"The number is **{dice}**.")
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="flip",
         description="Flip a coin.",
     )
-    async def _flip(self, ctx: interactions.CommandContext):
+    async def flip(self, ctx: interactions.SlashContext) -> None:
         """Flips a coin."""
 
         coin = random.choice(["heads", "tails"])
-        await ctx.send("I am flipping the coin...")
+        msg = await ctx.send("I am flipping the coin...")
         await asyncio.sleep(1.5)
-        await ctx.edit(f"The coin landed on **{coin}**.")
+        await ctx.edit(
+            message=msg.id, content=f"The coin landed on **{coin}**."
+        )
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="gay",
         description="Calculate the gay percentage of a user.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="user",
                 description="Targeted user",
@@ -191,7 +195,9 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def _gay(self, ctx: interactions.CommandContext, user: str = None):
+    async def gay(
+        self, ctx: interactions.SlashContext, user: str = None
+    ) -> None:
         """Calculates the gay percentage of a user."""
 
         if not user:
@@ -206,11 +212,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="joke",
         description="Send a random joke.",
     )
-    async def _joke(self, ctx: interactions.CommandContext):
+    async def joke(self, ctx: interactions.SlashContext) -> None:
         """Sends a random joke."""
 
         url = "https://some-random-api.ml/joke"
@@ -223,11 +229,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="quote",
         description="Send a quote.",
     )
-    async def _quote(self, ctx: interactions.CommandContext):
+    async def quote(self, ctx: interactions.SlashContext) -> None:
         """Sends a quote."""
 
         url = "https://api.quotable.io/random"
@@ -246,11 +252,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="xkcd",
         description="Send a xkcd comic page.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.INTEGER,
                 name="page",
                 description="The page you want to read (if any)",
@@ -258,7 +264,9 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def _xkcd(self, ctx: interactions.CommandContext, page: int = None):
+    async def xkcd(
+        self, ctx: interactions.SlashContext, page: int = None
+    ) -> None:
         """Sends a xkcd comic page."""
 
         url = "https://xkcd.com/info.0.json"
@@ -269,7 +277,9 @@ class Fun(interactions.Extension):
         url = "https://xkcd.com/{page}/info.0.json"
         resp = await get_response(url.format(page=page))
         if resp is None:
-            return await ctx.send("Invalid page. Please try again.", ephemeral=True)
+            return await ctx.send(
+                "Invalid page. Please try again.", ephemeral=True
+            )
 
         month = resp["month"]
         year = resp["year"]
@@ -281,7 +291,7 @@ class Fun(interactions.Extension):
         footer = interactions.EmbedFooter(
             text=f"Page {page}/{newest} • Created on {year}-{month}-{day}"
         )
-        image = interactions.EmbedImageStruct(url=img)
+        image = interactions.EmbedAttachment(url=img)
         author = interactions.EmbedAuthor(
             name=f"{title}",
             url=f"https://xkcd.com/{page}/",
@@ -291,17 +301,17 @@ class Fun(interactions.Extension):
             description=alt,
             color=random.randint(0, 0xFFFFFF),
             footer=footer,
-            image=image,
+            images=[image],
             author=author,
         )
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="dictionary",
         description="Define a word.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="word",
                 description="The word you want to define",
@@ -309,7 +319,9 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def _dictionary(self, ctx: interactions.CommandContext, word: str):
+    async def dictionary(
+        self, ctx: interactions.SlashContext, word: str
+    ) -> None:
         """Defines a word."""
 
         url = "https://some-random-api.ml/dictionary"
@@ -317,7 +329,9 @@ class Fun(interactions.Extension):
         resp = await get_response(url, params=params)
 
         if resp is None:
-            return await ctx.send("No word found. Please try again.", ephemeral=True)
+            return await ctx.send(
+                "No word found. Please try again.", ephemeral=True
+            )
 
         term = resp["word"]
         definition = resp["definition"]
@@ -331,11 +345,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="ai",
         description="Chat with an AI.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="message",
                 description="The message you want to send",
@@ -343,7 +357,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def _ai(self, ctx: interactions.CommandContext, message: str):
+    async def ai(self, ctx: interactions.SlashContext, message: str) -> None:
         customize_url = "https://v6.rsa-api.xyz/ai/customize"
         response_url = "https://v6.rsa-api.xyz/ai/response"
         param = {
@@ -359,7 +373,9 @@ class Fun(interactions.Extension):
             "BotGender": "Male",
         }
         async with aiohttp.ClientSession() as session:
-            async with session.post(customize_url, headers=headers, data=params) as res:
+            async with session.post(
+                customize_url, headers=headers, data=params
+            ):
                 async with session.get(
                     response_url, params=param, headers=headers
                 ) as resp:
@@ -368,12 +384,3 @@ class Fun(interactions.Extension):
                             resp = await resp.json()
 
                             await ctx.send(content=resp["message"])
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Fun(client)
-    logging.debug("""[%s] Loaded Fun extension.""", log_time)
