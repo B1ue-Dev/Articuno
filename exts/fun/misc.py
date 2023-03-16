@@ -1,11 +1,9 @@
 """
-This module is for misc commands.
+Miscellaneous commands.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import random
 import interactions
 from utils.utils import get_response
@@ -18,11 +16,11 @@ class Misc(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="hornycard",
         description="Sends a hornycard.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
@@ -30,28 +28,38 @@ class Misc(interactions.Extension):
             )
         ],
     )
-    async def _hornycard(
-        self, ctx: interactions.CommandContext, user: interactions.Member = None
-    ):
+    async def hornycard(
+        self,
+        ctx: interactions.SlashContext,
+        user: interactions.Member = None,
+    ) -> None:
         """Sends a hornycard."""
 
         if user is None:
             user = ctx.member
 
-        avatar_url = user.user.avatar_url
+        avatar_url = (
+            user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url
+        )
         url = "https://some-random-api.ml/canvas/horny"
         params = {
             "avatar": avatar_url,
         }
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.png", fp=resp, description="Image")
-        await ctx.send(files=img)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+            description=f"{user.username} hornycard.",
+        )
+        await ctx.send(file=img)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="simpcard",
         description="Sends a simpcard.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
@@ -59,59 +67,76 @@ class Misc(interactions.Extension):
             )
         ],
     )
-    async def _simpcard(
-        self, ctx: interactions.CommandContext, user: interactions.Member = None
-    ):
+    async def simpcard(
+        self,
+        ctx: interactions.SlashContext,
+        user: interactions.Member = None,
+    ) -> None:
         """Sends a simpcard."""
 
         if user is None:
             user = ctx.member
 
-        avatar_url = user.user.avatar_url
+        avatar_url = (
+            user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url
+        )
         url = "https://some-random-api.ml/canvas/simpcard"
         params = {"avatar": avatar_url}
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.png", fp=resp, description="Image")
-        await ctx.send(files=img)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+            description=f"{user.username} simpcard.",
+        )
+        await ctx.send(file=img)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="tweet",
         description="Sends a Twitter tweet.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
                 required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="comment",
                 description="Comment",
                 required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="background",
                 description="Background of the Tweet",
                 required=False,
                 choices=[
-                    interactions.Choice(name="Light", value="light"),
-                    interactions.Choice(name="Dim", value="dim"),
-                    interactions.Choice(name="Dark", value="dark"),
+                    interactions.SlashCommandChoice(
+                        name="Light", value="light"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Dim", value="dim"
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="Dark", value="dark"
+                    ),
                 ],
             ),
         ],
         dm_permission=False,
     )
-    async def _tweet(
+    async def tweet(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.SlashContext,
         user: interactions.Member,
         comment: str,
         background: str = "dark",
-    ):
+    ) -> None:
         """Sends a Twitter tweet."""
+
         if len(user.user.username) >= 15:
             username = user.user.username[:12] + "..."
         else:
@@ -125,27 +150,33 @@ class Misc(interactions.Extension):
             nick = username
         url = "https://some-random-api.ml/canvas/tweet"
         params = {
-            "avatar": user.user.avatar_url,
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
             "username": username,
             "displayname": nick,
             "comment": comment,
             "theme": background,
         }
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.png", fp=resp, description="Image")
-        await ctx.send(files=img)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+            description=f"{user.username} tweet.",
+        )
+        await ctx.send(file=img)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="youtube",
         description="Sends a YouTube comment.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
                 required=True,
             ),
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="comment",
                 description="Comment",
@@ -154,9 +185,12 @@ class Misc(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def _youtube(
-        self, ctx: interactions.CommandContext, user: interactions.Member, comment: str
-    ):
+    async def youtube(
+        self,
+        ctx: interactions.SlashContext,
+        user: interactions.Member,
+        comment: str,
+    ) -> None:
         """Sends a YouTube comment."""
 
         if len(user.user.username) >= 15:
@@ -165,19 +199,25 @@ class Misc(interactions.Extension):
             username = user.user.username
         url = "https://some-random-api.ml/canvas/youtube-comment"
         params = {
-            "avatar": user.user.avatar_url,
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
             "username": username,
             "comment": comment,
         }
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.png", fp=resp, description="Image")
-        await ctx.send(files=img)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+            description=f"{user.username} YouTube comment.",
+        )
+        await ctx.send(file=img)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="amogus",
         description="Amogus.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
@@ -186,28 +226,34 @@ class Misc(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def _amogus(
-        self, ctx: interactions.CommandContext, user: interactions.Member
-    ):
+    async def amogus(
+        self, ctx: interactions.SlashContext, user: interactions.Member
+    ) -> None:
         """Amogus."""
 
         await ctx.defer()
         url = "https://some-random-api.ml/premium/amongus"
         params = {
-            "avatar": user.user.avatar_url,
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
             "username": user.user.username,
             "key": apikey,
             "imposter": str(random.choice(["true", "false"])),
         }
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.gif", fp=resp, description="Image")
-        await ctx.send(files=img)
+        img = interactions.File(
+            file_name="image.gif",
+            file=resp,
+            description="Amogus.",
+        )
+        await ctx.send(file=img)
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="pet",
         description="Pet someone.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.USER,
                 name="user",
                 description="Targeted user",
@@ -216,23 +262,22 @@ class Misc(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def _pet(self, ctx: interactions.CommandContext, user: interactions.Member):
+    async def pet(
+        self, ctx: interactions.SlashContext, user: interactions.Member
+    ) -> None:
         """Pet someone."""
 
         url = "https://some-random-api.ml/premium/petpet"
         params = {
-            "avatar": user.user.avatar_url,
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
             "key": apikey,
         }
         resp = await get_response(url, params)
-        img = interactions.File(filename="image.gif", fp=resp, description="Image")
-        await ctx.send(files=img)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Misc(client)
-    logging.debug("""[%s] Loaded Misc extension.""", log_time)
+        img = interactions.File(
+            file_name="image.gif",
+            file=resp,
+            description="PetPet",
+        )
+        await ctx.send(file=img)
