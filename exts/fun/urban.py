@@ -1,14 +1,11 @@
 """
 Urban command.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import asyncio
-import datetime
 import interactions
-from interactions.ext.wait_for import wait_for_component
 from utils.utils import get_response
 
 
@@ -18,11 +15,11 @@ class Urban(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="urban",
         description="Define a word on Urban Dictionary.",
         options=[
-            interactions.Option(
+            interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
                 name="term",
                 description="The term you want to define",
@@ -30,28 +27,26 @@ class Urban(interactions.Extension):
             )
         ],
     )
-    async def _urban(self, ctx: interactions.CommandContext, term: str):
+    async def urban(self, ctx: interactions.SlashContext, term: str) -> None:
         """Define a word on Urban Dictionary."""
 
         buttons = [
             interactions.ActionRow(
-                components=[
-                    interactions.Button(
-                        style=interactions.ButtonStyle.PRIMARY,
-                        label="◀",
-                        custom_id="previous",
-                    ),
-                    interactions.Button(
-                        style=interactions.ButtonStyle.PRIMARY,
-                        label="▶",
-                        custom_id="next",
-                    ),
-                    interactions.Button(
-                        style=interactions.ButtonStyle.SECONDARY,
-                        label="⏹",
-                        custom_id="stop",
-                    ),
-                ]
+                interactions.Button(
+                    style=interactions.ButtonStyle.PRIMARY,
+                    label="◀",
+                    custom_id="previous",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.PRIMARY,
+                    label="▶",
+                    custom_id="next",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.SECONDARY,
+                    label="⏹",
+                    custom_id="stop",
+                ),
             )
         ]
 
@@ -87,128 +82,126 @@ class Urban(interactions.Extension):
                     f"Page {ran}/{page}",
                 ]
             ),
-            icon_url="https://media.discordapp.net/attachments/1007227062265839647/1011688322512457738/unknown.png",
+            icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
         )
-        embed = interactions.Embed(title=f"{resp['list'][ran]['word']}", footer=footer)
+        embed = interactions.Embed(
+            title=f"{resp['list'][ran]['word']}", footer=footer
+        )
         embed.add_field(
             name="Definition",
             value=definition if len(definition) != 0 else "N/A",
             inline=True,
         )
         embed.add_field(
-            name="Example", value=example if len(example) != 0 else "N/A", inline=True
+            name="Example",
+            value=example if len(example) != 0 else "N/A",
+            inline=True,
         )
 
         msg = await ctx.send(embeds=embed, components=buttons)
         while True:
             try:
-                res = await wait_for_component(
-                    self.client,
+
+                def _check(_ctx):
+                    return int(_ctx.ctx.user.id) == int(ctx.user.id)
+
+                res = await self.client.wait_for_component(
                     components=buttons,
+                    check=_check,
                     messages=int(msg.id),
                     timeout=15,
                 )
-                if int(res.user.id) == int(ctx.user.id):
-                    if res.custom_id == "previous":
-                        if ran == 0:
-                            ran = 0
-                        else:
-                            ran -= 1
+                if res.ctx.custom_id == "previous":
+                    if ran == 0:
+                        ran = 0
+                    else:
+                        ran -= 1
 
-                        definition = resp["list"][ran]["definition"]
-                        if len(definition) > 700:
-                            definition = definition[:690] + "..."
-                        definition = definition.replace("[", "")
-                        definition = definition.replace("]", "")
-                        example = resp["list"][ran]["example"]
-                        if len(example) > 700:
-                            example = example[:330] + "..."
-                        example = example.replace("[", "")
-                        example = example.replace("]", "")
+                    definition = resp["list"][ran]["definition"]
+                    if len(definition) > 700:
+                        definition = definition[:690] + "..."
+                    definition = definition.replace("[", "")
+                    definition = definition.replace("]", "")
+                    example = resp["list"][ran]["example"]
+                    if len(example) > 700:
+                        example = example[:330] + "..."
+                    example = example.replace("[", "")
+                    example = example.replace("]", "")
 
-                        footer = interactions.EmbedFooter(
-                            text="".join(
-                                [
-                                    f"👍 {resp['list'][ran]['thumbs_up']} • ",
-                                    f"👎 {resp['list'][ran]['thumbs_down']} • ",
-                                    f"Page {ran}/{page}",
-                                ]
-                            ),
-                            icon_url="https://media.discordapp.net/attachments/1007227062265839647/1011688322512457738/unknown.png",
-                        )
-                        embed = interactions.Embed(
-                            title=f"{resp['list'][ran]['word']}", footer=footer
-                        )
-                        embed.add_field(
-                            name="Definition",
-                            value=definition if len(definition) != 0 else "N/A",
-                            inline=True,
-                        )
-                        embed.add_field(
-                            name="Example",
-                            value=example if len(example) != 0 else "N/A",
-                            inline=True,
-                        )
+                    footer = interactions.EmbedFooter(
+                        text="".join(
+                            [
+                                f"👍 {resp['list'][ran]['thumbs_up']} • ",
+                                f"👎 {resp['list'][ran]['thumbs_down']} • ",
+                                f"Page {ran}/{page}",
+                            ]
+                        ),
+                        icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
+                    )
+                    embed = interactions.Embed(
+                        title=f"{resp['list'][ran]['word']}", footer=footer
+                    )
+                    embed.add_field(
+                        name="Definition",
+                        value=definition if len(definition) != 0 else "N/A",
+                        inline=True,
+                    )
+                    embed.add_field(
+                        name="Example",
+                        value=example if len(example) != 0 else "N/A",
+                        inline=True,
+                    )
 
-                        msg = await res.edit(embeds=embed)
+                    msg = await res.ctx.edit_origin(embeds=embed)
 
-                    elif res.custom_id == "next":
-                        if ran == page:
-                            ran = page
-                        else:
-                            ran += 1
+                elif res.ctx.custom_id == "next":
+                    if ran == page:
+                        ran = page
+                    else:
+                        ran += 1
 
-                        definition = resp["list"][ran]["definition"]
-                        if len(definition) > 700:
-                            definition = definition[:690] + "..."
-                        definition = definition.replace("[", "")
-                        definition = definition.replace("]", "")
-                        example = resp["list"][ran]["example"]
-                        if len(example) > 700:
-                            example = example[:330] + "..."
-                        example = example.replace("[", "")
-                        example = example.replace("]", "")
+                    definition = resp["list"][ran]["definition"]
+                    if len(definition) > 700:
+                        definition = definition[:690] + "..."
+                    definition = definition.replace("[", "")
+                    definition = definition.replace("]", "")
+                    example = resp["list"][ran]["example"]
+                    if len(example) > 700:
+                        example = example[:330] + "..."
+                    example = example.replace("[", "")
+                    example = example.replace("]", "")
 
-                        footer = interactions.EmbedFooter(
-                            text="".join(
-                                [
-                                    f"👍 {resp['list'][ran]['thumbs_up']} • ",
-                                    f"👎 {resp['list'][ran]['thumbs_down']} • ",
-                                    f"Page {ran}/{page}",
-                                ]
-                            ),
-                            icon_url="https://media.discordapp.net/attachments/1007227062265839647/1011688322512457738/unknown.png",
-                        )
-                        embed = interactions.Embed(
-                            title=f"{resp['list'][ran]['word']}", footer=footer
-                        )
-                        embed.add_field(
-                            name="Definition",
-                            value=definition if len(definition) != 0 else "N/A",
-                            inline=True,
-                        )
-                        embed.add_field(
-                            name="Example",
-                            value=example if len(example) != 0 else "N/A",
-                            inline=True,
-                        )
+                    footer = interactions.EmbedFooter(
+                        text="".join(
+                            [
+                                f"👍 {resp['list'][ran]['thumbs_up']} • ",
+                                f"👎 {resp['list'][ran]['thumbs_down']} • ",
+                                f"Page {ran}/{page}",
+                            ]
+                        ),
+                        icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
+                    )
+                    embed = interactions.Embed(
+                        title=f"{resp['list'][ran]['word']}", footer=footer
+                    )
+                    embed.add_field(
+                        name="Definition",
+                        value=definition if len(definition) != 0 else "N/A",
+                        inline=True,
+                    )
+                    embed.add_field(
+                        name="Example",
+                        value=example if len(example) != 0 else "N/A",
+                        inline=True,
+                    )
 
-                        msg = await res.edit(embeds=embed)
+                    msg = await res.ctx.edit_origin(embeds=embed)
 
-                    elif res.custom_id == "stop":
-                        await res.edit(components=[])
-                        break
+                elif res.ctx.custom_id == "stop":
+                    await res.ctx.edit_origin(components=[])
+                    break
                 else:
                     msg = await res.edit()
 
             except asyncio.TimeoutError:
                 await msg.edit(components=[])
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Urban(client)
-    logging.debug("""[%s] Loaded Urban extension.""", log_time)
