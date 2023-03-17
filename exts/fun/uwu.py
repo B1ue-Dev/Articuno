@@ -135,6 +135,8 @@ class UwU(interactions.Extension):
         context_type=interactions.CommandType.MESSAGE,
     )
     async def uwu_fier(self, ctx: interactions.InteractionContext) -> None:
+        """Context menu of UwU command."""
+
         text: interactions.Message = ctx.target
         if len(text.content) > 1000:
             return await ctx.send(
