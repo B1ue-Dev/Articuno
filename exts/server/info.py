@@ -4,8 +4,6 @@ Information commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import interactions
 from interactions import UserFlags, Permissions
 from utils.utils import get_response
@@ -195,3 +193,295 @@ class Info(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+
+    @info.subcommand(
+        sub_cmd_name="avatar",
+        sub_cmd_description="Shows the profile picture URL of a user.",
+    )
+    @interactions.slash_option(
+        name="user",
+        description="Target user",
+        opt_type=interactions.OptionType.USER,
+        required=True,
+    )
+    async def avatar(
+        self, ctx: interactions.SlashContext, user: interactions.Member
+    ) -> None:
+        """Shows the profile picture URL of a user."""
+
+        def clamp(x):
+            return max(0, min(x, 255))
+
+        avatar = user.user.avatar_url
+        avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar.hash)}.png"
+        color = await get_response(avatar_url)
+        color = await get_color(color)
+        color = "#{0:02x}{1:02x}{2:02x}".format(
+            clamp(color[0]), clamp(color[1]), clamp(color[2])
+        )
+        color = str("0x" + color[1:])
+        color = int(color, 16)
+        avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
+        avatar_png = user.user.avatar_url[:-4] + ".png"
+        avatar_webp = user.user.avatar_url[:-4] + ".webp"
+        format = "".join(
+            [
+                f"**[** [**JPG**]({avatar_jpg}) **]** | ",
+                f"**[** [**PNG**]({avatar_png}) **]** | ",
+                f"**[** [**WEBP**]({avatar_webp}) **]**",
+            ]
+        )
+        if user.user.avatar.hash.startswith("a_"):
+            format += " | **[** [**GIF**]" + "(" + avatar[:-4] + ".gif) **]**"
+
+        size = "".join(
+            [
+                f"**[** [**128**]({avatar_url}?size=128) **]** | ",
+                f"**[** [**256**]({avatar_url}?size=256) **]** | ",
+                f"**[** [**512**]({avatar_url}?size=512) **]** | ",
+                f"**[** [**1024**]({avatar_url}?size=1024) **]**",
+            ]
+        )
+
+        embed = interactions.Embed(
+            title=f"{user.user.username}#{user.user.discriminator}",
+            color=color,
+            images=[
+                interactions.EmbedAttachment(url=f"{avatar_url}?size=512")
+            ],
+            footer=interactions.EmbedFooter(
+                text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                icon_url=f"{ctx.user.avatar_url}?size=512",
+            ),
+            fields=[
+                interactions.EmbedField(
+                    name="Format", value=format, inline=False
+                ),
+                interactions.EmbedField(name="Size", value=size, inline=False),
+            ],
+        )
+
+        await ctx.send(embeds=embed)
+
+    @info.subcommand(
+        sub_cmd_name="server",
+        sub_cmd_description="Shows the information about the server.",
+    )
+    async def server(self, ctx: interactions.SlashContext) -> None:
+        """Shows the information about the server."""
+
+        guild: interactions.Guild = ctx.guild
+        guild_owner = await guild.fetch_owner()
+
+        name: str = guild.name
+        id: str = str(guild.id)
+        icon: str = guild.icon.url
+        boost: int = guild.premium_subscription_count
+        members: int = guild.member_count
+        channels: list[interactions.Channel] = guild.channels
+        text_channels = 0
+        voice_channels = 0
+        categories = 0
+        for channel in channels:
+            if channel.type is interactions.ChannelType.GUILD_TEXT:
+                text_channels += 1
+            elif channel.type is interactions.ChannelType.GUILD_VOICE:
+                voice_channels += 1
+            elif channel.type is interactions.ChannelType.GUILD_CATEGORY:
+                categories += 1
+        verification_level = int(guild.verification_level)
+        splash_bool = False
+        banner_bool = False
+        vanity_url_code_bool = False
+        boost_comment: str = "N/A"
+        if boost < 2:
+            boost_comment = "Level 0"
+        elif 2 <= boost < 7:
+            boost_comment = "Level 1"
+            splash_bool = True
+        elif 7 <= boost < 14:
+            boost_comment = "Level 2"
+            splash_bool = True
+            banner_bool = True
+        elif boost >= 14:
+            boost_comment = "Level 3"
+            splash_bool = True
+            banner_bool = True
+            vanity_url_code_bool = True
+        verification_comment: str = "N/A"
+        if verification_level == 0:
+            verification_comment = "Unrestricted."
+        elif verification_level == 1:
+            verification_comment = "Must have verified email on account."
+        elif verification_level == 2:
+            verification_comment = (
+                "Must be registered on Discord for longer than 5 minutes."
+            )
+        elif verification_level == 3:
+            verification_comment = (
+                "Must be a member of the server for longer than 10 minutes."
+            )
+        elif verification_level == 4:
+            verification_comment = "Must have a verified phone number."
+        role_count = len(guild.roles)
+        emoji_count = len(await guild.fetch_all_custom_emojis())
+        sticker_count = len(await guild.fetch_all_custom_stickers())
+        preferred_locale = guild.preferred_locale
+        joined_at = guild.joined_at
+        premium_progress_bar = guild.premium_progress_bar_enabled
+        if premium_progress_bar is True:
+            premium_progress_bar_comment = "Enabled"
+        else:
+            premium_progress_bar_comment = "Disabled"
+
+        fields = [
+            interactions.EmbedField(name="ID", value=f"{id}", inline=True),
+            interactions.EmbedField(
+                name="Owner",
+                value=f"{guild_owner.mention}\n{guild_owner.username}#{guild_owner.discriminator}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Boosts",
+                value=f"Number: {boost}\n{boost_comment}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Members",
+                value=f"Total: {members}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Channel",
+                value=f"Text channels: {text_channels}\nVoice channels: {voice_channels}\nCategories: {categories}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Verify Level",
+                value=f"Level: {verification_level}\n{verification_comment}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Created on",
+                value=f"{joined_at}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Preferred Locale",
+                value=f"{preferred_locale}",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Roles",
+                value=f"{role_count} roles",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Emojis",
+                value=f"{emoji_count} emojis",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Stickers",
+                value=f"{sticker_count} stickers",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Premium Progress Bar",
+                value=f"{premium_progress_bar_comment}",
+                inline=True,
+            ),
+        ]
+        thumbnail = interactions.EmbedAttachment(url=icon)
+        footer = interactions.EmbedFooter(
+            text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+            icon_url=f"{ctx.author.user.avatar_url}",
+        )
+        embed = interactions.Embed(
+            title=f"{name}",
+            color=0x788CDC,
+            footer=footer,
+            thumbnail=thumbnail,
+            fields=fields,
+        )
+
+        components = []
+
+        if splash_bool is True and guild.splash.url is not None:
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label="Splash URL",
+                    url=f"{guild.splash.url}",
+                )
+            )
+        if banner_bool is True and guild.banner is not None:
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label="Banner URL",
+                    url=f"https://cdn.discordapp.com/banners/{str(guild.id)}/{guild.banner}"
+                    + (".gif" if guild.banner.startswith("a_") else ".png"),
+                )
+            )
+        if vanity_url_code_bool is True and guild.vanity_url_code is not None:
+            components.append(
+                interactions.Button(
+                    style=interactions.ButtonStyle.LINK,
+                    label=f"{guild.vanity_url_code}",
+                    url=f"https://discord.gg/{guild.vanity_url_code}",
+                )
+            )
+
+        await ctx.send(embeds=embed, components=components)
+
+    @interactions.context_menu(
+        name="User Information",
+        context_type=interactions.CommandType.USER,
+        dm_permission=False,
+    )
+    async def user_information(
+        self, ctx: interactions.InteractionContext
+    ) -> None:
+        """User context menu for information."""
+
+        user: interactions.Member = ctx.target
+        name: str = user.username
+        discriminator: int = str(user.discriminator)
+        user_id: str = str(user.id)
+        joined_at: float = round(user.joined_at.timestamp())
+        created_at: float = round(user.created_at.timestamp())
+        avatar: str = user.avatar.url
+        bot: bool = user.bot
+        if bot is True:
+            bot = "Yes"
+        else:
+            bot = "No"
+
+        thumbnail = interactions.EmbedAttachment(url=avatar)
+        fields = [
+            interactions.EmbedField(
+                name="Name", value=f"{name}#{discriminator}", inline=True
+            ),
+            interactions.EmbedField(name="ID", value=user_id, inline=True),
+            interactions.EmbedField(
+                name="Joined at", value=f"<t:{joined_at}:F>", inline=False
+            ),
+            interactions.EmbedField(
+                name="Created on", value=f"<t:{created_at}:F>", inline=False
+            ),
+            interactions.EmbedField(name="Bot?", value=bot, inline=True),
+            interactions.EmbedField(
+                name="Roles",
+                value=(
+                    ", ".join([f"<@&{role.id}>" for role in user.roles])
+                    if isinstance(user, interactions.Member) and user.roles
+                    else "`N/A`"
+                ),
+            ),
+        ]
+        embed = interactions.Embed(
+            title="User Information", thumbnail=thumbnail, fields=fields
+        )
+
+        await ctx.send(embeds=embed, ephemeral=True)
