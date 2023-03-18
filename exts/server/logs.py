@@ -5,12 +5,9 @@ This module is for message logs.
 """
 
 import asyncio
-import logging
 import datetime
 import random
 import interactions
-from utils import cache
-from .mod import Get_mod
 
 
 class Logs(interactions.Extension):
@@ -19,16 +16,19 @@ class Logs(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_listener(name="on_message_delete")
-    async def on_message_delete(self, message: interactions.Message):
-        """on_message_delete gateway event."""
+    @interactions.listen(interactions.events.MessageDelete)
+    async def on_message_delete(
+        self, msg: interactions.events.MessageDelete
+    ) -> None:
+        """MESSAGE_DELETE gateway event."""
 
+        message = msg.message
         if not message:
             return
 
         author = interactions.EmbedAuthor(
             name=f"{message.author.username}#{message.author.discriminator}",
-            icon_url=message.author.avatar_url,
+            icon_url=message.author.avatar.url,
         )
         footer = interactions.EmbedFooter(text=f"Message ID: {message.id}")
         fields = [
@@ -39,7 +39,7 @@ class Logs(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="Channel",
-                value=f"<#{message.channel_id}>",
+                value=f"<#{message.channel.id}>",
                 inline=True,
             ),
         ]
@@ -59,80 +59,26 @@ class Logs(interactions.Extension):
         if message.attachments:
             embed.add_field(
                 name="Attachment",
-                value="\n".join(attachment.url for attachment in message.attachments),
+                value="\n".join(
+                    attachment.url for attachment in message.attachments
+                ),
                 inline=False,
             )
 
-        if (
-            str(message.guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(message.guild_id)] is not None
-        ):
-            try:
-                _channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._logs[str(message.guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
+        for channel in msg.message.guild.channels:
+            if channel.name == "logs":
+                await channel.send(embeds=embed)
+                break
 
-                if _channel.name == "logs":
-                    await _channel.send(embeds=embed)
-                else:
-                    guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(message.guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await guild.get_all_channels()
-                    _var = 0
-
-                    for channel in channels:
-                        if str(channel.name) == "logs":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._logs[str(guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_logs(str(guild.id), str(channel.id))
-
-            except AttributeError:
-                cache.Storage()._logs[str(guild.id)] = None
-
-        elif (
-            str(message.guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(message.guild_id)] is None
-        ):
-            pass
-
-        else:
-            guild = interactions.Guild(
-                **await self.client._http.get_guild(str(message.guild_id)),
-                _client=self.client._http,
-            )
-            channels = await guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "logs":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._logs[str(guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_logs(str(guild.id), str(channel.id))
-
-    @interactions.extension_listener()
+    @interactions.listen(interactions.events.MessageUpdate)
     async def on_message_update(
-        self, before: interactions.Message, after: interactions.Message
-    ):
-        """on_message_update gateway event."""
+        self, msg: interactions.events.MessageUpdate
+    ) -> None:
+        """MESSAGE_UPDATE gateway event."""
+
+        before: interactions.Message = msg.before
+        after: interactions.Message = msg.after
+
         if before and after and before.content == after.content:
             return
 
@@ -149,7 +95,7 @@ class Logs(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="Channel",
-                value=f"<#{after.channel_id}>",
+                value=f"<#{after.channel.id}>",
                 inline=True,
             ),
         ]
@@ -161,280 +107,110 @@ class Logs(interactions.Extension):
             fields=fields,
         )
         embed.add_field(
-            name="Message before edit", value=before.content if before else "N/A"
+            name="Message before edit",
+            value=before.content if before else "N/A",
         )
         embed.add_field(
             name="Message after edit",
             value=after.content if after.content != [] else "N/A",
         )
 
-        if (
-            str(after.guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(after.guild_id)] is not None
-        ):
-            try:
-                _channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._logs[str(after.guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
+        for channel in after.guild.channels:
+            if channel.name == "logs":
+                await channel.send(embeds=embed)
+                break
 
-                if _channel.name == "logs":
-                    await _channel.send(embeds=embed)
-                else:
-                    guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(after.guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await guild.get_all_channels()
-                    _var = 0
+    @interactions.listen(interactions.events.MemberAdd)
+    async def on_guild_member_add(
+        self, _member: interactions.events.MemberAdd
+    ) -> None:
+        """GUILD_MEMBER_ADD gateway event."""
 
-                    for channel in channels:
-                        if str(channel.name) == "logs":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._logs[str(guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_logs(str(guild.id), str(channel.id))
-
-            except AttributeError:
-                cache.Storage()._logs[str(guild.id)] = None
-
-        elif (
-            str(after.guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(after.guild_id)] is None
-        ):
-            pass
-
-        else:
-            guild = interactions.Guild(
-                **await self.client._http.get_guild(str(after.guild_id)),
-                _client=self.client._http,
-            )
-            channels = await guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "logs":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._logs[str(guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_logs(str(guild.id), str(channel.id))
-
-    @interactions.extension_listener(name="on_guild_member_add")
-    async def on_guild_member_add(self, member: interactions.GuildMember):
-
-        guild = interactions.Guild(
-            **await self.client._http.get_guild(int(member.guild_id)),
-            _client=self.client._http,
-        )
+        member = _member.member
+        welcome_message: list[str] = [
+            "We hope you have a good time here.",
+            "We glad to have you here.",
+            "It is good to see you here.",
+        ]
         embed = interactions.Embed(
             title="Welcome! 🥳",
-            description=f"Welcome to {guild.name}, **{member.user.username}#{member.user.discriminator}**! We hope you have a good time here.",
+            description="".join(
+                [
+                    f"Welcome to {member.guild.name}, ",
+                    f"**{member.user.username}#{member.user.discriminator}**",
+                    f"! {random.choice(welcome_message)}",
+                ],
+            ),
             color=random.randint(0, 0xFFFFFF),
             timestamp=member.joined_at,
             footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-            thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url),
+            thumbnail=interactions.EmbedAttachment(url=member.user.avatar.url),
         )
 
-        if int(member.guild_id) == 859030372783751168:
-            channel = interactions.Channel(
-                **await self.client._http.get_channel(859077501589913610),
-                _client=self.client._http,
-            )
+        if int(member.guild.id) == 859030372783751168:
+            channel = self.client.http.get_channel(859077501589913610)
             await channel.send(embeds=embed)
-            await guild.add_member_role(
-                role=859034544270344192, member_id=int(member.user.id)
+            await member.add_role(
+                role=interactions.Role(self.client, 859034544270344192)
             )
-
-        elif (
-            str(member.guild_id) in cache.Storage()._welcome_goodbye
-            and cache.Storage()._welcome_goodbye[str(member.guild_id)] is not None
-        ):
-            try:
-                channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._welcome_goodbye[str(member.guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
+        else:
+            for channel in member.guild.channels:
                 if channel.name == "welcome-goodbye":
                     await channel.send(embeds=embed)
-                else:
-                    guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(member.guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await guild.get_all_channels()
-                    _var = 0
 
-                    for channel in channels:
-                        if str(channel.name) == "welcome-goodbye":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
+    @interactions.listen(interactions.events.MemberRemove)
+    async def on_guild_member_remove(
+        self, _member: interactions.events.MemberRemove
+    ) -> None:
+        """GUILD_REMOVE gateway event."""
 
-                    if _var == 0:
-                        cache.Storage()._welcome_goodbye[str(guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_welcome_goodbye(
-                            str(guild.id), str(channel.id)
-                        )
-
-            except AttributeError:
-                cache.Storage()._welcome_goodbye[str(member.guild_id)] = None
-
-        elif (
-            str(member.guild_id) in cache.Storage()._welcome_goodbye
-            and cache.Storage()._welcome_goodbye[str(member.guild_id)] is None
-        ):
-            pass
-
-        else:
-            guild = interactions.Guild(
-                **await self.client._http.get_guild(str(member.guild_id)),
-                _client=self.client._http,
-            )
-            channels = await guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "welcome-goodbye":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._welcome_goodbye[str(guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_welcome_goodbye(str(guild.id), str(channel.id))
-
-    @interactions.extension_listener(name="on_guild_member_remove")
-    async def on_guild_member_remove(self, member: interactions.GuildMember):
-
-        guild = interactions.Guild(
-            **await self.client._http.get_guild(int(member.guild_id)),
-            _client=self.client._http,
-        )
+        member = _member.member
         embed = interactions.Embed(
             title="Goodbye! 😢",
-            description=f"Goodbye **{member.user.username}#{member.user.discriminator}**! Thanks for joining {guild.name}.",
+            description="".join(
+                [
+                    f"Goodbye **{member.username}#{member.discriminator}**!",
+                    f" Thanks for joining {member.guild.name}.",
+                ],
+            ),
             color=random.randint(0, 0xFFFFFF),
             timestamp=datetime.datetime.utcnow(),
-            footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-            thumbnail=interactions.EmbedImageStruct(url=member.user.avatar_url),
+            footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
+            thumbnail=interactions.EmbedAttachment(url=member.avatar_url),
         )
 
-        if int(member.guild_id) == 859030372783751168:
-            channel = interactions.Channel(
-                **await self.client._http.get_channel(859077501589913610),
-                _client=self.client._http,
+        for channel in member.guild.channels:
+            if channel.name == "welcome-goodbye":
+                await channel.send(embeds=embed)
+
+    @interactions.listen(interactions.events.BanCreate)
+    async def on_guild_ban_add(
+        self, ban: interactions.events.BanCreate
+    ) -> None:
+        """GUILD_BAN_CREATE gateway event."""
+
+        user: interactions.BaseUser = ban.user
+        _ban = (
+            await ban.guild.fetch_audit_log(
+                action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
+                limit=1,
             )
-            await channel.send(embeds=embed)
+        ).to_dict()
+        reason: str = _ban.get("entries")[0].get("reason")
+        moderator: int = _ban.get("entries")[0].get("user_id")
 
-        elif (
-            str(member.guild_id) in cache.Storage()._welcome_goodbye
-            and cache.Storage()._welcome_goodbye[str(member.guild_id)] is not None
-        ):
-            try:
-                channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._welcome_goodbye[str(member.guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
-                if channel.name == "welcome-goodbye":
-                    await channel.send(embeds=embed)
-                else:
-                    guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(member.guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await guild.get_all_channels()
-                    _var = 0
-
-                    for channel in channels:
-                        if str(channel.name) == "welcome-goodbye":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._welcome_goodbye[str(guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_welcome_goodbye(
-                            str(guild.id), str(channel.id)
-                        )
-
-            except AttributeError:
-                cache.Storage()._welcome_goodbye[str(member.guild_id)] = None
-
-        elif (
-            str(member.guild_id) in cache.Storage()._welcome_goodbye
-            and cache.Storage()._welcome_goodbye[str(member.guild_id)] is None
-        ):
-            pass
-
-        else:
-            guild = interactions.Guild(
-                **await self.client._http.get_guild(str(member.guild_id)),
-                _client=self.client._http,
-            )
-            channels = await guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "welcome-goodbye":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._welcome_goodbye[str(guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_welcome_goodbye(str(guild.id), str(channel.id))
-
-    @interactions.extension_listener(name="on_guild_ban_add")
-    async def on_guild_ban_add(self, guild: interactions.GuildBan):
-        guild_id = str(guild.guild_id)
-        await asyncio.sleep(1)
-        _ban = await self.client._http.get_guild_auditlog(
-            guild_id=guild_id, action_type=22, limit=1
-        )
-        reason = _ban.get("audit_log_entries")[0].get("reason")
-        moderator = _ban.get("audit_log_entries")[0].get("user_id")
         embed = interactions.Embed(
             title="User banned!",
             timestamp=datetime.datetime.utcnow(),
             color=0xE03C3C,
-            footer=interactions.EmbedFooter(text=f"ID: {guild.user.id}"),
+            footer=interactions.EmbedFooter(text=f"ID: {user.id}"),
             author=interactions.EmbedAuthor(
-                name=f"{guild.user.username}#{guild.user.discriminator}",
-                icon_url=guild.user.avatar_url,
+                name=f"{user.username}#{user.discriminator}",
+                icon_url=user.avatar.url,
             ),
             fields=[
                 interactions.EmbedField(
-                    name="User", value=guild.user.mention, inline=True
+                    name="User", value=user.mention, inline=True
                 ),
                 interactions.EmbedField(
                     name="Moderator",
@@ -449,92 +225,39 @@ class Logs(interactions.Extension):
             ],
         )
 
-        if (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is not None
-        ):
-            try:
-                _channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._logs[str(guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
+        for channel in ban.guild.channels:
+            if channel.name == "logs":
+                await channel.send(embeds=embed)
+                break
 
-                if _channel.name == "logs":
-                    await _channel.send(embeds=embed)
-                else:
-                    _guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await _guild.get_all_channels()
-                    _var = 0
+    @interactions.listen(interactions.events.BanRemove)
+    async def on_guild_ban_remove(
+        self, ban: interactions.events.BanRemove
+    ) -> None:
+        """GUILD_BAN_REMOVE gateway event."""
 
-                    for channel in channels:
-                        if str(channel.name) == "logs":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._logs[str(_guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-            except AttributeError:
-                cache.Storage()._logs[str(_guild.id)] = None
-
-        elif (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is None
-        ):
-            pass
-
-        else:
-            _guild = interactions.Guild(
-                **await self.client._http.get_guild(str(guild_id)),
-                _client=self.client._http,
+        user: interactions.BaseUser = ban.user
+        _ban = (
+            await ban.guild.fetch_audit_log(
+                action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
+                limit=1,
             )
-            channels = await _guild.get_all_channels()
-            _var = 0
+        ).to_dict()
+        reason: str = _ban.get("entries")[0].get("reason")
+        moderator: int = _ban.get("entries")[0].get("user_id")
 
-            for channel in channels:
-                if str(channel.name) == "logs":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._logs[str(_guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-    @interactions.extension_listener(name="on_guild_ban_remove")
-    async def on_guild_ban_remove(self, guild: interactions.GuildBan):
-        guild_id = str(guild.guild_id)
-        await asyncio.sleep(1)
-        _ban = await self.client._http.get_guild_auditlog(
-            guild_id=guild_id, action_type=23, limit=1
-        )
-        reason = _ban.get("audit_log_entries")[0].get("reason")
-        moderator = _ban.get("audit_log_entries")[0].get("user_id")
         embed = interactions.Embed(
             title="User unbanned!",
             timestamp=datetime.datetime.utcnow(),
             color=0xE03C3C,
-            footer=interactions.EmbedFooter(text=f"ID: {guild.user.id}"),
+            footer=interactions.EmbedFooter(text=f"ID: {user.id}"),
             author=interactions.EmbedAuthor(
-                name=f"{guild.user.username}#{guild.user.discriminator}",
-                icon_url=guild.user.avatar_url,
+                name=f"{user.username}#{user.discriminator}",
+                icon_url=user.avatar.url,
             ),
             fields=[
                 interactions.EmbedField(
-                    name="User", value=guild.user.mention, inline=True
+                    name="User", value=user.mention, inline=True
                 ),
                 interactions.EmbedField(
                     name="Moderator",
@@ -549,235 +272,7 @@ class Logs(interactions.Extension):
             ],
         )
 
-        if (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is not None
-        ):
-            try:
-                _channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._logs[str(guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
-
-                if _channel.name == "logs":
-                    await _channel.send(embeds=embed)
-                else:
-                    _guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await _guild.get_all_channels()
-                    _var = 0
-
-                    for channel in channels:
-                        if str(channel.name) == "logs":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._logs[str(_guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-            except AttributeError:
-                cache.Storage()._logs[str(_guild.id)] = None
-
-        elif (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is None
-        ):
-            pass
-
-        else:
-            _guild = interactions.Guild(
-                **await self.client._http.get_guild(str(guild_id)),
-                _client=self.client._http,
-            )
-            channels = await _guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "logs":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._logs[str(_guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-    @interactions.extension_listener(name="on_raw_guild_member_update")
-    async def on_raw_guild_member_update(
-        self, member: interactions.GuildMember  # , after: interactions.GuildMember
-    ):
-        guild_id = str(member.guild_id)
-        embed: interactions.Embed = None
-        if member.communication_disabled_until is not None:
-            await asyncio.sleep(1)
-            _timeout = await self.client._http.get_guild_auditlog(
-                guild_id=guild_id, action_type=24, limit=1
-            )
-            reason = _timeout.get("audit_log_entries")[0].get("reason")
-            get_moderator_id = _timeout.get("audit_log_entries")[0].get("user_id")
-            moderator = await interactions.get(
-                self.client, interactions.User, object_id=get_moderator_id
-            )
-            if moderator.bot is True:
-                moderator = (Get_mod().get_mod()).id
-            else:
-                moderator = moderator.id
-                Get_mod().add_mod(None)
-            embed = interactions.Embed(
-                title="User timed out!",
-                timestamp=datetime.datetime.utcnow(),
-                color=0xFDFF7A,
-                footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-                author=interactions.EmbedAuthor(
-                    name=f"{member.user.username}#{member.user.discriminator}",
-                    icon_url=member.user.avatar_url,
-                ),
-                fields=[
-                    interactions.EmbedField(
-                        name="User", value=member.user.mention, inline=True
-                    ),
-                    interactions.EmbedField(
-                        name="Moderator",
-                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
-                        inline=True,
-                    ),
-                    interactions.EmbedField(
-                        name="Reason", value=reason if reason else "N/A", inline=False
-                    ),
-                    interactions.EmbedField(
-                        name="Duration",
-                        value=f"<t:{round(member.communication_disabled_until.timestamp())}:R>",
-                        inline=False,
-                    ),
-                ],
-            )
-        elif member.communication_disabled_until is None:
-            await asyncio.sleep(1)
-            _timeout = await self.client._http.get_guild_auditlog(
-                guild_id=guild_id, action_type=24, limit=1
-            )
-            if (
-                str(_timeout.get("audit_log_entries")[0].get("changes")[0].get("key"))
-                != "communication_disabled_until"
-            ):
-                return
-
-            reason = _timeout.get("audit_log_entries")[0].get("reason")
-            get_moderator_id = _timeout.get("audit_log_entries")[0].get("user_id")
-            moderator = await interactions.get(
-                self.client, interactions.User, object_id=get_moderator_id
-            )
-            if moderator.bot is True:
-                moderator = (Get_mod().get_mod()).id
-            else:
-                moderator = moderator.id
-                Get_mod().add_mod(None)
-            embed = interactions.Embed(
-                title="User timeout removed!",
-                timestamp=datetime.datetime.utcnow(),
-                color=0xFDFF7A,
-                footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-                author=interactions.EmbedAuthor(
-                    name=f"{member.user.username}#{member.user.discriminator}",
-                    icon_url=member.user.avatar_url,
-                ),
-                fields=[
-                    interactions.EmbedField(
-                        name="User", value=member.user.mention, inline=True
-                    ),
-                    interactions.EmbedField(
-                        name="Moderator",
-                        value="".join(f"<@{moderator}>" if moderator else "N/A"),
-                        inline=True,
-                    ),
-                    interactions.EmbedField(
-                        name="Reason", value=reason if reason else "N/A", inline=False
-                    ),
-                ],
-            )
-
-        if (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is not None
-        ):
-            try:
-                _channel = interactions.Channel(
-                    **await self.client._http.get_channel(
-                        cache.Storage()._logs[str(guild_id)]
-                    ),
-                    _client=self.client._http,
-                )
-
-                if _channel.name == "logs":
-                    await _channel.send(embeds=embed)
-                else:
-                    _guild = interactions.Guild(
-                        **await self.client._http.get_guild(str(guild_id)),
-                        _client=self.client._http,
-                    )
-                    channels = await _guild.get_all_channels()
-                    _var = 0
-
-                    for channel in channels:
-                        if str(channel.name) == "logs":
-                            _var = 1
-                            await channel.send(embeds=embed)
-                            break
-                        else:
-                            continue
-
-                    if _var == 0:
-                        cache.Storage()._logs[str(_guild.id)] = None
-                    elif _var == 1:
-                        cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-            except AttributeError:
-                cache.Storage()._logs[str(_guild.id)] = None
-
-        elif (
-            str(guild_id) in cache.Storage()._logs
-            and cache.Storage()._logs[str(guild_id)] is None
-        ):
-            pass
-
-        else:
-            _guild = interactions.Guild(
-                **await self.client._http.get_guild(str(guild_id)),
-                _client=self.client._http,
-            )
-            channels = await _guild.get_all_channels()
-            _var = 0
-
-            for channel in channels:
-                if str(channel.name) == "logs":
-                    _var = 1
-                    await channel.send(embeds=embed)
-                    break
-                else:
-                    continue
-
-            if _var == 0:
-                cache.Storage()._logs[str(_guild.id)] = None
-            elif _var == 1:
-                cache.Storage().add_logs(str(_guild.id), str(channel.id))
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Logs(client)
-    logging.debug("""[%s] Loaded Logs extension.""", log_time)
+        for channel in ban.guild.channels:
+            if channel.name == "logs":
+                await channel.send(embeds=embed)
+                break
