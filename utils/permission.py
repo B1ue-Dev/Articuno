@@ -51,7 +51,9 @@ class Permissions(Enum):
 
 
 # https://discord.com/developers/docs/topics/permissions#permissions
-def has_permission(permission_val: int, permission: Union[Permissions, int]) -> bool:
+def has_permission(
+    permission_val: int, permission: Union[Permissions, int]
+) -> bool:
     """Check if the user's permission value is equal to the given permission for an action.
 
     :param permission_val: The user permission value.
