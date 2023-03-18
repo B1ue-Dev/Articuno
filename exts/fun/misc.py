@@ -117,12 +117,8 @@ class Misc(interactions.Extension):
                     interactions.SlashCommandChoice(
                         name="Light", value="light"
                     ),
-                    interactions.SlashCommandChoice(
-                        name="Dim", value="dim"
-                    ),
-                    interactions.SlashCommandChoice(
-                        name="Dark", value="dark"
-                    ),
+                    interactions.SlashCommandChoice(name="Dim", value="dim"),
+                    interactions.SlashCommandChoice(name="Dark", value="dark"),
                 ],
             ),
         ],
