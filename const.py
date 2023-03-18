@@ -15,6 +15,8 @@ TOKEN = os.getenv("TOKEN")
 VERSION = "v4.2.4"
 """Bot version."""
 
+LOG_CHANNEL = os.getenv("LOG_CHANNEL")
+
 EXT_CORE = [
     file.replace(".py", "")
     for file in os.listdir("exts/core")
