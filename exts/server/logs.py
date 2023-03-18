@@ -4,7 +4,6 @@ Handle all logging aspects.
 (C) 2022-2023 - B1ue-Dev
 """
 
-import asyncio
 import datetime
 import random
 import interactions
