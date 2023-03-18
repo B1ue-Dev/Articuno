@@ -1,7 +1,7 @@
 """
-This module is for message logs.
+Handle all logging aspects.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
 import asyncio
