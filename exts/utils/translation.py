@@ -1,102 +1,166 @@
 """
-This module is for user command and message command.
+Translate message using Google Translate.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
-
-import logging
-import datetime
 import asyncio
+import googletrans
 import interactions
-from interactions.ext.wait_for import wait_for_component
 from googletrans import Translator
 
 
 class Translation(interactions.Extension):
     """Extension for translator app-context command."""
 
+    choices = [
+        interactions.SlashCommandChoice(
+            name="Arabic",
+            value="ar",
+        ),
+        interactions.SlashCommandChoice(
+            name="Chinese",
+            value="zh-CN",
+        ),
+        interactions.SlashCommandChoice(
+            name="English",
+            value="en",
+        ),
+        interactions.SlashCommandChoice(
+            name="French",
+            value="fr",
+        ),
+        interactions.SlashCommandChoice(
+            name="German",
+            value="de",
+        ),
+        interactions.SlashCommandChoice(
+            name="Hindi",
+            value="hi",
+        ),
+        interactions.SlashCommandChoice(
+            name="Italian",
+            value="it",
+        ),
+        interactions.SlashCommandChoice(
+            name="Japanese",
+            value="ja",
+        ),
+        interactions.SlashCommandChoice(
+            name="Korean",
+            value="ko",
+        ),
+        interactions.SlashCommandChoice(
+            name="Portuguese",
+            value="pt",
+        ),
+        interactions.SlashCommandChoice(
+            name="Spanish",
+            value="es",
+        ),
+        interactions.SlashCommandChoice(
+            name="Thai",
+            value="th",
+        ),
+        interactions.SlashCommandChoice(
+            name="Turkish",
+            value="tr",
+        ),
+        interactions.SlashCommandChoice(
+            name="Ukrainian",
+            value="uk",
+        ),
+        interactions.SlashCommandChoice(
+            name="Vietnamese",
+            value="vi",
+        ),
+        interactions.SlashCommandChoice(
+            name="Welsh",
+            value="cy",
+        ),
+    ]
+
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.select_menu = interactions.SelectMenu(
-            options=[
-                interactions.SelectOption(
+        self.select_menu = interactions.StringSelectMenu(
+            [
+                interactions.StringSelectOption(
                     label="Arabic",
-                    emoji=interactions.Emoji(name="🇦🇪"),
+                    emoji=interactions.PartialEmoji(name="🇦🇪"),
                     value="ar",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Chinese",
-                    emoji=interactions.Emoji(name="🇨🇳"),
+                    emoji=interactions.PartialEmoji(name="🇨🇳"),
                     value="zh-CN",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="English",
-                    emoji=interactions.Emoji(name="🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
+                    emoji=interactions.PartialEmoji(name="🏴󠁧󠁢󠁥󠁮󠁧󠁿"),
                     value="en",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="French",
-                    emoji=interactions.Emoji(name="🇫🇷"),
+                    emoji=interactions.PartialEmoji(name="🇫🇷"),
                     value="fr",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="German",
-                    emoji=interactions.Emoji(name="🇩🇪"),
+                    emoji=interactions.PartialEmoji(name="🇩🇪"),
                     value="de",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Hindi",
-                    emoji=interactions.Emoji(name="🇮🇳"),
+                    emoji=interactions.PartialEmoji(name="🇮🇳"),
                     value="hi",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Italian",
-                    emoji=interactions.Emoji(name="🇮🇹"),
+                    emoji=interactions.PartialEmoji(name="🇮🇹"),
                     value="it",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Japanese",
-                    emoji=interactions.Emoji(name="🇯🇵"),
+                    emoji=interactions.PartialEmoji(name="🇯🇵"),
                     value="ja",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Korean",
-                    emoji=interactions.Emoji(name="🇰🇷"),
+                    emoji=interactions.PartialEmoji(name="🇰🇷"),
                     value="ko",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Portuguese",
-                    emoji=interactions.Emoji(name="🇵🇹"),
+                    emoji=interactions.PartialEmoji(name="🇵🇹"),
                     value="pt",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Spanish",
-                    emoji=interactions.Emoji(name="🇪🇸"),
+                    emoji=interactions.PartialEmoji(name="🇪🇸"),
                     value="es",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Thai",
-                    emoji=interactions.Emoji(name="🇹🇭"),
+                    emoji=interactions.PartialEmoji(name="🇹🇭"),
                     value="th",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Turkish",
-                    emoji=interactions.Emoji(name="🇹🇷"),
+                    emoji=interactions.PartialEmoji(name="🇹🇷"),
                     value="tr",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Ukrainian",
-                    emoji=interactions.Emoji(name="🇺🇦"),
+                    emoji=interactions.PartialEmoji(name="🇺🇦"),
                     value="uk",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Vietnamese",
-                    emoji=interactions.Emoji(name="🇻🇳"),
+                    emoji=interactions.PartialEmoji(name="🇻🇳"),
                     value="vi",
                 ),
-                interactions.SelectOption(
+                interactions.StringSelectOption(
                     label="Welsh",
-                    emoji=interactions.Emoji(name="🏴󠁧󠁢󠁷󠁬󠁳󠁿"),
+                    emoji=interactions.PartialEmoji(name="🏴󠁧󠁢󠁷󠁬󠁳󠁿"),
                     value="cy",
                 ),
             ],
@@ -104,14 +168,16 @@ class Translation(interactions.Extension):
             custom_id="select_menu",
         )
 
-    @interactions.extension_message_command(name="Translate")
-    async def _msg_translate(self, ctx: interactions.CommandContext):
+    @interactions.message_context_menu(name="Translate")
+    async def msg_cmd_translate(
+        self, ctx: interactions.ContextMenuContext
+    ) -> None:
         """Translate a text with Context Menu App."""
 
         await ctx.defer(ephemeral=True)
 
         translator = Translator()
-        message = ctx.target
+        message: interactions.Message = ctx.target
         content = message.content
         lang = translator.detect(content).lang
         translation = translator.translate(content)
@@ -122,129 +188,91 @@ class Translation(interactions.Extension):
             icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
         )
         embed = interactions.Embed(
-            title=f"Detected language: {lang}",
+            title="".join(
+                [
+                    f"Detected language: ",
+                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                ]
+            ),
             description=f"```{message1}```",
             footer=footer,
         )
 
-        await ctx.send(embeds=embed, components=self.select_menu, ephemeral=True)
+        msg = await ctx.send(
+            embeds=embed, components=self.select_menu, ephemeral=True
+        )
 
         while True:
             try:
-                res = await wait_for_component(
-                    self.client,
-                    components=self.select_menu,
-                    messages=int(ctx.message.id),
+                res = await self.client.wait_for_component(
+                    messages=int(msg.id),
                     timeout=10,
                 )
-                selects = res.data.values[0]
-                await ctx.defer(ephemeral=True)
+                selects = res.ctx.values[0]
+                await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
                 message1 = translation.text
 
                 embed = interactions.Embed(
-                    title=f"Detected language: {lang}", description=f"```{message1}```"
+                    title="".join(
+                        [
+                            f"Detected language: ",
+                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                        ],
+                    ),
+                    description=f"```{message1}```",
                 )
                 embed.set_footer(
                     icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                     text="Google Translate",
                 )
 
-                await res.edit(embeds=embed, components=self.select_menu)
+                _select_menu = interactions.StringSelectMenu(
+                    self.select_menu.options,
+                    placeholder=f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                )
+
+                await res.ctx.edit_origin(
+                    embeds=embed, components=_select_menu
+                )
             except asyncio.TimeoutError:
                 break
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="translate",
-        description="Translate a piece of text or a message to another language.",
+        description="Handle message translation aspects.",
     )
-    async def _translate(self, *args, **kwargs):
+    async def translate(self, ctx: interactions.SlashContext) -> None:
+        """Handle message translation aspects."""
         ...
 
-    @_translate.subcommand(name="text")
-    @interactions.option("The text to translate.")
-    @interactions.option(
-        "The language you want to translate to.",
-        choices=[
-            interactions.Choice(
-                name="Arabic",
-                value="ar",
-            ),
-            interactions.Choice(
-                name="Chinese",
-                value="zh-CN",
-            ),
-            interactions.Choice(
-                name="English",
-                value="en",
-            ),
-            interactions.Choice(
-                name="French",
-                value="fr",
-            ),
-            interactions.Choice(
-                name="German",
-                value="de",
-            ),
-            interactions.Choice(
-                name="Hindi",
-                value="hi",
-            ),
-            interactions.Choice(
-                name="Italian",
-                value="it",
-            ),
-            interactions.Choice(
-                name="Japanese",
-                value="ja",
-            ),
-            interactions.Choice(
-                name="Korean",
-                value="ko",
-            ),
-            interactions.Choice(
-                name="Portuguese",
-                value="pt",
-            ),
-            interactions.Choice(
-                name="Spanish",
-                value="es",
-            ),
-            interactions.Choice(
-                name="Thai",
-                value="th",
-            ),
-            interactions.Choice(
-                name="Turkish",
-                value="tr",
-            ),
-            interactions.Choice(
-                name="Ukrainian",
-                value="uk",
-            ),
-            interactions.Choice(
-                name="Vietnamese",
-                value="vi",
-            ),
-            interactions.Choice(
-                name="Welsh",
-                value="cy",
-            ),
-        ],
+    @translate.subcommand()
+    @interactions.slash_option(
+        name="text",
+        description="The text to translate.",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
     )
-    async def _translate_text(
+    @interactions.slash_option(
+        name="lang",
+        description="The language you want to translate to.",
+        opt_type=interactions.OptionType.STRING,
+        choices=choices,
+        required=False,
+    )
+    async def text(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.SlashContext,
         text: str,
         lang: str = "en",
-    ):
+    ) -> None:
         """Translate a piece of text."""
 
         await ctx.defer(ephemeral=True)
 
         translator = Translator()
         content = text
-        _lang = translator.detect(content).lang
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
@@ -253,129 +281,100 @@ class Translation(interactions.Extension):
             icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
         )
         embed = interactions.Embed(
-            title=f"Detected language: {_lang}",
+            title="".join(
+                [
+                    f"Detected language: ",
+                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                ]
+            ),
             description=f"```{message1}```",
             footer=footer,
         )
 
-        await ctx.send(embeds=embed, components=self.select_menu, ephemeral=True)
+        msg = await ctx.send(
+            embeds=embed, components=self.select_menu, ephemeral=True
+        )
 
         while True:
             try:
-                res = await wait_for_component(
-                    self.client,
-                    components=self.select_menu,
-                    messages=int(ctx.message.id),
+                res = await self.client.wait_for_component(
+                    messages=int(msg.id),
                     timeout=10,
                 )
-                selects = res.data.values[0]
-                await ctx.defer(ephemeral=True)
+                selects = res.ctx.values[0]
+                await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
                 message1 = translation.text
 
                 embed = interactions.Embed(
-                    title=f"Detected language: {lang}", description=f"```{message1}```"
+                    title="".join(
+                        [
+                            f"Detected language: ",
+                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                        ],
+                    ),
+                    description=f"```{message1}```",
                 )
                 embed.set_footer(
                     icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                     text="Google Translate",
                 )
 
-                await res.edit(embeds=embed, components=self.select_menu)
+                _select_menu = interactions.StringSelectMenu(
+                    self.select_menu.options,
+                    placeholder=f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                )
+                await res.ctx.edit_origin(
+                    embeds=embed, components=_select_menu
+                )
             except asyncio.TimeoutError:
                 break
 
-    @_translate.subcommand(name="message")
-    @interactions.option("The ID of the message to translate.")
-    @interactions.option(
-        "The language you want to translate to.",
-        choices=[
-            interactions.Choice(
-                name="Arabic",
-                value="ar",
-            ),
-            interactions.Choice(
-                name="Chinese",
-                value="zh-CN",
-            ),
-            interactions.Choice(
-                name="English",
-                value="en",
-            ),
-            interactions.Choice(
-                name="French",
-                value="fr",
-            ),
-            interactions.Choice(
-                name="German",
-                value="de",
-            ),
-            interactions.Choice(
-                name="Hindi",
-                value="hi",
-            ),
-            interactions.Choice(
-                name="Italian",
-                value="it",
-            ),
-            interactions.Choice(
-                name="Japanese",
-                value="ja",
-            ),
-            interactions.Choice(
-                name="Korean",
-                value="ko",
-            ),
-            interactions.Choice(
-                name="Portuguese",
-                value="pt",
-            ),
-            interactions.Choice(
-                name="Spanish",
-                value="es",
-            ),
-            interactions.Choice(
-                name="Thai",
-                value="th",
-            ),
-            interactions.Choice(
-                name="Turkish",
-                value="tr",
-            ),
-            interactions.Choice(
-                name="Ukrainian",
-                value="uk",
-            ),
-            interactions.Choice(
-                name="Vietnamese",
-                value="vi",
-            ),
-            interactions.Choice(
-                name="Welsh",
-                value="cy",
-            ),
-        ],
+    @translate.subcommand()
+    @interactions.slash_option(
+        name="message_id",
+        description="The ID of the message to translate.",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
     )
-    async def _translate_message(
+    @interactions.slash_option(
+        name="channel_id",
+        description="The ID of the channel the message belongs to.",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    @interactions.slash_option(
+        name="lang",
+        description="The language you want to translate to.",
+        opt_type=interactions.OptionType.STRING,
+        choices=choices,
+        required=False,
+    )
+    async def message(
         self,
-        ctx: interactions.CommandContext,
-        message_id: str,
+        ctx: interactions.SlashContext,
+        message_id: int,
+        channel_id: int,
         lang: str = "en",
-    ):
+    ) -> None:
         """Translate a message to another language."""
 
         await ctx.defer(ephemeral=True)
 
-        _message = await interactions.get(
-            self.client,
-            interactions.Message,
-            parent_id=int(ctx.channel_id),
-            object_id=int(message_id),
-        )
+        _message: interactions.Message = None
+        try:
+            _message = await self.client.http.get_message(
+                channel_id, message_id
+            )
+        except interactions.errors.HTTPException:
+            return await ctx.send(
+                content="Invalid message ID or channel ID. Please try again",
+                ephemeral=True,
+            )
 
         translator = Translator()
         content = _message.content
-        _lang = translator.detect(content).lang
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
@@ -384,43 +383,53 @@ class Translation(interactions.Extension):
             icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
         )
         embed = interactions.Embed(
-            title=f"Detected language: {_lang}",
+            title="".join(
+                [
+                    f"Detected language: ",
+                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                ]
+            ),
             description=f"```{message1}```",
             footer=footer,
         )
 
-        await ctx.send(embeds=embed, components=self.select_menu, ephemeral=True)
+        msg = await ctx.send(
+            embeds=embed, components=self.select_menu, ephemeral=True
+        )
 
         while True:
             try:
-                res = await wait_for_component(
-                    self.client,
-                    components=self.select_menu,
-                    messages=int(ctx.message.id),
+                res = await self.client.wait_for_component(
+                    messages=int(msg.id),
                     timeout=10,
                 )
-                selects = res.data.values[0]
-                await ctx.defer(ephemeral=True)
+                selects = res.ctx.values[0]
+                await res.ctx.defer(ephemeral=True)
                 translation = translator.translate(content, dest=selects)
                 message1 = translation.text
 
                 embed = interactions.Embed(
-                    title=f"Detected language: {lang}", description=f"```{message1}```"
+                    title="".join(
+                        [
+                            f"Detected language: ",
+                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                        ],
+                    ),
+                    description=f"```{message1}```",
                 )
                 embed.set_footer(
                     icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
                     text="Google Translate",
                 )
 
-                await res.edit(embeds=embed, components=self.select_menu)
+                _select_menu = interactions.StringSelectMenu(
+                    self.select_menu.options,
+                    placeholder=f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                )
+
+                await res.ctx.edit_origin(
+                    embeds=embed, components=_select_menu
+                )
             except asyncio.TimeoutError:
                 break
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Translation(client)
-    logging.debug("""[%s] Loaded Translation extension.""", log_time)
