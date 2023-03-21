@@ -1,56 +1,65 @@
 """
 Root bot file.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import datetime
 import interactions
-from interactions.ext.wait_for import setup
-from interactions.ext import molter
+from interactions.ext.prefixed_commands import setup, PrefixedHelpCommand
 from const import TOKEN, VERSION
 
-# logging.basicConfig(level=logging.DEBUG)
-
 client = interactions.Client(
-    token=TOKEN,
-    intents=interactions.Intents.DEFAULT
-    | interactions.Intents.GUILD_MESSAGE_CONTENT
-    | interactions.Intents.GUILD_MEMBERS,
-    presence=interactions.ClientPresence(
-        activities=[
-            interactions.PresenceActivity(
-                type=interactions.PresenceActivityType.WATCHING, name=f"for {VERSION}"
-            )
-        ],
-        status=interactions.StatusType.ONLINE,
+    activity=interactions.Activity(
+        name=f"for {VERSION}",
+        type=interactions.ActivityType.WATCHING,
     ),
-    # disable_sync=True,
+    basic_logging=True,
+    intents=interactions.Intents.DEFAULT
+    | interactions.Intents.MESSAGE_CONTENT
+    | interactions.Intents.GUILD_MEMBERS,
+    status=interactions.Status.ONLINE,
+    send_command_tracebacks=False,
 )
-setup(client)
-molter.setup(client, default_prefix="$")
-client.load("interactions.ext.files")
-client.load("utils.cache")
-client.load("utils.error")
-client.load("exts.core.__init__")
-client.load("exts.server.__init__")
-client.load("exts.fun.__init__")
-client.load("exts.utils.__init__")
-client.load("exts.msg_exts.fun.__init__")
+
+setup(client, default_prefix="$")
+PrefixedHelpCommand(
+    client,
+    show_usage=True,
+    embed_color=0x7CB7D3,
+    not_found_message="Command `{cmd_name}` not found.",
+).register()
+client.load_extension("exts.core.__init__")
+client.load_extension("exts.fun.__init__")
+client.load_extension("exts.server.__init__")
+client.load_extension("exts.utils.__init__")
+client.load_extension("utils.error")
 
 
-@client.event
-async def on_ready():
+@client.listen(interactions.events.Startup)
+async def on_startup() -> None:
     """Fires up READY"""
     websocket = f"{client.latency * 1:.0f}"
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
+    print(
+        f"""[{log_time}] Logged in as {client.user.username}. Latency: {websocket}ms."""
     )
-    logging.debug(
-        """[%s] Logged in as %s. Latency: %sms.""", log_time, client.me.name, websocket
-    )
-    print(f"""[{log_time}] Logged in as {client.me.name}. Latency: {websocket}ms.""")
+
+@client.listen(interactions.events.MessageCreate)
+async def on_message_create(_msg: interactions.events.MessageCreate) -> None:
+    msg = _msg.message
+    if (
+        f"@{client.user.id}" in msg.content
+        or f"<@{client.user.id}>" in msg.content
+    ):
+        embed = interactions.Embed(
+            title="It seems like you mentioned me",
+            description=f"I could not help much but noticed you mentioned me. You can type ``/`` and choose **{client.user.username}** to see a list of available commands.",
+            color=0x6AA4C1,
+        )
+        await msg.channel.send(embeds=embed)
 
 
-client.start()
+client.start(TOKEN)
