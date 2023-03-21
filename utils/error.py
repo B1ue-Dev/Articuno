@@ -1,15 +1,13 @@
 """
 Error system handler.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import datetime
 import traceback
 import interactions
-from interactions import LibraryException
-from interactions.ext import molter
+from const import LOG_CHANNEL
 
 
 class Error(interactions.Extension):
@@ -17,178 +15,23 @@ class Error(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.log_channel: int = 957090401418899526
+        self.log_channel: int = LOG_CHANNEL
 
-    @interactions.extension_listener(name="on_command_error")
+    @interactions.listen()
     async def on_command_error(
-        self, ctx: interactions.CommandContext, error: Exception
-    ):
-        """For every Exception callback."""
+        self,
+        ctx: interactions.events.CommandError,
+    ) -> None:
+        """For CommandError callback."""
 
-        if isinstance(error, LibraryException):
+        if not isinstance(ctx.ctx, interactions.SlashContext):
+            return
 
-            if int(error.code) == 50013:
-                return await ctx.send(
-                    "You do not have permission to perform this action.", ephemeral=True
-                )
+        _ctx: interactions.SlashContext = ctx.ctx
 
-            if int(error.code) == 10008:
-                return
+        error_time = datetime.datetime.utcnow().timestamp()
 
-            error_time = (
-                datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-            ).timestamp()
-
-            traceb2 = traceback.format_exception(
-                type(error),
-                value=error,
-                tb=error.__traceback__,
-                limit=1000,
-            )
-            traceb = "".join(traceb2)
-            traceb = traceb.replace("`", "")
-            traceb = traceb.replace("\\n", "\n")
-            traceb = traceb.replace("\\t", "\t")
-            traceb = traceb.replace("\\r", "\r")
-            traceb = traceb.replace("\\", "/")
-            er = ""
-            for i in traceb:
-                er = er + f"{i}"
-
-            await ctx.get_guild()
-
-            embed = interactions.Embed(
-                title="**Uh oh...**",
-                description="".join(
-                    [
-                        "An error occurred. The developer team is dealing with the problem now.\n",
-                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
-                    ]
-                ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Error",
-                        value=f"```py\n{type(error).__name__}: {error}\n```",
-                    ),
-                ],
-            )
-
-            await ctx.send(embeds=embed, ephemeral=True)
-
-            log_channel = interactions.Channel(
-                **await self.client._http.get_channel(self.log_channel),
-                _client=self.client._http,
-            )
-            command_name = ctx.data._json["name"]
-
-            log_error = interactions.Embed(
-                title="An error occurred!",
-                description="".join(
-                    [
-                        f"Caused by **/{command_name}**.\n",
-                        f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
-                        f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
-                        f"Occurred on: <t:{round(error_time)}:F>",
-                    ]
-                ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Traceback",
-                        value=f"```py\n{traceb}\n```"
-                        if len(traceb) < 1024
-                        else f"```py\n...{traceb[-1000:]}\n```",
-                    )
-                ],
-            )
-            await log_channel.send(embeds=log_error)
-
-        else:
-            error_time = (
-                datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-            ).timestamp()
-
-            traceb2 = traceback.format_exception(
-                type(error),
-                value=error,
-                tb=error.__traceback__,
-                limit=1000,
-            )
-            traceb = "".join(traceb2)
-            traceb = traceb.replace("`", "")
-            traceb = traceb.replace("\\n", "\n")
-            traceb = traceb.replace("\\t", "\t")
-            traceb = traceb.replace("\\r", "\r")
-            traceb = traceb.replace("\\", "/")
-            er = ""
-            for i in traceb:
-                er = er + f"{i}"
-
-            await ctx.get_guild()
-
-            embed = interactions.Embed(
-                title="**Uh oh...**",
-                description="".join(
-                    [
-                        "An error occurred. The developer team is dealing with the problem now.\n",
-                        "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
-                    ]
-                ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Error",
-                        value=f"```py\n{type(error).__name__}: {error}\n```",
-                    ),
-                ],
-            )
-
-            await ctx.send(embeds=embed, ephemeral=True)
-
-            log_channel = interactions.Channel(
-                **await self.client._http.get_channel(self.log_channel),
-                _client=self.client._http,
-            )
-            command_name = ctx.data._json["name"]
-            subcommand_name = ctx.data._json.get("options", None)
-            if subcommand_name:
-                subcommand_name = subcommand_name[0]
-                if subcommand_name["type"] == 1:
-                    subcommand_name = subcommand_name["name"]
-                else:
-                    subcommand_name = None
-
-            log_error = interactions.Embed(
-                title="An error occurred!",
-                description="".join(
-                    [
-                        f"""Caused by **/{command_name}{" " + subcommand_name if subcommand_name else ""}**\n""",
-                        f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
-                        f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
-                        f"Occurred on: <t:{round(error_time)}:F>",
-                    ]
-                ),
-                color=0xED4245,
-                fields=[
-                    interactions.EmbedField(
-                        name="Traceback",
-                        value=f"```py\n{traceb}\n```"
-                        if len(traceb) < 1024
-                        else f"```py\n...{traceb[-1000:]}\n```",
-                    )
-                ],
-            )
-            await log_channel.send(embeds=log_error)
-
-    @interactions.extension_listener(name="on_molter_command_error")
-    async def on_molter_command_error(
-        self, ctx: molter.MolterContext, error: Exception
-    ):
-        error_time = (
-            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-        ).timestamp()
-
+        error: Exception = ctx.error
         traceb2 = traceback.format_exception(
             type(error),
             value=error,
@@ -209,8 +52,10 @@ class Error(interactions.Extension):
             title="**Uh oh...**",
             description="".join(
                 [
-                    "An error occurred. The developer team is dealing with the problem now.\n",
-                    "Have any question? Join the [**support server**](https://discord.gg/rQHRQ8JjSY) for more help.",
+                    "An error occurred. The developer team is dealing with the ",
+                    " problem now.\nHave any question? ",
+                    "Join the [**support server**](https://discord.gg/ndy95mBfJs)",
+                    " for more help.",
                 ]
             ),
             color=0xED4245,
@@ -222,20 +67,24 @@ class Error(interactions.Extension):
             ],
         )
 
-        await ctx.send(embeds=embed)
+        await _ctx.send(embeds=embed, ephemeral=True)
 
-        log_channel = interactions.Channel(
-            **await self.client._http.get_channel(self.log_channel),
-            _client=self.client._http,
+        log_channel = self.client.get_channel(self.log_channel)
+        command_name: str = _ctx.command.name
+        subcommand_name: str = None
+        if _ctx.command.is_subcommand:
+            subcommand_name = _ctx.command.to_dict().get("name")
+        full_command = (
+            f"""{command_name}{" " + subcommand_name if subcommand_name else ""}"""
         )
 
         log_error = interactions.Embed(
             title="An error occurred!",
             description="".join(
                 [
-                    f"""Caused by **${ctx.invoked_name}**\n""",
-                    f"Author: {ctx.user.username}#{ctx.user.discriminator} ``{ctx.user.id}``\n",
-                    f"Guild: {ctx.guild.name} ``{ctx.guild_id}``\n",
+                    f"""Caused by **/{full_command}**\n""",
+                    f"Author: {_ctx.user.username}#{_ctx.user.discriminator} ``{_ctx.user.id}``\n",
+                    f"Guild: {_ctx.guild.name} ``{_ctx.guild.id}``\n",
                     f"Occurred on: <t:{round(error_time)}:F>",
                 ]
             ),
@@ -243,20 +92,11 @@ class Error(interactions.Extension):
             fields=[
                 interactions.EmbedField(
                     name="Traceback",
-                    value=f"```py\n{traceb}\n```"
+                    value=f"```\n{traceb}\n```"
                     if len(traceb) < 1024
-                    else f"```py\n...{traceb[-1000:]}\n```",
+                    else f"```\n...{traceb[-1000:]}\n```",
                 )
             ],
         )
+
         await log_channel.send(embeds=log_error)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Error(client)
-    logging.debug("""[%s] Loaded Error extension.""", log_time)
-    print(f"[{log_time}] Loaded Error extension.")
