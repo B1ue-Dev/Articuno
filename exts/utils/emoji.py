@@ -119,7 +119,7 @@ class Emoji(interactions.Extension):
         emote = Emote.get_emoji(emoji)
 
         # Checks if string is a valid Discord emoji format.
-        if emote.id is not None:
+        if emote.id is not None and emote.name is not None:
             try:
                 await self.client.http.get_guild_emoji(
                     int(ctx.guild.id), int(emote.id)
@@ -162,6 +162,48 @@ class Emoji(interactions.Extension):
 
             for e in emojis:
                 if e.name == emoji:
+                    _emoji = e
+                    break
+                else:
+                    continue
+
+            if not _emoji:
+                return await ctx.send(
+                    content="".join(
+                        [
+                            "Invalid emoji. Please try again and make",
+                            " sure that it is **from** this server.",
+                        ]
+                    ),
+                    ephemeral=True,
+                )
+
+            url = f"https://cdn.discordapp.com/emojis/{str(_emoji.id)}" + (
+                ".png" if not _emoji.animated else ".gif"
+            )
+            image = interactions.EmbedAttachment(url=url)
+            embed = interactions.Embed(
+                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
+                if _emoji.animated
+                else f"``<:{_emoji.name}:{_emoji.id}>``",
+                description="".join(
+                    [
+                        f"[Emoji link]({url})\n",
+                        f"Created at: {_emoji.created_at}",
+                    ],
+                ),
+                color=0x788CDC,
+                images=[image],
+            )
+            await ctx.send(content=f"<{url}>", embeds=embed)
+
+        # If string only contains the emoji ID.
+        elif emote.id is not None and emote.name is None:
+            emojis = await ctx.guild.fetch_all_custom_emojis()
+            _emoji: interactions.CustomEmoji = None
+
+            for e in emojis:
+                if str(e.id) == str(emoji):
                     _emoji = e
                     break
                 else:
