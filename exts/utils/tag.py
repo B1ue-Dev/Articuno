@@ -1,17 +1,17 @@
 """
-This module is for a tag system.
+Tag system.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
 import json
 import datetime
 import interactions
-from interactions.ext.wait_for import wait_for_component
+from interactions.ext.paginators import Paginator
 from utils.permission import Permissions, has_permission
 
 
-class _Tag_Error(Exception):
+class Tag_Error(Exception):
     """
     A class representing Tag error.
 
@@ -20,7 +20,9 @@ class _Tag_Error(Exception):
     """
 
     code: int
+    """The code of the error."""
     message: str
+    """The message of the error."""
 
     __slots__ = ["code", "message"]
 
@@ -30,7 +32,7 @@ class _Tag_Error(Exception):
 
         super().__init__(message)
 
-    def lookup(code: int) -> str:
+    def lookup(self, code: int) -> str:
         """
         Look up the message of the error code.
         :param code: The error code.
@@ -39,30 +41,38 @@ class _Tag_Error(Exception):
         :rtype: str
         """
 
-        return {
+        error_code: dict = {
             1001: "Tag not found in database.",
-            1002: "This guild does not have any registered tag."
+            1002: "This guild does not have any registered tag.",
         }
+        return error_code.get(code)
 
 
 class _Tag:
     """
     A custom class objecting reprenting a tag.
-
-    :ivar str description: The description of the tag.
-    :ivar int created_on: The created timestamp of a tag.
-    :ivar str author: The tag creator.
-    :ivar int last_edited_on: The last edited timestamp of a tag.
-    :ivar str last_edited_by: The author of the last edit.
     """
-    __slots__ = ["description", "created_on", "author", "last_edited_on", "last_edited_by"]
+
+    __slots__ = [
+        "description",
+        "created_on",
+        "author",
+        "last_edited_on",
+        "last_edited_by",
+    ]
 
     name: str
+    """The name of the tag."""
     description: str
+    """The description of the tag."""
     created_on: int
+    """The created timestamp of a tag."""
     author: str
+    """The name of tag creator."""
     last_edited_on: int
+    """The last edited timestamp of a tag."""
     last_edited_by: int
+    """The ID of the author from the last edit."""
 
     def __init__(self, **kwargs) -> None:
         self.description = kwargs.get("description", None)
@@ -84,10 +94,13 @@ class _Tag:
         """
         db = json.loads(open("./db/tag.json", "r").read())
         if guild_id not in db:
-            raise _Tag_Error(code=1002, message="This guild does not have any registered tag.")
+            raise Tag_Error(
+                code=1002,
+                message="This guild does not have any registered tag.",
+            )
 
         if tag_name not in db[guild_id]:
-            raise _Tag_Error(code=1001, message="Tag not found in database.")
+            raise Tag_Error(code=1001, message="Tag not found in database.")
 
         return _Tag(
             name=tag_name,
@@ -95,7 +108,7 @@ class _Tag:
             created_on=db[guild_id][tag_name]["created_on"],
             author=db[guild_id][tag_name]["author"],
             last_edited_on=db[guild_id][tag_name]["last_edited_on"],
-            last_edited_by=db[guild_id][tag_name]["last_edited_by"]
+            last_edited_by=db[guild_id][tag_name]["last_edited_by"],
         )
 
 
@@ -104,24 +117,25 @@ class Tag(interactions.Extension):
         self.client: interactions.Client = client
         self.edited_name = None
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="tag",
-        description="Tag system",
+        description="Handle all tag aspects.",
         dm_permission=False,
     )
-    async def _tag(self, *args, **kwargs):
+    async def tag(self, ctx: interactions.SlashContext) -> None:
+        """Handle all tag aspects."""
         ...
 
-    @_tag.subcommand(name="create")
-    async def _tag_create(self, ctx: interactions.CommandContext):
+    @tag.subcommand()
+    async def create(self, ctx: interactions.SlashContext) -> None:
         """Creates a new tag."""
         if not (
             has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.MANAGE_MESSAGES,
             )
             or has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.ADMINISTRATOR,
             )
         ):
@@ -133,16 +147,16 @@ class Tag(interactions.Extension):
         modal = interactions.Modal(
             title="Create new tag",
             custom_id="new_tag",
-            components=[
-                interactions.TextInput(
-                    style=interactions.TextStyleType.SHORT,
+        )
+        modal.add_components(
+            [
+                interactions.ShortText(
                     label="Name of the tag",
                     placeholder="The name of the tag you wish to create",
                     custom_id="tag_name",
                     max_length=100,
                 ),
-                interactions.TextInput(
-                    style=interactions.TextStyleType.PARAGRAPH,
+                interactions.ParagraphText(
                     label="Description of the tag",
                     placeholder="The description of the tag you wish to create.",
                     custom_id="tag_description",
@@ -151,30 +165,48 @@ class Tag(interactions.Extension):
             ],
         )
 
-        await ctx.popup(modal)
+        await ctx.send_modal(modal)
 
-    @_tag.subcommand(name="view")
-    @interactions.option("The name of the tag", autocomplete=True)
-    async def _tag_view(self, ctx: interactions.CommandContext, tag_name: str):
+    @tag.subcommand()
+    @interactions.slash_option(
+        name="tag_name",
+        description="The name of the tag",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def view(
+        self, ctx: interactions.SlashContext, tag_name: str
+    ) -> None:
         """Views a tag."""
 
         try:
-            await ctx.send(_Tag().get_tag(str(ctx.guild_id), tag_name).description)
-        except _Tag_Error as e:
+            await ctx.send(
+                _Tag().get_tag(str(ctx.guild.id), tag_name).description
+            )
+        except Tag_Error as e:
             await ctx.send(e.lookup(e.code), ephemeral=True)
 
-    @_tag.subcommand(name="edit")
-    @interactions.option("The name of the tag", autocomplete=True)
-    async def _tag_edit(self, ctx: interactions.CommandContext, tag_name: str):
+    @tag.subcommand()
+    @interactions.slash_option(
+        name="tag_name",
+        description="The name of the tag",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def edit(
+        self, ctx: interactions.SlashContext, tag_name: str
+    ) -> None:
         """Edits a tag."""
 
         if not (
             has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.MANAGE_MESSAGES,
             )
             or has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.ADMINISTRATOR,
             )
         ):
@@ -183,7 +215,7 @@ class Tag(interactions.Extension):
                 ephemeral=True,
             )
 
-        guild_id = str(ctx.guild_id)
+        guild_id = str(ctx.guild.id)
         db = json.loads(open("./db/tag.json", "r").read())
 
         if guild_id not in db:
@@ -197,40 +229,46 @@ class Tag(interactions.Extension):
 
         self.edited_name = tag_name
         modal = interactions.Modal(
+            interactions.InputText(
+                style=interactions.TextStyles.SHORT,
+                label="Name of the tag",
+                placeholder="The name of the tag you want to edit.",
+                custom_id="tag_name",
+                max_length=100,
+                value=tag_name,
+            ),
+            interactions.InputText(
+                style=interactions.TextStyles.PARAGRAPH,
+                label="Description of the tag",
+                placeholder="The description of the tag you want to edit.",
+                custom_id="tag_description",
+                max_length=2000,
+                value=db[guild_id][tag_name]["description"],
+            ),
             title=f"Edit tag: {tag_name}",
             custom_id="edit_tag",
-            components=[
-                interactions.TextInput(
-                    style=interactions.TextStyleType.SHORT,
-                    label="Name of the tag",
-                    placeholder="The name of the tag you want to edit.",
-                    custom_id="name",
-                    max_length=100,
-                    value=tag_name,
-                ),
-                interactions.TextInput(
-                    style=interactions.TextStyleType.PARAGRAPH,
-                    label="Description of the tag",
-                    placeholder="The description of the tag you want to edit.",
-                    custom_id="description",
-                    max_length=2000,
-                    value=db[guild_id][tag_name]["description"],
-                ),
-            ],
         )
 
-        await ctx.popup(modal)
+        await ctx.send_modal(modal)
 
-    @_tag.subcommand(name="info")
-    @interactions.option("The name of the tag", autocomplete=True)
-    async def _tag_info(self, ctx: interactions.CommandContext, tag_name: str):
+    @tag.subcommand()
+    @interactions.slash_option(
+        name="tag_name",
+        description="The name of the tag",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def info(
+        self, ctx: interactions.SlashContext, tag_name: str
+    ) -> None:
         """Shows the information about a tag."""
 
-        tag = _Tag().get_tag(str(ctx.guild_id), tag_name)
+        tag = _Tag().get_tag(str(ctx.guild.id), tag_name)
 
         footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
-            icon_url=f"{ctx.author.user.avatar_url}",
+            text=f"Requested by {ctx.author.username}#{ctx.author.discriminator}",
+            icon_url=f"{ctx.author.avatar.url}",
         )
         fields = [
             interactions.EmbedField(
@@ -269,20 +307,28 @@ class Tag(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @_tag.subcommand(name="delete")
-    @interactions.option("The name of the tag", autocomplete=True)
-    async def _tag_delete(self, ctx: interactions.CommandContext, tag_name: str):
+    @tag.subcommand()
+    @interactions.slash_option(
+        name="tag_name",
+        description="The name of the tag",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def delete(
+        self, ctx: interactions.SlashContext, tag_name: str
+    ) -> None:
         """Deletes a tag."""
 
         await ctx.defer(ephemeral=True)
 
         if not (
             has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.MANAGE_MESSAGES,
             )
             or has_permission(
-                int(ctx.author.permissions),
+                int(ctx.author.guild_permissions),
                 Permissions.ADMINISTRATOR,
             )
         ):
@@ -291,7 +337,7 @@ class Tag(interactions.Extension):
                 ephemeral=True,
             )
 
-        guild_id = str(ctx.guild_id)
+        guild_id = str(ctx.guild.id)
         db = json.loads(open("./db/tag.json", "r").read())
 
         if guild_id not in db:
@@ -305,18 +351,16 @@ class Tag(interactions.Extension):
 
         buttons = [
             interactions.ActionRow(
-                components=[
-                    interactions.Button(
-                        style=interactions.ButtonStyle.SUCCESS,
-                        label="Yes",
-                        custom_id="yes",
-                    ),
-                    interactions.Button(
-                        style=interactions.ButtonStyle.DANGER,
-                        label="No",
-                        custom_id="no",
-                    ),
-                ]
+                interactions.Button(
+                    style=interactions.ButtonStyle.SUCCESS,
+                    label="Yes",
+                    custom_id="yes",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.DANGER,
+                    label="No",
+                    custom_id="no",
+                ),
             )
         ]
 
@@ -326,31 +370,29 @@ class Tag(interactions.Extension):
             ephemeral=True,
         )
 
-        res = await wait_for_component(
-            self.client,
+        res = await self.client.wait_for_component(
             components=buttons,
             messages=int(msg.id),
             timeout=30,
         )
 
-        if res.custom_id == "yes":
+        if res.ctx.custom_id == "yes":
             del db[guild_id][tag_name]
             if len(db[guild_id]) == 0:
                 del db[guild_id]
             with open("./db/tag.json", "w") as f:
                 json.dump(db, f, indent=4)
 
-            await res.edit(
-                f"Tag ``{tag_name}`` deleted.",
+            await res.ctx.edit_origin(
+                content=f"Tag ``{tag_name}`` deleted.",
                 components=[],
             )
 
-        elif res.custom_id == "no":
+        elif res.ctx.custom_id == "no":
+            await res.ctx.edit_origin(content="Cancelled.", components=[])
 
-            await res.edit("Cancelled.", components=[])
-
-    @_tag.subcommand(name="list")
-    async def _tag_list(self, ctx: interactions.CommandContext):
+    @tag.subcommand()
+    async def list(self, ctx: interactions.SlashContext) -> None:
         """Lists all tag within the server."""
 
         guild_id = str(ctx.guild_id)
@@ -368,22 +410,34 @@ class Tag(interactions.Extension):
                 ephemeral=True,
             )
 
-        desc = []
-        for tag in db[guild_id]:
-            desc.append(f"``- {tag}``")
-        embed = interactions.Embed(
-            title="Tags",
-            description="\n".join(desc),
-        )
-        await ctx.send(embeds=embed)
+        tag_list = [f"` {i+1} ` {tag}" for i, tag in enumerate(db[guild_id])]
+        chunks = [tag_list[x : x + 9] for x in range(0, len(tag_list), 9)]
+        embeds = [
+            interactions.Embed(
+                title="Tag list for ",
+                fields=[
+                    interactions.EmbedField(name="Name", value="\n".join(x))
+                ],
+            )
+            for x in chunks
+        ]
 
-    @interactions.extension_modal(modal="new_tag")
-    async def _new_tag(
+        if len(embeds) == 1:
+            return await ctx.send(embeds=embeds)
+
+        pag = Paginator.create_from_embeds(self.client, *embeds, timeout=30)
+        pag.show_select_menu = True
+        await pag.send(ctx)
+
+    @interactions.modal_callback("new_tag")
+    async def new_tag(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.ModalContext,
         tag_name: str,
         tag_description: str,
-    ):
+    ) -> None:
+        """Modal callback for creating a new tag."""
+
         guild_id = str(ctx.guild_id)
 
         db = json.loads(open("./db/tag.json", "r").read())
@@ -391,7 +445,7 @@ class Tag(interactions.Extension):
             db[guild_id] = {}
         db[guild_id][tag_name] = {
             "description": tag_description,
-            "created_on": round(datetime.datetime.utcnow().timestamp()),
+            "created_on": round(datetime.datetime.now().timestamp()),
             "author": str(ctx.author.id),
             "last_edited_on": None,
             "last_edited_by": None,
@@ -403,21 +457,23 @@ class Tag(interactions.Extension):
             ephemeral=True,
         )
 
-    @interactions.extension_modal(modal="edit_tag")
-    async def _edit_tag(
+    @interactions.modal_callback("edit_tag")
+    async def edit_tag(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.ModalContext,
         tag_name: str,
         tag_description: str,
-    ):
-        guild_id = str(ctx.guild_id)
+    ) -> None:
+        """Modal callback for editing an existing tag."""
+
+        guild_id = str(ctx.guild.id)
 
         db = json.loads(open("./db/tag.json", "r").read())
         db[guild_id][tag_name] = {
             "description": tag_description,
             "created_on": db[guild_id][self.edited_name]["created_on"],
             "author": db[guild_id][self.edited_name]["author"],
-            "last_edited_on": round(datetime.datetime.utcnow().timestamp()),
+            "last_edited_on": round(datetime.datetime.now().timestamp()),
             "last_edited_by": str(ctx.author.id),
         }
         with open("./db/tag.json", "w") as f:
@@ -434,20 +490,22 @@ class Tag(interactions.Extension):
             ephemeral=True,
         )
 
-    @interactions.extension_autocomplete(command="tag", name="tag_name")
-    async def _tag_autocomplete(
+    @interactions.global_autocomplete("tag_name")
+    async def tag_autocomplete(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.AutocompleteContext,
         tag_name: str = "",
-    ):
+    ) -> None:
+        """Autcomplete for tag commands."""
+
         guild_id = str(ctx.guild_id)
         letters: list = list(tag_name) if tag_name != "" else []
         tags = json.loads(open("./db/tag.json", "r", encoding="utf8").read())
         if guild_id in tags:
             if len(tag_name) == 0:
-                await ctx.populate(
+                await ctx.send(
                     [
-                        interactions.Choice(name=tag[0], value=tag[0])
+                        {"name": tag[0], "value": tag[0]}
                         for tag in (
                             list(tags[guild_id].items())[0:24]
                             if len(tags) > 25
@@ -460,9 +518,5 @@ class Tag(interactions.Extension):
                 for tag in tags[guild_id]:
                     focus: str = "".join(letters)
                     if focus.lower() in tag.lower():
-                        choices.append(interactions.Choice(name=tag, value=tag))
-                await ctx.populate(choices)
-
-
-def setup(bot):
-    Tag(bot)
+                        choices.append({"name": tag, "value": tag})
+                await ctx.send(choices)
