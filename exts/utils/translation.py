@@ -369,12 +369,12 @@ class Translation(interactions.Extension):
             )
         except interactions.errors.HTTPException:
             return await ctx.send(
-                content="Invalid message ID or channel ID. Please try again",
+                content="Invalid message ID or channel ID. Please try again.",
                 ephemeral=True,
             )
 
         translator = Translator()
-        content = _message.content
+        content = _message["content"]
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
@@ -404,7 +404,7 @@ class Translation(interactions.Extension):
                     timeout=10,
                 )
                 selects = res.ctx.values[0]
-                await res.ctx.defer(ephemeral=True)
+                await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
                 message1 = translation.text
 
