@@ -6,7 +6,6 @@ Fun related commands.
 
 import random
 import asyncio
-import datetime
 import aiohttp
 import interactions
 from utils.utils import get_response
@@ -30,7 +29,7 @@ class Fun(interactions.Extension):
 
         image = interactions.EmbedAttachment(url=file)
         embed = interactions.Embed(
-            title="Coffee ☕", color=0xC4771D, image=image
+            title="Coffee ☕", color=0xC4771D, images=[image]
         )
 
         await ctx.send(embeds=embed)
