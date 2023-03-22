@@ -35,7 +35,12 @@ class Pokemon(interactions.Extension):
         name_lower = pokemon_name.lower()
         db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
         if name_lower in db:
-            name = db[name_lower]["name"]
+            name = db[name_lower]["name"] + (
+                " (Hey, that's me!)"
+                if db[name_lower]["name"] == "Articuno"
+                else ""
+            )
+            print(name)
             id = db[name_lower]["num"]
             types = ", ".join(db[name_lower]["types"])
             desp = db[name_lower]["description"]

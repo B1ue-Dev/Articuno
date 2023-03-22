@@ -276,4 +276,9 @@ class Misc(interactions.Extension):
             file=resp,
             description="PetPet",
         )
-        await ctx.send(file=img)
+        await ctx.send(
+            content="Hey, thanks for the pat. ^_^"
+            if int(user.id) == int(self.client.user.id)
+            else None,
+            file=img,
+        )

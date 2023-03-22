@@ -66,7 +66,7 @@ class Hug(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def _hug(
+    async def hug(
         self, ctx: interactions.SlashContext, user: interactions.Member
     ) -> None:
         """Hugs a user."""
@@ -92,4 +92,10 @@ class Hug(interactions.Extension):
                 file=out,
                 description=f"{ctx.user.username} hugs {user.username}",
             )
-            await ctx.send(files=file)
+            print(int(ctx.user.id) == int(self.client.user.id))
+            await ctx.send(
+                content="Hey, thanks for the hug. ^_^"
+                if int(user.id) == int(self.client.user.id)
+                else None,
+                files=file,
+            )
