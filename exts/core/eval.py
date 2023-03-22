@@ -11,7 +11,6 @@ import contextlib
 import traceback
 import asyncio
 import interactions
-from jedi import Script
 from interactions.ext.paginators import Paginator
 from interactions.ext.prefixed_commands import (
     prefixed_command,
