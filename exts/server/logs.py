@@ -65,7 +65,7 @@ class Logs(interactions.Extension):
             )
 
         for channel in msg.message.guild.channels:
-            if channel.name == "logs":
+            if channel.name == "logs" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
                 break
 
@@ -115,7 +115,7 @@ class Logs(interactions.Extension):
         )
 
         for channel in after.guild.channels:
-            if channel.name == "logs":
+            if channel.name == "logs" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
                 break
 
@@ -154,7 +154,7 @@ class Logs(interactions.Extension):
             )
         else:
             for channel in member.guild.channels:
-                if channel.name == "welcome-goodbye":
+                if channel.name == "welcome-goodbye" and int(channel.type) == 0:
                     await channel.send(embeds=embed)
 
     @interactions.listen(interactions.events.MemberRemove)
@@ -179,7 +179,7 @@ class Logs(interactions.Extension):
         )
 
         for channel in member.guild.channels:
-            if channel.name == "welcome-goodbye":
+            if channel.name == "welcome-goodbye" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
 
     @interactions.listen(interactions.events.BanCreate)
@@ -225,7 +225,7 @@ class Logs(interactions.Extension):
         )
 
         for channel in ban.guild.channels:
-            if channel.name == "logs":
+            if channel.name == "logs" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
                 break
 
@@ -272,6 +272,6 @@ class Logs(interactions.Extension):
         )
 
         for channel in ban.guild.channels:
-            if channel.name == "logs":
+            if channel.name == "logs" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
                 break
