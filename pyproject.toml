@@ -1,17 +1,17 @@
 [tool.poetry]
-name = "articuno"
-version = "4.2.3"
+name = "Articuno"
+version = "5.0.0"
 description = "A fun Discord Bot, written with interactions.py."
 license = "GPL-3.0-only"
-authors = ["Jimmy-Blue <jimmyblue00@duck.com>"]
+authors = ["B1ue-Dev <b1uedev@duck.com>"]
 readme = "README.md"
 homepage = "https://blue.is-a.dev/Articuno"
-repository = "https://github.com/Jimmy-Blue/Articuno"
+repository = "https://github.com/B1ue-Dev/Articuno"
 
 [tool.poetry.dependencies]
 python = "^3.10.0"
 python-dotenv = "0.19.2"
-discord-py-interactions = { git = "https://github.com/Jimmy-Blue/library.git", branch = "stable" }
+discord-py-interactions = "5.0.0"
 interactions-files = "1.1.5"
 interactions-wait-for = "^1.0.5"
 interactions-molter = "1.0.1"
