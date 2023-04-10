@@ -1,14 +1,14 @@
 """
 Turn image into ASCII art.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
 import logging
 import datetime
 import io
 import re
-import string
+import textwrap
 import interactions
 import pyfiglet
 import aiohttp
@@ -32,49 +32,15 @@ def rgb2gray(rgb: str) -> int:
 
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
-    # Figure out how 'wide' each range is
+    """
+    I have no idea what this works.
+    """
+
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
-
-    # Convert the left range into a 0-1 range (float)
     valueScaled = float(value - leftMin) / float(leftSpan)
 
-    # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
-
-
-def page_paginator(text: str) -> list[str]:
-    """
-    This function takes a string and splits it into chunks of 10 characters.
-
-    :param text: The string to split.
-    :type text: str
-    :return: A list of strings.
-    :rtype: list
-    """
-
-    words = [
-        re.sub("^[{0}]+|[{0}]+$".format(string.punctuation), "", w)
-        for w in text.split()
-    ]
-    pages = []
-    s = ""
-    for i in range(len(words)):
-        if len(s) < 16:
-            if i == len(words) - 1:
-                s += f"{words[i]} "
-                pages.append(s)
-            else:
-                s += f"{words[i]} "
-        else:
-            pages.append(s)
-            s = ""
-            if i == len(words) - 1:
-                s += f"\n{words[i]} "
-                pages.append(s)
-            else:
-                s += f"\n{words[i]} "
-    return pages
 
 
 class ASCII(interactions.Extension):
@@ -82,43 +48,37 @@ class ASCII(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.ASCII_CHARS = (
-            "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^'´. "
-        )
+        self.ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^'´. "
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="ascii",
         description="ASCII art command.",
     )
-    async def _ascii(self, *args, **kwargs):
+    async def ascii(self, *args, **kwargs) -> None:
+        """For everything related to /ascii command."""
         ...
 
-    @_ascii.subcommand(name="user")
-    @interactions.option("Target user")
-    async def _ascii_user(
+    @ascii.subcommand(
+        sub_cmd_name="user",
+        sub_cmd_description="Turns a user profile picture into ASCII text art.",
+    )
+    @interactions.slash_option(
+        name="user",
+        description="Target user",
+        opt_type=interactions.OptionType.USER,
+        required=True,
+    )
+    async def user(
         self,
-        ctx: interactions.CommandContext,
+        ctx: interactions.InteractionContext,
         user: interactions.Member,
-    ):
+    ) -> None:
         """Turns a user profile picture into ASCII art."""
 
-        url = user.user.avatar_url[:-4] + ".png"
-
-        # x = re.search("(?:([^:/?#]+):)?(?://([^/?#]*))?([^?#]*\.(?:jpg|gif|png))(?:\?([^#]*))?(?:#(.*))?", url)
-
-        # if not x:
-        #     return await ctx.send("Invalid URL. (re)")
+        url = user.user.avatar.url[:-4] + ".png"
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
-                if resp.status != 200:
-                    return await ctx.send("Invalid URL. (status)")
-
-                if resp.content_type not in {"image/png", "image/jpeg", "image/jpeg"}:
-                    return await ctx.send(
-                        "Invalid URL. (Supported format: png, jpeg, jpg)"
-                    )
-
                 image_bytes = io.BytesIO(await resp.read())
                 img = Image.open(image_bytes)
 
@@ -137,17 +97,13 @@ class ASCII(interactions.Extension):
             if WIDTH_LIMIT * HEIGHT_LIMIT + HEIGHT_LIMIT < 800:
                 break
 
-        # saves all pixels of img
         pix = img.load()
 
-        # calc range of gray
         minG = 265
         maxG = 0
 
         for y in range(HEIGHT_LIMIT):
-
             for x in range(WIDTH_LIMIT):
-
                 gray = rgb2gray(
                     pix[
                         x * (img.size[0] / WIDTH_LIMIT),
@@ -163,13 +119,10 @@ class ASCII(interactions.Extension):
 
         final = ""
 
-        # goes through the pixels of the img
         for y in range(HEIGHT_LIMIT):
             row = ""
 
             for x in range(WIDTH_LIMIT):
-
-                # calc the gray value of the pixel
                 gray = rgb2gray(
                     pix[
                         x * (img.size[0] / WIDTH_LIMIT),
@@ -179,30 +132,45 @@ class ASCII(interactions.Extension):
 
                 letter = int(translate(gray, minG, maxG, 0, 69))
 
-                # finds the matching ascii char
                 row += self.ASCII_CHARS[letter]
 
             final += row + "\n"
 
-        # print("("+str(WIDTH_LIMIT)+", "+str(HEIGHT_LIMIT)+")")
-        # print(len(final))
         i = Image.new("RGB", (235, 290), color="black")
         I = ImageDraw.Draw(i)
         I.text((5, 5), final, fill=(34, 139, 34))
         with io.BytesIO() as out:
-            i.save(out, format="JPEG")
-            file = interactions.File(filename="image.jpg", fp=out.getvalue())
+            i.save(out, "PNG")
+            out.seek(0)
+            file = interactions.File(file_name="image.jpg", file=out)
 
-        await ctx.send(files=file)
+            await ctx.send(files=file)
 
-    @_ascii.subcommand(name="text")
-    @interactions.option("The text you want to convert")
-    @interactions.option("The color of the text (hex code)")
-    async def _ascii_text(
-        self, ctx: interactions.CommandContext, text: str, color: str = None
-    ):
+    @ascii.subcommand(
+        sub_cmd_name="text",
+        sub_cmd_description="Turn texts into ASCII art word.",
+    )
+    @interactions.slash_option(
+        name="text",
+        description="The text you want to convert",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    @interactions.slash_option(
+        name="color",
+        description="The color of the text (hex code)",
+        opt_type=interactions.OptionType.STRING,
+        required=False,
+    )
+    async def text(
+        self,
+        ctx: interactions.InteractionContext,
+        text: str,
+        color: str = None,
+    ) -> None:
         """Turn texts into ASCII art word."""
 
+        custom_color = None
         if color is None:
             pass
         else:
@@ -224,16 +192,24 @@ class ASCII(interactions.Extension):
             )
 
         s = ""
-        text_split = page_paginator(text)
-        for t in text_split:
+        text_split = textwrap.wrap(
+            text,
+            width=45,
+            break_long_words=True,
+            break_on_hyphens=False,
+            replace_whitespace=False,
+        )
+        for x, t in enumerate(text_split):
+            if x != 0:
+                s += "\n"
             s += t
 
         if len(text) > 1999:
             return await ctx.send("Text too long.")
 
-        ascii_art = pyfiglet.figlet_format(s, width=600)
+        ascii_art = pyfiglet.figlet_format(s, width=1100)
 
-        width, height = 600, 90
+        width, height = 1390, 90
 
         height *= len(text_split)
 
@@ -248,14 +224,15 @@ class ASCII(interactions.Extension):
         )
         with io.BytesIO() as out:
             img.save(out, format="JPEG")
-            file = interactions.File(filename="image.jpg", fp=out.getvalue())
-        await ctx.send(files=file)
+            out.seek(0)
+            file = interactions.File(file_name="image.jpg", file=out)
+            await ctx.send(files=file)
 
 
 def setup(client) -> None:
     """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
     ASCII(client)
     logging.debug("""[%s] Loaded ASCII extension.""", log_time)

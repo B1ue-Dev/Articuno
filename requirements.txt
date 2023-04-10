@@ -1,12 +1,9 @@
 python-dotenv==0.19.2
-discord-py-interactions==4.3.4
-interactions-files==1.1.5
-interactions-wait-for==1.0.6
-interactions-molter==1.0.1
-dinteractions-Paginator==2.0.2
+git+https://github.com/interactions-py/interactions.py@5.x
 google-api-python-client==2.64.0
 googletrans==3.1.0a0
 Pillow==9.2.0
 psutil==5.9.2
 pyfiglet==0.8.post1
 requests==2.28.1
+Flask

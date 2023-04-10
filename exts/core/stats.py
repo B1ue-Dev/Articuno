@@ -1,44 +1,49 @@
 """
-Stats command.
+/stats command.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import datetime
 import platform
 import interactions
-from interactions.ext import molter
+from interactions.ext.prefixed_commands import (
+    prefixed_command,
+    PrefixedContext,
+)
 import psutil
-from utils import cache, utils
+from utils import utils
 from const import VERSION
 
 
-class Stats(molter.MolterExtension):
+class Stats(interactions.Extension):
     """Extension for /stats command."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime = f"<t:{round(datetime.datetime.utcnow().timestamp())}:R>"
-        self.python = platform.python_version()
-        self.system = str(platform.platform())
+        self.uptime: int = round(datetime.datetime.utcnow().timestamp())
+        self.python: str = platform.python_version()
+        self.system: str = str(platform.platform())
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="stats",
         description="Shows the stats of Articuno.",
     )
-    async def _stats(self, ctx: interactions.CommandContext):
+    async def stats(self, ctx: interactions.InteractionContext) -> None:
         """Shows the stats of Articuno."""
 
-        proc = psutil.Process()
-        mem = f"""{utils.natural_size(proc.memory_full_info().rss)}
-            {utils.natural_size(proc.memory_full_info().vms)}"""
-        cpu = f"{psutil.cpu_percent()}%\n{proc.num_threads()} Threads"
-        latency = f"{self.client.latency * 1:.0f}ms"
-        guild_count = len(cache.Storage().get_all_guilds())
-        user_count = cache.Storage().get_all_users()
+        proc: "psutil.Process" = psutil.Process()
+        mem: str = (
+            f"{utils.natural_size(proc.memory_full_info().rss)}"
+            f"\n{utils.natural_size(proc.memory_full_info().vms)}"
+        )
+        cpu: str = f"{psutil.cpu_percent()}%\n{proc.num_threads()} Threads"
+        latency: str = f"{self.client.latency * 1000:.0f}ms"
+        user_count: int = 0
+        for guild in self.client.guilds:
+            user_count += guild.member_count
 
-        button = [
+        button: list = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
@@ -51,37 +56,55 @@ class Stats(molter.MolterExtension):
             ),
         ]
 
-        fields = [
-            interactions.EmbedField(name="Version", value=VERSION, inline=True),
+        fields: list = [
             interactions.EmbedField(
-                name="Guilds",
-                value=guild_count,
+                name="Version",
+                value=f"```ansi\n[2;34m{VERSION}[0m\n```",
                 inline=True,
             ),
-            interactions.EmbedField(name="Users", value=user_count, inline=True),
-            interactions.EmbedField(name="Latency", value=latency, inline=True),
+            interactions.EmbedField(
+                name="Guilds",
+                value=f"```\n{len(self.client.guilds)}\n```",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Users", value=f"```\n{user_count}\n```", inline=True
+            ),
+            interactions.EmbedField(
+                name="Latency", value=f"```\n{latency}\n```", inline=True
+            ),
             interactions.EmbedField(
                 name="Python",
-                value=self.python,
+                value=f"```ansi\n[2;33m{self.python}[0m\n```",
                 inline=True,
             ),
             interactions.EmbedField(
                 name="Uptime",
-                value=self.uptime,
+                value=f"```\n{utils.pretty_date(self.uptime)}\n```",
                 inline=True,
             ),
-            interactions.EmbedField(name="CPU", value=cpu, inline=True),
-            interactions.EmbedField(name="Memory", value=mem, inline=True),
+            interactions.EmbedField(
+                name="CPU",
+                value=f"```ansi\n[2;31m{cpu}[0m\n```",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Memory",
+                value=f"```ansi\n[2;36m{mem}[0m\n```",
+                inline=True,
+            ),
             interactions.EmbedField(
                 name="System",
-                value=self.system,
+                value=f"```ansi\n[2;35m{self.system}[0m\n```",
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedImageStruct(url=self.client.me.icon_url)
+        thumbnail = interactions.EmbedAttachment(
+            url=self.client.user.avatar.url
+        )
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Articuno Stats",
@@ -93,19 +116,22 @@ class Stats(molter.MolterExtension):
 
         await ctx.send(embeds=embed, components=button)
 
-    @molter.prefixed_command(name="stats")
-    async def _stats_msg(self, ctx: molter.MolterContext):
+    @prefixed_command(name="stats")
+    async def _stats(self, ctx: PrefixedContext) -> None:
         """Shows the stats of Articuno."""
 
-        proc = psutil.Process()
-        mem = f"""{utils.natural_size(proc.memory_full_info().rss)}
-            {utils.natural_size(proc.memory_full_info().vms)}"""
-        cpu = f"{psutil.cpu_percent()}%\n{proc.num_threads()} Threads"
-        latency = f"{self.client.latency * 1:.0f}ms"
-        guild_count = len(cache.Storage().get_all_guilds())
-        user_count = cache.Storage().get_all_users()
+        proc: "psutil.Process" = psutil.Process()
+        mem: str = (
+            f"{utils.natural_size(proc.memory_full_info().rss)}"
+            f"\n{utils.natural_size(proc.memory_full_info().vms)}"
+        )
+        cpu: str = f"{psutil.cpu_percent()}%\n{proc.num_threads()} Threads"
+        latency: str = f"{self.client.latency * 1000:.0f}ms"
+        user_count: int = 0
+        for guild in self.client.guilds:
+            user_count += guild.member_count
 
-        button = [
+        button: list = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
@@ -118,37 +144,55 @@ class Stats(molter.MolterExtension):
             ),
         ]
 
-        fields = [
-            interactions.EmbedField(name="Version", value=VERSION, inline=True),
+        fields: list = [
             interactions.EmbedField(
-                name="Guilds",
-                value=guild_count,
+                name="Version",
+                value=f"```ansi\n[2;34m{VERSION}[0m\n```",
                 inline=True,
             ),
-            interactions.EmbedField(name="Users", value=user_count, inline=True),
-            interactions.EmbedField(name="Latency", value=latency, inline=True),
+            interactions.EmbedField(
+                name="Guilds",
+                value=f"```\n{len(self.client.guilds)}\n```",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Users", value=f"```\n{user_count}\n```", inline=True
+            ),
+            interactions.EmbedField(
+                name="Latency", value=f"```\n{latency}\n```", inline=True
+            ),
             interactions.EmbedField(
                 name="Python",
-                value=self.python,
+                value=f"```ansi\n[2;33m{self.python}[0m\n```",
                 inline=True,
             ),
             interactions.EmbedField(
                 name="Uptime",
-                value=self.uptime,
+                value=f"```\n{utils.pretty_date(self.uptime)}\n```",
                 inline=True,
             ),
-            interactions.EmbedField(name="CPU", value=cpu, inline=True),
-            interactions.EmbedField(name="Memory", value=mem, inline=True),
+            interactions.EmbedField(
+                name="CPU",
+                value=f"```ansi\n[2;31m{cpu}[0m\n```",
+                inline=True,
+            ),
+            interactions.EmbedField(
+                name="Memory",
+                value=f"```ansi\n[2;36m{mem}[0m\n```",
+                inline=True,
+            ),
             interactions.EmbedField(
                 name="System",
-                value=self.system,
+                value=f"```ansi\n[2;35m{self.system}[0m\n```",
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedImageStruct(url=self.client.me.icon_url)
+        thumbnail = interactions.EmbedAttachment(
+            url=self.client.user.avatar.url
+        )
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar_url}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title="Articuno Stats",
@@ -159,12 +203,3 @@ class Stats(molter.MolterExtension):
         )
 
         await ctx.send(embeds=embed, components=button)
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    Stats(client)
-    logging.debug("""[%s] Loaded Stats extension.""", log_time)

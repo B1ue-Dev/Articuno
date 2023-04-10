@@ -1,42 +1,19 @@
-import aiohttp
+"""
+Utils for Articuno.
+
+(C) 2022-2023 - Jimmy-Blue
+"""
+
 import math
 import io
+from typing import Any
+import aiohttp
 from datetime import datetime
 
 
-async def async_dl(url, headers=None):
-    """I don't know what this does."""
-
-    # print("Attempting to download {}".format(url))
-    total_size = 0
-    data = b""
-    async with aiohttp.ClientSession(headers=headers) as session:
-        async with session.get(url) as response:
-            assert response.status == 200
-            while True:
-                chunk = await response.content.read(4 * 1024)  # 4k
-                data += chunk
-                total_size += len(chunk)
-                if not chunk:
-                    break
-                if total_size > 8000000:
-                    # Too big...
-                    # print("{}\n - Aborted - file too large.".format(url))
-                    return None
-    return data
-
-
-async def async_text(url, headers=None):
-    """Again."""
-
-    data = await async_dl(url, headers)
-    if data != None:
-        return data.decode("utf-8", "replace")
-    else:
-        return data
-
-
-async def get_response(url: str = None, params: dict = None, headers: dict = None):
+async def get_response(
+    url: str = None, params: dict = None, headers: dict = None
+) -> Any:
     """Return the data type from the request."""
 
     async with aiohttp.ClientSession() as session:
@@ -44,7 +21,11 @@ async def get_response(url: str = None, params: dict = None, headers: dict = Non
             if resp.status == 200:
                 if resp.content_type == "application/json":
                     return await resp.json()
-                elif resp.content_type in {"image/png", "image/jpeg", "image/gif"}:
+                elif resp.content_type in {
+                    "image/png",
+                    "image/jpeg",
+                    "image/gif",
+                }:
                     return io.BytesIO(await resp.read())
     await session.close()
 
@@ -76,13 +57,14 @@ def pretty_date(time: int) -> str:
     :rtype: str
     """
 
-    now = datetime.utcnow()
+    now = datetime.now()
+    diff = now - now
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time, datetime):
         diff = now - time
     elif not time:
-        diff = 0
+        diff = now - now
     second_diff = diff.seconds
     day_diff = diff.days
 

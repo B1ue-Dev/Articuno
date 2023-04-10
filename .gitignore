@@ -1,6 +1,6 @@
 .env
 /**/__pycache__
-/db
+/db/tag.json
 /.idea
 bot_test.py
 test.py

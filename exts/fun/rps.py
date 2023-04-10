@@ -1,54 +1,49 @@
 """
 Rock-paper-scissors command.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import random
 import asyncio
 import interactions
-from interactions.ext.wait_for import wait_for_component
 
 
 buttons = [
     interactions.ActionRow(
-        components=[
-            interactions.Button(
-                style=interactions.ButtonStyle.PRIMARY,
-                label="◄",
-                custom_id="previous",
-            ),
-            interactions.Button(
-                style=interactions.ButtonStyle.PRIMARY,
-                label="►",
-                custom_id="next",
-            ),
-            interactions.Button(
-                style=interactions.ButtonStyle.SECONDARY,
-                label="■",
-                custom_id="stop",
-            ),
-        ],
+        interactions.Button(
+            style=interactions.ButtonStyle.PRIMARY,
+            label="◄",
+            custom_id="previous",
+        ),
+        interactions.Button(
+            style=interactions.ButtonStyle.PRIMARY,
+            label="►",
+            custom_id="next",
+        ),
+        interactions.Button(
+            style=interactions.ButtonStyle.SECONDARY,
+            label="■",
+            custom_id="stop",
+        ),
     ),
 ]
 
-rps_selection = interactions.SelectMenu(
-    options=[
-        interactions.SelectOption(
+rps_selection = interactions.StringSelectMenu(
+    [
+        interactions.StringSelectOption(
             label="Rock",
-            emoji=interactions.Emoji(name="🪨"),
+            emoji=interactions.PartialEmoji(name="🪨"),
             value="1",
         ),
-        interactions.SelectOption(
+        interactions.StringSelectOption(
             label="Paper",
-            emoji=interactions.Emoji(name="📃"),
+            emoji=interactions.PartialEmoji(name="📃"),
             value="2",
         ),
-        interactions.SelectOption(
+        interactions.StringSelectOption(
             label="Scissors",
-            emoji=interactions.Emoji(name="✂"),
+            emoji=interactions.PartialEmoji(name="✂"),
             value="3",
         ),
     ],
@@ -88,7 +83,7 @@ class RPS(interactions.Extension):
         self.client: interactions.Client = client
         self.choice_convert: dict = {1: "Rock", 2: "Paper", 3: "Scissors"}
 
-    @interactions.extension_command(
+    @interactions.slash_command(
         name="rock_paper_scissors",
         description="Play a game of Rock-Paper-Scissors.",
     )
@@ -97,10 +92,10 @@ class RPS(interactions.Extension):
         ...
 
     @rock_paper_scissors.subcommand(
-        name="ai",
-        description="Play against Articuno.",
+        sub_cmd_name="ai",
+        sub_cmd_description="Play against Articuno.",
     )
-    async def rock_paper_scissors_ai(self, ctx: interactions.CommandContext):
+    async def ai(self, ctx: interactions.SlashContext) -> None:
         """Play against Articuno."""
 
         rps_selection.disabled = False
@@ -113,63 +108,70 @@ class RPS(interactions.Extension):
 
         while True:
             try:
-                res = await wait_for_component(
-                    self.client,
+
+                def _check(_ctx):
+                    return int(_ctx.ctx.user.id) == int(ctx.user.id) and int(
+                        _ctx.ctx.channel_id
+                    ) == int(ctx.channel_id)
+
+                res = await self.client.wait_for_component(
                     components=rps_selection,
-                    messages=int(ctx.message.id),
+                    check=_check,
+                    messages=int(msg.id),
                     timeout=15,
                 )
 
-                if int(res.user.id) == int(ctx.user.id):
-                    rps_selection.disabled = True
+                rps_selection.disabled = True
 
-                    user_choice = int(res.data.values[0])
-                    bot_choice = int(random.randint(1, 3))
+                user_choice = int(res.ctx.values[0])
+                bot_choice = int(random.randint(1, 3))
+                result = rps_get_winner(user_choice, bot_choice)
 
-                    result = rps_get_winner(user_choice, bot_choice)
+                if result is None:
+                    await res.ctx.edit_origin(
+                        content="".join(
+                            [
+                                f"{res.ctx.user.mention} chose ",
+                                f"**{self.choice_convert[user_choice]}**.\n",
+                                f"**Articuno** chose ",
+                                f"**{self.choice_convert[bot_choice]}**.\n",
+                                "> It's a `TIE`!",
+                            ]
+                        ),
+                        components=rps_selection,
+                        allowed_mentions={"parse": []},
+                    )
 
-                    if result is None:
-                        await res.edit(
-                            content="".join(
-                                [
-                                    f"{res.user.mention} chose **{self.choice_convert[user_choice]}**.\n",
-                                    f"**Articuno** chose **{self.choice_convert[bot_choice]}**.\n",
-                                    "> It's a `TIE`!",
-                                ]
-                            ),
-                            components=rps_selection,
-                            allowed_mentions={"parse": []},
-                        )
+                elif result is True:
+                    await res.ctx.edit_origin(
+                        content="".join(
+                            [
+                                f"{res.ctx.user.mention} chose ",
+                                f"**{self.choice_convert[user_choice]}**.\n",
+                                f"**Articuno** chose ",
+                                f"**{self.choice_convert[bot_choice]}**.\n",
+                                f"> {res.ctx.user.mention} `WON`!",
+                            ]
+                        ),
+                        components=rps_selection,
+                        allowed_mentions={"parse": []},
+                    )
 
-                    elif result is True:
-                        await res.edit(
-                            content="".join(
-                                [
-                                    f"{res.user.mention} chose **{self.choice_convert[user_choice]}**.\n",
-                                    f"**Articuno** chose **{self.choice_convert[bot_choice]}**.\n",
-                                    f"> {res.user.mention} `WON`!",
-                                ]
-                            ),
-                            components=rps_selection,
-                            allowed_mentions={"parse": []},
-                        )
-
-                    elif result is False:
-                        await res.edit(
-                            content="".join(
-                                [
-                                    f"{res.user.mention} chose **{self.choice_convert[user_choice]}**.\n",
-                                    f"**Articuno** chose **{self.choice_convert[bot_choice]}**.\n",
-                                    "> **Articuno** `WON`!",
-                                ]
-                            ),
-                            components=rps_selection,
-                            allowed_mentions={"parse": []},
-                        )
-                    break
-
-                else:
-                    pass
+                elif result is False:
+                    await res.ctx.edit_origin(
+                        content="".join(
+                            [
+                                f"{res.ctx.user.mention} chose ",
+                                f"**{self.choice_convert[user_choice]}**.\n",
+                                f"**Articuno** chose ",
+                                f"**{self.choice_convert[bot_choice]}**.\n",
+                                "> **Articuno** `WON`!",
+                            ]
+                        ),
+                        components=rps_selection,
+                        allowed_mentions={"parse": []},
+                    )
+                break
 
             except asyncio.TimeoutError:
                 rps_selection.disabled = True
@@ -177,23 +179,26 @@ class RPS(interactions.Extension):
                 break
 
     @rock_paper_scissors.subcommand(
-        name="human",
-        description="Play against someone else.",
+        sub_cmd_name="human",
+        sub_cmd_description="Play against someone else.",
     )
-    @interactions.option(
-        type=interactions.OptionType.USER,
+    @interactions.slash_option(
+        opt_type=interactions.OptionType.USER,
         name="user",
         description="The user to play against",
+        required=True,
     )
-    async def rock_paper_scissors_human(
-        self, ctx: interactions.CommandContext, user: interactions.User
-    ):
+    async def human(
+        self, ctx: interactions.SlashContext, user: interactions.User
+    ) -> None:
         """Play against someone else."""
 
-        # if int(ctx.user.id) == int(user.id):
-        #     return await ctx.send("You cannot challenge yourself.", ephemeral=True)
+        if int(ctx.user.id) == int(user.id):
+            return await ctx.send(
+                "You cannot challenge yourself.", ephemeral=True
+            )
 
-        if int(user.id) == int(self.client.me.id):
+        if int(user.id) == int(self.client.user.id):
             return await ctx.send(
                 "To challenge me, do ``/rock_paper_scissors ai`` instead.",
                 ephemeral=True,
@@ -203,18 +208,16 @@ class RPS(interactions.Extension):
 
         accept_deny = [
             interactions.ActionRow(
-                components=[
-                    interactions.Button(
-                        style=interactions.ButtonStyle.SUCCESS,
-                        label="Accept",
-                        custom_id="accept",
-                    ),
-                    interactions.Button(
-                        style=interactions.ButtonStyle.DANGER,
-                        label="Deny",
-                        custom_id="deny",
-                    ),
-                ]
+                interactions.Button(
+                    style=interactions.ButtonStyle.SUCCESS,
+                    label="Accept",
+                    custom_id="accept",
+                ),
+                interactions.Button(
+                    style=interactions.ButtonStyle.DANGER,
+                    label="Deny",
+                    custom_id="deny",
+                ),
             )
         ]
 
@@ -226,17 +229,15 @@ class RPS(interactions.Extension):
 
         while True:
             try:
-                op: interactions.ComponentContext = await wait_for_component(
-                    self.client,
+                op = await self.client.wait_for_component(
                     components=accept_deny,
-                    messages=int(ctx.message.id),
+                    messages=int(msg.id),
                     timeout=15,
                 )
 
-                if int(op.user.id) == int(user.id):
-                    if op.custom_id == "accept":
-
-                        await op.edit(
+                if int(op.ctx.user.id) == int(user.id):
+                    if op.ctx.custom_id == "accept":
+                        _msg = await op.ctx.edit_origin(
                             content=f"{ctx.user.mention} vs {user.mention}",
                             components=rps_selection,
                         )
@@ -245,41 +246,39 @@ class RPS(interactions.Extension):
                         cmp_1 = 0
 
                         while True:
-                            cmp1: interactions.ComponentContext = (
-                                await wait_for_component(
-                                    self.client,
-                                    components=rps_selection,
-                                    messages=int(ctx.message.id),
-                                    timeout=15,
-                                )
+                            cmp1 = await self.client.wait_for_component(
+                                components=rps_selection,
+                                messages=int(msg.id),
+                                timeout=15,
                             )
 
-                            if int(cmp1.user.id) == user1 or int(cmp1.user.id) == user2:
-                                cmp_1 = int(cmp1.user.id)
-                                await cmp1.edit(
-                                    content=f"{cmp1.message.content}\n\n{cmp1.user.mention} has their option chosen."
+                            if (
+                                int(cmp1.ctx.user.id) == user1
+                                or int(cmp1.ctx.user.id) == user2
+                            ):
+                                cmp_1 = int(cmp1.ctx.user.id)
+                                await cmp1.ctx.edit_origin(
+                                    content=f"{_msg.content}\n\n{cmp1.ctx.user.mention} has their option chosen."
                                 )
-                                choice1 = int(cmp1.data.values[0])
+                                choice1 = int(cmp1.ctx.values[0])
                                 break
 
                             else:
                                 pass
 
                         while True:
-                            cmp2: interactions.ComponentContext = (
-                                await wait_for_component(
-                                    self.client,
-                                    components=rps_selection,
-                                    messages=int(ctx.message.id),
-                                    timeout=15,
-                                )
+                            cmp2 = await self.client.wait_for_component(
+                                components=rps_selection,
+                                messages=int(msg.id),
+                                timeout=15,
                             )
 
-                            if int(cmp2.user.id) in {int(user1), int(user2)} and int(
-                                cmp2.user.id
-                            ) != int(cmp_1):
+                            if int(cmp2.ctx.user.id) in {
+                                int(user1),
+                                int(user2),
+                            } and int(cmp2.ctx.user.id) != int(cmp_1):
                                 rps_selection.disabled = True
-                                choice2 = int(cmp2.data.values[0])
+                                choice2 = int(cmp2.ctx.values[0])
                                 break
 
                             else:
@@ -288,11 +287,13 @@ class RPS(interactions.Extension):
                         result = rps_get_winner(choice1, choice2)
 
                         if result is None:
-                            await cmp2.edit(
+                            await cmp2.ctx.edit_origin(
                                 content="".join(
                                     [
-                                        f"{ctx.user.mention} chose **{self.choice_convert[choice1]}**.\n"
-                                        f"{user.mention} chose **{self.choice_convert[choice2]}**.\n"
+                                        f"{ctx.user.mention} chose ",
+                                        f"**{self.choice_convert[choice1]}**.\n",
+                                        f"{user.mention} chose ",
+                                        f"**{self.choice_convert[choice2]}**.\n",
                                         "> It is a tie!",
                                     ]
                                 ),
@@ -301,11 +302,13 @@ class RPS(interactions.Extension):
                             )
 
                         elif result is True:
-                            await cmp2.edit(
+                            await cmp2.ctx.edit_origin(
                                 content="".join(
                                     [
-                                        f"{ctx.user.mention} chose **{self.choice_convert[choice1]}**.\n",
-                                        f"{user.mention} chose **{self.choice_convert[choice2]}**.\n",
+                                        f"{ctx.user.mention} chose ",
+                                        f"**{self.choice_convert[choice1]}**.\n",
+                                        f"{user.mention} chose ",
+                                        f"**{self.choice_convert[choice2]}**.\n",
                                         f"> {ctx.user.mention} won!",
                                     ],
                                 ),
@@ -314,11 +317,13 @@ class RPS(interactions.Extension):
                             )
 
                         elif result is False:
-                            await cmp2.edit(
+                            await cmp2.ctx.edit_origin(
                                 content="".join(
                                     [
-                                        f"{ctx.user.mention} chose **{self.choice_convert[choice1]}**.\n",
-                                        f"{user.mention} chose **{self.choice_convert[choice2]}**.\n",
+                                        f"{ctx.user.mention} chose ",
+                                        f"**{self.choice_convert[choice1]}**.\n",
+                                        f"{user.mention} chose ",
+                                        f"**{self.choice_convert[choice2]}**.\n",
                                         f"> {user.mention} won!",
                                     ]
                                 ),
@@ -328,7 +333,7 @@ class RPS(interactions.Extension):
 
                         break
 
-                    elif op.custom_id == "deny":
+                    elif op.ctx.custom_id == "deny":
                         await msg.edit(
                             content=f"{user.mention} declined the challenge.",
                             components=[],
@@ -338,22 +343,23 @@ class RPS(interactions.Extension):
                         break
 
                 elif (
-                    int(op.user.id) != int(user.id)
-                    and int(op.user.id) == int(ctx.user.id)
-                    and op.custom_id == "deny"
+                    int(op.ctx.user.id) != int(user.id)
+                    and int(op.ctx.user.id) == int(ctx.user.id)
+                    and op.ctx.custom_id == "deny"
                 ):
-                    await op.edit(
-                        f"{ctx.user.mention} cancelled the challenge.", components=[]
+                    await op.ctx.edit_origin(
+                        content=f"{ctx.user.mention} cancelled the challenge.",
+                        components=[],
                     )
                     break
 
                 elif (
-                    int(op.user.id) != int(user.id)
-                    and int(op.user.id) == int(ctx.user.id)
-                    and op.custom_id == "accept"
+                    int(op.ctx.user.id) != int(user.id)
+                    and int(op.ctx.user.id) == int(ctx.user.id)
+                    and op.ctx.custom_id == "accept"
                 ):
-                    await op.send(
-                        "You cannot accept the challenge by yourself.",
+                    await op.ctx.send(
+                        content="You cannot accept the challenge by yourself.",
                         components=[],
                         ephemeral=True,
                     )
@@ -364,12 +370,3 @@ class RPS(interactions.Extension):
             except asyncio.TimeoutError:
                 await msg.edit(content="Time's up!", components=[])
                 break
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    RPS(client)
-    logging.debug("""[%s] Loaded RPS extension.""", log_time)

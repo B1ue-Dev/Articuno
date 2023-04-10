@@ -289,7 +289,9 @@ class VBox(object):
 
     @property
     def copy(self):
-        return VBox(self.r1, self.r2, self.g1, self.g2, self.b1, self.b2, self.histo)
+        return VBox(
+            self.r1, self.r2, self.g1, self.g2, self.b1, self.b2, self.histo
+        )
 
     @cached_property
     def avg(self):

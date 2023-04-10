@@ -1,11 +1,9 @@
 """
-This is for base64, brainfuck commands.
+Random base64, brainfuck commands.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022-2023 - B1ue-Dev
 """
 
-import logging
-import datetime
 import base64 as b64
 import binascii
 import interactions
@@ -18,14 +16,21 @@ class HackTool(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.extension_command(name="base64")
-    async def _base64(self, *args, **kwargs):
+    @interactions.slash_command(name="base64")
+    async def base64(self, ctx: interactions.SlashContext) -> None:
         """Base64 commands."""
         ...
 
-    @_base64.subcommand(name="encode")
-    @interactions.option("The string you want to encode" "")
-    async def _base64_encode(self, ctx: interactions.CommandContext, string: str):
+    @base64.subcommand()
+    @interactions.slash_option(
+        name="string",
+        description="The string you want to encode",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def encode(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Encodes a string using base64."""
 
         string_message = string
@@ -34,9 +39,16 @@ class HackTool(interactions.Extension):
         base64_string = base64_bytes.decode("utf-8")
         await ctx.send(f"```{base64_string}```")
 
-    @_base64.subcommand(name="decode")
-    @interactions.option("The string you want to decode")
-    async def _base64_decode(self, ctx: interactions.CommandContext, string: str):
+    @base64.subcommand()
+    @interactions.slash_option(
+        name="string",
+        description="The string you want to decode",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def decode(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Decodes a string using base64."""
 
         string_message = string
@@ -46,34 +58,41 @@ class HackTool(interactions.Extension):
             base64_string = base64_bytes.decode("utf-8")
             await ctx.send(f"```{base64_string}```")
         except binascii.Error:
-            await ctx.send("```Invalid string. Please try again!```", ephemeral=True)
+            await ctx.send(
+                "```Invalid string. Please try again!```", ephemeral=True
+            )
 
-    @interactions.extension_command(name="brainfuck")
-    async def _brainfuck(self, *args, **kwargs):
+    @interactions.slash_command(name="brainfuck")
+    async def brainfuck(self, ctx: interactions.SlashContext) -> None:
         """Brainfuck commands."""
         ...
 
-    @_brainfuck.subcommand(name="convert")
-    @interactions.option("The string to convert")
-    async def _brainfuck_convert(self, ctx: interactions.CommandContext, string: str):
+    @brainfuck.subcommand()
+    @interactions.slash_option(
+        name="string",
+        description="The string to convert",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def convert(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Converts a string into brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().convert(string)
         await ctx.send(f"```{string_bytes}```")
 
-    @_brainfuck.subcommand(name="interpret")
-    @interactions.option("The code to interpret")
-    async def _brainfuck_interpret(self, ctx: interactions.CommandContext, code: str):
+    @brainfuck.subcommand()
+    @interactions.slash_option(
+        name="code",
+        description="The code to interpret",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def interpret(
+        self, ctx: interactions.SlashContext, code: str
+    ) -> None:
         """Interprets a brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().interpret(code)
         await ctx.send(f"```{string_bytes}```")
-
-
-def setup(client) -> None:
-    """Setup the extension."""
-    log_time = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
-    HackTool(client)
-    logging.debug("""[%s] Loaded HackTool extension.""", log_time)
