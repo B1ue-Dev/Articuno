@@ -1,7 +1,4 @@
-FROM debian:11-slim
-RUN apt-get update
-RUN apt-get install --no-install-suggests --no-install-recommends --yes python3.10 gcc python3-pip
-RUN apt-get clean
+FROM python:3.10.10
 
 COPY requirements.txt /
 RUN python3 -m pip install -r requirements.txt
