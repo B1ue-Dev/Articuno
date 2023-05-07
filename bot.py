@@ -47,12 +47,12 @@ if __name__ == "__main__":
         log_time = (
             datetime.datetime.utcnow() + datetime.timedelta(hours=7)
         ).strftime("%d/%m/%Y %H:%M:%S")
-        print(
+        print("".join(
             [
                 f"""[{log_time}] Logged in as {client.user.username}.""",
                 f"""Latency: {websocket}ms.""",
             ],
-        )
+        ))
 
     @client.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         ):
             embed = interactions.Embed(
                 title="It seems like you mentioned me",
-                description=(
+                description="".join(
                     [
                         f"I could not help much but noticed you mentioned me.",
                         f"You can type ``/`` and choose **{client.user.username}**",
