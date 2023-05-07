@@ -37,6 +37,17 @@ if __name__ == "__main__":
         level=0,
     )
 
+    client = interactions.Client(
+        activity=interactions.Activity(
+            name=f"for {VERSION}",
+            type=interactions.ActivityType.WATCHING,
+        ),
+        intents=interactions.Intents.DEFAULT
+        | interactions.Intents.MESSAGE_CONTENT
+        | interactions.Intents.GUILD_MEMBERS,
+        status=interactions.Status.ONLINE,
+        send_command_tracebacks=False,
+    )
     setup(client, default_prefix="$")
     PrefixedHelpCommand(
         client,
