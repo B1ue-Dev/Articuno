@@ -4,6 +4,7 @@ UwU related commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import random
 import interactions
 from interactions.ext.prefixed_commands import (
@@ -145,3 +146,9 @@ class UwU(interactions.Extension):
 
         res = OwO.create_uwu_text(self, text=text.content)
         await ctx.send(res)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    UwU(client)
+    logging.info("Loaded UwU extension.")

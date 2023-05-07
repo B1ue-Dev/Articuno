@@ -4,6 +4,7 @@
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import interactions
 from interactions.ext.prefixed_commands import (
     prefixed_command,
@@ -71,3 +72,9 @@ class Ping(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Ping(client)
+    logging.info("Loaded Ping extension.")

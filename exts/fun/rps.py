@@ -4,6 +4,7 @@ Rock-paper-scissors command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import random
 import asyncio
 import interactions
@@ -370,3 +371,9 @@ class RPS(interactions.Extension):
             except asyncio.TimeoutError:
                 await msg.edit(content="Time's up!", components=[])
                 break
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    RPS(client)
+    logging.info("Loaded RPS extension.")

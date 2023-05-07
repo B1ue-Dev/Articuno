@@ -4,6 +4,7 @@ Tag system.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import json
 import datetime
 import interactions
@@ -520,3 +521,9 @@ class Tag(interactions.Extension):
                     if focus.lower() in tag.lower():
                         choices.append({"name": tag, "value": tag})
                 await ctx.send(choices)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Tag(client)
+    logging.info("Loaded Tag extension.")

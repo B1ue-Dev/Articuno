@@ -4,6 +4,7 @@ Information commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import interactions
 from interactions import UserFlags, Permissions
 from utils.utils import get_response
@@ -485,3 +486,9 @@ class Info(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, ephemeral=True)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Info(client)
+    logging.info("Loaded Info extension.")

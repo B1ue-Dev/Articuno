@@ -24,5 +24,5 @@ def setup(client) -> None:
         datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     ).strftime("%d/%m/%Y %H:%M:%S")
     Fun(client)
-    logging.debug("""[%s] Loaded Fun extension.""", log_time)
+    logging.info("Loaded Fun extension.")
     print(f"[{log_time}] Loaded Fun extension.")

@@ -4,6 +4,7 @@ Image search command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import asyncio
 import random
 import interactions
@@ -276,3 +277,9 @@ class Google(interactions.Extension):
 
         except KeyError:
             await ctx.send("No result found.", ephemeral=True)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Google(client)
+    logging.info("Loaded Google extension.")

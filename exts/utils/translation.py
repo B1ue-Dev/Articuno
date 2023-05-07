@@ -3,6 +3,8 @@ Translate message using Google Translate.
 
 (C) 2022-2023 - B1ue-Dev
 """
+
+import logging
 import asyncio
 import googletrans
 import interactions
@@ -433,3 +435,9 @@ class Translation(interactions.Extension):
                 )
             except asyncio.TimeoutError:
                 break
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Translation(client)
+    logging.info("Loaded Translation extension.")

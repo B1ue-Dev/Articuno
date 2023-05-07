@@ -4,6 +4,7 @@ Hug command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import io
 import interactions
 import aiohttp
@@ -99,3 +100,9 @@ class Hug(interactions.Extension):
                 else None,
                 files=file,
             )
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Hug(client)
+    logging.info("Loaded Hug extension.")

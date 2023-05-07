@@ -4,6 +4,7 @@
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import datetime
 import platform
 import interactions
@@ -203,3 +204,9 @@ class Stats(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, components=button)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Stats(client)
+    logging.info("Loaded Stats extension.")

@@ -4,6 +4,7 @@ Moderation commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import datetime
 import interactions
 from utils.permission import has_permission, Permissions
@@ -563,3 +564,9 @@ class Mod(interactions.Extension):
         await ctx.send(
             f"Purged {amount} messages in #{channel.name}.", ephemeral=True
         )
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Mod(client)
+    logging.info("Loaded Mod extension.")

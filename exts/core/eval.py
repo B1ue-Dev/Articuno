@@ -9,6 +9,7 @@ import textwrap
 import inspect
 import contextlib
 import traceback
+import logging
 import asyncio
 import interactions
 from interactions.ext.paginators import Paginator
@@ -33,7 +34,6 @@ class Eval(interactions.Extension):
                 name="code",
                 description="Code to evaluate.",
                 required=True,
-                autocomplete=True,
             )
         ],
     )
@@ -93,22 +93,6 @@ class Eval(interactions.Extension):
                 await paginator.send(ctx)
             else:
                 await ctx.send("None", ephemeral=True)
-
-    @interactions.global_autocomplete("code")
-    async def code_autocomplete(
-        self, ctx: interactions.AutocompleteContext
-    ) -> None:
-        """Autocomplete for `code`"""
-        s = Script(ctx.input_text).complete()[0:20]
-        await ctx.send(
-            [
-                {
-                    "name": f"{ctx.input_text + x.complete}",
-                    "value": f"{ctx.input_text + x.complete}",
-                }
-                for x in (s if len(s) < 26 else s[0:25])
-            ]
-        )
 
     @prefixed_command(name="eval")
     async def _eval(self, ctx: PrefixedContext, *, code: str) -> None:
@@ -212,3 +196,9 @@ class Eval(interactions.Extension):
         )
 
         await paginator.send(ctx)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Eval(client)
+    logging.info("Loaded Eval extension.")
