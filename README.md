@@ -1,4 +1,4 @@
-# Articuno [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge) [![wakatime](https://wakatime.com/badge/user/4a61584b-76a5-4b28-9ec2-4ebad12be49f/project/c8e18506-9fbe-440b-955f-34219e1ecf5f.svg)](https://wakatime.com/badge/github/Jimmy-Blue/Articuno)
+# Articuno [![Better Uptime Badge](https://betteruptime.com/status-badges/v1/monitor/c1yv.svg)](https://betteruptime.com/?utm_source=status_badge) [![wakatime](https://wakatime.com/badge/user/4a61584b-76a5-4b28-9ec2-4ebad12be49f/project/c8e18506-9fbe-440b-955f-34219e1ecf5f.svg)](https://wakatime.com/badge/github/B1ue-Dev/Articuno)
 A fun Discord Bot, written with interactions.py.
 
 ![banner.png](./articuno_banner.png)
