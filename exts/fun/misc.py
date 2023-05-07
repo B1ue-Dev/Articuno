@@ -44,7 +44,7 @@ class Misc(interactions.Extension):
     #         if user.guild_avatar is None
     #         else user.guild_avatar.url
     #     )
-    #     url = "https://some-random-api.ml/canvas/horny"
+    #     url = "https://some-random-api.com/canvas/horny"
     #     params = {
     #         "avatar": avatar_url,
     #     }
@@ -83,7 +83,7 @@ class Misc(interactions.Extension):
     #         if user.guild_avatar is None
     #         else user.guild_avatar.url
     #     )
-    #     url = "https://some-random-api.ml/canvas/simpcard"
+    #     url = "https://some-random-api.com/canvas/simpcard"
     #     params = {"avatar": avatar_url}
     #     resp = await get_response(url, params)
     #     img = interactions.File(
@@ -145,7 +145,7 @@ class Misc(interactions.Extension):
                 nick = user.nick
         else:
             nick = username
-        url = "https://some-random-api.ml/canvas/tweet"
+        url = "https://some-random-api.com/canvas/tweet"
         params = {
             "avatar": user.avatar.url
             if user.guild_avatar is None
@@ -194,7 +194,7 @@ class Misc(interactions.Extension):
             username = user.user.username[:12] + "..."
         else:
             username = user.user.username
-        url = "https://some-random-api.ml/canvas/youtube-comment"
+        url = "https://some-random-api.com/canvas/youtube-comment"
         params = {
             "avatar": user.avatar.url
             if user.guild_avatar is None
@@ -229,7 +229,7 @@ class Misc(interactions.Extension):
         """Amogus."""
 
         await ctx.defer()
-        url = "https://some-random-api.ml/premium/amongus"
+        url = "https://some-random-api.com/premium/amongus"
         params = {
             "avatar": user.avatar.url
             if user.guild_avatar is None
@@ -264,7 +264,7 @@ class Misc(interactions.Extension):
     ) -> None:
         """Pet someone."""
 
-        url = "https://some-random-api.ml/premium/petpet"
+        url = "https://some-random-api.com/premium/petpet"
         params = {
             "avatar": user.avatar.url
             if user.guild_avatar is None

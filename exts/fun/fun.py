@@ -219,7 +219,7 @@ class Fun(interactions.Extension):
     async def joke(self, ctx: interactions.SlashContext) -> None:
         """Sends a random joke."""
 
-        url = "https://some-random-api.ml/joke"
+        url = "https://some-random-api.com/joke"
         resp = await get_response(url)
 
         embed = interactions.Embed(
@@ -324,7 +324,7 @@ class Fun(interactions.Extension):
     ) -> None:
         """Defines a word."""
 
-        url = "https://some-random-api.ml/dictionary"
+        url = "https://some-random-api.com/dictionary"
         params = {"word": word}
         resp = await get_response(url, params=params)
 
