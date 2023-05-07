@@ -12,7 +12,7 @@ dotenv.load_dotenv()
 TOKEN = os.getenv("TOKEN")
 """The token of the bot."""
 
-VERSION = "v5.0.1"
+VERSION = "v5.0.2"
 """Bot version."""
 
 LOG_CHANNEL = os.getenv("LOG_CHANNEL")
