@@ -47,7 +47,7 @@ class Stats(interactions.Extension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Jimmy-Blue/Articuno",
+                url="https://github.com/B1ue-Dev/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -135,7 +135,7 @@ class Stats(interactions.Extension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="GitHub",
-                url="https://github.com/Jimmy-Blue/Articuno",
+                url="https://github.com/B1ue-Dev/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,

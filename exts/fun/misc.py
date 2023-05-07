@@ -16,81 +16,81 @@ class Misc(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
-        name="hornycard",
-        description="Sends a hornycard.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.USER,
-                name="user",
-                description="Targeted user",
-                required=False,
-            )
-        ],
-    )
-    async def hornycard(
-        self,
-        ctx: interactions.SlashContext,
-        user: interactions.Member = None,
-    ) -> None:
-        """Sends a hornycard."""
+    # @interactions.slash_command(
+    #     name="hornycard",
+    #     description="Sends a hornycard.",
+    #     options=[
+    #         interactions.SlashCommandOption(
+    #             type=interactions.OptionType.USER,
+    #             name="user",
+    #             description="Targeted user",
+    #             required=False,
+    #         )
+    #     ],
+    # )
+    # async def hornycard(
+    #     self,
+    #     ctx: interactions.SlashContext,
+    #     user: interactions.Member = None,
+    # ) -> None:
+    #     """Sends a hornycard."""
 
-        if user is None:
-            user = ctx.member
+    #     if user is None:
+    #         user = ctx.member
 
-        avatar_url = (
-            user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url
-        )
-        url = "https://some-random-api.ml/canvas/horny"
-        params = {
-            "avatar": avatar_url,
-        }
-        resp = await get_response(url, params)
-        img = interactions.File(
-            file_name="image.png",
-            file=resp,
-            description=f"{user.username} hornycard.",
-        )
-        await ctx.send(file=img)
+    #     avatar_url = (
+    #         user.avatar.url
+    #         if user.guild_avatar is None
+    #         else user.guild_avatar.url
+    #     )
+    #     url = "https://some-random-api.ml/canvas/horny"
+    #     params = {
+    #         "avatar": avatar_url,
+    #     }
+    #     resp = await get_response(url, params)
+    #     img = interactions.File(
+    #         file_name="image.png",
+    #         file=resp,
+    #         description=f"{user.username} hornycard.",
+    #     )
+    #     await ctx.send(file=img)
 
-    @interactions.slash_command(
-        name="simpcard",
-        description="Sends a simpcard.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.USER,
-                name="user",
-                description="Targeted user",
-                required=False,
-            )
-        ],
-    )
-    async def simpcard(
-        self,
-        ctx: interactions.SlashContext,
-        user: interactions.Member = None,
-    ) -> None:
-        """Sends a simpcard."""
+    # @interactions.slash_command(
+    #     name="simpcard",
+    #     description="Sends a simpcard.",
+    #     options=[
+    #         interactions.SlashCommandOption(
+    #             type=interactions.OptionType.USER,
+    #             name="user",
+    #             description="Targeted user",
+    #             required=False,
+    #         )
+    #     ],
+    # )
+    # async def simpcard(
+    #     self,
+    #     ctx: interactions.SlashContext,
+    #     user: interactions.Member = None,
+    # ) -> None:
+    #     """Sends a simpcard."""
 
-        if user is None:
-            user = ctx.member
+    #     if user is None:
+    #         user = ctx.member
 
-        avatar_url = (
-            user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url
-        )
-        url = "https://some-random-api.ml/canvas/simpcard"
-        params = {"avatar": avatar_url}
-        resp = await get_response(url, params)
-        img = interactions.File(
-            file_name="image.png",
-            file=resp,
-            description=f"{user.username} simpcard.",
-        )
-        await ctx.send(file=img)
+    #     avatar_url = (
+    #         user.avatar.url
+    #         if user.guild_avatar is None
+    #         else user.guild_avatar.url
+    #     )
+    #     url = "https://some-random-api.ml/canvas/simpcard"
+    #     params = {"avatar": avatar_url}
+    #     resp = await get_response(url, params)
+    #     img = interactions.File(
+    #         file_name="image.png",
+    #         file=resp,
+    #         description=f"{user.username} simpcard.",
+    #     )
+    #     await ctx.send(file=img)
 
     @interactions.slash_command(
         name="tweet",

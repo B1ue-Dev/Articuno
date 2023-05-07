@@ -1,8 +1,22 @@
 FROM python:3.10.10
 
-COPY requirements.txt /
-RUN python3 -m pip install -r requirements.txt
+# we want stdout
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-COPY . /app
+# add the path to pythonpath
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+# install uvloop for faster asyncio
+RUN pip3.10 install uvloop
+
+# install the requirements
+COPY ./requirements.txt /app/requirements.txt
+RUN pip3.10 install -r /app/requirements.txt
+
+# copy over the source files
+COPY ./ /app/
+
+# start the bot
 WORKDIR /app
-ENTRYPOINT ["python3", "bot.py"]
+CMD ["python3.10", "bot.py"]

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Articuno"
-version = "5.0.0"
+version = "5.0.1"
 description = "A fun Discord Bot, written with interactions.py."
 license = "GPL-3.0-only"
 authors = ["B1ue-Dev <b1uedev@duck.com>"]
@@ -11,11 +11,7 @@ repository = "https://github.com/B1ue-Dev/Articuno"
 [tool.poetry.dependencies]
 python = "^3.10.0"
 python-dotenv = "0.19.2"
-discord-py-interactions = "5.0.0"
-interactions-files = "1.1.5"
-interactions-wait-for = "^1.0.5"
-interactions-molter = "1.0.1"
-dinteractions-Paginator = "2.0.2"
+discord-py-interactions = "5.3.1"
 google-api-python-client = "2.64.0"
 googletrans = "3.1.0a0"
 Pillow = "9.2.0"
@@ -23,6 +19,8 @@ psutil = "5.9.2"
 pyfiglet = "0.8.post1"
 requests = "2.28.1"
 
+[tool.black]
+line-length = 79
 
 [tool.poetry.dev-dependencies]
 black = "22.10.0"
