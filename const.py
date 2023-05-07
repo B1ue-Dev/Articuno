@@ -1,7 +1,7 @@
 """
 For value data.
 
-(C) 2022 - Jimmy-Blue
+(C) 2022 - B1ue-Dev
 """
 
 import os
@@ -12,7 +12,7 @@ dotenv.load_dotenv()
 TOKEN = os.getenv("TOKEN")
 """The token of the bot."""
 
-VERSION = "v5.0.0a"
+VERSION = "v5.0.1"
 """Bot version."""
 
 LOG_CHANNEL = os.getenv("LOG_CHANNEL")
