@@ -1,4 +1,4 @@
-FROM python:3.10.3
+FROM python:3.10.10
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
