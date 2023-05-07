@@ -4,13 +4,27 @@ Root bot file.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import sys
+import logging
+import time
 import datetime
 import interactions
 from interactions.ext.prefixed_commands import setup, PrefixedHelpCommand
 from const import TOKEN, VERSION
 
+def get_local_time():
+    utc_time = datetime.datetime.utcnow()
+    local_time = utc_time + datetime.timedelta(hours=7)
+    return local_time
 
 if __name__ == "__main__":
+    logger = logging.getLogger()
+    logging.Formatter.converter = lambda *args: get_local_time().timetuple()
+    logging.basicConfig(
+        format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
+        datefmt="%d/%m/%Y %H:%M:%S",
+        level=0,
+    )
 
     client = interactions.Client(
         activity=interactions.Activity(
@@ -38,7 +52,6 @@ if __name__ == "__main__":
     client.load_extension("exts.utils.__init__")
     client.load_extension("utils.error")
 
-
     @client.listen(interactions.events.Startup)
     async def on_startup() -> None:
         """Fires up READY"""
@@ -46,12 +59,14 @@ if __name__ == "__main__":
         log_time = (
             datetime.datetime.utcnow() + datetime.timedelta(hours=7)
         ).strftime("%d/%m/%Y %H:%M:%S")
-        print("".join(
-            [
-                f"""[{log_time}] Logged in as {client.user.username}.""",
-                f"""Latency: {websocket}ms.""",
-            ],
-        ))
+        print(
+            "".join(
+                [
+                    f"""[{log_time}] Logged in as {client.user.username}.""",
+                    f"""Latency: {websocket}ms.""",
+                ],
+            )
+        )
 
     @client.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
@@ -73,6 +88,5 @@ if __name__ == "__main__":
                 color=0x6AA4C1,
             )
             await msg.channel.send(embeds=embed)
-
 
     client.start(TOKEN)
