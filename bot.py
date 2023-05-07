@@ -28,25 +28,13 @@ async def get_latest_release_version() -> str:
     return response["tag_name"]
 
 if __name__ == "__main__":
+
     logger = logging.getLogger()
     logging.Formatter.converter = lambda *args: get_local_time().timetuple()
     logging.basicConfig(
         format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
         datefmt="%d/%m/%Y %H:%M:%S",
         level=0,
-    )
-
-    client = interactions.Client(
-        activity=interactions.Activity(
-            name=f"for {VERSION}",
-            type=interactions.ActivityType.WATCHING,
-        ),
-        basic_logging=True,
-        intents=interactions.Intents.DEFAULT
-        | interactions.Intents.MESSAGE_CONTENT
-        | interactions.Intents.GUILD_MEMBERS,
-        status=interactions.Status.ONLINE,
-        send_command_tracebacks=False,
     )
 
     setup(client, default_prefix="$")
@@ -69,6 +57,7 @@ if __name__ == "__main__":
         log_time = (
             datetime.datetime.utcnow() + datetime.timedelta(hours=7)
         ).strftime("%d/%m/%Y %H:%M:%S")
+
         print(
             "".join(
                 [
@@ -99,6 +88,27 @@ if __name__ == "__main__":
                             
 You are on latest version. Enjoy using Articuno!"""
             )
+
+    @client.listen(interactions.events.MessageCreate)
+    async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
+        """Check for bot mentions."""
+        msg = _msg.message
+        if (
+            f"@{client.user.id}" in msg.content
+            or f"<@{client.user.id}>" in msg.content
+        ):
+            embed = interactions.Embed(
+                title="It seems like you mentioned me",
+                description="".join(
+                    [
+                        f"I could not help much but noticed you mentioned me.",
+                        f"You can type ``/`` and choose **{client.user.username}**",
+                        f"to see a list of available commands.",
+                    ],
+                ),
+                color=0x6AA4C1,
+            )
+            await msg.channel.send(embeds=embed)
 
     @client.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
