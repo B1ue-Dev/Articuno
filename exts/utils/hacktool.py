@@ -4,6 +4,7 @@ Random base64, brainfuck commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import base64 as b64
 import binascii
 import interactions
@@ -96,3 +97,10 @@ class HackTool(interactions.Extension):
 
         string_bytes = brainfuck.Brainfuckery().interpret(code)
         await ctx.send(f"```{string_bytes}```")
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    
+    HackTool(client)
+    logging.info("Loaded HackTool extension.")

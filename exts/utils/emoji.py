@@ -4,6 +4,7 @@ Emoji management commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import io
 import re
 import interactions
@@ -605,3 +606,9 @@ class Emoji(interactions.Extension):
             return await ctx.send(
                 "Invalid emoji. Please try again.", ephemeral=True
             )
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Emoji(client)
+    logging.info("Loaded Emoji extension.")

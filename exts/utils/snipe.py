@@ -4,6 +4,7 @@ Snipe command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import asyncio
 import interactions
 from interactions.ext.prefixed_commands import (
@@ -122,3 +123,9 @@ class Snipe(interactions.Extension):
 
         except KeyError:
             await ctx.send("No message to snipe.", ephemeral=True)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Snipe(client)
+    logging.info("Loaded Snipe extension.")
