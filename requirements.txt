@@ -1,5 +1,5 @@
 python-dotenv==0.19.2
-discord-py-interactions==5.0.0
+discord-py-interactions==5.3.1
 google-api-python-client==2.64.0
 googletrans==3.1.0a0
 Pillow==9.2.0
