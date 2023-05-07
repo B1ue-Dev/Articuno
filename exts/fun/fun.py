@@ -4,6 +4,7 @@ Fun related commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import random
 import asyncio
 import aiohttp
@@ -383,3 +384,9 @@ class Fun(interactions.Extension):
                             resp = await resp.json()
 
                             await ctx.send(content=resp["message"])
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Fun(client)
+    logging.info("Loaded Fun extension.")

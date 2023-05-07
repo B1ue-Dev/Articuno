@@ -4,6 +4,7 @@ Who's that Pokemon command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import io
 import random
 import asyncio
@@ -535,3 +536,9 @@ class WTP(interactions.Extension):
                     )
                     break
             out2.close()  # Close the file.
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    WTP(client)
+    logging.info("Loaded WTP extension.")

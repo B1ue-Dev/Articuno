@@ -4,6 +4,7 @@ Urban command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import asyncio
 import interactions
 from interactions.ext.prefixed_commands import (
@@ -388,3 +389,9 @@ class Urban(interactions.Extension):
 
             except asyncio.TimeoutError:
                 await msg.edit(components=[])
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Urban(client)
+    logging.info("Loaded Urban extension.")

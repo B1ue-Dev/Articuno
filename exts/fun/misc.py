@@ -4,6 +4,7 @@ Miscellaneous commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import random
 import interactions
 from utils.utils import get_response
@@ -282,3 +283,9 @@ class Misc(interactions.Extension):
             else None,
             file=img,
         )
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Misc(client)
+    logging.info("Loaded Misc extension.")

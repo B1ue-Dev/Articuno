@@ -4,6 +4,7 @@ Pokemon related commands.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import json
 import interactions
 
@@ -186,3 +187,9 @@ class Pokemon(interactions.Extension):
                     images=[interactions.EmbedAttachment(url=img)]
                 )
                 await _msg.channel.send(embeds=embed)
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Pokemon(client)
+    logging.info("Loaded Pokemon extension.")

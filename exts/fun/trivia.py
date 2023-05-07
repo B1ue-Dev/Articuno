@@ -4,6 +4,7 @@ Trivia command.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import asyncio
 import base64 as b64
 import interactions
@@ -278,3 +279,9 @@ class Trivia(interactions.Extension):
                     components=buttons_disabled,
                 )
                 break
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Trivia(client)
+    logging.info("Loaded Trivia extension.")
