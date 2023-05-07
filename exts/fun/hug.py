@@ -106,4 +106,3 @@ def setup(client) -> None:
     """Setup the extension."""
     Hug(client)
     logging.info("Loaded Hug extension.")
-

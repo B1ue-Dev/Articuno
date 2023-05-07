@@ -437,7 +437,6 @@ class Emoji(interactions.Extension):
 
         # If the user chooses to add emoji from an URL.
         if url and image is None:
-
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as resp:
                     if resp.status != 200:
@@ -490,12 +489,10 @@ class Emoji(interactions.Extension):
 
         # If the user chooses to add emoji from an attachment.
         if image and url is None:
-
             await ctx.defer()
 
             async with aiohttp.ClientSession() as session:
                 async with session.get(image.url) as resp:
-
                     if resp.content_type not in {
                         "image/png",
                         "image/jpeg",

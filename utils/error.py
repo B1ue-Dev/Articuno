@@ -74,9 +74,7 @@ class Error(interactions.Extension):
         subcommand_name: str = None
         if _ctx.command.is_subcommand:
             subcommand_name = _ctx.command.to_dict().get("name")
-        full_command = (
-            f"""{command_name}{" " + subcommand_name if subcommand_name else ""}"""
-        )
+        full_command = f"""{command_name}{" " + subcommand_name if subcommand_name else ""}"""
 
         log_error = interactions.Embed(
             title="An error occurred!",

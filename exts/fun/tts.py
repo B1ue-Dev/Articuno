@@ -185,4 +185,3 @@ def setup(client) -> None:
     """Setup the extension."""
     TTS(client)
     logging.info("Loaded TTS extension.")
-

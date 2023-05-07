@@ -155,7 +155,10 @@ class Logs(interactions.Extension):
             )
         else:
             for channel in member.guild.channels:
-                if channel.name == "welcome-goodbye" and int(channel.type) == 0:
+                if (
+                    channel.name == "welcome-goodbye"
+                    and int(channel.type) == 0
+                ):
                     await channel.send(embeds=embed)
 
     @interactions.listen(interactions.events.MemberRemove)

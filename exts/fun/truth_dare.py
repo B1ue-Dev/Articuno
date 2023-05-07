@@ -153,4 +153,3 @@ def setup(client) -> None:
     """Setup the extension."""
     TruthDare(client)
     logging.info("Loaded TruthDare extension.")
-

@@ -101,6 +101,6 @@ class HackTool(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension."""
-    
+
     HackTool(client)
     logging.info("Loaded HackTool extension.")
