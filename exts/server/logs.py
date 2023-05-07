@@ -4,6 +4,7 @@ Handle all logging aspects.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import datetime
 import random
 import interactions
@@ -275,3 +276,9 @@ class Logs(interactions.Extension):
             if channel.name == "logs" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
                 break
+
+
+def setup(client) -> None:
+    """Setup the extension."""
+    Logs(client)
+    logging.info("Loaded Logs extension.")
