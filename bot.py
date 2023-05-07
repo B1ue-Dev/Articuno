@@ -7,7 +7,6 @@ Root bot file.
 import datetime
 import interactions
 from interactions.ext.prefixed_commands import setup, PrefixedHelpCommand
-from keep_alive import keep_alive
 from const import TOKEN, VERSION
 
 
@@ -76,5 +75,4 @@ if __name__ == "__main__":
             await msg.channel.send(embeds=embed)
 
 
-    keep_alive()
     client.start(TOKEN)
