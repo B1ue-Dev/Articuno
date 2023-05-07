@@ -11,11 +11,21 @@ import datetime
 import interactions
 from interactions.ext.prefixed_commands import setup, PrefixedHelpCommand
 from const import TOKEN, VERSION
+from utils.utils import get_response
 
-def get_local_time():
+def get_local_time() -> datetime:
+    """Returns latest UTC+7 time."""
+
     utc_time = datetime.datetime.utcnow()
     local_time = utc_time + datetime.timedelta(hours=7)
     return local_time
+
+async def get_latest_release_version() -> str:
+    """Returns the latest version of Articuno on GitHub."""
+
+    url = f"https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
+    response = await get_response(url)
+    return response["tag_name"]
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -67,6 +77,28 @@ if __name__ == "__main__":
                 ],
             )
         )
+        latest_release_version = await get_latest_release_version()
+        if latest_release_version is not None and latest_release_version > VERSION:
+            print("".join(
+                [
+                    "This Articuno version is not up to date.",
+                    f"Your Articuno version: {VERSION}",
+                    f"Latest version: {latest_release_version}",
+                ],
+            ))
+        else:
+            print(
+                """                _   _                        
+     /\        | | (_)                       
+    /  \   _ __| |_ _  ___ _   _ _ __   ___  
+   / /\ \ | '__| __| |/ __| | | | '_ \ / _ \ 
+  / ____ \| |  | |_| | (__| |_| | | | | (_) |
+ /_/    \_\_|   \__|_|\___|\__,_|_| |_|\___/ 
+                                                              
+                            - By B1ue-Dev - 
+                            
+You are on latest version. Enjoy using Articuno!"""
+            )
 
     @client.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
