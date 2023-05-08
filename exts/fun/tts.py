@@ -4,7 +4,6 @@ Text-to-speech command.
 (C) 2022-2023 - B1ue-Dev
 """
 
-import datetime
 import logging
 import io
 import asyncio

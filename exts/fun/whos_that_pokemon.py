@@ -234,7 +234,7 @@ class WTP(interactions.Extension):
                         await res.ctx.edit_origin(
                             content="".join(
                                 [
-                                    f"**Who's that Pokemon?**\n\n",
+                                    "**Who's that Pokemon?**\n\n",
                                     f"It's **{correct_pokemon['name']}**!",
                                     f" {ctx.user.mention} had the right answer.",
                                 ],
@@ -290,7 +290,7 @@ class WTP(interactions.Extension):
                         await res.ctx.edit_origin(
                             content="".join(
                                 [
-                                    f"**Who's that Pokemon?**\n\n",
+                                    "**Who's that Pokemon?**\n\n",
                                     f"It's **{correct_pokemon['name']}**!",
                                     f" {ctx.user.mention} had the wrong answer.",
                                     f"\nStreak: {cnt}",
@@ -327,7 +327,7 @@ class WTP(interactions.Extension):
                     await msg.edit(
                         content="".join(
                             [
-                                f"**Who's that Pokemon?**\n\n",
+                                "**Who's that Pokemon?**\n\n",
                                 f"Timeout! It's **{correct_pokemon['name']}**!",
                                 f"\nStreak: {cnt}",
                             ],
@@ -449,7 +449,7 @@ class WTP(interactions.Extension):
                             message=_res.message_id,
                             content="".join(
                                 [
-                                    f"**Who's that Pokemon?**\n\n",
+                                    "**Who's that Pokemon?**\n\n",
                                     f"It's **{correct_pokemon['name']}**! ",
                                     f"{ctx.user.mention} had the right answer.",
                                 ]
@@ -491,7 +491,7 @@ class WTP(interactions.Extension):
                             message=_res.message_id,
                             content="".join(
                                 [
-                                    f"**Who's that Pokemon?**\n\n",
+                                    "**Who's that Pokemon?**\n\n",
                                     f"It's **{correct_pokemon['name']}**!",
                                     f"{ctx.user.mention} had the wrong answer.",
                                     f"\nStreak: {cnt}",
@@ -525,7 +525,7 @@ class WTP(interactions.Extension):
                     await msg.edit(
                         content="".join(
                             [
-                                f"**Who's that Pokemon?**\n\nTimeout! ",
+                                "**Who's that Pokemon?**\n\nTimeout! ",
                                 f"It's **{correct_pokemon['name']}**!",
                                 f"\nStreak: {cnt}",
                             ],

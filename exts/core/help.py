@@ -5,7 +5,7 @@
 """
 
 import interactions
-from interactions.ext.paginators import Page, Paginator
+from interactions.ext.paginators import Paginator
 
 
 class Help(interactions.Extension):
