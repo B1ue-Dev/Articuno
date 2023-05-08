@@ -23,8 +23,9 @@ requests = "2.28.1"
 line-length = 79
 
 [tool.poetry.dev-dependencies]
-black = "22.10.0"
-poetry = "1.2.2"
+flake8 = "*"
+black = "*"
+poetry = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
