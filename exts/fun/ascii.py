@@ -5,7 +5,6 @@ Turn image into ASCII art.
 """
 
 import logging
-import datetime
 import io
 import re
 import textwrap
@@ -137,8 +136,8 @@ class ASCII(interactions.Extension):
             final += row + "\n"
 
         i = Image.new("RGB", (235, 290), color="black")
-        I = ImageDraw.Draw(i)
-        I.text((5, 5), final, fill=(34, 139, 34))
+        z = ImageDraw.Draw(i)
+        z.text((5, 5), final, fill=(34, 139, 34))
         with io.BytesIO() as out:
             i.save(out, "PNG")
             out.seek(0)

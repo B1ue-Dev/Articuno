@@ -192,7 +192,7 @@ class Translation(interactions.Extension):
         embed = interactions.Embed(
             title="".join(
                 [
-                    f"Detected language: ",
+                    "Detected language: ",
                     f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                 ]
             ),
@@ -218,7 +218,7 @@ class Translation(interactions.Extension):
                 embed = interactions.Embed(
                     title="".join(
                         [
-                            f"Detected language: ",
+                            "Detected language: ",
                             f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],
@@ -285,7 +285,7 @@ class Translation(interactions.Extension):
         embed = interactions.Embed(
             title="".join(
                 [
-                    f"Detected language: ",
+                    "Detected language: ",
                     f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                 ]
             ),
@@ -311,7 +311,7 @@ class Translation(interactions.Extension):
                 embed = interactions.Embed(
                     title="".join(
                         [
-                            f"Detected language: ",
+                            "Detected language: ",
                             f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],
@@ -387,7 +387,7 @@ class Translation(interactions.Extension):
         embed = interactions.Embed(
             title="".join(
                 [
-                    f"Detected language: ",
+                    "Detected language: ",
                     f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                 ]
             ),
@@ -413,7 +413,7 @@ class Translation(interactions.Extension):
                 embed = interactions.Embed(
                     title="".join(
                         [
-                            f"Detected language: ",
+                            "Detected language: ",
                             f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],

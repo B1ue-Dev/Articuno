@@ -20,7 +20,7 @@ class Trivia(interactions.Extension):
     async def get_question(self, category: str, difficulty: str) -> list:
         """Get a list of 50 questions."""
 
-        url = f"https://opentdb.com/api.php"
+        url = "https://opentdb.com/api.php"
         params = {
             "amount": "10",
             "type": "boolean",

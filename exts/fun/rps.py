@@ -134,7 +134,7 @@ class RPS(interactions.Extension):
                             [
                                 f"{res.ctx.user.mention} chose ",
                                 f"**{self.choice_convert[user_choice]}**.\n",
-                                f"**Articuno** chose ",
+                                "**Articuno** chose ",
                                 f"**{self.choice_convert[bot_choice]}**.\n",
                                 "> It's a `TIE`!",
                             ]
@@ -149,7 +149,7 @@ class RPS(interactions.Extension):
                             [
                                 f"{res.ctx.user.mention} chose ",
                                 f"**{self.choice_convert[user_choice]}**.\n",
-                                f"**Articuno** chose ",
+                                "**Articuno** chose ",
                                 f"**{self.choice_convert[bot_choice]}**.\n",
                                 f"> {res.ctx.user.mention} `WON`!",
                             ]
@@ -164,7 +164,7 @@ class RPS(interactions.Extension):
                             [
                                 f"{res.ctx.user.mention} chose ",
                                 f"**{self.choice_convert[user_choice]}**.\n",
-                                f"**Articuno** chose ",
+                                "**Articuno** chose ",
                                 f"**{self.choice_convert[bot_choice]}**.\n",
                                 "> **Articuno** `WON`!",
                             ]

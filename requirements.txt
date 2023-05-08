@@ -7,3 +7,8 @@ psutil==5.9.2
 pyfiglet==0.8.post1
 requests==2.28.1
 Flask
+
+# Dev tool for PRs
+black
+flake8
+poetry

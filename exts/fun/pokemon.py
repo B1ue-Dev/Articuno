@@ -85,7 +85,7 @@ class Pokemon(interactions.Extension):
             fields = [
                 interactions.EmbedField(
                     name="Information",
-                    value=f"".join(
+                    value="".join(
                         [
                             f"**Entry:** {id}\n",
                             f"**Type(s):** {types}\n",
