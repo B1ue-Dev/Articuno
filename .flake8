@@ -1,5 +1,5 @@
 [flake8]
-ignore = E501, W503, W504, W605
+ignore = E501, W503, W504, W605, E203
 max-line-length = 79
 exclude =
     .codesandbox
