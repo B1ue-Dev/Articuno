@@ -45,11 +45,25 @@ class Help(interactions.Extension):
                     )
 
                 embed.add_field(
-                    name=f"/{command.name}" + (f" {command.group_name}" if str(command.group_name) != "None" else "") + (f" {command.sub_cmd_name}" if str(command.sub_cmd_name) != "None" else ""),
-                    value=f"{command.sub_cmd_description}" if str(command.sub_cmd_name) != "None" else f"{command.description}"
+                    name=f"/{command.name}"
+                    + (
+                        f" {command.group_name}"
+                        if str(command.group_name) != "None"
+                        else ""
+                    )
+                    + (
+                        f" {command.sub_cmd_name}"
+                        if str(command.sub_cmd_name) != "None"
+                        else ""
+                    ),
+                    value=f"{command.sub_cmd_description}"
+                    if str(command.sub_cmd_name) != "None"
+                    else f"{command.description}",
                 )
                 i += 1
 
-        paginator = Paginator.create_from_embeds(self.client, *help_list, timeout=30)
+        paginator = Paginator.create_from_embeds(
+            self.client, *help_list, timeout=30
+        )
         print(help_list)
         await paginator.send(ctx)
