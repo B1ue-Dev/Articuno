@@ -34,7 +34,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
         datefmt="%d/%m/%Y %H:%M:%S",
-        level=0,
+        level=logging.INFO,
     )
 
     client = interactions.Client(
