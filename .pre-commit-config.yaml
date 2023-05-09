@@ -1,0 +1,29 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    - id: trailing-whitespace
+      name: Trailing Whitespace
+      language: python
+      types: [file]
+      exclude_types: ['image', 'binary', 'executable']
+    - id: check-yaml
+      name: YAML Structure
+      language: python
+      args: ['--unsafe']
+    - id: check-toml
+      name: TOML Structure
+    - id: check-merge-conflict
+      name: Merge Conflicts
+  - repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+      - id: black
+        name: Black Formatting
+        language: python
+        types: [ file, python ]
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        name: Flake8 Formatting
