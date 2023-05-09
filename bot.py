@@ -34,7 +34,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
         datefmt="%d/%m/%Y %H:%M:%S",
-        level=0,
+        level=logging.INFO,
     )
 
     client = interactions.Client(
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 _   _
      /\        | | (_)
     /  \   _ __| |_ _  ___ _   _ _ __   ___
-   / /\ \ | '__| __| |/ __| | | | '_ \ / _ \
+   / /\ \ | '__| __| |/ __| | | | '_ \ / _ \\
   / ____ \| |  | |_| | (__| |_| | | | | (_) |
  /_/    \_\_|   \__|_|\___|\__,_|_| |_|\___/
 
