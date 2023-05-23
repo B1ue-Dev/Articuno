@@ -13,57 +13,51 @@ class Help(interactions.Extension):
         self.client: interactions.Client = client
 
     @interactions.slash_command(
-        name="help",
-        description="Get a list of all available commands.",
+        name="help", description="Get a list of all available commands"
     )
     async def help(self, ctx: interactions.SlashContext) -> None:
         """Get a list of all available commands."""
-
-        embed = interactions.Embed(
-            title="List of available commands.",
-            color=0x7CB7D3,
-            thumbnail=interactions.EmbedAttachment(
-                url=self.client.user.avatar.url
-            ),
-        )
         help_list = []
-        i = 0
+        commands = sorted(
+            self.client.application_commands, key=lambda x: str(x.name)
+        )
 
-        for command_index, command in enumerate(
-            self.client.application_commands
-        ):
-            if isinstance(command, interactions.SlashCommand):
-                if i == 10:
-                    help_list.append(embed)
-                    i = 0
-                    embed = interactions.Embed(
-                        title="List of available commands.",
-                        color=0x7CB7D3,
-                        thumbnail=interactions.EmbedAttachment(
-                            url=self.client.user.avatar.url
-                        ),
-                    )
-
-                embed.add_field(
-                    name=f"/{command.name}"
-                    + (
-                        f" {command.group_name}"
-                        if str(command.group_name) != "None"
-                        else ""
-                    )
-                    + (
-                        f" {command.sub_cmd_name}"
-                        if str(command.sub_cmd_name) != "None"
-                        else ""
-                    ),
-                    value=f"{command.sub_cmd_description}"
-                    if str(command.sub_cmd_name) != "None"
-                    else f"{command.description}",
+        for i in range(0, len(commands), 10):
+            listed = []
+            for command in commands[i : i + 10]:
+                if type(command) is not interactions.SlashCommand:
+                    continue
+                cmd_name = f"/{command.name}"
+                group_name = (
+                    f" {command.group_name}" if command.group_name else ""
                 )
-                i += 1
+                sub_cmd_name = (
+                    f" {command.sub_cmd_name}" if command.sub_cmd_name else ""
+                )
+                name = f"{cmd_name}{group_name}{sub_cmd_name}"
+                description = (
+                    command.sub_cmd_description
+                    if command.sub_cmd_name
+                    else command.description
+                )
+                listed.append(
+                    interactions.EmbedField(
+                        name=f"{name}", value=f"{description}"
+                    )
+                )
+
+            help_list.append(
+                interactions.Embed(
+                    title="List of available commands.",
+                    color=0x7CB7D3,
+                    thumbnail=interactions.EmbedAttachment(
+                        url=self.client.user.avatar.url
+                    ),
+                    fields=listed,
+                )
+            )
 
         paginator = Paginator.create_from_embeds(
             self.client, *help_list, timeout=30
         )
-        print(help_list)
         await paginator.send(ctx)
