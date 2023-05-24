@@ -112,7 +112,7 @@ class Stats(interactions.Extension):
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
-            title=f"Articuno Stats",
+            title="Articuno Stats",
             color=0x7CB7D3,
             url="https://blue.is-a.dev/Articuno",
             footer=footer,
@@ -188,7 +188,7 @@ class Stats(interactions.Extension):
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
-            title=f"Articuno Stats",
+            title="Articuno Stats",
             color=0x7CB7D3,
             url="https://blue.is-a.dev/Articuno",
             footer=footer,
