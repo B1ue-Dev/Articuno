@@ -11,12 +11,22 @@ import contextlib
 import traceback
 import logging
 import asyncio
+import typing
 import interactions
 from interactions.ext.paginators import Paginator
 from interactions.ext.prefixed_commands import (
     prefixed_command,
     PrefixedContext,
 )
+
+
+def cleanup_code(content: str) -> str:
+    """Automatically removes code blocks from the code."""
+
+    if content.startswith("```") and content.endswith("```"):
+        return "\n".join(content.split("\n")[1:-1])
+
+    return content.strip("` \n")
 
 
 class Eval(interactions.Extension):
@@ -49,23 +59,25 @@ class Eval(interactions.Extension):
 
         await ctx.defer()
 
+        code = cleanup_code(code)
+
         env = {
             "ctx": ctx,
             "channel": ctx.channel,
             "author": ctx.author,
-            "user": ctx.user,
             "guild": ctx.guild,
             "message": ctx.message,
             "source": inspect.getsource,
             "interactions": interactions,
             "client": self.client,
             "self.client": self.client,
-        }
+        } | globals()
 
         env.update(globals())
         stdout = io.StringIO()
+        code = cleanup_code(code)
 
-        to_compile = f'async def func():\n{textwrap.indent(code, "  ")}'
+        to_compile = "async def func():\n%s" % textwrap.indent(code, "  ")
         try:
             exec(to_compile, env)
         except Exception:
@@ -74,79 +86,139 @@ class Eval(interactions.Extension):
         func = env["func"]
         try:
             with contextlib.redirect_stdout(stdout):
-                await func()
+                ret = await func()
         except Exception:
-            value = stdout.getvalue()
-            await ctx.send(f"{value}{traceback.format_exc()}")
+            return await ctx.send(content=f"{traceback.format_exc()}")
         else:
-            value = stdout.getvalue()
-            if value and len(value) < 1001:
-                await ctx.send(f"{value}")
-
-            elif value and len(value) > 0:
-                paginator = Paginator.create_from_string(
-                    self.client,
-                    content=value,
-                    page_size=2000,
-                )
-
-                await paginator.send(ctx)
-            else:
-                await ctx.send("None", ephemeral=True)
+            return await self.handle_exec_result(ctx, ret, stdout.getvalue())
 
     @prefixed_command(name="eval")
     async def _eval(self, ctx: PrefixedContext, *, code: str) -> None:
         """Evaluates some code."""
 
-        if int(ctx.author.id) != 892080548342820925:
+        if int(ctx.user.id) != 892080548342820925:
             return await ctx.send(
                 "You must be the bot owner to use this command. Also, no."
             )
 
+        await ctx.channel.trigger_typing()
+
         env = {
             "ctx": ctx,
             "channel": ctx.channel,
-            "author": ctx.message.author,
-            "user": ctx.message.author,
+            "author": ctx.author,
             "guild": ctx.guild,
             "message": ctx.message,
             "source": inspect.getsource,
             "interactions": interactions,
             "client": self.client,
             "self.client": self.client,
-        }
+        } | globals()
 
         env.update(globals())
         stdout = io.StringIO()
+        code = cleanup_code(code)
 
-        to_compile = f'async def func():\n{textwrap.indent(code, "  ")}'
+        to_compile = "async def func():\n%s" % textwrap.indent(code, "  ")
         try:
             exec(to_compile, env)
         except Exception:
-            return await ctx.send(f"{traceback.format_exc()}")
+            return await ctx.reply(f"{traceback.format_exc()}")
 
         func = env["func"]
         try:
             with contextlib.redirect_stdout(stdout):
-                await func()
+                ret = await func()
         except Exception:
-            value = stdout.getvalue()
-            return await ctx.send(f"{value}{traceback.format_exc()}")
+            await ctx.message.add_reaction("❌")
+            return await ctx.reply(content=f"{traceback.format_exc()}")
         else:
-            value = stdout.getvalue()
-            if value and len(value) < 1001:
-                await ctx.send(f"{value}")
+            return await self.handle_exec_result(ctx, ret, stdout.getvalue())
 
-            elif value and len(value) > 0:
-                paginator = Paginator.create_from_string(
-                    self.client,
-                    content=value,
-                    page_size=2000,
-                )
+    async def handle_exec_result(
+        self,
+        ctx: typing.Union[PrefixedContext, interactions.SlashContext],
+        result: typing.Any,
+        value: typing.Any,
+    ) -> interactions.Message:
+        """Handles stdout result."""
 
-                await paginator.send(ctx)
-            else:
-                await ctx.send("None", ephemeral=True)
+        if result is None:
+            result = value or "No Output."
+
+        # If result from prefixed message command.
+        if isinstance(ctx, PrefixedContext):
+            await ctx.message.add_reaction("✅")
+
+            if isinstance(result, interactions.Embed):
+                return await ctx.send(embeds=result)
+
+            if isinstance(result, interactions.File):
+                return await ctx.message.reply(file=result)
+
+            if isinstance(result, Paginator):
+                return await result.reply(ctx)
+
+            if hasattr(result, "__iter__"):
+                if all(isinstance(r, interactions.Embed) for r in result):
+                    paginator = Paginator.create_from_embeds(
+                        self.client,
+                        *list(result),
+                    )
+                    return await paginator.reply(ctx)
+
+            if not isinstance(result, str):
+                result = repr(result)
+
+            result = result.replace(self.client.http.token, "[REDACTED TOKEN]")
+
+            if len(result) <= 2000:
+                return await ctx.message.reply(f"```py\n{result}\n```")
+
+            paginator = Paginator.create_from_string(
+                self.client,
+                result,
+                prefix="```py",
+                suffix="```",
+                page_size=2000,
+            )
+            return await paginator.reply(ctx)
+
+        # If the result is from slash command.
+        elif isinstance(ctx, interactions.SlashContext):
+            if isinstance(result, interactions.Embed):
+                return await ctx.send(embeds=result)
+
+            if isinstance(result, interactions.File):
+                return await ctx.send(file=result)
+
+            if isinstance(result, Paginator):
+                return await result.send(ctx)
+
+            if hasattr(result, "__iter__"):
+                if all(isinstance(r, interactions.Embed) for r in result):
+                    paginator = Paginator.create_from_embeds(
+                        self.client,
+                        *list(result),
+                    )
+                    return await paginator.send(ctx)
+
+            if not isinstance(result, str):
+                result = repr(result)
+
+            result = result.replace(self.client.http.token, "[REDACTED TOKEN]")
+
+            if len(result) <= 2000:
+                return await ctx.message.send(f"```py\n{result}\n```")
+
+            paginator = Paginator.create_from_string(
+                self.client,
+                result,
+                prefix="```py",
+                suffix="```",
+                page_size=2000,
+            )
+            return await paginator.send(ctx)
 
     @interactions.slash_command(
         name="shell",
