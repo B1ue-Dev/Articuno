@@ -29,7 +29,7 @@ class Stats(interactions.Extension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="Site",
-                url="https://blue.is-a.dev/Articuno"
+                url="https://blue.is-a.dev/Articuno",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
