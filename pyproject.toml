@@ -11,7 +11,7 @@ repository = "https://github.com/B1ue-Dev/Articuno"
 [tool.poetry.dependencies]
 python = "^3.10.0"
 python-dotenv = "0.19.2"
-discord-py-interactions = "5.3.1"
+discord-py-interactions = "5.5.1"
 google-api-python-client = "2.64.0"
 googletrans = "3.1.0a0"
 Pillow = "9.2.0"
