@@ -25,6 +25,23 @@ class Stats(interactions.Extension):
         self.uptime: int = round(datetime.datetime.utcnow().timestamp())
         self.python: str = platform.python_version()
         self.system: str = str(platform.platform())
+        self.button: list(interactions.Button) = [
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Site",
+                url="https://blue.is-a.dev/Articuno",
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="GitHub",
+                url="https://github.com/B1ue-Dev/Articuno",
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Top.gg",
+                url="https://top.gg/bot/809084067446259722",
+            ),
+        ]
 
     @interactions.slash_command(
         name="stats",
@@ -44,19 +61,6 @@ class Stats(interactions.Extension):
         for guild in self.client.guilds:
             user_count += guild.member_count
 
-        button: list = [
-            interactions.Button(
-                style=interactions.ButtonStyle.LINK,
-                label="GitHub",
-                url="https://github.com/B1ue-Dev/Articuno",
-            ),
-            interactions.Button(
-                style=interactions.ButtonStyle.LINK,
-                label="Top.gg",
-                url="https://top.gg/bot/809084067446259722",
-            ),
-        ]
-
         fields: list = [
             interactions.EmbedField(
                 name="Version",
@@ -110,12 +114,13 @@ class Stats(interactions.Extension):
         embed = interactions.Embed(
             title="Articuno Stats",
             color=0x7CB7D3,
+            url="https://blue.is-a.dev/Articuno",
             footer=footer,
             thumbnail=thumbnail,
             fields=fields,
         )
 
-        await ctx.send(embeds=embed, components=button)
+        await ctx.send(embeds=embed, components=self.button)
 
     @prefixed_command(name="stats")
     async def _stats(self, ctx: PrefixedContext) -> None:
@@ -132,19 +137,6 @@ class Stats(interactions.Extension):
         for guild in self.client.guilds:
             user_count += guild.member_count
 
-        button: list = [
-            interactions.Button(
-                style=interactions.ButtonStyle.LINK,
-                label="GitHub",
-                url="https://github.com/B1ue-Dev/Articuno",
-            ),
-            interactions.Button(
-                style=interactions.ButtonStyle.LINK,
-                label="Top.gg",
-                url="https://top.gg/bot/809084067446259722",
-            ),
-        ]
-
         fields: list = [
             interactions.EmbedField(
                 name="Version",
@@ -198,12 +190,13 @@ class Stats(interactions.Extension):
         embed = interactions.Embed(
             title="Articuno Stats",
             color=0x7CB7D3,
+            url="https://blue.is-a.dev/Articuno",
             footer=footer,
             thumbnail=thumbnail,
             fields=fields,
         )
 
-        await ctx.send(embeds=embed, components=button)
+        await ctx.send(embeds=embed, components=self.button)
 
 
 def setup(client) -> None:
