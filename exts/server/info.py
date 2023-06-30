@@ -7,6 +7,10 @@ Information commands.
 import logging
 import interactions
 from interactions import UserFlags, Permissions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 from utils.utils import get_response
 from utils.colorthief import ColorThief
 
@@ -105,17 +109,11 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
-        name="info",
-        dm_permission=False,
-    )
-    async def info(self, *args, **kwargs) -> None:
-        """For all information aspects."""
-        ...
-
-    @info.subcommand(
-        sub_cmd_name="user",
-        sub_cmd_description="Shows the information about a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="user",
+        description="Shows the information about a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -124,7 +122,9 @@ class Info(interactions.Extension):
         required=True,
     )
     async def user(
-        self, ctx: interactions.InteractionContext, user: interactions.Member
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
     ) -> None:
         """Shows the information about a user."""
 
@@ -195,9 +195,11 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="avatar",
-        sub_cmd_description="Shows the profile picture URL of a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="avatar",
+        description="Shows the profile picture URL of a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -206,7 +208,7 @@ class Info(interactions.Extension):
         required=True,
     )
     async def avatar(
-        self, ctx: interactions.SlashContext, user: interactions.Member
+        self, ctx: HybridContext, user: interactions.Member
     ) -> None:
         """Shows the profile picture URL of a user."""
 
@@ -264,11 +266,13 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="server",
-        sub_cmd_description="Shows the information about the server.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="server",
+        description="Shows the information about the server.",
     )
-    async def server(self, ctx: interactions.SlashContext) -> None:
+    async def server(self, ctx: HybridContext) -> None:
         """Shows the information about the server."""
 
         guild: interactions.Guild = ctx.guild
