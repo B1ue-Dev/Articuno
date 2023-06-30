@@ -30,7 +30,7 @@ class Help(interactions.Extension):
         for i in range(0, len(commands), 10):
             listed = []
             for command in commands[i : i + 10]:
-                if not isinstance(command, HybridSlashCommand):
+                if not isinstance(command, (HybridSlashCommand)):
                     continue
                 cmd_name = f"/{command.name}"
                 group_name = (
