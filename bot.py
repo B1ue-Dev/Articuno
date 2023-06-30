@@ -7,7 +7,8 @@ Root bot file.
 import logging
 import datetime
 import interactions
-from interactions.ext.prefixed_commands import setup, PrefixedHelpCommand
+from interactions.ext.prefixed_commands import setup as prefixed_setup
+from interactions.ext.hybrid_commands import setup as hybrid_setup
 from const import TOKEN, VERSION
 from utils.utils import get_response
 
@@ -48,18 +49,12 @@ if __name__ == "__main__":
         status=interactions.Status.ONLINE,
         send_command_tracebacks=False,
     )
-    setup(client, default_prefix="$")
-    PrefixedHelpCommand(
-        client,
-        show_usage=True,
-        embed_color=0x7CB7D3,
-        not_found_message="Command `{cmd_name}` not found.",
-    ).register()
+    prefixed_setup(client, default_prefix="a$")
+    hybrid_setup(client)
     client.load_extension("exts.core.__init__")
     client.load_extension("exts.fun.__init__")
     client.load_extension("exts.server.__init__")
     client.load_extension("exts.utils.__init__")
-    client.load_extension("utils.error")
 
     @client.listen(interactions.events.Startup)
     async def on_startup() -> None:
@@ -92,19 +87,7 @@ if __name__ == "__main__":
                 )
             )
         else:
-            print(
-                """
-                _   _
-     /\        | | (_)
-    /  \   _ __| |_ _  ___ _   _ _ __   ___
-   / /\ \ | '__| __| |/ __| | | | '_ \ / _ \\
-  / ____ \| |  | |_| | (__| |_| | | | | (_) |
- /_/    \_\_|   \__|_|\___|\__,_|_| |_|\___/
-
-                            - By B1ue-Dev -
-
-You are on latest version. Enjoy using Articuno!"""
-            )
+            print("You are on latest version. Enjoy using Articuno!")
 
     @client.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
