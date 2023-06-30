@@ -7,6 +7,10 @@ Miscellaneous commands.
 import logging
 import random
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 from utils.utils import get_response
 from const import APIKEY as apikey
 
@@ -17,83 +21,7 @@ class Misc(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    # @interactions.slash_command(
-    #     name="hornycard",
-    #     description="Sends a hornycard.",
-    #     options=[
-    #         interactions.SlashCommandOption(
-    #             type=interactions.OptionType.USER,
-    #             name="user",
-    #             description="Targeted user",
-    #             required=False,
-    #         )
-    #     ],
-    # )
-    # async def hornycard(
-    #     self,
-    #     ctx: interactions.SlashContext,
-    #     user: interactions.Member = None,
-    # ) -> None:
-    #     """Sends a hornycard."""
-
-    #     if user is None:
-    #         user = ctx.member
-
-    #     avatar_url = (
-    #         user.avatar.url
-    #         if user.guild_avatar is None
-    #         else user.guild_avatar.url
-    #     )
-    #     url = "https://some-random-api.com/canvas/horny"
-    #     params = {
-    #         "avatar": avatar_url,
-    #     }
-    #     resp = await get_response(url, params)
-    #     img = interactions.File(
-    #         file_name="image.png",
-    #         file=resp,
-    #         description=f"{user.username} hornycard.",
-    #     )
-    #     await ctx.send(file=img)
-
-    # @interactions.slash_command(
-    #     name="simpcard",
-    #     description="Sends a simpcard.",
-    #     options=[
-    #         interactions.SlashCommandOption(
-    #             type=interactions.OptionType.USER,
-    #             name="user",
-    #             description="Targeted user",
-    #             required=False,
-    #         )
-    #     ],
-    # )
-    # async def simpcard(
-    #     self,
-    #     ctx: interactions.SlashContext,
-    #     user: interactions.Member = None,
-    # ) -> None:
-    #     """Sends a simpcard."""
-
-    #     if user is None:
-    #         user = ctx.member
-
-    #     avatar_url = (
-    #         user.avatar.url
-    #         if user.guild_avatar is None
-    #         else user.guild_avatar.url
-    #     )
-    #     url = "https://some-random-api.com/canvas/simpcard"
-    #     params = {"avatar": avatar_url}
-    #     resp = await get_response(url, params)
-    #     img = interactions.File(
-    #         file_name="image.png",
-    #         file=resp,
-    #         description=f"{user.username} simpcard.",
-    #     )
-    #     await ctx.send(file=img)
-
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="tweet",
         description="Sends a Twitter tweet.",
         options=[
@@ -127,7 +55,7 @@ class Misc(interactions.Extension):
     )
     async def tweet(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         user: interactions.Member,
         comment: str,
         background: str = "dark",
@@ -163,7 +91,7 @@ class Misc(interactions.Extension):
         )
         await ctx.send(file=img)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="youtube",
         description="Sends a YouTube comment.",
         options=[
@@ -184,7 +112,7 @@ class Misc(interactions.Extension):
     )
     async def youtube(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         user: interactions.Member,
         comment: str,
     ) -> None:
@@ -210,7 +138,7 @@ class Misc(interactions.Extension):
         )
         await ctx.send(file=img)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="amogus",
         description="Amogus.",
         options=[
@@ -224,7 +152,7 @@ class Misc(interactions.Extension):
         dm_permission=False,
     )
     async def amogus(
-        self, ctx: interactions.SlashContext, user: interactions.Member
+        self, ctx: HybridContext, user: interactions.Member
     ) -> None:
         """Amogus."""
 
@@ -246,7 +174,7 @@ class Misc(interactions.Extension):
         )
         await ctx.send(file=img)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="pet",
         description="Pet someone.",
         options=[
@@ -259,9 +187,7 @@ class Misc(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def pet(
-        self, ctx: interactions.SlashContext, user: interactions.Member
-    ) -> None:
+    async def pet(self, ctx: HybridContext, user: interactions.Member) -> None:
         """Pet someone."""
 
         url = "https://some-random-api.com/premium/petpet"
