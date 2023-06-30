@@ -10,7 +10,12 @@ import interactions
 from const import LOG_CHANNEL
 
 
-async def handle_error(self, error: Exception, error_time: float, ctx: interactions.BaseContext = None) -> None:
+async def handle_error(
+    self,
+    error: Exception,
+    error_time: float,
+    ctx: interactions.BaseContext = None,
+) -> None:
     """
     Function to handle the error.
 
@@ -45,13 +50,25 @@ async def handle_error(self, error: Exception, error_time: float, ctx: interacti
         color=0xED4245,
         description=f"```\n{traceb}\n```",
     )
-    err_field = [interactions.EmbedField(name="Occurred on", value=f"<t:{round(error_time)}:F>", inline=True)]
+    err_field = [
+        interactions.EmbedField(
+            name="Occurred on", value=f"<t:{round(error_time)}:F>", inline=True
+        )
+    ]
     if ctx:
         err_field.append(
-            interactions.EmbedField(name="Author", value=f"{ctx.user.username}#{ctx.user.discriminator}\n``{ctx.user.id}``", inline=True)
+            interactions.EmbedField(
+                name="Author",
+                value=f"{ctx.user.username}#{ctx.user.discriminator}\n``{ctx.user.id}``",
+                inline=True,
+            )
         )
         err_field.append(
-            interactions.EmbedField(name="Guild", value=f"{ctx.guild.name}\n``{ctx.guild.id}``", inline=True)
+            interactions.EmbedField(
+                name="Guild",
+                value=f"{ctx.guild.name}\n``{ctx.guild.id}``",
+                inline=True,
+            )
         )
     log_error.fields = err_field
 
@@ -97,6 +114,10 @@ class Error(interactions.Extension):
         error_time = datetime.datetime.utcnow().timestamp()
 
         if not isinstance(event.ctx, interactions.InteractionContext):
-            return await handle_error(self, error=event.error, error_time=error_time)
+            return await handle_error(
+                self, error=event.error, error_time=error_time
+            )
 
-        await handle_error(self, error=event.error, error_time=error_time, ctx=event.ctx)
+        await handle_error(
+            self, error=event.error, error_time=error_time, ctx=event.ctx
+        )
