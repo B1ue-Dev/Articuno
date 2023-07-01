@@ -77,9 +77,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def gay(
-        self, ctx: HybridContext, user: str = None
-    ) -> None:
+    async def gay(self, ctx: HybridContext, user: str = None) -> None:
         """Calculates the gay percentage of a user."""
 
         if not user:
@@ -146,9 +144,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def xkcd(
-        self, ctx: HybridContext, page: int = None
-    ) -> None:
+    async def xkcd(self, ctx: HybridContext, page: int = None) -> None:
         """Sends a xkcd comic page."""
 
         url = "https://xkcd.com/info.0.json"
@@ -201,9 +197,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def dictionary(
-        self, ctx: HybridContext, word: str
-    ) -> None:
+    async def dictionary(self, ctx: HybridContext, word: str) -> None:
         """Defines a word."""
 
         url = "https://some-random-api.com/dictionary"
