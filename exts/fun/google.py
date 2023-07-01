@@ -51,9 +51,7 @@ class Google(interactions.Extension):
             ),
         ],
     )
-    async def img(
-        self, ctx: HybridContext, *, query: str
-    ) -> None:
+    async def img(self, ctx: HybridContext, *, query: str) -> None:
         """Search for images (Powered by Google)."""
 
         buttons = [
@@ -95,7 +93,7 @@ class Google(interactions.Extension):
             searchType="image",  # sort="date"
         ).execute()
 
-        for i in (0, len(result)-1):
+        for i in (0, len(result) - 1):
             all_result.append(
                 Image(
                     link=result["items"][i]["link"],
