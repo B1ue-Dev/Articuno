@@ -8,6 +8,10 @@ import logging
 import asyncio
 import base64 as b64
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 from utils.utils import get_response
 
 
@@ -32,79 +36,81 @@ class Trivia(interactions.Extension):
 
         return resp
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="trivia",
         description="Play a game of trivia.",
         options=[
             interactions.SlashCommandOption(
-                type=interactions.OptionType.INTEGER,
+                type=interactions.OptionType.STRING,
                 name="category",
                 description="The category you want to play",
                 choices=[
                     interactions.SlashCommandChoice(
-                        name="General Knowledge",
-                        value=9,
+                        name="general",
+                        value="general",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Book",
-                        value=10,
+                        name="book",
+                        value="book",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Film",
-                        value=11,
+                        name="film",
+                        value="film",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Music",
-                        value=12,
+                        name="music",
+                        value="music",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Musicals & Theatres",
-                        value=13,
+                        name="theatres",
+                        value="theatres",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Television",
-                        value=14,
+                        name="television",
+                        value="television",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Video Games",
-                        value=15,
+                        name="games",
+                        value="games",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Nature",
-                        value=17,
+                        name="nature",
+                        value="nature",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Computers",
-                        value=18,
-                    ),
-                    interactions.SlashCommandChoice(name="Sports", value=21),
-                    interactions.SlashCommandChoice(
-                        name="Geography",
-                        value=22,
+                        name="computers",
+                        value="computers",
                     ),
                     interactions.SlashCommandChoice(
-                        name="History",
-                        value=23,
+                        name="sports", value="sports"
                     ),
                     interactions.SlashCommandChoice(
-                        name="Animal",
-                        value=27,
+                        name="geography",
+                        value="geography",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Vehicles",
-                        value=28,
+                        name="history",
+                        value="history",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Comics",
-                        value=29,
+                        name="animal",
+                        value="animal",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Japanese Anime & Manga",
-                        value=31,
+                        name="vehicles",
+                        value="vehicles",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Cartoons",
-                        value=32,
+                        name="comics",
+                        value="comics",
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="anime",
+                        value="anime",
+                    ),
+                    interactions.SlashCommandChoice(
+                        name="cartoons",
+                        value="cartoons",
                     ),
                 ],
                 required=True,
@@ -115,15 +121,15 @@ class Trivia(interactions.Extension):
                 description="The difficulty level",
                 choices=[
                     interactions.SlashCommandChoice(
-                        name="Easy",
+                        name="easy",
                         value="easy",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Medium",
+                        name="medium",
                         value="medium",
                     ),
                     interactions.SlashCommandChoice(
-                        name="Hard",
+                        name="hard",
                         value="hard",
                     ),
                 ],
@@ -133,11 +139,31 @@ class Trivia(interactions.Extension):
     )
     async def trivia(
         self,
-        ctx: interactions.SlashContext,
-        category: int,
+        ctx: HybridContext,
+        category: str,
         difficulty: str,
     ):
         """Plays a game of trivia."""
+
+        value_convert: dict = {
+            "general": 9,
+            "book": 10,
+            "film": 11,
+            "music": 12,
+            "theatres": 13,
+            "television": 14,
+            "games": 15,
+            "nature": 17,
+            "computers": 18,
+            "sports": 21,
+            "geography": 22,
+            "history": 23,
+            "animal": 27,
+            "vehicles": 28,
+            "comics": 29,
+            "anime": 31,
+            "cartoons": 32,
+        }
 
         _msg = await ctx.send(content="Getting question...")
 
@@ -155,7 +181,7 @@ class Trivia(interactions.Extension):
         ]
 
         cnt, i = 0, 0
-        _selected_category: str = category
+        _selected_category: str = value_convert[category]
         _selected_difficulty: str = difficulty
         resp = await Trivia.get_question(
             self, _selected_category, _selected_difficulty
