@@ -11,6 +11,10 @@ import asyncio
 import json
 from typing import Any
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 import requests
 from PIL import Image
 
@@ -99,7 +103,7 @@ class WTP(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="whos_that_pokemon",
         description="Who's that Pokemon game.",
         options=[
@@ -108,8 +112,8 @@ class WTP(interactions.Extension):
                 name="difficulty",
                 description="Difficulty of the game",
                 choices=[
-                    interactions.SlashCommandChoice(name="Easy", value="easy"),
-                    interactions.SlashCommandChoice(name="Hard", value="hard"),
+                    interactions.SlashCommandChoice(name="easy", value="easy"),
+                    interactions.SlashCommandChoice(name="hard", value="hard"),
                 ],
                 required=True,
             ),
@@ -129,7 +133,7 @@ class WTP(interactions.Extension):
     )
     async def whos_that_pokemon(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         difficulty: str,
         generation: str = None,
     ) -> None:
