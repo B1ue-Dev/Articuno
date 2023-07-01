@@ -22,6 +22,7 @@ class Pokemon(interactions.Extension):
     @hybrid_slash_command(
         name="pokedex",
         description="Shows the information about a Pokemon.",
+        silence_autocomplete_errors=True,
     )
     @interactions.slash_option(
         name="pokemon_name",
