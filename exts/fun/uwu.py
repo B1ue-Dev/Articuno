@@ -7,9 +7,9 @@ UwU related commands.
 import logging
 import random
 import interactions
-from interactions.ext.prefixed_commands import (
-    prefixed_command,
-    PrefixedContext,
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
 )
 
 
@@ -83,6 +83,9 @@ class OwO:
         "OwO",
         "OwO *what's this?*",
         "*blushes*",
+        "👉👈",
+        ":3",
+        "",
     ]
 
     def create_uwu_text(self, text: str) -> str:
@@ -107,7 +110,7 @@ class UwU(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="uwu",
         description="UwU a text.",
     )
@@ -118,14 +121,7 @@ class UwU(interactions.Extension):
         required=True,
         max_length=700,
     )
-    async def uwu(self, ctx: interactions.SlashContext, text: str) -> None:
-        """UwU a text."""
-
-        res = OwO.create_uwu_text(self, text)
-        await ctx.send(res)
-
-    @prefixed_command(name="uwu")
-    async def _uwu(self, ctx: PrefixedContext, *, text: str) -> None:
+    async def uwu(self, ctx: HybridContext, text: str) -> None:
         """UwU a text."""
 
         res = OwO.create_uwu_text(self, text)
