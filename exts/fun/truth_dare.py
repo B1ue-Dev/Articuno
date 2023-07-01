@@ -7,6 +7,10 @@ Truth n Dare command.
 import logging
 import datetime
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 from utils.utils import get_response
 
 
@@ -45,11 +49,11 @@ class TruthDare(interactions.Extension):
         self.client: interactions.Client = client
         self.base_url: str = "https://api.truthordarebot.xyz/v1"
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="truth_dare",
         description="Starts a Truth or Dare game.",
     )
-    async def truth_dare(self, ctx: interactions.InteractionContext) -> None:
+    async def truth_dare(self, ctx: HybridContext) -> None:
         """Starts a Truth or Dare game."""
 
         await ctx.send(
