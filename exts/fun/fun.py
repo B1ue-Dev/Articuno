@@ -9,6 +9,10 @@ import random
 import asyncio
 import aiohttp
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 from utils.utils import get_response
 from const import AUTHORIZATION
 
@@ -17,11 +21,11 @@ class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="coffee",
         description="Send an image of coffee.",
     )
-    async def coffee(self, ctx: interactions.SlashContext) -> None:
+    async def coffee(self, ctx: HybridContext) -> None:
         """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
@@ -35,7 +39,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="ship",
         description="Ship 2 users.",
         options=[
@@ -55,7 +59,7 @@ class Fun(interactions.Extension):
     )
     async def ship(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         user1: str,
         user2: str,
     ) -> None:
@@ -157,11 +161,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="roll",
         description="Roll a dice.",
     )
-    async def roll(self, ctx: interactions.SlashContext) -> None:
+    async def roll(self, ctx: HybridContext) -> None:
         """Rolls a dice."""
 
         dice = random.randint(1, 6)
@@ -169,11 +173,11 @@ class Fun(interactions.Extension):
         await asyncio.sleep(1.5)
         await ctx.edit(message=msg.id, content=f"The number is **{dice}**.")
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="flip",
         description="Flip a coin.",
     )
-    async def flip(self, ctx: interactions.SlashContext) -> None:
+    async def flip(self, ctx: HybridContext) -> None:
         """Flips a coin."""
 
         coin = random.choice(["heads", "tails"])
@@ -183,7 +187,7 @@ class Fun(interactions.Extension):
             message=msg.id, content=f"The coin landed on **{coin}**."
         )
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="gay",
         description="Calculate the gay percentage of a user.",
         options=[
@@ -196,7 +200,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def gay(
-        self, ctx: interactions.SlashContext, user: str = None
+        self, ctx: HybridContext, user: str = None
     ) -> None:
         """Calculates the gay percentage of a user."""
 
@@ -212,11 +216,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="joke",
         description="Send a random joke.",
     )
-    async def joke(self, ctx: interactions.SlashContext) -> None:
+    async def joke(self, ctx: HybridContext) -> None:
         """Sends a random joke."""
 
         url = "https://some-random-api.com/joke"
@@ -229,11 +233,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="quote",
         description="Send a quote.",
     )
-    async def quote(self, ctx: interactions.SlashContext) -> None:
+    async def quote(self, ctx: HybridContext) -> None:
         """Sends a quote."""
 
         url = "https://api.quotable.io/random"
@@ -252,7 +256,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="xkcd",
         description="Send a xkcd comic page.",
         options=[
@@ -265,7 +269,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def xkcd(
-        self, ctx: interactions.SlashContext, page: int = None
+        self, ctx: HybridContext, page: int = None
     ) -> None:
         """Sends a xkcd comic page."""
 
@@ -307,7 +311,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="dictionary",
         description="Define a word.",
         options=[
@@ -320,7 +324,7 @@ class Fun(interactions.Extension):
         ],
     )
     async def dictionary(
-        self, ctx: interactions.SlashContext, word: str
+        self, ctx: HybridContext, word: str
     ) -> None:
         """Defines a word."""
 
@@ -345,7 +349,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="ai",
         description="Chat with an AI.",
         options=[
@@ -357,7 +361,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def ai(self, ctx: interactions.SlashContext, message: str) -> None:
+    async def ai(self, ctx: HybridContext, *, message: str) -> None:
         customize_url = "https://v6.rsa-api.xyz/ai/customize"
         response_url = "https://v6.rsa-api.xyz/ai/response"
         param = {
