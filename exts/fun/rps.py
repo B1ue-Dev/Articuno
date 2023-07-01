@@ -8,6 +8,10 @@ import logging
 import random
 import asyncio
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 
 
 buttons = [
@@ -84,7 +88,7 @@ class RPS(interactions.Extension):
         self.client: interactions.Client = client
         self.choice_convert: dict = {1: "Rock", 2: "Paper", 3: "Scissors"}
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="rock_paper_scissors",
         description="Play a game of Rock-Paper-Scissors.",
     )
@@ -96,7 +100,7 @@ class RPS(interactions.Extension):
         sub_cmd_name="ai",
         sub_cmd_description="Play against Articuno.",
     )
-    async def ai(self, ctx: interactions.SlashContext) -> None:
+    async def ai(self, ctx: HybridContext) -> None:
         """Play against Articuno."""
 
         rps_selection.disabled = False
@@ -189,9 +193,7 @@ class RPS(interactions.Extension):
         description="The user to play against",
         required=True,
     )
-    async def human(
-        self, ctx: interactions.SlashContext, user: interactions.User
-    ) -> None:
+    async def human(self, ctx: HybridContext, user: interactions.User) -> None:
         """Play against someone else."""
 
         if int(ctx.user.id) == int(user.id):
