@@ -8,8 +8,12 @@ import logging
 import asyncio
 import random
 import interactions
-from utils.utils import get_response
-from const import SERPAPI
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
+from googleapiclient.discovery import build
+from const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
 class Image:
@@ -35,7 +39,7 @@ class Google(interactions.Extension):
         self.client: interactions.Client = client
         self.google_icon: str = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="img",
         description="Search for images (Powered by Google).",
         options=[
@@ -48,7 +52,7 @@ class Google(interactions.Extension):
         ],
     )
     async def img(
-        self, ctx: interactions.InteractionContext, query: str
+        self, ctx: HybridContext, *, query: str
     ) -> None:
         """Search for images (Powered by Google)."""
 
@@ -83,22 +87,21 @@ class Google(interactions.Extension):
         await ctx.defer()
 
         all_result: "list[Image]" = []
-        url = "https://serpapi.com/search.json"
-        params = {
-            "q": f"{query}",
-            "tbm": "isch",
-            "ijn": 0,
-            "api_key": SERPAPI,
-        }
+        ran = int(0)
+        resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
+        result = resource.list(
+            q=f"{query}",
+            cx=GOOGLE_CSE,
+            searchType="image",  # sort="date"
+        ).execute()
 
-        result = (await get_response(url, params))["images_results"]
-        for res in result:
+        for i in (0, len(result)-1):
             all_result.append(
                 Image(
-                    link=res["thumbnail"],
-                    title=res["title"],
-                    source=res["source"],
-                    contextlink=res["link"],
+                    link=result["items"][i]["link"],
+                    title=result["items"][ran]["title"],
+                    source=result["items"][ran]["displayLink"],
+                    contextlink=result["items"][ran]["image"]["contextLink"],
                 )
             )
 
