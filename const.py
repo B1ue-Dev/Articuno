@@ -60,12 +60,3 @@ GOOGLE_CLOUD = os.getenv("GOOGLE_CLOUD")
 
 GOOGLE_CSE = os.getenv("GOOGLE_CSE")
 """CSE Key for Google."""
-
-U_KEY = os.getenv("UBERDUCK_KEY")
-"""Uberduck Key."""
-
-U_SECRET = os.getenv("UBERDUCK_SECRET")
-"""Uberduck Secret."""
-
-SERPAPI = os.getenv("SERPAPI")
-"""SerpAPI Key."""
