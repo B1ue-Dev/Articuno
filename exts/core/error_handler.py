@@ -48,7 +48,7 @@ async def handle_error(
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
-        description=f"```\n{traceb}\n```",
+        description=f"```\n{traceb[-4096:]}\n```",
     )
     err_field = [
         interactions.EmbedField(
@@ -106,7 +106,7 @@ class Error(interactions.Extension):
     @interactions.listen()
     async def on_error(
         self,
-        event: interactions.events.CommandError,
+        event: interactions.events.Error,
     ) -> None:
         """For Error callback."""
 
@@ -120,18 +120,7 @@ class Error(interactions.Extension):
                 return await event.ctx.send(
                     content="You do not have permission to do this action.",
                 )
-        # elif isinstance(event.error, interactions.errors.CommandOnCooldown):
-        #     delta_wait = datetime.timedelta(
-        #         seconds=event.error.cooldown.get_cooldown_time()
-        #     )
-        #     return await event.ctx.send(
-        #         content=(
-        #             "You are on cooldown. Try again in ",
-        #             f" `{delta_wait}`."
-        #         )
-        #     )
-        # This is planned later.
-        # Currently, I don't have time to work on this.
+
         else:
             if not isinstance(event.ctx, interactions.InteractionContext):
                 return await handle_error(
