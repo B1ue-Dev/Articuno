@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Articuno"
-version = "v5.0.5"
+version = "v5.1.0"
 description = "A fun Discord Bot, written with interactions.py."
 license = "GPL-3.0-only"
 authors = ["B1ue-Dev <b1uedev@duck.com>"]
