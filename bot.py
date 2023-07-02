@@ -49,7 +49,7 @@ if __name__ == "__main__":
         status=interactions.Status.ONLINE,
         send_command_tracebacks=False,
     )
-    prefixed_setup(client, default_prefix="a$")
+    prefixed_setup(client, default_prefix="$")
     hybrid_setup(client)
     client.load_extension("exts.core.__init__")
     client.load_extension("exts.fun.__init__")
@@ -103,7 +103,9 @@ if __name__ == "__main__":
                     [
                         "I could not help much but noticed you mentioned me.",
                         f"You can type ``/`` and choose **{client.user.username}**",
-                        "to see a list of available commands.",
+                        "to start using me. Alternatively, you can use ",
+                        "`$help` or `/help` to see a list of available ",
+                        "commands. Thank you for choosing Articuno. ^-^",
                     ],
                 ),
                 color=0x6AA4C1,

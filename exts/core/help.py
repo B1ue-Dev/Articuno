@@ -68,7 +68,15 @@ class Help(interactions.Extension):
 
             help_list.append(
                 interactions.Embed(
-                    title="List of available commands.",
+                    title="".join(
+                        [
+                            "List of available commands.\n",
+                            "<:information:1125071135575388222> ",
+                            "If a command has **/**`$`, it supports both ",
+                            "prefixed message (the traditional `$`<name> way)",
+                            " and slash command (the new `/`<name> way).",
+                        ]
+                    ),
                     color=0x7CB7D3,
                     thumbnail=interactions.EmbedAttachment(
                         url=self.client.user.avatar.url
