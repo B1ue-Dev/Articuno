@@ -44,18 +44,16 @@ class Logs(interactions.Extension):
             ),
         ]
         embed = interactions.Embed(
+            title="Deleted message content",
+            description=message.content[-4096:]
+            if message.content
+            else "No content found. (Maybe it is not cached)",
             color=0xE03C3C,
             author=author,
             footer=footer,
             timestamp=datetime.datetime.utcnow(),
             fields=fields,
         )
-        if message.content:
-            embed.add_field(
-                name="Deleted message content",
-                value=f"{message.content}",
-                inline=False,
-            )
         if message.attachments:
             embed.add_field(
                 name="Attachment",
@@ -108,11 +106,11 @@ class Logs(interactions.Extension):
         )
         embed.add_field(
             name="Message before edit",
-            value=before.content if before else "N/A",
+            value=before.content[-1024:] if before else "N/A",
         )
         embed.add_field(
             name="Message after edit",
-            value=after.content if after.content != [] else "N/A",
+            value=after.content[-1024:] if after.content != [] else "N/A",
         )
 
         for channel in after.guild.channels:
