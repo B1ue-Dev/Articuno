@@ -6,12 +6,15 @@ Turn image into ASCII art.
 
 import logging
 import io
-import re
 import textwrap
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 import pyfiglet
 import aiohttp
-from PIL import Image, ImageDraw, ImageColor
+from PIL import Image, ImageDraw
 
 
 def rgb2gray(rgb: str) -> int:
@@ -49,17 +52,11 @@ class ASCII(interactions.Extension):
         self.client: interactions.Client = client
         self.ASCII_CHARS = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^'´. "
 
-    @interactions.slash_command(
-        name="ascii",
-        description="ASCII art command.",
-    )
-    async def ascii(self, *args, **kwargs) -> None:
-        """For everything related to /ascii command."""
-        ...
-
-    @ascii.subcommand(
-        sub_cmd_name="user",
-        sub_cmd_description="Turns a user profile picture into ASCII text art.",
+    @hybrid_slash_subcommand(
+        base="ascii",
+        base_description="ASCII art command.",
+        name="user",
+        description="Turns a user profile picture into ASCII text art.",
     )
     @interactions.slash_option(
         name="user",
@@ -69,7 +66,7 @@ class ASCII(interactions.Extension):
     )
     async def user(
         self,
-        ctx: interactions.InteractionContext,
+        ctx: HybridContext,
         user: interactions.Member,
     ) -> None:
         """Turns a user profile picture into ASCII art."""
@@ -145,9 +142,11 @@ class ASCII(interactions.Extension):
 
             await ctx.send(files=file)
 
-    @ascii.subcommand(
-        sub_cmd_name="text",
-        sub_cmd_description="Turn texts into ASCII art word.",
+    @hybrid_slash_subcommand(
+        base="ascii",
+        base_description="ASCII art command.",
+        name="text",
+        description="Turn texts into ASCII art word.",
     )
     @interactions.slash_option(
         name="text",
@@ -155,40 +154,12 @@ class ASCII(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    @interactions.slash_option(
-        name="color",
-        description="The color of the text (hex code)",
-        opt_type=interactions.OptionType.STRING,
-        required=False,
-    )
     async def text(
         self,
-        ctx: interactions.InteractionContext,
+        ctx: HybridContext,
         text: str,
-        color: str = None,
     ) -> None:
         """Turn texts into ASCII art word."""
-
-        custom_color = None
-        if color is None:
-            pass
-        else:
-            match = re.search(r"^(?:[0-9a-fA-F]{3}){1,2}$", color)
-            if not match:
-                return await ctx.send(
-                    content="".join(
-                        [
-                            "Invalid hex code. Please try again.\n",
-                            "In case you do not know about hex code, have a look at the [gif](https://cdn.discordapp.com/attachments/862636687226044436/1014917397519552703/guide.gif) ",
-                            "below and use [this site](<https://www.w3schools.com/colors/colors_picker.asp>) ",
-                            "to get the color hex code.",
-                        ]
-                    ),
-                    ephemeral=True,
-                )
-            custom_color = ImageColor.getcolor(
-                color if color.startswith("#") else "#" + color, "RGB"
-            )
 
         s = ""
         text_split = textwrap.wrap(
@@ -214,13 +185,7 @@ class ASCII(interactions.Extension):
 
         img = Image.new("RGB", (width, height), color="black")
         i = ImageDraw.Draw(img)
-        i.text(
-            (1, 1),
-            ascii_art,
-            fill=(102, 255, 0)
-            if color is None
-            else (custom_color[0], custom_color[1], custom_color[2]),
-        )
+        i.text((1, 1), ascii_art, fill=(102, 255, 0))
         with io.BytesIO() as out:
             img.save(out, format="JPEG")
             out.seek(0)

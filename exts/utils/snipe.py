@@ -7,10 +7,6 @@ Snipe command.
 import logging
 import asyncio
 import interactions
-from interactions.ext.prefixed_commands import (
-    prefixed_command,
-    PrefixedContext,
-)
 
 _snipe_message_author = {}
 _snipe_message_author_id = {}
@@ -34,23 +30,26 @@ class Snipe(interactions.Extension):
         """Listen to MESSAGE_DELETE and write to cache."""
 
         message: interactions.Message = msg.message
-        _channel_id = int(message.channel.id)
+        _channel_id = str(message.channel.id)
 
         _snipe_message_author[_channel_id] = str(
             f"{message.author.username}#{message.author.discriminator}"
         )
-        _snipe_message_author_id[_channel_id] = int(message.author.id)
+        _snipe_message_author_id[_channel_id] = str(message.author.id)
         _snipe_message_author_avatar_url[_channel_id] = str(
             message.author.avatar.url
         )
         _snipe_message_content[_channel_id] = str(message.content)
-        _snipe_message_content_id[_channel_id] = int(message.id)
-        await asyncio.sleep(120)
-        del _snipe_message_author[_channel_id]
-        del _snipe_message_author_id[_channel_id]
-        del _snipe_message_author_avatar_url[_channel_id]
-        del _snipe_message_content[_channel_id]
-        del _snipe_message_content_id[_channel_id]
+        _snipe_message_content_id[_channel_id] = str(message.id)
+        await asyncio.sleep(10)
+        try:
+            del _snipe_message_author[_channel_id]
+            del _snipe_message_author_id[_channel_id]
+            del _snipe_message_author_avatar_url[_channel_id]
+            del _snipe_message_content[_channel_id]
+            del _snipe_message_content_id[_channel_id]
+        except KeyError:
+            pass
 
     @interactions.slash_command(
         name="snipe",
@@ -58,40 +57,6 @@ class Snipe(interactions.Extension):
         dm_permission=False,
     )
     async def snipe(self, ctx: interactions.SlashContext) -> None:
-        """Snipes the last deleted message from the current channel."""
-
-        channel_id = int(ctx.channel_id)
-        try:
-            author = interactions.EmbedAuthor(
-                name=_snipe_message_author[channel_id],
-                icon_url=_snipe_message_author_avatar_url[channel_id],
-            )
-            footer = interactions.EmbedFooter(
-                text="".join(
-                    [
-                        f"Requested by {ctx.author.user.username}",
-                        f"#{ctx.author.user.discriminator}",
-                    ],
-                ),
-                icon_url=ctx.author.user.avatar.url,
-            )
-            embed = interactions.Embed(
-                description="".join(
-                    [
-                        f"<@{_snipe_message_author_id[channel_id]}> said: ",
-                        f"{_snipe_message_content[channel_id]}",
-                    ],
-                ),
-                author=author,
-                footer=footer,
-            )
-            await ctx.send(embeds=embed)
-
-        except KeyError:
-            await ctx.send("No message to snipe.", ephemeral=True)
-
-    @prefixed_command(name="snipe")
-    async def msg_snipe(self, ctx: PrefixedContext) -> None:
         """Snipes the last deleted message from the current channel."""
 
         channel_id = int(ctx.channel_id)

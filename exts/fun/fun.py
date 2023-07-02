@@ -7,9 +7,15 @@ Fun related commands.
 import logging
 import random
 import asyncio
-import aiohttp
+import datetime
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
+from bardapi import Bard
 from utils.utils import get_response
+from exts.core.error_handler import handle_error
 from const import AUTHORIZATION
 
 
@@ -17,11 +23,13 @@ class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    bard = Bard(token=AUTHORIZATION)
+
+    @hybrid_slash_command(
         name="coffee",
         description="Send an image of coffee.",
     )
-    async def coffee(self, ctx: interactions.SlashContext) -> None:
+    async def coffee(self, ctx: HybridContext) -> None:
         """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
@@ -35,133 +43,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
-        name="ship",
-        description="Ship 2 users.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="user1",
-                description="User 1",
-                required=True,
-            ),
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="user2",
-                description="User 2",
-                required=True,
-            ),
-        ],
-    )
-    async def ship(
-        self,
-        ctx: interactions.SlashContext,
-        user1: str,
-        user2: str,
-    ) -> None:
-        """Ship 2 users."""
-
-        shipnumber: int = int(random.randint(0, 100))
-        heart: str = ""
-        comment: str = ""
-
-        if 0 <= shipnumber <= 30:
-            comment = "Really low! {}".format(
-                random.choice(
-                    [
-                        "Friendzone.",
-                        'Just "friends".',
-                        "There is barely any love.",
-                        "I sense a small bit of love!",
-                        "Still in that friendzone ;(",
-                        "No, just no!",
-                        "But there is a small sense of romance from one person!",
-                        "Awful. 😢",
-                    ]
-                )
-            )
-            heart = ":broken_heart:"
-        elif 31 <= shipnumber <= 70:
-            comment = "Moderate! {}".format(
-                random.choice(
-                    [
-                        "Fair enough!",
-                        "A small bit of love is in the air...",
-                        "I feel like there is some romance progressing!",
-                        "I am starting to feel some love!",
-                        "At least this is acceptable.",
-                        "...",
-                        "I sense a bit of potential!",
-                        "But it is very one-sided.",
-                    ]
-                )
-            )
-            heart = ":mending_heart:"
-        elif 71 <= shipnumber <= 90:
-            comment = "Almost perfect! {}".format(
-                random.choice(
-                    [
-                        "I definitely can see that love is in the air.",
-                        "I feel the love!",
-                        "There is a sign of a match!",
-                        "A few things can be imporved to make this a match made in heaven!",
-                        "I can definitely feel the love.",
-                        "This has a big potential.",
-                        "I can see the love is there! Somewhere...",
-                    ]
-                )
-            )
-            heart = random.choice(
-                [
-                    ":revolving_hearts:",
-                    ":heart_exclamation:",
-                    ":heart_on_fire:",
-                    ":heartbeat:",
-                ]
-            )
-        elif 90 < shipnumber <= 100:
-            comment = "True love! {}".format(
-                random.choice(
-                    [
-                        "It is a match!",
-                        "There is a match made in heaven!",
-                        "It is definitely a match!",
-                        "Love is truely in the air!",
-                        "Love is most definitely in the air!",
-                    ]
-                )
-            )
-            heart = random.choice(
-                [
-                    ":sparkling_heart:",
-                    ":heart_decoration:",
-                    ":hearts:",
-                    ":two_hearts:",
-                    ":heartpulse:",
-                ]
-            )
-
-        if shipnumber <= 40:
-            shipColor = 0xDD3939
-        elif 41 < shipnumber < 80:
-            shipColor = 0xFF6600
-        else:
-            shipColor = 0x3BE801
-
-        embed = interactions.Embed(
-            title="💗 MATCHMAKING 💗",
-            description=f"**{user1}** {heart} **{user2}**",
-            color=shipColor,
-        )
-        embed.add_field(name=f"Result: {shipnumber}%", value=f"{comment}")
-
-        await ctx.send(embeds=embed)
-
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="roll",
         description="Roll a dice.",
     )
-    async def roll(self, ctx: interactions.SlashContext) -> None:
+    async def roll(self, ctx: HybridContext) -> None:
         """Rolls a dice."""
 
         dice = random.randint(1, 6)
@@ -169,11 +55,11 @@ class Fun(interactions.Extension):
         await asyncio.sleep(1.5)
         await ctx.edit(message=msg.id, content=f"The number is **{dice}**.")
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="flip",
         description="Flip a coin.",
     )
-    async def flip(self, ctx: interactions.SlashContext) -> None:
+    async def flip(self, ctx: HybridContext) -> None:
         """Flips a coin."""
 
         coin = random.choice(["heads", "tails"])
@@ -183,7 +69,7 @@ class Fun(interactions.Extension):
             message=msg.id, content=f"The coin landed on **{coin}**."
         )
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="gay",
         description="Calculate the gay percentage of a user.",
         options=[
@@ -195,9 +81,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def gay(
-        self, ctx: interactions.SlashContext, user: str = None
-    ) -> None:
+    async def gay(self, ctx: HybridContext, user: str = None) -> None:
         """Calculates the gay percentage of a user."""
 
         if not user:
@@ -212,11 +96,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="joke",
         description="Send a random joke.",
     )
-    async def joke(self, ctx: interactions.SlashContext) -> None:
+    async def joke(self, ctx: HybridContext) -> None:
         """Sends a random joke."""
 
         url = "https://some-random-api.com/joke"
@@ -229,11 +113,11 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="quote",
         description="Send a quote.",
     )
-    async def quote(self, ctx: interactions.SlashContext) -> None:
+    async def quote(self, ctx: HybridContext) -> None:
         """Sends a quote."""
 
         url = "https://api.quotable.io/random"
@@ -252,7 +136,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="xkcd",
         description="Send a xkcd comic page.",
         options=[
@@ -264,9 +148,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def xkcd(
-        self, ctx: interactions.SlashContext, page: int = None
-    ) -> None:
+    async def xkcd(self, ctx: HybridContext, page: int = None) -> None:
         """Sends a xkcd comic page."""
 
         url = "https://xkcd.com/info.0.json"
@@ -307,7 +189,7 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="dictionary",
         description="Define a word.",
         options=[
@@ -319,9 +201,7 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def dictionary(
-        self, ctx: interactions.SlashContext, word: str
-    ) -> None:
+    async def dictionary(self, ctx: HybridContext, word: str) -> None:
         """Defines a word."""
 
         url = "https://some-random-api.com/dictionary"
@@ -345,45 +225,32 @@ class Fun(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="ai",
         description="Chat with an AI.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="message",
-                description="The message you want to send",
-                required=True,
-            ),
-        ],
+        aliases=["gpt"],
     )
-    async def ai(self, ctx: interactions.SlashContext, message: str) -> None:
-        customize_url = "https://v6.rsa-api.xyz/ai/customize"
-        response_url = "https://v6.rsa-api.xyz/ai/response"
-        param = {
-            "user_id": str(ctx.user.id),
-            "message": message,
-        }
-        headers = {
-            "Authorization": AUTHORIZATION,
-        }
-        params = {
-            "BotName": "Articuno",
-            "BotMaster": "Blue",
-            "BotGender": "Male",
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                customize_url, headers=headers, data=params
-            ):
-                async with session.get(
-                    response_url, params=param, headers=headers
-                ) as resp:
-                    if resp.status == 200:
-                        if resp.content_type == "application/json":
-                            resp = await resp.json()
+    @interactions.slash_option(
+        name="message",
+        description="The message you want to send",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    @interactions.cooldown(interactions.Buckets.USER, 1, 20)
+    async def ai(self, ctx: HybridContext, *, message: str) -> None:
+        """Chat with an AI."""
 
-                            await ctx.send(content=resp["message"])
+        await ctx.defer()
+        try:
+            ans: str = Fun.bard.get_answer(message)["content"]
+            await ctx.send(ans)
+        except Exception as e:
+            await ctx.send("An unknown error occurred.")
+            return await handle_error(
+                self,
+                error=e,
+                error_time=datetime.datetime.utcnow().timestamp(),
+            )
 
 
 def setup(client) -> None:

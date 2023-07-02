@@ -8,6 +8,10 @@ import logging
 import random
 import asyncio
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 
 
 buttons = [
@@ -84,19 +88,14 @@ class RPS(interactions.Extension):
         self.client: interactions.Client = client
         self.choice_convert: dict = {1: "Rock", 2: "Paper", 3: "Scissors"}
 
-    @interactions.slash_command(
-        name="rock_paper_scissors",
-        description="Play a game of Rock-Paper-Scissors.",
+    @hybrid_slash_subcommand(
+        base="rock_paper_scissors",
+        base_description="Play a game of Rock-Paper-Scissors.",
+        aliases=["rps"],
+        name="ai",
+        description="Play against Articuno.",
     )
-    async def rock_paper_scissors(self, *args, **kwargs):
-        """Play a game of Rock-Paper-Scissors."""
-        ...
-
-    @rock_paper_scissors.subcommand(
-        sub_cmd_name="ai",
-        sub_cmd_description="Play against Articuno.",
-    )
-    async def ai(self, ctx: interactions.SlashContext) -> None:
+    async def ai(self, ctx: HybridContext) -> None:
         """Play against Articuno."""
 
         rps_selection.disabled = False
@@ -179,9 +178,12 @@ class RPS(interactions.Extension):
                 await msg.edit(content="Time's up!", components=rps_selection)
                 break
 
-    @rock_paper_scissors.subcommand(
-        sub_cmd_name="human",
-        sub_cmd_description="Play against someone else.",
+    @hybrid_slash_subcommand(
+        base="rock_paper_scissors",
+        base_description="Play a game of Rock-Paper-Scissors.",
+        # aliases=["rps"],
+        name="human",
+        description="Play against someone else.",
     )
     @interactions.slash_option(
         opt_type=interactions.OptionType.USER,
@@ -189,9 +191,7 @@ class RPS(interactions.Extension):
         description="The user to play against",
         required=True,
     )
-    async def human(
-        self, ctx: interactions.SlashContext, user: interactions.User
-    ) -> None:
+    async def human(self, ctx: HybridContext, user: interactions.User) -> None:
         """Play against someone else."""
 
         if int(ctx.user.id) == int(user.id):

@@ -7,6 +7,10 @@ Hug command.
 import logging
 import io
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 import aiohttp
 from PIL import Image, ImageDraw, ImageOps
 
@@ -54,7 +58,7 @@ class Hug(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="hug",
         description="Hugs a user.",
         options=[
@@ -67,9 +71,7 @@ class Hug(interactions.Extension):
         ],
         dm_permission=False,
     )
-    async def hug(
-        self, ctx: interactions.SlashContext, user: interactions.Member
-    ) -> None:
+    async def hug(self, ctx: HybridContext, user: interactions.Member) -> None:
         """Hugs a user."""
 
         if int(ctx.user.id) == int(user.id):

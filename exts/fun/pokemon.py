@@ -7,6 +7,10 @@ Pokemon related commands.
 import logging
 import json
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 
 
 class Pokemon(interactions.Extension):
@@ -15,22 +19,19 @@ class Pokemon(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="pokedex",
         description="Shows the information about a Pokemon.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="pokemon_name",
-                description="Pokemon name",
-                required=True,
-                autocomplete=True,
-            ),
-        ],
+        silence_autocomplete_errors=True,
     )
-    async def pokedex(
-        self, ctx: interactions.SlashContext, pokemon_name: str
-    ) -> None:
+    @interactions.slash_option(
+        name="pokemon_name",
+        description="Pokemon name",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+        autocomplete=True,
+    )
+    async def pokedex(self, ctx: HybridContext, pokemon_name: str) -> None:
         """Shows the information about a Pokemon."""
 
         name_lower = pokemon_name.lower()
@@ -41,7 +42,6 @@ class Pokemon(interactions.Extension):
                 if db[name_lower]["name"] == "Articuno"
                 else ""
             )
-            print(name)
             id = db[name_lower]["num"]
             types = ", ".join(db[name_lower]["types"])
             desp = db[name_lower]["description"]

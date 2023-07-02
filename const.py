@@ -6,16 +6,20 @@ For value data.
 
 import os
 import dotenv
+import configparser
 
+config = configparser.ConfigParser()
+config.read("pyproject.toml")
 dotenv.load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 """The token of the bot."""
 
-VERSION = "v5.0.5"
+VERSION = str(config["tool.poetry"]["version"]).replace('"', "")
 """Bot version."""
 
 LOG_CHANNEL = os.getenv("LOG_CHANNEL")
+"""ID of the log channel."""
 
 EXT_CORE = [
     file.replace(".py", "")

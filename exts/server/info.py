@@ -7,6 +7,10 @@ Information commands.
 import logging
 import interactions
 from interactions import UserFlags, Permissions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 from utils.utils import get_response
 from utils.colorthief import ColorThief
 
@@ -105,17 +109,11 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
-        name="info",
-        dm_permission=False,
-    )
-    async def info(self, *args, **kwargs) -> None:
-        """For all information aspects."""
-        ...
-
-    @info.subcommand(
-        sub_cmd_name="user",
-        sub_cmd_description="Shows the information about a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="user",
+        description="Shows the information about a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -124,7 +122,9 @@ class Info(interactions.Extension):
         required=True,
     )
     async def user(
-        self, ctx: interactions.InteractionContext, user: interactions.Member
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
     ) -> None:
         """Shows the information about a user."""
 
@@ -182,12 +182,22 @@ class Info(interactions.Extension):
             ),
         ]
         thumbnail = interactions.EmbedAttachment(url=avatar)
+        title: str = (
+            f"@{user.user.username}"
+            if str(user.user.discriminator) == "0"
+            else f"{user.user.username}#{user.user.discriminator}"
+        )
         footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+            text="Requested by "
+            + (
+                f"@{ctx.user.username}"
+                if str(ctx.user.discriminator) == "0"
+                else f"{ctx.user.username}#{ctx.user.discriminator}"
+            ),
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
-            title=f"{user.user.username}#{user.user.discriminator}",
+            title=title,
             thumbnail=thumbnail,
             footer=footer,
             fields=fields,
@@ -195,9 +205,11 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="avatar",
-        sub_cmd_description="Shows the profile picture URL of a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="avatar",
+        description="Shows the profile picture URL of a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -206,7 +218,7 @@ class Info(interactions.Extension):
         required=True,
     )
     async def avatar(
-        self, ctx: interactions.SlashContext, user: interactions.Member
+        self, ctx: HybridContext, user: interactions.Member
     ) -> None:
         """Shows the profile picture URL of a user."""
 
@@ -245,13 +257,22 @@ class Info(interactions.Extension):
         )
 
         embed = interactions.Embed(
-            title=f"{user.user.username}#{user.user.discriminator}",
+            title=(
+                f"@{user.user.username}"
+                if str(user.user.discriminator) == "0"
+                else f"{user.user.username}#{user.user.discriminator}"
+            ),
             color=color,
             images=[
                 interactions.EmbedAttachment(url=f"{avatar_url}?size=512")
             ],
             footer=interactions.EmbedFooter(
-                text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                text="Requested by "
+                + (
+                    f"@{ctx.user.username}"
+                    if str(ctx.user.discriminator) == "0"
+                    else f"{ctx.user.username}#{ctx.user.discriminator}"
+                ),
                 icon_url=f"{ctx.user.avatar_url}?size=512",
             ),
             fields=[
@@ -264,11 +285,13 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="server",
-        sub_cmd_description="Shows the information about the server.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        name="server",
+        description="Shows the information about the server.",
     )
-    async def server(self, ctx: interactions.SlashContext) -> None:
+    async def server(self, ctx: HybridContext) -> None:
         """Shows the information about the server."""
 
         guild: interactions.Guild = ctx.guild
@@ -339,7 +362,12 @@ class Info(interactions.Extension):
             interactions.EmbedField(name="ID", value=f"{id}", inline=True),
             interactions.EmbedField(
                 name="Owner",
-                value=f"{guild_owner.mention}\n{guild_owner.username}#{guild_owner.discriminator}",
+                value=f"{guild_owner.mention}\n"
+                + (
+                    f"@{guild_owner.username}"
+                    if str(guild_owner.discriminator) == "0"
+                    else f"{guild_owner.username}#{guild_owner.discriminator}"
+                ),
                 inline=True,
             ),
             interactions.EmbedField(
@@ -395,7 +423,12 @@ class Info(interactions.Extension):
         ]
         thumbnail = interactions.EmbedAttachment(url=icon)
         footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.author.user.username}#{ctx.author.user.discriminator}",
+            text="Requested by "
+            + (
+                f"@{ctx.user.username}"
+                if str(ctx.user.discriminator) == "0"
+                else f"{ctx.user.username}#{ctx.user.discriminator}"
+            ),
             icon_url=f"{ctx.author.user.avatar_url}",
         )
         embed = interactions.Embed(
@@ -447,8 +480,6 @@ class Info(interactions.Extension):
         """User context menu for information."""
 
         user: interactions.Member = ctx.target
-        name: str = user.username
-        discriminator: int = str(user.discriminator)
         user_id: str = str(user.id)
         joined_at: float = round(user.joined_at.timestamp())
         created_at: float = round(user.created_at.timestamp())
@@ -462,7 +493,13 @@ class Info(interactions.Extension):
         thumbnail = interactions.EmbedAttachment(url=avatar)
         fields = [
             interactions.EmbedField(
-                name="Name", value=f"{name}#{discriminator}", inline=True
+                name="Name",
+                value=(
+                    f"@{user.username}"
+                    if str(user.discriminator) == "0"
+                    else f"{user.username}#{user.discriminator}"
+                ),
+                inline=True,
             ),
             interactions.EmbedField(name="ID", value=user_id, inline=True),
             interactions.EmbedField(
