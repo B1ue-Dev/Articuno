@@ -7,19 +7,23 @@ Fun related commands.
 import logging
 import random
 import asyncio
-import aiohttp
+import datetime
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
+from bardapi import Bard
 from utils.utils import get_response
+from exts.core.error_handler import handle_error
 from const import AUTHORIZATION
 
 
 class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
+
+    bard = Bard(token=AUTHORIZATION)
 
     @hybrid_slash_command(
         name="coffee",
@@ -224,42 +228,29 @@ class Fun(interactions.Extension):
     @hybrid_slash_command(
         name="ai",
         description="Chat with an AI.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="message",
-                description="The message you want to send",
-                required=True,
-            ),
-        ],
+        aliases=["gpt"],
     )
+    @interactions.slash_option(
+        name="message",
+        description="The message you want to send",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    @interactions.cooldown(interactions.Buckets.USER, 1, 20)
     async def ai(self, ctx: HybridContext, *, message: str) -> None:
-        customize_url = "https://v6.rsa-api.xyz/ai/customize"
-        response_url = "https://v6.rsa-api.xyz/ai/response"
-        param = {
-            "user_id": str(ctx.user.id),
-            "message": message,
-        }
-        headers = {
-            "Authorization": AUTHORIZATION,
-        }
-        params = {
-            "BotName": "Articuno",
-            "BotMaster": "Blue",
-            "BotGender": "Male",
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                customize_url, headers=headers, data=params
-            ):
-                async with session.get(
-                    response_url, params=param, headers=headers
-                ) as resp:
-                    if resp.status == 200:
-                        if resp.content_type == "application/json":
-                            resp = await resp.json()
+        """Chat with an AI."""
 
-                            await ctx.send(content=resp["message"])
+        await ctx.defer()
+        try:
+            ans: str = Fun.bard.get_answer(message)["content"]
+            await ctx.send(ans)
+        except Exception as e:
+            await ctx.send("An unknown error occurred.")
+            return await handle_error(
+                self,
+                error=e,
+                error_time=datetime.datetime.utcnow().timestamp(),
+            )
 
 
 def setup(client) -> None:
