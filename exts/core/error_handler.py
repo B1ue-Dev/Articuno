@@ -43,7 +43,7 @@ async def handle_error(
     for i in traceb:
         er = er + f"{i}"
 
-    log_channel = self.client.get_channel(self.log_channel)
+    log_channel = self.client.get_channel(LOG_CHANNEL)
 
     log_error = interactions.Embed(
         title="An error occurred!",
@@ -102,22 +102,42 @@ class Error(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.log_channel: int = LOG_CHANNEL
 
     @interactions.listen()
-    async def on_command_error(
+    async def on_error(
         self,
         event: interactions.events.CommandError,
     ) -> None:
-        """For CommandError callback."""
+        """For Error callback."""
 
         error_time = datetime.datetime.utcnow().timestamp()
 
-        if not isinstance(event.ctx, interactions.InteractionContext):
-            return await handle_error(
-                self, error=event.error, error_time=error_time
-            )
+        if isinstance(event.error, interactions.errors.BadArgument):
+            return await event.ctx.send(f"{event.error}")
 
-        await handle_error(
-            self, error=event.error, error_time=error_time, ctx=event.ctx
-        )
+        elif isinstance(event.error, interactions.errors.CommandCheckFailure):
+            if event.ctx.guild:
+                return await event.ctx.send(
+                    content="You do not have permission to do this action.",
+                )
+        # elif isinstance(event.error, interactions.errors.CommandOnCooldown):
+        #     delta_wait = datetime.timedelta(
+        #         seconds=event.error.cooldown.get_cooldown_time()
+        #     )
+        #     return await event.ctx.send(
+        #         content=(
+        #             "You are on cooldown. Try again in ",
+        #             f" `{delta_wait}`."
+        #         )
+        #     )
+        # This is planned later.
+        # Currently, I don't have time to work on this.
+        else:
+            if not isinstance(event.ctx, interactions.InteractionContext):
+                return await handle_error(
+                    self, error=event.error, error_time=error_time
+                )
+
+            await handle_error(
+                self, error=event.error, error_time=error_time, ctx=event.ctx
+            )
