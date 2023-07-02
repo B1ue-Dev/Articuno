@@ -31,9 +31,7 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def encode(
-        self, ctx: HybridContext, string: str
-    ) -> None:
+    async def encode(self, ctx: HybridContext, string: str) -> None:
         """Encodes a string using base64."""
 
         string_message = string
@@ -52,9 +50,7 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def decode(
-        self, ctx: HybridContext, string: str
-    ) -> None:
+    async def decode(self, ctx: HybridContext, string: str) -> None:
         """Decodes a string using base64."""
 
         string_message = string
@@ -69,8 +65,7 @@ class HackTool(interactions.Extension):
             )
 
     @hybrid_slash_subcommand(
-        base="brainfuck",
-        base_description="Brainfuck commands."
+        base="brainfuck", base_description="Brainfuck commands."
     )
     @interactions.slash_option(
         name="string",
@@ -78,17 +73,14 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def convert(
-        self, ctx: HybridContext, string: str
-    ) -> None:
+    async def convert(self, ctx: HybridContext, string: str) -> None:
         """Converts a string into brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().convert(string)
         await ctx.send(f"```{string_bytes}```")
 
     @hybrid_slash_subcommand(
-        base="brainfuck",
-        base_description="Brainfuck commands."
+        base="brainfuck", base_description="Brainfuck commands."
     )
     @interactions.slash_option(
         name="code",
@@ -96,9 +88,7 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def interpret(
-        self, ctx: HybridContext, code: str
-    ) -> None:
+    async def interpret(self, ctx: HybridContext, code: str) -> None:
         """Interprets a brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().interpret(code)
