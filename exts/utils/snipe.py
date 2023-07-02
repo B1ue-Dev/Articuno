@@ -30,23 +30,26 @@ class Snipe(interactions.Extension):
         """Listen to MESSAGE_DELETE and write to cache."""
 
         message: interactions.Message = msg.message
-        _channel_id = int(message.channel.id)
+        _channel_id = str(message.channel.id)
 
         _snipe_message_author[_channel_id] = str(
             f"{message.author.username}#{message.author.discriminator}"
         )
-        _snipe_message_author_id[_channel_id] = int(message.author.id)
+        _snipe_message_author_id[_channel_id] = str(message.author.id)
         _snipe_message_author_avatar_url[_channel_id] = str(
             message.author.avatar.url
         )
         _snipe_message_content[_channel_id] = str(message.content)
-        _snipe_message_content_id[_channel_id] = int(message.id)
-        await asyncio.sleep(120)
-        del _snipe_message_author[_channel_id]
-        del _snipe_message_author_id[_channel_id]
-        del _snipe_message_author_avatar_url[_channel_id]
-        del _snipe_message_content[_channel_id]
-        del _snipe_message_content_id[_channel_id]
+        _snipe_message_content_id[_channel_id] = str(message.id)
+        await asyncio.sleep(10)
+        try:
+            del _snipe_message_author[_channel_id]
+            del _snipe_message_author_id[_channel_id]
+            del _snipe_message_author_avatar_url[_channel_id]
+            del _snipe_message_content[_channel_id]
+            del _snipe_message_content_id[_channel_id]
+        except KeyError:
+            pass
 
     @interactions.slash_command(
         name="snipe",
