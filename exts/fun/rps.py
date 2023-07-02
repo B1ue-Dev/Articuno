@@ -91,6 +91,7 @@ class RPS(interactions.Extension):
     @hybrid_slash_command(
         name="rock_paper_scissors",
         description="Play a game of Rock-Paper-Scissors.",
+        aliases=["rps"],
     )
     async def rock_paper_scissors(self, *args, **kwargs):
         """Play a game of Rock-Paper-Scissors."""

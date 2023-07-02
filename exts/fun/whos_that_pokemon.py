@@ -106,6 +106,7 @@ class WTP(interactions.Extension):
     @hybrid_slash_command(
         name="whos_that_pokemon",
         description="Who's that Pokemon game.",
+        aliases=["wtp"],
         options=[
             interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,

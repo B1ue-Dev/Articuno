@@ -52,6 +52,7 @@ class TruthDare(interactions.Extension):
     @hybrid_slash_command(
         name="truth_dare",
         description="Starts a Truth or Dare game.",
+        aliases=["td"],
     )
     async def truth_dare(self, ctx: HybridContext) -> None:
         """Starts a Truth or Dare game."""
