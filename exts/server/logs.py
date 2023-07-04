@@ -173,30 +173,27 @@ class Logs(interactions.Extension):
     ) -> None:
         """GUILD_REMOVE gateway event."""
 
-        if _member.member.guild:
-            member = _member.member
-            embed = interactions.Embed(
-                title="Goodbye! 😢",
-                description="".join(
-                    [
-                        f"Goodbye **{member.username}#{member.discriminator}**!",
-                        f" Thanks for joining {member.guild.name}.",
-                    ],
-                ),
-                color=random.randint(0, 0xFFFFFF),
-                timestamp=datetime.datetime.utcnow(),
-                footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
-                thumbnail=interactions.EmbedAttachment(
-                    url=member.user.avatar.url if member.user.avatar else None
-                ),
-            )
+        member = _member.member
+        guild_name = (self.client.get_guild(_member.guild_id)).name
+        embed = interactions.Embed(
+            title="Goodbye! 😢",
+            description="".join(
+                [
+                    f"Goodbye **{member.username}#{member.discriminator}**!",
+                    f" Thanks for joining {guild_name}.",
+                ],
+            ),
+            color=random.randint(0, 0xFFFFFF),
+            timestamp=datetime.datetime.utcnow(),
+            footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
+            thumbnail=interactions.EmbedAttachment(
+                url=member.user.avatar.url if member.user.avatar else None
+            ),
+        )
 
-            for channel in member.guild.channels:
-                if (
-                    channel.name == "welcome-goodbye"
-                    and int(channel.type) == 0
-                ):
-                    await channel.send(embeds=embed)
+        for channel in member.guild.channels:
+            if channel.name == "welcome-goodbye" and int(channel.type) == 0:
+                await channel.send(embeds=embed)
 
     @interactions.listen(interactions.events.BanCreate)
     async def on_guild_ban_add(
