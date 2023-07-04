@@ -4,8 +4,9 @@ Root bot file.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import asyncio
 import logging
-import datetime
+from datetime import datetime, timedelta
 import interactions
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
@@ -16,8 +17,8 @@ from utils.utils import get_response
 def get_local_time() -> datetime:
     """Returns latest UTC+7 time."""
 
-    utc_time = datetime.datetime.utcnow()
-    local_time = utc_time + datetime.timedelta(hours=7)
+    utc_time = datetime.utcnow()
+    local_time = utc_time + timedelta(hours=7)
     return local_time
 
 
@@ -51,18 +52,26 @@ if __name__ == "__main__":
     )
     prefixed_setup(client, default_prefix="$")
     hybrid_setup(client)
+    counted: bool = False
+    """For stopping `GUILD_JOIN` spam on `STARTUP`"""
+
     client.load_extension("exts.core.__init__")
     client.load_extension("exts.fun.__init__")
     client.load_extension("exts.server.__init__")
     client.load_extension("exts.utils.__init__")
 
-    @client.listen(interactions.events.Startup)
+    @interactions.listen(interactions.events.Startup)
     async def on_startup() -> None:
         """Fires up READY"""
+
+        global counted
+        await asyncio.sleep(10)
+        counted = True
+
         websocket = f"{client.latency * 1:.0f}"
-        log_time = (
-            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-        ).strftime("%d/%m/%Y %H:%M:%S")
+        log_time = (datetime.utcnow() + timedelta(hours=7)).strftime(
+            "%d/%m/%Y %H:%M:%S"
+        )
 
         print(
             "".join(
@@ -89,7 +98,56 @@ if __name__ == "__main__":
         else:
             print("You are on latest version. Enjoy using Articuno!")
 
-    @client.listen(interactions.events.MessageCreate)
+    @interactions.listen()
+    async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
+        """Fires when bot joins a new guild."""
+
+        global counted
+        if not counted:
+            return
+
+        _guild = guild.guild
+        _channel = client.get_channel(957090401418899526)
+
+        embed = interactions.Embed(title=f"Joined {_guild.name}")
+        embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+        embed.add_field(
+            name="Joined on",
+            value=f"{_guild.joined_at}",
+            inline=True,
+        )
+        embed.add_field(
+            name="Member", value=f"{_guild.member_count}", inline=True
+        )
+        embed.set_thumbnail(url=f"{_guild.icon.url}")
+
+        await _channel.send(embeds=embed)
+
+    @interactions.listen()
+    async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
+        """Fires when bot leaves a guild."""
+
+        _guild = guild.guild
+        _channel = client.get_channel(957090401418899526)
+        current_time: float = (
+            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+        ).timestamp()
+
+        embed = interactions.Embed(title=f"Left {_guild.name}")
+        embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+        embed.add_field(
+            name="Left on",
+            value=f"<t:{round(current_time)}:F>",
+            inline=True,
+        )
+        embed.add_field(
+            name="Member", value=f"{_guild.member_count}", inline=True
+        )
+        embed.set_thumbnail(url=f"{_guild.icon.url}")
+
+        await _channel.send(embeds=embed)
+
+    @interactions.listen(interactions.events.MessageCreate)
     async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
         """Check for bot mentions."""
         msg = _msg.message
