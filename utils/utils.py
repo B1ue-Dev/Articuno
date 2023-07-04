@@ -93,3 +93,11 @@ def pretty_date(time: int) -> str:
     if day_diff < 365:
         return str(day_diff // 30) + " months ago"
     return str(day_diff // 365) + " years ago"
+
+
+def send_as_file(text: str) -> io.StringIO:
+    """Converts a text into a bytesteam object."""
+
+    _io = io.StringIO(text)
+    _io.seek(0)
+    return _io

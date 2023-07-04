@@ -28,7 +28,9 @@ class Logs(interactions.Extension):
 
         author = interactions.EmbedAuthor(
             name=f"{message.author.username}#{message.author.discriminator}",
-            icon_url=message.author.avatar.url,
+            icon_url=message.author.avatar.url
+            if message.author.avatar
+            else None,
         )
         footer = interactions.EmbedFooter(text=f"Message ID: {message.id}")
         fields = [
@@ -65,8 +67,11 @@ class Logs(interactions.Extension):
 
         for channel in msg.message.guild.channels:
             if channel.name == "logs" and int(channel.type) == 0:
-                await channel.send(embeds=embed)
-                break
+                try:
+                    await channel.send(embeds=embed)
+                    break
+                except interactions.errors.HTTPException:
+                    break
 
     @interactions.listen(interactions.events.MessageUpdate)
     async def on_message_update(
@@ -82,7 +87,7 @@ class Logs(interactions.Extension):
 
         author = interactions.EmbedAuthor(
             name=f"{after.author.username}#{after.author.discriminator}",
-            icon_url=after.author.avatar_url,
+            icon_url=after.author.avatar.url if after.author.avatar else None,
         )
         footer = interactions.EmbedFooter(text=f"Message ID: {after.id}")
         fields = [
@@ -115,8 +120,11 @@ class Logs(interactions.Extension):
 
         for channel in after.guild.channels:
             if channel.name == "logs" and int(channel.type) == 0:
-                await channel.send(embeds=embed)
-                break
+                try:
+                    await channel.send(embeds=embed)
+                    break
+                except interactions.errors.HTTPException:
+                    break
 
     @interactions.listen(interactions.events.MemberAdd)
     async def on_guild_member_add(
@@ -142,15 +150,15 @@ class Logs(interactions.Extension):
             color=random.randint(0, 0xFFFFFF),
             timestamp=member.joined_at,
             footer=interactions.EmbedFooter(text=f"ID: {member.user.id}"),
-            thumbnail=interactions.EmbedAttachment(url=member.user.avatar.url),
+            thumbnail=interactions.EmbedAttachment(
+                url=member.user.avatar.url if member.user.avatar else None,
+            ),
         )
 
         if int(member.guild.id) == 859030372783751168:
-            channel = self.client.http.get_channel(859077501589913610)
+            channel = self.client.get_channel(859077501589913610)
             await channel.send(embeds=embed)
-            await member.add_role(
-                role=interactions.Role(self.client, 859034544270344192)
-            )
+            await member.add_role(role=859034544270344192)
         else:
             for channel in member.guild.channels:
                 if (
@@ -165,24 +173,30 @@ class Logs(interactions.Extension):
     ) -> None:
         """GUILD_REMOVE gateway event."""
 
-        member = _member.member
-        embed = interactions.Embed(
-            title="Goodbye! 😢",
-            description="".join(
-                [
-                    f"Goodbye **{member.username}#{member.discriminator}**!",
-                    f" Thanks for joining {member.guild.name}.",
-                ],
-            ),
-            color=random.randint(0, 0xFFFFFF),
-            timestamp=datetime.datetime.utcnow(),
-            footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
-            thumbnail=interactions.EmbedAttachment(url=member.avatar_url),
-        )
+        if _member.member.guild:
+            member = _member.member
+            embed = interactions.Embed(
+                title="Goodbye! 😢",
+                description="".join(
+                    [
+                        f"Goodbye **{member.username}#{member.discriminator}**!",
+                        f" Thanks for joining {member.guild.name}.",
+                    ],
+                ),
+                color=random.randint(0, 0xFFFFFF),
+                timestamp=datetime.datetime.utcnow(),
+                footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
+                thumbnail=interactions.EmbedAttachment(
+                    url=member.user.avatar.url if member.user.avatar else None
+                ),
+            )
 
-        for channel in member.guild.channels:
-            if channel.name == "welcome-goodbye" and int(channel.type) == 0:
-                await channel.send(embeds=embed)
+            for channel in member.guild.channels:
+                if (
+                    channel.name == "welcome-goodbye"
+                    and int(channel.type) == 0
+                ):
+                    await channel.send(embeds=embed)
 
     @interactions.listen(interactions.events.BanCreate)
     async def on_guild_ban_add(
@@ -191,14 +205,19 @@ class Logs(interactions.Extension):
         """GUILD_BAN_CREATE gateway event."""
 
         user: interactions.BaseUser = ban.user
-        _ban = (
-            await ban.guild.fetch_audit_log(
-                action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
-                limit=1,
-            )
-        ).to_dict()
-        reason: str = _ban.get("entries")[0].get("reason")
-        moderator: int = _ban.get("entries")[0].get("user_id")
+        reason: str = None
+        moderator: str = None
+        try:
+            _ban = (
+                await ban.guild.fetch_audit_log(
+                    action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
+                    limit=1,
+                )
+            ).to_dict()
+            reason: str = _ban.get("entries")[0].get("reason")
+            moderator: int = _ban.get("entries")[0].get("user_id")
+        except interactions.errors.HTTPException:
+            pass
 
         embed = interactions.Embed(
             title="User banned!",
@@ -207,7 +226,7 @@ class Logs(interactions.Extension):
             footer=interactions.EmbedFooter(text=f"ID: {user.id}"),
             author=interactions.EmbedAuthor(
                 name=f"{user.username}#{user.discriminator}",
-                icon_url=user.avatar.url,
+                icon_url=user.avatar.url if user.avatar else None,
             ),
             fields=[
                 interactions.EmbedField(
@@ -238,14 +257,19 @@ class Logs(interactions.Extension):
         """GUILD_BAN_REMOVE gateway event."""
 
         user: interactions.BaseUser = ban.user
-        _ban = (
-            await ban.guild.fetch_audit_log(
-                action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
-                limit=1,
-            )
-        ).to_dict()
-        reason: str = _ban.get("entries")[0].get("reason")
-        moderator: int = _ban.get("entries")[0].get("user_id")
+        reason: str = None
+        moderator: str = None
+        try:
+            _ban = (
+                await ban.guild.fetch_audit_log(
+                    action_type=interactions.AuditLogEventType.MEMBER_BAN_ADD,
+                    limit=1,
+                )
+            ).to_dict()
+            reason: str = _ban.get("entries")[0].get("reason")
+            moderator: int = _ban.get("entries")[0].get("user_id")
+        except interactions.errors.HTTPException:
+            pass
 
         embed = interactions.Embed(
             title="User unbanned!",
@@ -254,7 +278,7 @@ class Logs(interactions.Extension):
             footer=interactions.EmbedFooter(text=f"ID: {user.id}"),
             author=interactions.EmbedAuthor(
                 name=f"{user.username}#{user.discriminator}",
-                icon_url=user.avatar.url,
+                icon_url=user.avatar.url if user.avatar else None,
             ),
             fields=[
                 interactions.EmbedField(

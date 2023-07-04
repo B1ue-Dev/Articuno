@@ -48,6 +48,10 @@ class Permissions(Enum):
     SEND_MESSAGES_IN_THREADS = 38
     START_EMBEDDED_ACTIVITIES = 39
     MODERATE_MEMBERS = 40
+    VIEW_CREATOR_MONETIZATION_ANALYTICS = 41
+    USE_SOUNDBOARD = 42
+    USE_EXTERNAL_SOUNDS = 45
+    SEND_VOICE_MESSAGES = 46
 
 
 # https://discord.com/developers/docs/topics/permissions#permissions

@@ -36,7 +36,7 @@ class Ping(interactions.Extension):
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
-            icon_url=f"{ctx.user.avatar.urls}",
+            icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
             title=":ping_pong: Pong!",

@@ -12,7 +12,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
     HybridContext,
 )
-from utils import brainfuck
+from utils import brainfuck, utils
 
 
 class HackTool(interactions.Extension):
@@ -38,7 +38,18 @@ class HackTool(interactions.Extension):
         string_bytes = string_message.encode("utf-8")
         base64_bytes = b64.b64encode(string_bytes)
         base64_string = base64_bytes.decode("utf-8")
-        await ctx.send(f"```{base64_string}```")
+        if len(base64_string) < 1024:
+            await ctx.send(f"```{base64_string}```")
+        else:
+            _io = utils.send_as_file(base64_string)
+            await ctx.send(
+                content="Too long. Sent by text file instead.",
+                file=interactions.File(
+                    file=_io,
+                    file_name="encoded.txt",
+                    description="The encoded content.",
+                ),
+            )
 
     @hybrid_slash_subcommand(
         base="base64",
@@ -77,7 +88,18 @@ class HackTool(interactions.Extension):
         """Converts a string into brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().convert(string)
-        await ctx.send(f"```{string_bytes}```")
+        if len(string_bytes) < 1024:
+            await ctx.send(f"```{string_bytes}```")
+        else:
+            _io = utils.send_as_file(string_bytes)
+            await ctx.send(
+                content="Too long. Sent by text file instead.",
+                file=interactions.File(
+                    file=_io,
+                    file_name="encoded.txt",
+                    description="The encoded content.",
+                ),
+            )
 
     @hybrid_slash_subcommand(
         base="brainfuck", base_description="Brainfuck commands."
