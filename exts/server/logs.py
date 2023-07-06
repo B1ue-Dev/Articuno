@@ -117,7 +117,7 @@ class Logs(interactions.Extension):
             name="Message after edit",
             value=after.content[-1024:]
             if after.content
-            and not isinstance(after, interactions.MISSING) != []
+            and not isinstance(after, type(interactions.MISSING))
             else "N/A",
         )
 
