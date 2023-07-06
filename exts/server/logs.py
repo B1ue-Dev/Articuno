@@ -177,13 +177,13 @@ class Logs(interactions.Extension):
         """GUILD_REMOVE gateway event."""
 
         member = _member.member
-        guild_name = (self.client.get_guild(_member.guild_id)).name
+        guild = self.client.get_guild(_member.guild_id)
         embed = interactions.Embed(
             title="Goodbye! 😢",
             description="".join(
                 [
                     f"Goodbye **{member.username}#{member.discriminator}**!",
-                    f" Thanks for joining {guild_name}.",
+                    f" Thanks for joining {guild.name}.",
                 ],
             ),
             color=random.randint(0, 0xFFFFFF),
@@ -197,7 +197,7 @@ class Logs(interactions.Extension):
                 member.user.avatar.url if member.avatar else None
             )
 
-        for channel in member.guild.channels:
+        for channel in guild.channels:
             if channel.name == "welcome-goodbye" and int(channel.type) == 0:
                 await channel.send(embeds=embed)
 
