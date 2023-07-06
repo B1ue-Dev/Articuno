@@ -151,7 +151,7 @@ class TicTacToe(interactions.Extension):
         self.client: interactions.Client = client
 
     @hybrid_slash_subcommand(
-        base="tic_tac_toe",
+        base="tictactoe",
         base_description="TicTacToe command.",
         aliases=["ttt", "tic", "tac", "toe"],
         name="easy",
@@ -166,7 +166,7 @@ class TicTacToe(interactions.Extension):
         )
 
     @hybrid_slash_subcommand(
-        base="tic_tac_toe",
+        base="tictactoe",
         base_description="TicTacToe command.",
         name="hard",
         description="Play TicTacToe in hard mode.",
