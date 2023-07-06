@@ -130,7 +130,7 @@ if __name__ == "__main__":
         _guild = guild.guild
         _channel = client.get_channel(957090401418899526)
         current_time: float = (
-            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+            datetime.utcnow() + timedelta(hours=7)
         ).timestamp()
 
         embed = interactions.Embed(title=f"Left {_guild.name}")
