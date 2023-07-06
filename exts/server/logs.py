@@ -48,7 +48,7 @@ class Logs(interactions.Extension):
         embed = interactions.Embed(
             title="Deleted message content",
             description=message.content[-4096:]
-            if message.content
+            if isinstance(message, interactions.Message) and message.content
             else "No content found. (Maybe it is not cached)",
             color=0xE03C3C,
             author=author,
@@ -56,7 +56,7 @@ class Logs(interactions.Extension):
             timestamp=datetime.datetime.utcnow(),
             fields=fields,
         )
-        if message.attachments:
+        if isinstance(message, interactions.Message) and message.attachments:
             embed.add_field(
                 name="Attachment",
                 value="\n".join(
@@ -115,7 +115,10 @@ class Logs(interactions.Extension):
         )
         embed.add_field(
             name="Message after edit",
-            value=after.content[-1024:] if after.content != [] else "N/A",
+            value=after.content[-1024:]
+            if after.content
+            and not isinstance(after, type(interactions.MISSING))
+            else "N/A",
         )
 
         for channel in after.guild.channels:
@@ -186,10 +189,13 @@ class Logs(interactions.Extension):
             color=random.randint(0, 0xFFFFFF),
             timestamp=datetime.datetime.utcnow(),
             footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
-            thumbnail=interactions.EmbedAttachment(
-                url=member.user.avatar.url if member.user.avatar else None
-            ),
         )
+        if isinstance(member, interactions.User):
+            embed.set_thumbnail(member.avatar.url if member.avatar else None)
+        elif isinstance(member, interactions.Member):
+            embed.set_thumbnail(
+                member.user.avatar.url if member.avatar else None
+            )
 
         for channel in member.guild.channels:
             if channel.name == "welcome-goodbye" and int(channel.type) == 0:

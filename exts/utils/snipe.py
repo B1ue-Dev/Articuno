@@ -37,7 +37,7 @@ class Snipe(interactions.Extension):
         )
         _snipe_message_author_id[_channel_id] = str(message.author.id)
         _snipe_message_author_avatar_url[_channel_id] = str(
-            message.author.avatar.url
+            message.author.avatar.url if message.author.avatar else None
         )
         _snipe_message_content[_channel_id] = str(message.content)
         _snipe_message_content_id[_channel_id] = str(message.id)
