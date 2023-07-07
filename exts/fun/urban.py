@@ -32,6 +32,7 @@ class Urban(interactions.Extension):
             )
         ],
     )
+    @interactions.cooldown(interactions.Buckets.USER, 1, 7)
     async def urban(self, ctx: HybridContext, *, term: str) -> None:
         """Define a word on Urban Dictionary."""
 

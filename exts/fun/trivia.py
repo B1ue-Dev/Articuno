@@ -137,6 +137,7 @@ class Trivia(interactions.Extension):
             ),
         ],
     )
+    @interactions.cooldown(interactions.Buckets.USER, 1, 10)
     async def trivia(
         self,
         ctx: HybridContext,
