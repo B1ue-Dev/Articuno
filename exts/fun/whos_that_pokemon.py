@@ -132,6 +132,7 @@ class WTP(interactions.Extension):
             ),
         ],
     )
+    @interactions.cooldown(interactions.Buckets.USER, 3, 10)
     async def whos_that_pokemon(
         self,
         ctx: HybridContext,

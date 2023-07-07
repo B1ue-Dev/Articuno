@@ -6,7 +6,7 @@ Root bot file.
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+import datetime
 import interactions
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
@@ -14,11 +14,11 @@ from const import TOKEN, VERSION
 from utils.utils import get_response
 
 
-def get_local_time() -> datetime:
+def get_local_time() -> datetime.datetime:
     """Returns latest UTC+7 time."""
 
-    utc_time = datetime.utcnow()
-    local_time = utc_time + timedelta(hours=7)
+    utc_time = datetime.datetime.now(tz=datetime.timezone.utc)
+    local_time = utc_time + datetime.timedelta(hours=7)
     return local_time
 
 
@@ -69,9 +69,9 @@ if __name__ == "__main__":
         counted = True
 
         websocket = f"{client.latency * 1:.0f}"
-        log_time = (datetime.utcnow() + timedelta(hours=7)).strftime(
-            "%d/%m/%Y %H:%M:%S"
-        )
+        log_time = (
+            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+        ).strftime("%d/%m/%Y %H:%M:%S")
 
         print(
             "".join(
@@ -108,18 +108,22 @@ if __name__ == "__main__":
 
         _guild = guild.guild
         _channel = client.get_channel(957090401418899526)
+        current_time: float = round(
+            datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+        )
 
         embed = interactions.Embed(title=f"Joined {_guild.name}")
         embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
         embed.add_field(
             name="Joined on",
-            value=f"{_guild.joined_at}",
+            value=f"{round(current_time)}",
             inline=True,
         )
         embed.add_field(
             name="Member", value=f"{_guild.member_count}", inline=True
         )
-        embed.set_thumbnail(url=f"{_guild.icon.url}")
+        if _guild.icon:
+            embed.set_thumbnail(url=f"{_guild.icon.url}")
 
         await _channel.send(embeds=embed)
 
@@ -129,9 +133,9 @@ if __name__ == "__main__":
 
         _guild = guild.guild
         _channel = client.get_channel(957090401418899526)
-        current_time: float = (
-            datetime.utcnow() + timedelta(hours=7)
-        ).timestamp()
+        current_time: float = round(
+            datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+        )
 
         embed = interactions.Embed(title=f"Left {_guild.name}")
         embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
@@ -143,7 +147,8 @@ if __name__ == "__main__":
         embed.add_field(
             name="Member", value=f"{_guild.member_count}", inline=True
         )
-        embed.set_thumbnail(url=f"{_guild.icon.url}")
+        if _guild.icon:
+            embed.set_thumbnail(url=f"{_guild.icon.url}")
 
         await _channel.send(embeds=embed)
 

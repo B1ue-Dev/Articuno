@@ -51,6 +51,7 @@ class Google(interactions.Extension):
             ),
         ],
     )
+    @interactions.cooldown(interactions.Buckets.USER, 1, 10)
     async def img(self, ctx: HybridContext, *, query: str) -> None:
         """Search for images (Powered by Google)."""
 
@@ -93,13 +94,14 @@ class Google(interactions.Extension):
             searchType="image",  # sort="date"
         ).execute()
 
-        for i in (0, len(result) - 1):
+        for i in range(0, 10):
+            print(i)
             all_result.append(
                 Image(
                     link=result["items"][i]["link"],
-                    title=result["items"][ran]["title"],
-                    source=result["items"][ran]["displayLink"],
-                    contextlink=result["items"][ran]["image"]["contextLink"],
+                    title=result["items"][i]["title"],
+                    source=result["items"][i]["displayLink"],
+                    contextlink=result["items"][i]["image"]["contextLink"],
                 )
             )
 
@@ -112,7 +114,7 @@ class Google(interactions.Extension):
                 color=0x000000,
             )
             embed.set_footer(
-                text=f"Google Search • Page {ran}/99",
+                text=f"Google Search • Page {ran}/9",
                 icon_url=self.google_icon,
             )
             embed.add_field(
@@ -140,7 +142,7 @@ class Google(interactions.Extension):
                     )
 
                     if res.ctx.custom_id == "next":
-                        if ran == 99:
+                        if ran == 9:
                             ran = ran
                         else:
                             ran += 1
@@ -151,7 +153,7 @@ class Google(interactions.Extension):
                             color=0x000000,
                         )
                         embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/99",
+                            text=f"Google Search  •  Page {ran}/9",
                             icon_url=self.google_icon,
                         )
                         embed.add_field(
@@ -177,7 +179,7 @@ class Google(interactions.Extension):
                             color=0x000000,
                         )
                         embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/99",
+                            text=f"Google Search  •  Page {ran}/9",
                             icon_url=self.google_icon,
                         )
                         embed.add_field(
@@ -192,7 +194,7 @@ class Google(interactions.Extension):
                         )
 
                     elif res.ctx.custom_id == "random":
-                        ran = random.randint(0, 100)
+                        ran = random.randint(0, 9)
                         all_res = all_result[ran]
 
                         embed = interactions.Embed(
@@ -200,7 +202,7 @@ class Google(interactions.Extension):
                             color=0x000000,
                         )
                         embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/99",
+                            text=f"Google Search  •  Page {ran}/9",
                             icon_url=self.google_icon,
                         )
                         embed.add_field(
@@ -236,7 +238,7 @@ class Google(interactions.Extension):
                         if (
                             _msg.message.content.isdigit() is False
                             or int(_msg.message.content) < 0
-                            or int(_msg.message.content) > 99
+                            or int(_msg.message.content) > 10
                         ):
                             await res.ctx.send(
                                 "That is not a valid number.",
@@ -251,7 +253,7 @@ class Google(interactions.Extension):
                                 color=0x000000,
                             )
                             embed.set_footer(
-                                text=f"Google Search  •  Page {ran}/99",
+                                text=f"Google Search  •  Page {ran}/9",
                                 icon_url=self.google_icon,
                             )
                             embed.add_field(
