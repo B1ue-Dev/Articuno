@@ -30,6 +30,9 @@ class Snipe(interactions.Extension):
         """Listen to MESSAGE_DELETE and write to cache."""
 
         message: interactions.Message = msg.message
+        if not isinstance(message, interactions.Message):
+            return
+
         _channel_id = str(message.channel.id)
 
         _snipe_message_author[_channel_id] = str(

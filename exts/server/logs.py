@@ -178,6 +178,9 @@ class Logs(interactions.Extension):
 
         member = _member.member
         guild = self.client.get_guild(_member.guild_id)
+        if not guild:
+            return
+
         embed = interactions.Embed(
             title="Goodbye! 😢",
             description="".join(
