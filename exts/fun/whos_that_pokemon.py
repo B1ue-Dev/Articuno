@@ -75,8 +75,11 @@ def get_pokemon(generation: int = None) -> list:
         elif generation == "9":
             generation = [906, 1010]
 
+    _num_list = list(range(generation[0] - 1, generation[1]))
+    random.shuffle(_num_list)
+
     for i in range(4):
-        _num = random.randint(generation[0] - 1, generation[1] - 1)
+        _num = _num_list[i]
         _val = list(db.values())[_num]
 
         _pokemon_list[i] = _val
