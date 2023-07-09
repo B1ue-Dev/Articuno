@@ -7,7 +7,10 @@ Handle all logging aspects.
 import logging
 import datetime
 import random
+import io
+import requests
 import interactions
+from utils.utils import get_color
 
 
 class Logs(interactions.Extension):
@@ -157,6 +160,11 @@ class Logs(interactions.Extension):
                 url=member.user.avatar.url if member.user.avatar else None,
             ),
         )
+        if member.user.avatar:
+            embed.set_thumbnail(url=member.user.avatar.url)
+            embed.color = get_color(
+                io.BytesIO((requests.get(member.user.avatar.url)).content)
+            )
 
         if int(member.guild.id) == 859030372783751168:
             channel = self.client.get_channel(859077501589913610)
@@ -189,16 +197,21 @@ class Logs(interactions.Extension):
                     f" Thanks for joining {guild.name}.",
                 ],
             ),
-            color=random.randint(0, 0xFFFFFF),
             timestamp=datetime.datetime.utcnow(),
             footer=interactions.EmbedFooter(text=f"ID: {member.id}"),
         )
         if isinstance(member, interactions.User):
-            embed.set_thumbnail(member.avatar.url if member.avatar else None)
+            if member.avatar:
+                embed.set_thumbnail(url=member.avatar.url)
+                embed.color = get_color(
+                    io.BytesIO((requests.get(member.avatar.url)).content)
+                )
         elif isinstance(member, interactions.Member):
-            embed.set_thumbnail(
-                member.user.avatar.url if member.avatar else None
-            )
+            if member.user.avatar:
+                embed.set_thumbnail(url=member.user.avatar.url)
+                embed.color = get_color(
+                    io.BytesIO((requests.get(member.user.avatar.url)).content)
+                )
 
         for channel in guild.channels:
             if channel.name == "welcome-goodbye" and int(channel.type) == 0:
