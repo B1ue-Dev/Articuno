@@ -1,5 +1,5 @@
 python-dotenv==0.19.2
-git+https://github.com/AstreaTSS/interactions-py-library.git@hybrid-commands-v2
+git+https://github.com/AstreaTSS/interactions-py-library.git@multi-arg-alt-prefixed
 google-api-python-client==2.64.0
 googletrans==3.1.0a0
 Pillow==9.2.0
