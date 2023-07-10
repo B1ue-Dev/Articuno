@@ -103,10 +103,12 @@ class Error(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.listen()
-    async def on_error(
+    @interactions.listen(
+        disable_default_listeners=True,
+    )
+    async def on_command_error(
         self,
-        event: interactions.events.Error,
+        event: interactions.events.CommandError,
     ) -> None:
         """For Error callback."""
 
@@ -114,6 +116,11 @@ class Error(interactions.Extension):
 
         if isinstance(event.error, interactions.errors.BadArgument):
             return await event.ctx.send(f"{event.error}")
+
+        elif isinstance(event.error, interactions.errors.CommandOnCooldown):
+            await event.ctx.send(
+                f"You are on cooldown. Please wait {round(event.error.cooldown.get_cooldown_time(), 2)} seconds."
+            )
 
         elif isinstance(event.error, interactions.errors.CommandCheckFailure):
             if event.ctx.guild:
