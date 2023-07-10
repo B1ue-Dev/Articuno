@@ -7,8 +7,9 @@ Utils for Articuno.
 import math
 import io
 from typing import Any
-import aiohttp
 from datetime import datetime
+import aiohttp
+from utils.colorthief import ColorThief
 
 
 async def get_response(
@@ -101,3 +102,29 @@ def send_as_file(text: str) -> io.StringIO:
     _io = io.StringIO(text)
     _io.seek(0)
     return _io
+
+
+def get_color(img) -> str:
+    """
+    Get the dominant color of an image.
+    :param img: The image.
+    :type img:
+    :return: The dominant color hex.
+    :rtype: str
+    """
+
+    clr_thief = ColorThief(img)
+    dominant_color = clr_thief.get_color(quality=1)
+
+    def clamp(x):
+        return max(0, min(x, 255))
+
+    color = "#{0:02x}{1:02x}{2:02x}".format(
+        clamp(dominant_color[0]),
+        clamp(dominant_color[1]),
+        clamp(dominant_color[2]),
+    )
+    color = str("0x" + color[1:])
+    color = int(color, 16)
+
+    return color
