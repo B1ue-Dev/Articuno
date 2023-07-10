@@ -116,7 +116,7 @@ if __name__ == "__main__":
         embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
         embed.add_field(
             name="Joined on",
-            value=f"{round(current_time)}",
+            value=f"<t:{round(current_time)}:F>",
             inline=True,
         )
         embed.add_field(
