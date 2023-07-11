@@ -7,9 +7,18 @@ Utils for Articuno.
 import math
 import io
 from typing import Any
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import aiohttp
+from beanie import Document
 from utils.colorthief import ColorThief
+
+
+__all__ = ("tags",)
+
+
+class tags(Document):
+    guild_id: str
+    tags: dict
 
 
 async def get_response(
@@ -128,3 +137,11 @@ def get_color(img) -> str:
     color = int(color, 16)
 
     return color
+
+
+def get_local_time() -> datetime:
+    """Returns latest UTC+7 time."""
+
+    utc_time = datetime.now(tz=timezone.utc)
+    local_time = utc_time + timedelta(hours=7)
+    return local_time

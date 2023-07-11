@@ -60,3 +60,6 @@ GOOGLE_CLOUD = os.getenv("GOOGLE_CLOUD")
 
 GOOGLE_CSE = os.getenv("GOOGLE_CSE")
 """CSE Key for Google."""
+
+MONGO_DB_URL = os.getenv("MONGO_DB_URL")
+"""MongoDB Cluster URL."""

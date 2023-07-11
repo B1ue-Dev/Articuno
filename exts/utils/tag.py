@@ -4,113 +4,22 @@ Tag system.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import asyncio
 import logging
 import json
-import datetime
+from datetime import datetime, timezone
+from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
 from utils.permission import Permissions, has_permission
+from utils.utils import tags
 
 
-class Tag_Error(Exception):
-    """
-    A class representing Tag error.
+def get_utc_time() -> datetime:
+    """Returns latest UTC time."""
 
-    1001: Tag not found in database.
-    1002: This guild does not have any registered tag.
-    """
-
-    code: int
-    """The code of the error."""
-    message: str
-    """The message of the error."""
-
-    __slots__ = ["code", "message"]
-
-    def __init__(self, code: int, message: str = None) -> None:
-        self.code = code
-        self.message = message
-
-        super().__init__(message)
-
-    def lookup(self, code: int) -> str:
-        """
-        Look up the message of the error code.
-        :param code: The error code.
-        :type code: int
-        :return: The error message.
-        :rtype: str
-        """
-
-        error_code: dict = {
-            1001: "Tag not found in database.",
-            1002: "This guild does not have any registered tag.",
-        }
-        return error_code.get(code)
-
-
-class _Tag:
-    """
-    A custom class objecting reprenting a tag.
-    """
-
-    __slots__ = [
-        "description",
-        "created_on",
-        "author",
-        "last_edited_on",
-        "last_edited_by",
-    ]
-
-    name: str
-    """The name of the tag."""
-    description: str
-    """The description of the tag."""
-    created_on: int
-    """The created timestamp of a tag."""
-    author: str
-    """The name of tag creator."""
-    last_edited_on: int
-    """The last edited timestamp of a tag."""
-    last_edited_by: int
-    """The ID of the author from the last edit."""
-
-    def __init__(self, **kwargs) -> None:
-        self.description = kwargs.get("description", None)
-        self.created_on = kwargs.get("created_on", None)
-        self.author = kwargs.get("author", None)
-        self.last_edited_on = kwargs.get("last_edited_on", None)
-        self.last_edited_by = kwargs.get("last_edited_by", None)
-
-    def get_tag(self, guild_id: str, tag_name: str) -> "_Tag":
-        """
-        Returns the Tag object of a tag.
-
-        :param guild_id: The ID of the guild.
-        :type guild_id: int
-        :param tag_name: The name of the tag.
-        :type tag_name: str
-        :return: The Tag object of the tag.
-        :rtype: _Tag
-        """
-        db = json.loads(open("./db/tag.json", "r").read())
-        if guild_id not in db:
-            raise Tag_Error(
-                code=1002,
-                message="This guild does not have any registered tag.",
-            )
-
-        if tag_name not in db[guild_id]:
-            raise Tag_Error(code=1001, message="Tag not found in database.")
-
-        return _Tag(
-            name=tag_name,
-            description=db[guild_id][tag_name]["description"],
-            created_on=db[guild_id][tag_name]["created_on"],
-            author=db[guild_id][tag_name]["author"],
-            last_edited_on=db[guild_id][tag_name]["last_edited_on"],
-            last_edited_by=db[guild_id][tag_name]["last_edited_by"],
-        )
+    utc_time = datetime.now(tz=timezone.utc)
+    return utc_time
 
 
 class Tag(interactions.Extension):
@@ -130,6 +39,7 @@ class Tag(interactions.Extension):
     @tag.subcommand()
     async def create(self, ctx: interactions.SlashContext) -> None:
         """Creates a new tag."""
+
         if not (
             has_permission(
                 int(ctx.author.guild_permissions),
@@ -142,7 +52,6 @@ class Tag(interactions.Extension):
         ):
             return await ctx.send(
                 content="You do not have permission to perform this action.",
-                ephemeral=True,
             )
 
         modal = interactions.Modal(
@@ -181,12 +90,22 @@ class Tag(interactions.Extension):
     ) -> None:
         """Views a tag."""
 
-        try:
-            await ctx.send(
-                _Tag().get_tag(str(ctx.guild.id), tag_name).description
+        await ctx.defer()
+
+        guild_id = str(ctx.guild_id)
+
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            return await ctx.send("This server does not have any tag.")
+
+        if guild_tags := await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
             )
-        except Tag_Error as e:
-            await ctx.send(e.lookup(e.code), ephemeral=True)
+        ):
+            if guild_tags.tags.get(tag_name, None):
+                await ctx.send(guild_tags.tags[tag_name]["description"])
+            else:
+                return await ctx.send("Tag not found.")
 
     @tag.subcommand()
     @interactions.slash_option(
@@ -213,20 +132,19 @@ class Tag(interactions.Extension):
         ):
             return await ctx.send(
                 content="You do not have permission to perform this action.",
-                ephemeral=True,
             )
 
         guild_id = str(ctx.guild.id)
-        db = json.loads(open("./db/tag.json", "r").read())
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            return await ctx.send("This server does not have any tag.")
 
-        if guild_id not in db:
-            return await ctx.send(
-                content="This guild does not have any registered tag.",
-                ephemeral=True,
+        if guild_tags := await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
             )
-
-        if tag_name not in db[guild_id]:
-            return await ctx.send(content="Tag not found.", ephemeral=True)
+        ):
+            if not guild_tags.tags.get(tag_name, None):
+                return await ctx.send("Tag not found.")
 
         self.edited_name = tag_name
         modal = interactions.Modal(
@@ -244,7 +162,7 @@ class Tag(interactions.Extension):
                 placeholder="The description of the tag you want to edit.",
                 custom_id="tag_description",
                 max_length=2000,
-                value=db[guild_id][tag_name]["description"],
+                value=guild_tags.tags[tag_name]["description"],
             ),
             title=f"Edit tag: {tag_name}",
             custom_id="edit_tag",
@@ -265,48 +183,61 @@ class Tag(interactions.Extension):
     ) -> None:
         """Shows the information about a tag."""
 
-        tag = _Tag().get_tag(str(ctx.guild.id), tag_name)
+        await ctx.defer()
+        guild_id = str(ctx.guild_id)
 
-        footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.author.username}#{ctx.author.discriminator}",
-            icon_url=f"{ctx.author.avatar.url}",
-        )
-        fields = [
-            interactions.EmbedField(
-                name="Author",
-                value=f"<@!{tag.author}>",
-                inline=True,
-            ),
-            interactions.EmbedField(
-                name="Created on",
-                value=f"<t:{tag.created_on}>",
-                inline=True,
-            ),
-        ]
-        embed = interactions.Embed(
-            title=f"Tag: {tag_name}",
-            color=0x5F85A0,
-            footer=footer,
-            fields=fields,
-        )
-        if tag.last_edited_on:
-            embed.add_field(
-                name="Last edited on",
-                value=f"<t:{tag.last_edited_on}>",
-                inline=True,
-            )
-            embed.add_field(
-                name="Last edited by",
-                value=f"<@!{tag.last_edited_by}>",
-                inline=True,
-            )
-        embed.add_field(
-            name="Description",
-            value="Please use ``/tag view`` to see the content.",
-            inline=False,
-        )
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            return await ctx.send("This server does not have any tag.")
 
-        await ctx.send(embeds=embed)
+        if guild_tags := await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
+            )
+        ):
+            if guild_tags.tags.get(tag_name, None):
+                footer = interactions.EmbedFooter(
+                    text=f"Requested by {ctx.author.username}#{ctx.author.discriminator}",
+                    icon_url=f"{ctx.author.avatar.url}",
+                )
+                fields = [
+                    interactions.EmbedField(
+                        name="Author",
+                        value=f"""<@{guild_tags.tags[tag_name]["author"]}>""",
+                        inline=True,
+                    ),
+                    interactions.EmbedField(
+                        name="Created on",
+                        value=f"""<t:{guild_tags.tags[tag_name]["created_on"]}>""",
+                        inline=True,
+                    ),
+                ]
+                embed = interactions.Embed(
+                    title=f"Tag: {tag_name}",
+                    color=0x5F85A0,
+                    footer=footer,
+                    fields=fields,
+                )
+                if guild_tags.tags[tag_name]["last_edited_on"]:
+                    embed.add_field(
+                        name="Last edited on",
+                        value=f"""<t:{guild_tags.tags[tag_name]["last_edited_on"]}>""",
+                        inline=True,
+                    )
+                    embed.add_field(
+                        name="Last edited by",
+                        value=f"""<@!{guild_tags.tags[tag_name]["last_edited_by"]}>""",
+                        inline=True,
+                    )
+                embed.add_field(
+                    name="Description",
+                    value="Please use ``/tag view`` to see the content.",
+                    inline=False,
+                )
+
+                await ctx.send(embeds=embed)
+
+            else:
+                return await ctx.send("Tag not found.")
 
     @tag.subcommand()
     @interactions.slash_option(
@@ -321,7 +252,7 @@ class Tag(interactions.Extension):
     ) -> None:
         """Deletes a tag."""
 
-        await ctx.defer(ephemeral=True)
+        await ctx.defer()
 
         if not (
             has_permission(
@@ -335,20 +266,20 @@ class Tag(interactions.Extension):
         ):
             return await ctx.send(
                 content="You do not have permission to perform this action.",
-                ephemeral=True,
             )
 
         guild_id = str(ctx.guild.id)
-        db = json.loads(open("./db/tag.json", "r").read())
 
-        if guild_id not in db:
-            return await ctx.send(
-                content="This guild does not have any registered tag.",
-                ephemeral=True,
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            return await ctx.send("This server does not have any tag.")
+
+        if guild_tags := await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
             )
-
-        if tag_name not in db[guild_id]:
-            return await ctx.send(content="Tag not found.", ephemeral=True)
+        ):
+            if not guild_tags.tags.get(tag_name, None):
+                return await ctx.send("Tag not found.")
 
         buttons = [
             interactions.ActionRow(
@@ -368,54 +299,69 @@ class Tag(interactions.Extension):
         msg = await ctx.send(
             content=f"Do you want to delete tag ``{tag_name}``?",
             components=buttons,
-            ephemeral=True,
         )
 
-        res = await self.client.wait_for_component(
-            components=buttons,
-            messages=int(msg.id),
-            timeout=30,
-        )
+        try:
 
-        if res.ctx.custom_id == "yes":
-            del db[guild_id][tag_name]
-            if len(db[guild_id]) == 0:
-                del db[guild_id]
-            with open("./db/tag.json", "w") as f:
-                json.dump(db, f, indent=4)
+            def _check(_ctx):
+                return int(_ctx.ctx.user.id) == int(ctx.user.id) and int(
+                    _ctx.ctx.channel_id
+                ) == int(ctx.channel_id)
 
-            await res.ctx.edit_origin(
-                content=f"Tag ``{tag_name}`` deleted.",
-                components=[],
+            res = await self.client.wait_for_component(
+                components=buttons,
+                messages=int(msg.id),
+                check=_check,
+                timeout=30,
             )
 
-        elif res.ctx.custom_id == "no":
-            await res.ctx.edit_origin(content="Cancelled.", components=[])
+            if res.ctx.custom_id == "yes":
+                guild_tags = await tags.get(
+                    PydanticObjectId(
+                        (await tags.find_one(tags.guild_id == guild_id)).id
+                    )
+                )
+                del guild_tags.tags[tag_name]
+                if len(guild_tags.tags) == 0:
+                    await guild_tags.delete()
+                else:
+                    await guild_tags.save()
+
+                await res.ctx.edit_origin(
+                    content=f"Tag `{tag_name}` deleted.",
+                    components=[],
+                )
+
+            elif res.ctx.custom_id == "no":
+                await res.ctx.edit_origin(content="Cancelled.", components=[])
+
+        except asyncio.TimeoutError:
+            return await msg.edit(
+                content="Operation cancelled because of no response.",
+                components=[],
+            )
 
     @tag.subcommand()
     async def list(self, ctx: interactions.SlashContext) -> None:
         """Lists all tag within the server."""
 
         guild_id = str(ctx.guild_id)
-        db = json.loads(open("./db/tag.json", "r").read())
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            return await ctx.send("This server does not have any tag.")
 
-        if guild_id not in db:
-            return await ctx.send(
-                content="This guild does not have any registered tag.",
-                ephemeral=True,
+        guild_tags = await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
             )
+        )
 
-        if len(db[guild_id]) == 0:
-            return await ctx.send(
-                content="This guild does not have any registered tag.",
-                ephemeral=True,
-            )
-
-        tag_list = [f"` {i+1} ` {tag}" for i, tag in enumerate(db[guild_id])]
+        tag_list = [
+            f"` {i+1} ` {tag}" for i, tag in enumerate(guild_tags.tags)
+        ]
         chunks = [tag_list[x : x + 9] for x in range(0, len(tag_list), 9)]
         embeds = [
             interactions.Embed(
-                title="Tag list for ",
+                title=f"Tag list for {ctx.guild.name}",
                 fields=[
                     interactions.EmbedField(name="Name", value="\n".join(x))
                 ],
@@ -441,21 +387,32 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild_id)
 
-        db = json.loads(open("./db/tag.json", "r").read())
-        if guild_id not in db:
-            db[guild_id] = {}
-        db[guild_id][tag_name] = {
-            "description": tag_description,
-            "created_on": round(datetime.datetime.now().timestamp()),
-            "author": str(ctx.author.id),
-            "last_edited_on": None,
-            "last_edited_by": None,
-        }
-        with open("./db/tag.json", "w") as f:
-            json.dump(db, f, indent=4)
+        if not await tags.find_one(tags.guild_id == guild_id).exists():
+            await tags(
+                guild_id=guild_id,
+                tags={},
+            ).save()
+
+        guild_tags = await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
+            )
+        )
+        guild_tags.tags.update(
+            {
+                tag_name: {
+                    "description": tag_description,
+                    "created_on": round(get_utc_time().timestamp()),
+                    "author": str(ctx.author.id),
+                    "last_edited_on": None,
+                    "last_edited_by": None,
+                }
+            }
+        )
+        await guild_tags.save()
+
         await ctx.send(
             content=f"Tag ``{tag_name}`` created.",
-            ephemeral=True,
         )
 
     @interactions.modal_callback("edit_tag")
@@ -469,18 +426,21 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild.id)
 
-        db = json.loads(open("./db/tag.json", "r").read())
-        db[guild_id][tag_name] = {
+        guild_tags = await tags.get(
+            PydanticObjectId(
+                (await tags.find_one(tags.guild_id == guild_id)).id
+            )
+        )
+        guild_tags.tags[tag_name] = {
             "description": tag_description,
-            "created_on": db[guild_id][self.edited_name]["created_on"],
-            "author": db[guild_id][self.edited_name]["author"],
-            "last_edited_on": round(datetime.datetime.now().timestamp()),
+            "created_on": guild_tags.tags[self.edited_name]["created_on"],
+            "author": guild_tags.tags[self.edited_name]["author"],
+            "last_edited_on": round(get_utc_time().timestamp()),
             "last_edited_by": str(ctx.author.id),
         }
-        with open("./db/tag.json", "w") as f:
-            if tag_name != self.edited_name:
-                del db[guild_id][self.edited_name]
-            json.dump(db, f, indent=4)
+        if tag_name != self.edited_name:
+            del guild_tags.tags[self.edited_name]
+        await guild_tags.save()
 
         await ctx.send(
             content=(
@@ -488,39 +448,44 @@ class Tag(interactions.Extension):
                 if self.edited_name != tag_name
                 else f"Tag ``{self.edited_name}`` edited."
             ),
-            ephemeral=True,
         )
 
     @interactions.global_autocomplete("tag_name")
     async def tag_autocomplete(
         self,
         ctx: interactions.AutocompleteContext,
-        tag_name: str = "",
     ) -> None:
         """Autcomplete for tag commands."""
 
         guild_id = str(ctx.guild_id)
-        letters: list = list(tag_name) if tag_name != "" else []
-        tags = json.loads(open("./db/tag.json", "r", encoding="utf8").read())
-        if guild_id in tags:
-            if len(tag_name) == 0:
-                await ctx.send(
-                    [
-                        {"name": tag[0], "value": tag[0]}
-                        for tag in (
-                            list(tags[guild_id].items())[0:24]
-                            if len(tags) > 25
-                            else list(tags[guild_id].items())
-                        )
-                    ]
+
+        if await tags.find_one(tags.guild_id == guild_id).exists():
+            guild_tags = await tags.get(
+                PydanticObjectId(
+                    (await tags.find_one(tags.guild_id == guild_id)).id
                 )
-            else:
+            )
+
+            if tag_name := ctx.kwargs.get("tag_name"):
+                letters: list = list(tag_name) if tag_name != "" else []
                 choices: list = []
-                for tag in tags[guild_id]:
+                for tag in guild_tags.tags:
                     focus: str = "".join(letters)
                     if focus.lower() in tag.lower():
                         choices.append({"name": tag, "value": tag})
                 await ctx.send(choices)
+
+            else:
+                await ctx.send(
+                    [
+                        {"name": tag[0], "value": tag[0]}
+                        for tag in (
+                            list(guild_tags.tags.items())[0:24]
+                            if len(guild_tags.tags) > 25
+                            else list(guild_tags.tags.items())
+                        )
+                    ]
+                )
 
 
 def setup(client) -> None:
