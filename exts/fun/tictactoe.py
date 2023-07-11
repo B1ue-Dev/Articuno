@@ -359,7 +359,7 @@ class TicTacToe(interactions.Extension):
             winner = None
 
         if winner == "Nobody":
-            content = f"Nobody has won!"
+            content = "Nobody has won!"
         elif winner in [og, chd]:
             content = f"<@{winner}> is the winner!"
         else:

@@ -67,7 +67,7 @@ class Misc(interactions.Extension):
             "username": username,
             "displayname": nick,
             "comment": comment,
-            "theme": background,
+            "theme": "dark",
         }
         resp = await get_response(url, params)
         img = interactions.File(

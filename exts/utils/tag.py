@@ -6,7 +6,6 @@ Tag system.
 
 import asyncio
 import logging
-import json
 from datetime import datetime, timezone
 from beanie import PydanticObjectId
 import interactions
