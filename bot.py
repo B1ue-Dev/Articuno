@@ -7,19 +7,15 @@ Root bot file.
 import asyncio
 import logging
 import datetime
+import aiohttp
 import interactions
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
-from const import TOKEN, VERSION
-from utils.utils import get_response
-
-
-def get_local_time() -> datetime.datetime:
-    """Returns latest UTC+7 time."""
-
-    utc_time = datetime.datetime.now(tz=datetime.timezone.utc)
-    local_time = utc_time + datetime.timedelta(hours=7)
-    return local_time
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.server_api import ServerApi
+from beanie import init_beanie
+from const import TOKEN, VERSION, MONGO_DB_URL
+from utils.utils import get_response, tags, get_local_time
 
 
 async def get_latest_release_version() -> str:
@@ -30,149 +26,169 @@ async def get_latest_release_version() -> str:
     return response["tag_name"]
 
 
-if __name__ == "__main__":
-    logger = logging.getLogger()
-    logging.Formatter.converter = lambda *args: get_local_time().timetuple()
-    logging.basicConfig(
-        format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
-        datefmt="%d/%m/%Y %H:%M:%S",
-        level=logging.INFO,
-    )
+logger = logging.getLogger()
+logging.Formatter.converter = lambda *args: get_local_time().timetuple()
+logging.basicConfig(
+    format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
+    datefmt="%d/%m/%Y %H:%M:%S",
+    level=logging.INFO,
+)
 
-    client = interactions.Client(
-        activity=interactions.Activity(
-            name=f"for {VERSION}",
-            type=interactions.ActivityType.WATCHING,
-        ),
-        intents=interactions.Intents.DEFAULT
-        | interactions.Intents.MESSAGE_CONTENT
-        | interactions.Intents.GUILD_MEMBERS,
-        status=interactions.Status.ONLINE,
-        send_command_tracebacks=False,
-    )
-    prefixed_setup(client, default_prefix="$")
-    hybrid_setup(client)
-    counted: bool = False
-    """For stopping `GUILD_JOIN` spam on `STARTUP`"""
+client = interactions.Client(
+    activity=interactions.Activity(
+        name=f"for {VERSION}",
+        type=interactions.ActivityType.WATCHING,
+    ),
+    intents=interactions.Intents.DEFAULT
+    | interactions.Intents.MESSAGE_CONTENT
+    | interactions.Intents.GUILD_MEMBERS,
+    status=interactions.Status.ONLINE,
+    send_command_tracebacks=False,
+)
+prefixed_setup(client, default_prefix="$")
+hybrid_setup(client)
+counted: bool = False
+"""For stopping `GUILD_JOIN` spam on `STARTUP`"""
+
+
+async def start() -> None:
+    """Starts the bot."""
+
+    mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
+    try:
+        mongo_client.admin.command("ping")
+        logging.info("Successfully connected to MongoDB!")
+    except Exception as e:
+        logging.error(e)
+    await init_beanie(mongo_client["Articuno"], document_models=[tags])
+
+    client.session = aiohttp.ClientSession()
 
     client.load_extension("exts.core.__init__")
     client.load_extension("exts.fun.__init__")
     client.load_extension("exts.server.__init__")
-    client.load_extension("exts.utils.__init__")
+    client.load_extension("exts.utils.tag")
 
-    @interactions.listen(interactions.events.Startup)
-    async def on_startup() -> None:
-        """Fires up READY"""
+    try:
+        await client.astart(TOKEN)
+    finally:
+        await client.session.close()
 
-        global counted
-        await asyncio.sleep(10)
-        counted = True
 
-        websocket = f"{client.latency * 1:.0f}"
-        log_time = (
-            datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-        ).strftime("%d/%m/%Y %H:%M:%S")
+@interactions.listen(interactions.events.Startup)
+async def on_startup() -> None:
+    """Fires up READY"""
 
+    global counted
+    await asyncio.sleep(10)
+    counted = True
+
+    websocket = f"{client.latency * 1:.0f}"
+    log_time = (
+        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    ).strftime("%d/%m/%Y %H:%M:%S")
+
+    print(
+        "".join(
+            [
+                f"""[{log_time}] Logged in as {client.user.username}.""",
+                f"""Latency: {websocket}ms.""",
+            ],
+        )
+    )
+    latest_release_version = await get_latest_release_version()
+    if latest_release_version is not None and latest_release_version > VERSION:
         print(
             "".join(
                 [
-                    f"""[{log_time}] Logged in as {client.user.username}.""",
-                    f"""Latency: {websocket}ms.""",
+                    "This Articuno version is not up to date.",
+                    f"Your Articuno version: {VERSION}\n",
+                    f"Latest version: {latest_release_version}",
                 ],
             )
         )
-        latest_release_version = await get_latest_release_version()
-        if (
-            latest_release_version is not None
-            and latest_release_version > VERSION
-        ):
-            print(
-                "".join(
-                    [
-                        "This Articuno version is not up to date.",
-                        f"Your Articuno version: {VERSION}",
-                        f"Latest version: {latest_release_version}",
-                    ],
-                )
-            )
-        else:
-            print("You are on latest version. Enjoy using Articuno!")
+    else:
+        print("You are on latest version. Enjoy using Articuno!")
 
-    @interactions.listen()
-    async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
-        """Fires when bot joins a new guild."""
 
-        global counted
-        if not counted:
-            return
+@interactions.listen()
+async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
+    """Fires when bot joins a new guild."""
 
-        _guild = guild.guild
-        _channel = client.get_channel(957090401418899526)
-        current_time: float = round(
-            datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+    global counted
+    if not counted:
+        return
+
+    _guild = guild.guild
+    _channel = client.get_channel(957090401418899526)
+    current_time: float = round(
+        datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+    )
+
+    embed = interactions.Embed(title=f"Joined {_guild.name}")
+    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+    embed.add_field(
+        name="Joined on",
+        value=f"<t:{round(current_time)}:F>",
+        inline=True,
+    )
+    embed.add_field(name="Member", value=f"{_guild.member_count}", inline=True)
+    if _guild.icon:
+        embed.set_thumbnail(url=f"{_guild.icon.url}")
+
+    await _channel.send(embeds=embed)
+
+
+@interactions.listen()
+async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
+    """Fires when bot leaves a guild."""
+
+    _guild = guild.guild
+    _channel = client.get_channel(957090401418899526)
+    current_time: float = round(
+        datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+    )
+
+    embed = interactions.Embed(title=f"Left {_guild.name}")
+    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+    embed.add_field(
+        name="Left on",
+        value=f"<t:{round(current_time)}:F>",
+        inline=True,
+    )
+    embed.add_field(name="Member", value=f"{_guild.member_count}", inline=True)
+    if _guild.icon:
+        embed.set_thumbnail(url=f"{_guild.icon.url}")
+
+    await _channel.send(embeds=embed)
+
+
+@interactions.listen(interactions.events.MessageCreate)
+async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
+    """Check for bot mentions."""
+    msg = _msg.message
+    if (
+        f"@{client.user.id}" in msg.content
+        or f"<@{client.user.id}>" in msg.content
+    ):
+        embed = interactions.Embed(
+            title="It seems like you mentioned me",
+            description="".join(
+                [
+                    "I could not help much but noticed you mentioned me.",
+                    f"You can type ``/`` and choose **{client.user.username}**",
+                    "to start using me. Alternatively, you can use ",
+                    "`$help` or `/help` to see a list of available ",
+                    "commands. Thank you for choosing Articuno. ^-^",
+                ],
+            ),
+            color=0x6AA4C1,
         )
+        await msg.channel.send(embeds=embed)
 
-        embed = interactions.Embed(title=f"Joined {_guild.name}")
-        embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
-        embed.add_field(
-            name="Joined on",
-            value=f"<t:{round(current_time)}:F>",
-            inline=True,
-        )
-        embed.add_field(
-            name="Member", value=f"{_guild.member_count}", inline=True
-        )
-        if _guild.icon:
-            embed.set_thumbnail(url=f"{_guild.icon.url}")
 
-        await _channel.send(embeds=embed)
-
-    @interactions.listen()
-    async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
-        """Fires when bot leaves a guild."""
-
-        _guild = guild.guild
-        _channel = client.get_channel(957090401418899526)
-        current_time: float = round(
-            datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
-        )
-
-        embed = interactions.Embed(title=f"Left {_guild.name}")
-        embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
-        embed.add_field(
-            name="Left on",
-            value=f"<t:{round(current_time)}:F>",
-            inline=True,
-        )
-        embed.add_field(
-            name="Member", value=f"{_guild.member_count}", inline=True
-        )
-        if _guild.icon:
-            embed.set_thumbnail(url=f"{_guild.icon.url}")
-
-        await _channel.send(embeds=embed)
-
-    @interactions.listen(interactions.events.MessageCreate)
-    async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
-        """Check for bot mentions."""
-        msg = _msg.message
-        if (
-            f"@{client.user.id}" in msg.content
-            or f"<@{client.user.id}>" in msg.content
-        ):
-            embed = interactions.Embed(
-                title="It seems like you mentioned me",
-                description="".join(
-                    [
-                        "I could not help much but noticed you mentioned me.",
-                        f"You can type ``/`` and choose **{client.user.username}**",
-                        "to start using me. Alternatively, you can use ",
-                        "`$help` or `/help` to see a list of available ",
-                        "commands. Thank you for choosing Articuno. ^-^",
-                    ],
-                ),
-                color=0x6AA4C1,
-            )
-            await msg.channel.send(embeds=embed)
-
-    client.start(TOKEN)
+if __name__ == "__main__":
+    try:
+        asyncio.run(start())
+    except KeyboardInterrupt:
+        logger.info("Shutting down.")
