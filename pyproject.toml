@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Articuno"
-version = "v5.1.7"
+version = "v5.2.0"
 description = "A fun Discord Bot, written with interactions.py."
 license = "GPL-3.0-only"
 authors = ["B1ue-Dev <b1uedev@duck.com>"]
@@ -19,6 +19,7 @@ psutil = "5.9.2"
 pyfiglet = "0.8.post1"
 requests = "2.28.1"
 bardapi = "0.1.22"
+beanie = "1.20.0"
 
 [tool.black]
 line-length = 79
