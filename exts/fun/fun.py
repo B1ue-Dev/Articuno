@@ -237,7 +237,9 @@ class Fun(interactions.Extension):
         required=True,
     )
     @interactions.cooldown(interactions.Buckets.USER, 1, 20)
-    async def ai(self, ctx: HybridContext, *, message: str) -> None:
+    async def ai(
+        self, ctx: HybridContext, *, message: interactions.ConsumeRest[str]
+    ) -> None:
         """Chat with an AI."""
 
         await ctx.defer()

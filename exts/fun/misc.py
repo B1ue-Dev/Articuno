@@ -37,19 +37,6 @@ class Misc(interactions.Extension):
                 description="Comment",
                 required=True,
             ),
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="background",
-                description="Background of the Tweet",
-                required=False,
-                choices=[
-                    interactions.SlashCommandChoice(
-                        name="Light", value="light"
-                    ),
-                    interactions.SlashCommandChoice(name="Dim", value="dim"),
-                    interactions.SlashCommandChoice(name="Dark", value="dark"),
-                ],
-            ),
         ],
         dm_permission=False,
     )
@@ -57,8 +44,7 @@ class Misc(interactions.Extension):
         self,
         ctx: HybridContext,
         user: interactions.Member,
-        comment: str,
-        background: str = "dark",
+        comment: interactions.ConsumeRest[str],
     ) -> None:
         """Sends a Twitter tweet."""
 
@@ -114,7 +100,7 @@ class Misc(interactions.Extension):
         self,
         ctx: HybridContext,
         user: interactions.Member,
-        comment: str,
+        comment: interactions.ConsumeRest[str],
     ) -> None:
         """Sends a YouTube comment."""
 

@@ -52,7 +52,9 @@ class Google(interactions.Extension):
         ],
     )
     @interactions.cooldown(interactions.Buckets.USER, 1, 10)
-    async def img(self, ctx: HybridContext, *, query: str) -> None:
+    async def img(
+        self, ctx: HybridContext, *, query: interactions.ConsumeRest[str]
+    ) -> None:
         """Search for images (Powered by Google)."""
 
         buttons = [
