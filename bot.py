@@ -31,7 +31,7 @@ logging.Formatter.converter = lambda *args: get_local_time().timetuple()
 logging.basicConfig(
     format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
     datefmt="%d/%m/%Y %H:%M:%S",
-    level=logging.INFO,
+    level=logging.DEBUG,
 )
 
 client = interactions.Client(
