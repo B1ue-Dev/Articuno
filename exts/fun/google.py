@@ -97,7 +97,6 @@ class Google(interactions.Extension):
         ).execute()
 
         for i in range(0, 10):
-            print(i)
             all_result.append(
                 Image(
                     link=result["items"][i]["link"],
