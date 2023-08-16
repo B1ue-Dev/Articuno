@@ -46,7 +46,7 @@ class Jsk(interactions.Extension):
     async def jsk(self, ctx: PrefixedContext) -> None:
         """Get basic information about the bot."""
 
-        if int(ctx.user.id) != 892080548342820925:
+        if int(ctx.user.id) != int(self.client.owner.id):
             return await ctx.send(
                 "You must be the bot owner to perform this action."
             )
@@ -69,12 +69,12 @@ class Jsk(interactions.Extension):
 
         text: str = "".join(
             [
-                f"Articuno `{VERSION}` - interactions.py `{ipy}`, ",
+                f"{self.client.user.username} `{VERSION}` - interactions.py `{ipy}`, ",
                 f"Python `{py}` on `{platf}`.\n\n",
                 f"Using {rss_mem} physical memory and {vms_mem} virual memory.\n",
                 f"Running on PID {pid} ({name}) with {threads}, at ",
                 f"{cpu_perc} CPU.\n\n",
-                f"Articuno can see {guild_count} guilds and {user_count} users.\n",
+                f"{self.client.user.username} can see {guild_count} guilds and {user_count} users.\n",
                 f"Websocket latency: {latency}.",
             ]
         )
@@ -128,7 +128,7 @@ class Jsk(interactions.Extension):
     async def shell(self, ctx: PrefixedContext, *, cmd: str) -> None:
         """Executes statements in the system shell."""
 
-        if int(ctx.user.id) != 892080548342820925:
+        if int(ctx.user.id) != int(self.client.owner.id):
             return await ctx.send(
                 "You must be the bot owner to perform this action."
             )
