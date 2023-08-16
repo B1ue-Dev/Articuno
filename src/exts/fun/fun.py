@@ -8,6 +8,7 @@ import logging
 import random
 import asyncio
 import datetime
+from requests import Session
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
@@ -16,14 +17,32 @@ from interactions.ext.hybrid_commands import (
 from bardapi import Bard
 from utils.utils import get_response
 from exts.core.error_handler import handle_error
-from const import AUTHORIZATION
+from const import (
+    GOOGLE_PSID,
+    GOOGLE_PSIDCC,
+    GOOGLE_PSIDTS,
+)
+
+
+session = Session()
+session.cookies.set("__Secure-1PSID", GOOGLE_PSID)
+session.cookies.set( "__Secure-1PSIDCC", GOOGLE_PSIDCC)
+session.cookies.set("__Secure-1PSIDTS", GOOGLE_PSIDTS)
+session.headers = {
+    "Host": "bard.google.com",
+    "X-Same-Domain": "1",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.4472.114 Safari/537.36",
+    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+    "Origin": "https://bard.google.com",
+    "Referer": "https://bard.google.com/",
+}
 
 
 class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    bard = Bard(token=AUTHORIZATION)
+    bard = Bard(token=GOOGLE_PSID, session=session, timeout=30)
 
     @hybrid_slash_command(
         name="coffee",

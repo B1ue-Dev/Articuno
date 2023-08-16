@@ -23,28 +23,28 @@ LOG_CHANNEL = os.getenv("LOG_CHANNEL")
 
 EXT_CORE = [
     file.replace(".py", "")
-    for file in os.listdir("exts/core")
+    for file in os.listdir("src/exts/core")
     if not file.startswith("_")
 ]
 """List of core commands extension."""
 
 EXT_FUN = [
     file.replace(".py", "")
-    for file in os.listdir("exts/fun")
+    for file in os.listdir("src/exts/fun")
     if not file.startswith("_")
 ]
 """List of fun commands extension."""
 
 EXT_SERVER = [
     file.replace(".py", "")
-    for file in os.listdir("exts/server")
+    for file in os.listdir("src/exts/server")
     if not file.startswith("_")
 ]
 """List of server commands extension."""
 
 EXT_UTILS = [
     file.replace(".py", "")
-    for file in os.listdir("exts/utils")
+    for file in os.listdir("src/exts/utils")
     if not file.startswith("_")
 ]
 """List of utils commands extension."""
@@ -52,8 +52,14 @@ EXT_UTILS = [
 APIKEY = os.getenv("APIKEY")
 """API key for some-random-api."""
 
-AUTHORIZATION = os.getenv("AUTHORIZATION")
-"""API key for random-stuff-api."""
+GOOGLE_PSID = os.getenv("GOOGLE_PSID")
+"""Google PSID for BardAI."""
+
+GOOGLE_PSIDCC = os.getenv("GOOGLE_PSIDCC")
+"""Google PSIDCC for BardAI."""
+
+GOOGLE_PSIDTS = os.getenv("GOOGLE_PSIDTS")
+"""Google PSIDTS for BardAI."""
 
 GOOGLE_CLOUD = os.getenv("GOOGLE_CLOUD")
 """Key for Google Cloud."""

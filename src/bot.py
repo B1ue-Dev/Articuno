@@ -15,7 +15,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from beanie import init_beanie
 from const import TOKEN, VERSION, MONGO_DB_URL
-from utils.utils import get_response, tags, get_local_time
+from utils.utils import get_response, tags
 
 
 async def get_latest_release_version() -> str:
@@ -25,14 +25,6 @@ async def get_latest_release_version() -> str:
     response = await get_response(url)
     return response["tag_name"]
 
-
-logger = logging.getLogger()
-logging.Formatter.converter = lambda *args: get_local_time().timetuple()
-logging.basicConfig(
-    format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S",
-    level=logging.DEBUG,
-)
 
 client = interactions.Client(
     activity=interactions.Activity(
@@ -49,30 +41,6 @@ prefixed_setup(client, default_prefix="$")
 hybrid_setup(client)
 counted: bool = False
 """For stopping `GUILD_JOIN` spam on `STARTUP`"""
-
-
-async def start() -> None:
-    """Starts the bot."""
-
-    mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
-    try:
-        mongo_client.admin.command("ping")
-        logging.info("Successfully connected to MongoDB!")
-    except Exception as e:
-        logging.error(e)
-    await init_beanie(mongo_client["Articuno"], document_models=[tags])
-
-    client.session = aiohttp.ClientSession()
-
-    client.load_extension("exts.core.__init__")
-    client.load_extension("exts.fun.__init__")
-    client.load_extension("exts.server.__init__")
-    client.load_extension("exts.utils.tag")
-
-    try:
-        await client.astart(TOKEN)
-    finally:
-        await client.session.close()
 
 
 @interactions.listen(interactions.events.Startup)
@@ -187,8 +155,25 @@ async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
         await msg.channel.send(embeds=embed)
 
 
-if __name__ == "__main__":
+async def start() -> None:
+    """Starts the bot."""
+
+    mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
     try:
-        asyncio.run(start())
-    except KeyboardInterrupt:
-        logger.info("Shutting down.")
+        mongo_client.admin.command("ping")
+        logging.info("Successfully connected to MongoDB!")
+    except Exception as e:
+        logging.error(e)
+    await init_beanie(mongo_client["Articuno"], document_models=[tags])
+
+    client.session = aiohttp.ClientSession()
+
+    client.load_extension("exts.core.__init__")
+    client.load_extension("exts.fun.__init__")
+    client.load_extension("exts.server.__init__")
+    client.load_extension("exts.utils.__init__")
+
+    try:
+        await client.astart(TOKEN)
+    finally:
+        await client.session.close()
