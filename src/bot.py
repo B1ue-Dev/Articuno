@@ -36,6 +36,13 @@ client = interactions.Client(
     | interactions.Intents.GUILD_MEMBERS,
     status=interactions.Status.ONLINE,
     send_command_tracebacks=False,
+    message_cache=interactions.utils.TTLCache(600, 10, 100),
+    role_cache=interactions.utils.TTLCache(10, 10, 50),
+    user_cache=interactions.utils.TTLCache(100, 10, 50),
+    member_cache=interactions.utils.TTLCache(100, 10, 50),
+    voice_state_cache=interactions.utils.NullCache(),
+    user_guilds=interactions.utils.NullCache(100, 10, 50),
+    dm_channels=interactions.utils.NullCache(),
 )
 prefixed_setup(client, default_prefix="$")
 hybrid_setup(client)
@@ -43,7 +50,7 @@ counted: bool = False
 """For stopping `GUILD_JOIN` spam on `STARTUP`"""
 
 
-@interactions.listen(interactions.events.Startup)
+@client.listen(interactions.events.Startup)
 async def on_startup() -> None:
     """Fires up READY"""
 
@@ -79,7 +86,7 @@ async def on_startup() -> None:
         print("You are on latest version. Enjoy using Articuno!")
 
 
-@interactions.listen()
+@client.listen(interactions.events.GuildJoin)
 async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
     """Fires when bot joins a new guild."""
 
@@ -107,7 +114,7 @@ async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
     await _channel.send(embeds=embed)
 
 
-@interactions.listen()
+@client.listen(interactions.events.GuildLeft)
 async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     """Fires when bot leaves a guild."""
 
@@ -131,7 +138,7 @@ async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     await _channel.send(embeds=embed)
 
 
-@interactions.listen(interactions.events.MessageCreate)
+@client.listen(interactions.events.MessageCreate)
 async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
     """Check for bot mentions."""
     msg = _msg.message
