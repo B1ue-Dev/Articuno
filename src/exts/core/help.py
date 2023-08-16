@@ -22,6 +22,7 @@ class Help(interactions.Extension):
     )
     async def help(self, ctx: HybridContext) -> None:
         """Get a list of all available commands."""
+
         help_list = []
         commands = sorted(
             self.client.application_commands, key=lambda x: str(x.name)
