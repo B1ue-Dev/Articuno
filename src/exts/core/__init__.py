@@ -5,7 +5,6 @@ Root file for exts/core.
 """
 
 import logging
-import datetime
 import interactions
 from const import EXT_CORE
 
@@ -20,9 +19,5 @@ class Core(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension"""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
     Core(client)
     logging.info("Loaded Core extension.")
-    print(f"[{log_time}] Loaded Core extension.")
