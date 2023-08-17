@@ -49,17 +49,8 @@ EXT_UTILS = [
 ]
 """List of utils commands extension."""
 
-APIKEY = os.getenv("APIKEY")
+SOME_RANDOM_API = os.getenv("SOME_RANDOM_API")
 """API key for some-random-api."""
-
-GOOGLE_PSID = os.getenv("GOOGLE_PSID")
-"""Google PSID for BardAI."""
-
-GOOGLE_PSIDCC = os.getenv("GOOGLE_PSIDCC")
-"""Google PSIDCC for BardAI."""
-
-GOOGLE_PSIDTS = os.getenv("GOOGLE_PSIDTS")
-"""Google PSIDTS for BardAI."""
 
 GOOGLE_CLOUD = os.getenv("GOOGLE_CLOUD")
 """Key for Google Cloud."""
