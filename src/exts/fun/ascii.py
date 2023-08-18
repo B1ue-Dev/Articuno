@@ -6,7 +6,6 @@ Turn image into ASCII art.
 
 import logging
 import io
-import textwrap
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
@@ -15,34 +14,6 @@ from interactions.ext.hybrid_commands import (
 import pyfiglet
 import aiohttp
 from PIL import Image, ImageDraw
-
-
-def rgb2gray(rgb: str) -> int:
-    """
-    Return the gray color from RGB color.
-
-    :param rbg: The RGB color string.
-    :type rgb: str
-    :return: The gray color.
-    :rtype: int
-    """
-
-    r, g, b = rgb[0], rgb[1], rgb[2]
-    gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-
-    return gray
-
-
-def translate(value, leftMin, leftMax, rightMin, rightMax):
-    """
-    I have no idea what this works.
-    """
-
-    leftSpan = leftMax - leftMin
-    rightSpan = rightMax - rightMin
-    valueScaled = float(value - leftMin) / float(leftSpan)
-
-    return rightMin + (valueScaled * rightSpan)
 
 
 class ASCII(interactions.Extension):
@@ -70,75 +41,52 @@ class ASCII(interactions.Extension):
         user: interactions.Member,
     ) -> None:
         """Turns a user profile picture into ASCII art."""
+        await ctx.defer()
 
-        url = user.user.avatar.url[:-4] + ".png"
+        def translate(value, leftMin, leftMax, rightMin, rightMax):
+            leftSpan = leftMax - leftMin
+            rightSpan = rightMax - rightMin
+            valueScaled = float(value - leftMin) / float(leftSpan)
+            return rightMin + (valueScaled * rightSpan)
 
+        url = user.user.avatar.url
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 image_bytes = io.BytesIO(await resp.read())
                 img = Image.open(image_bytes)
+                img = img.convert("L")
 
-        attempt = 100
-
-        while True:
-            WIDTH_LIMIT = attempt
-
-            WIDTH_LIMIT = int(WIDTH_LIMIT / 2)
-            HEIGHT_LIMIT = int((WIDTH_LIMIT * img.size[1]) / img.size[0])
-
-            WIDTH_LIMIT *= 2
-
-            attempt -= 0.5
-
-            if WIDTH_LIMIT * HEIGHT_LIMIT + HEIGHT_LIMIT < 800:
-                break
+        WIDTH_LIMIT = 169
+        HEIGHT_LIMIT = 68
+        img = img.resize((WIDTH_LIMIT, HEIGHT_LIMIT))
 
         pix = img.load()
-
         minG = 265
         maxG = 0
-
         for y in range(HEIGHT_LIMIT):
             for x in range(WIDTH_LIMIT):
-                gray = rgb2gray(
-                    pix[
-                        x * (img.size[0] / WIDTH_LIMIT),
-                        y * (img.size[1] / HEIGHT_LIMIT),
-                    ]
-                )
-
+                gray = pix[x, y]
                 if gray > maxG:
                     maxG = gray
-
                 if gray < minG:
                     minG = gray
 
         final = ""
-
         for y in range(HEIGHT_LIMIT):
             row = ""
-
             for x in range(WIDTH_LIMIT):
-                gray = rgb2gray(
-                    pix[
-                        x * (img.size[0] / WIDTH_LIMIT),
-                        y * (img.size[1] / HEIGHT_LIMIT),
-                    ]
-                )
-
+                gray = pix[x, y]
                 letter = int(translate(gray, minG, maxG, 0, 69))
-
                 row += self.ASCII_CHARS[letter]
-
             final += row + "\n"
 
-        i = Image.new("RGB", (235, 290), color="black")
+        i = Image.new("RGB", (1024, 1024), color="black")
         z = ImageDraw.Draw(i)
         z.text((5, 5), final, fill=(34, 139, 34))
         with io.BytesIO() as out:
             i.save(out, "PNG")
             out.seek(0)
-            file = interactions.File(file_name="image.jpg", file=out)
+            file = interactions.File(file_name="image.png", file=out)
 
             await ctx.send(files=file)
 
@@ -157,40 +105,27 @@ class ASCII(interactions.Extension):
     async def text(
         self,
         ctx: HybridContext,
-        text: str,
+        *,
+        text: interactions.ConsumeRest[str],
     ) -> None:
         """Turn texts into ASCII art word."""
 
-        s = ""
-        text_split = textwrap.wrap(
-            text,
-            width=45,
-            break_long_words=True,
-            break_on_hyphens=False,
-            replace_whitespace=False,
-        )
-        for x, t in enumerate(text_split):
-            if x != 0:
-                s += "\n"
-            s += t
+        await ctx.defer()
 
-        if len(text) > 1999:
-            return await ctx.send("Text too long.")
-
-        ascii_art = pyfiglet.figlet_format(s, width=1100)
-
-        width, height = 1390, 90
-
-        height *= len(text_split)
-
-        img = Image.new("RGB", (width, height), color="black")
-        i = ImageDraw.Draw(img)
-        i.text((1, 1), ascii_art, fill=(102, 255, 0))
-        with io.BytesIO() as out:
-            img.save(out, format="JPEG")
-            out.seek(0)
-            file = interactions.File(file_name="image.jpg", file=out)
-            await ctx.send(files=file)
+        i = Image.new("RGB", (2000, 1000))
+        img = ImageDraw.Draw(i)
+        ascii_text = pyfiglet.figlet_format(text, width=150)
+        print(ascii_text)
+        size = img.textbbox((1, 1), ascii_text)
+        text_width, text_height = (size[2] - size[0], size[3] - size[1])
+        imgs = Image.new("RGB", (text_width + 30, text_height))
+        ii = ImageDraw.Draw(imgs)
+        ii.text((5, 5), ascii_text, fill=(0, 255, 0))
+        final = io.BytesIO()
+        imgs.save(final, "png")
+        final.seek(0)
+        file = interactions.File(file=final, file_name="unknown.png")
+        await ctx.send(file=file)
 
 
 def setup(client) -> None:
