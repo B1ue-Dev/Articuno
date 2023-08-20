@@ -6,7 +6,7 @@ Root file for exts/core.
 
 import logging
 import interactions
-from const import EXT_CORE
+from src.const import EXT_CORE
 
 
 class Core(interactions.Extension):
@@ -14,7 +14,7 @@ class Core(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        [self.client.load_extension(f"exts.core.{ext}") for ext in EXT_CORE]
+        [self.client.load_extension(f"src.exts.core.{ext}") for ext in EXT_CORE]
 
 
 def setup(client) -> None:
