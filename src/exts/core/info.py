@@ -11,8 +11,8 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
     HybridContext,
 )
-from utils.utils import get_response
-from utils.colorthief import ColorThief
+from src.utils.utils import get_response
+from src.utils.colorthief import ColorThief
 
 
 async def get_color(img) -> str:
