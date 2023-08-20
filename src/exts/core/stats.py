@@ -5,16 +5,15 @@
 """
 
 import logging
-import datetime
-import platform
+import sys
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
 import psutil
-from utils import utils
-from const import VERSION
+from src.utils import utils, jsk
+from src.const import VERSION
 
 
 class Stats(interactions.Extension):
@@ -22,9 +21,6 @@ class Stats(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime: int = round(datetime.datetime.utcnow().timestamp())
-        self.python: str = platform.python_version()
-        self.system: str = str(platform.platform())
         self.button: list(interactions.Button) = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -80,12 +76,12 @@ class Stats(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="Python",
-                value=f"```ansi\n[2;33m{self.python}[0m\n```",
+                value=f"```ansi\n[2;33m{sys.version_info}[0m\n```",
                 inline=True,
             ),
             interactions.EmbedField(
                 name="Uptime",
-                value=f"```\n{utils.pretty_date(self.uptime)}\n```",
+                value=f"```\n{utils.pretty_date(jsk.uptime.timestamp())}\n```",
                 inline=True,
             ),
             interactions.EmbedField(
@@ -100,7 +96,7 @@ class Stats(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="System",
-                value=f"```ansi\n[2;35m{self.system}[0m\n```",
+                value=f"```ansi\n[2;35m{jsk.platf}[0m\n```",
                 inline=True,
             ),
         ]
