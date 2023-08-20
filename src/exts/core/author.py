@@ -10,7 +10,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from const import VERSION
+from src.const import VERSION
 
 
 class Author(interactions.Extension):
@@ -50,20 +50,18 @@ class Author(interactions.Extension):
                     "wide range of jobs, mostly with different fun commands.",
                     " Highlight commands, such as `/img`, `/tag`, `/emoji`, ",
                     "`whos_that_pokemon`, etc. The goal of Articuno is to ",
-                    "make your server a better place, with different misc ",
-                    "commands, moderating your server with simple manners, ",
-                    "and a built-in log system that requires simple setup.",
-                    "\n\nArticuno is a side-project that I work on, so ",
-                    "commands can be broken sometimes. If you encounter any ",
-                    "issue, be sure to use `/invite` and join the support ",
-                    "server to report the problem.\n\nWhenever creating tags",
-                    " with autocomplete, bringing joys to members, ",
-                    "moderating the server, Articuno has you covered.",
+                    "make your server a better place, with different fun ",
+                    "commands in any possible way.\n\nArticuno is a ",
+                    "side-project that I work on, so commands can be broken ",
+                    "sometimes. If you encounter any be sure to use ",
+                    "`/invite` and join the support server to report the ",
+                    "problem.\n\nWhenever creating tags, bringing joys ",
+                    "to members Articuno has you covered.",
                 ]
             ),
             color=0x7CB7D3,
             footer=interactions.EmbedFooter(
-                text=f"Maintained by Blue#2095  •  Version {VERSION}"
+                text=f"Maintained by @b1uedev  •  Version {VERSION}"
             ),
         )
 
@@ -111,7 +109,7 @@ class Author(interactions.Extension):
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="Support server",
-                url="https://discord.gg/SPd5RNhwfY",
+                url="https://discord.gg/mE967ub6Ct",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
