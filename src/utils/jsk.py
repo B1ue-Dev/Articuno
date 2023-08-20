@@ -6,12 +6,12 @@ jsk-based command.
 
 import io
 import asyncio
+import sys
 import textwrap
 import inspect
 import contextlib
 import traceback
 import typing
-import platform
 from datetime import datetime
 from interactions.ext.prefixed_commands import (
     prefixed_command,
@@ -20,8 +20,15 @@ from interactions.ext.prefixed_commands import (
 import psutil
 import interactions
 from interactions.ext.paginators import Paginator
-from utils import utils
-from const import VERSION
+from interactions.ext.debug_extension.utils import get_cache_state
+from src.utils import utils
+from src.const import VERSION
+
+
+uptime: datetime = datetime.now()
+ipy: str = interactions.__version__
+py: str = sys.version
+platf: str = sys.platform
 
 
 def cleanup_code(content: str) -> str:
@@ -38,9 +45,6 @@ class Jsk(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.uptime: float = datetime.utcnow().timestamp()
-        self.python: str = platform.python_version()
-        self.system: str = str(platform.platform())
 
     @prefixed_command()
     async def jsk(self, ctx: PrefixedContext) -> None:
@@ -51,12 +55,9 @@ class Jsk(interactions.Extension):
                 "You must be the bot owner to perform this action."
             )
 
-        ipy: str = interactions.__version__
-        py: str = platform.python_version()
-        platf: str = platform.system()
         proc: "psutil.Process" = psutil.Process()
         rss_mem: str = f"{utils.natural_size(proc.memory_full_info().rss)}"
-        vms_mem: str = f"\n{utils.natural_size(proc.memory_full_info().vms)}"
+        vms_mem: str = f"{utils.natural_size(proc.memory_full_info().vms)}"
         cpu_perc: str = f"{psutil.cpu_percent()}%"
         threads: str = f"{proc.num_threads()} Threads"
         pid: int = proc.pid
@@ -70,7 +71,8 @@ class Jsk(interactions.Extension):
         text: str = "".join(
             [
                 f"{self.client.user.username} `{VERSION}` - interactions.py `{ipy}`, ",
-                f"Python `{py}` on `{platf}`.\n\n",
+                f"Python `{py}` on `{platf}`.\n",
+                f"This bot was loaded {utils.pretty_date(uptime.timestamp())}\n\n",
                 f"Using {rss_mem} physical memory and {vms_mem} virual memory.\n",
                 f"Running on PID {pid} ({name}) with {threads}, at ",
                 f"{cpu_perc} CPU.\n\n",
@@ -80,6 +82,12 @@ class Jsk(interactions.Extension):
         )
 
         await ctx.send(content=text)
+
+    @jsk.subcommand()
+    async def cache(self, ctx: PrefixedContext) -> None:
+        """Shows the current cache."""
+
+        await ctx.send(f"{get_cache_state()}")
 
     @jsk.subcommand()
     async def eval(self, ctx: PrefixedContext, *, code: str) -> None:

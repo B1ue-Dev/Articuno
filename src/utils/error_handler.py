@@ -4,10 +4,12 @@ Error system handler.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import datetime
 import traceback
 import interactions
-from const import LOG_CHANNEL
+from interactions.ext.hybrid_commands import HybridContext
+from src.const import LOG_CHANNEL
 
 
 async def handle_error(
@@ -43,6 +45,7 @@ async def handle_error(
     for i in traceb:
         er = er + f"{i}"
 
+    logging.error(traceb)
     log_channel = self.client.get_channel(LOG_CHANNEL)
 
     log_error = interactions.Embed(
@@ -74,14 +77,14 @@ async def handle_error(
 
     await log_channel.send(embeds=log_error)
 
-    if ctx and isinstance(ctx, interactions.InteractionContext):
+    if ctx and isinstance(ctx, interactions.InteractionContext | HybridContext):
         embed = interactions.Embed(
             title="**Uh oh...**",
             description="".join(
                 [
                     "An error occurred. The developer team is dealing with the ",
                     " problem now.\nHave any question? ",
-                    "Join the [**support server**](https://discord.gg/ndy95mBfJs)",
+                    "Join the [**support server**](https://discord.gg/mE967ub6Ct)",
                     " for more help.",
                 ]
             ),
@@ -106,7 +109,7 @@ class Error(interactions.Extension):
     @interactions.listen(
         disable_default_listeners=True,
     )
-    async def on_command_error(
+    async def on_error(
         self,
         event: interactions.events.CommandError,
     ) -> None:
@@ -129,7 +132,7 @@ class Error(interactions.Extension):
                 )
 
         else:
-            if not isinstance(event.ctx, interactions.InteractionContext):
+            if not isinstance(event.ctx, interactions.InteractionContext | HybridContext):
                 return await handle_error(
                     self, error=event.error, error_time=error_time
                 )
