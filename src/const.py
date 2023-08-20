@@ -35,13 +35,6 @@ EXT_FUN = [
 ]
 """List of fun commands extension."""
 
-EXT_SERVER = [
-    file.replace(".py", "")
-    for file in os.listdir("src/exts/server")
-    if not file.startswith("_")
-]
-"""List of server commands extension."""
-
 EXT_UTILS = [
     file.replace(".py", "")
     for file in os.listdir("src/exts/utils")
