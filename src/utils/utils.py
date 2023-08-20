@@ -10,7 +10,7 @@ from typing import Any
 from datetime import datetime, timedelta, timezone
 import aiohttp
 from beanie import Document
-from utils.colorthief import ColorThief
+from src.utils.colorthief import ColorThief
 
 
 __all__ = ("tags",)
