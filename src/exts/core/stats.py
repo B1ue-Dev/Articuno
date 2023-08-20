@@ -5,7 +5,6 @@
 """
 
 import logging
-import sys
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
@@ -76,12 +75,12 @@ class Stats(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="Python",
-                value=f"```ansi\n[2;33m{sys.version_info}[0m\n```",
+                value=f"```ansi\n[2;33m{jsk._Jsk.py}[0m\n```",
                 inline=True,
             ),
             interactions.EmbedField(
                 name="Uptime",
-                value=f"```\n{utils.pretty_date(jsk.uptime.timestamp())}\n```",
+                value=f"```\n{utils.pretty_date(jsk._Jsk.uptime)}\n```",
                 inline=True,
             ),
             interactions.EmbedField(
@@ -96,7 +95,7 @@ class Stats(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="System",
-                value=f"```ansi\n[2;35m{jsk.platf}[0m\n```",
+                value=f"```ansi\n[2;35m{jsk._Jsk.platf}[0m\n```",
                 inline=True,
             ),
         ]
