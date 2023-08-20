@@ -6,6 +6,7 @@ jsk-based command.
 
 import io
 import asyncio
+import platform
 import sys
 import textwrap
 import inspect
@@ -25,10 +26,21 @@ from src.utils import utils
 from src.const import VERSION
 
 
-uptime: datetime = datetime.now()
-ipy: str = interactions.__version__
-py: str = sys.version
-platf: str = sys.platform
+class _Jsk:
+    """Static class for jsk data."""
+
+    uptime: datetime = round(datetime.now().timestamp())
+    """The start time of the bot."""
+    ipy: str = interactions.__version__
+    """The interactions.py version."""
+    py: str = platform.python_version()
+    """The Python version."""
+    platf: str = platform.platform()
+    """The system name."""
+    _py: str = sys.version
+    """The full Python version."""
+    _platf: str = sys.platform
+    """The core system name."""
 
 
 def cleanup_code(content: str) -> str:
@@ -70,9 +82,9 @@ class Jsk(interactions.Extension):
 
         text: str = "".join(
             [
-                f"{self.client.user.username} `{VERSION}` - interactions.py `{ipy}`, ",
-                f"Python `{py}` on `{platf}`.\n",
-                f"This bot was loaded {utils.pretty_date(uptime.timestamp())}\n\n",
+                f"{self.client.user.username} `{VERSION}` - interactions.py `{_Jsk.ipy}`, ",
+                f"Python `{_Jsk.py}` on `{_Jsk.platf}`.\n",
+                f"This bot was loaded {utils.pretty_date(_Jsk.uptime)}\n\n",
                 f"Using {rss_mem} physical memory and {vms_mem} virual memory.\n",
                 f"Running on PID {pid} ({name}) with {threads}, at ",
                 f"{cpu_perc} CPU.\n\n",
@@ -87,7 +99,7 @@ class Jsk(interactions.Extension):
     async def cache(self, ctx: PrefixedContext) -> None:
         """Shows the current cache."""
 
-        await ctx.send(f"{get_cache_state()}")
+        await ctx.send(f"{get_cache_state(self.client)}")
 
     @jsk.subcommand()
     async def eval(self, ctx: PrefixedContext, *, code: str) -> None:
