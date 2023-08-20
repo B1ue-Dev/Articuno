@@ -7,42 +7,19 @@ Fun related commands.
 import logging
 import random
 import asyncio
-import datetime
-from requests import Session
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from bardapi import Bard
 from utils.utils import get_response
-from exts.core.error_handler import handle_error
-from const import (
-    GOOGLE_PSID,
-    GOOGLE_PSIDCC,
-    GOOGLE_PSIDTS,
-)
-
-
-session = Session()
-session.cookies.set("__Secure-1PSID", GOOGLE_PSID)
-session.cookies.set( "__Secure-1PSIDCC", GOOGLE_PSIDCC)
-session.cookies.set("__Secure-1PSIDTS", GOOGLE_PSIDTS)
-session.headers = {
-    "Host": "bard.google.com",
-    "X-Same-Domain": "1",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.4472.114 Safari/537.36",
-    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-    "Origin": "https://bard.google.com",
-    "Referer": "https://bard.google.com/",
-}
+from const import SOME_RANDOM_API
 
 
 class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    bard = Bard(token=GOOGLE_PSID, session=session, timeout=30)
 
     @hybrid_slash_command(
         name="coffee",
@@ -255,23 +232,22 @@ class Fun(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    @interactions.cooldown(interactions.Buckets.USER, 1, 20)
+    @interactions.cooldown(interactions.Buckets.USER, 1, 5)
     async def ai(
         self, ctx: HybridContext, *, message: interactions.ConsumeRest[str]
     ) -> None:
         """Chat with an AI."""
 
         await ctx.defer()
-        try:
-            ans: str = Fun.bard.get_answer(message)["content"]
-            await ctx.send(ans)
-        except Exception as e:
-            await ctx.send("An unknown error occurred.")
-            return await handle_error(
-                self,
-                error=e,
-                error_time=datetime.datetime.utcnow().timestamp(),
-            )
+
+        url: str = "https://some-random-api.com/chatbot"
+        params: dict = {
+            "message": str(message),
+            "key": str(SOME_RANDOM_API),
+        }
+        res: str = await get_response(url=url, params=params)
+
+        await ctx.send(f"""{res["response"]}""")
 
 
 def setup(client) -> None:
