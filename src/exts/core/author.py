@@ -49,7 +49,7 @@ class Author(interactions.Extension):
                     "Articuno is a multi-purpose Discord Bot that can do a ",
                     "wide range of jobs, mostly with different fun commands.",
                     " Highlight commands, such as `/img`, `/tag`, `/emoji`, ",
-                    "`whos_that_pokemon`, etc. The goal of Articuno is to ",
+                    "`/whos_that_pokemon`, etc. The goal of Articuno is to ",
                     "make your server a better place, with different fun ",
                     "commands in any possible way.\n\nArticuno is a ",
                     "side-project that I work on, so commands can be broken ",
