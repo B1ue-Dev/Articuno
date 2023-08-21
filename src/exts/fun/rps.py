@@ -126,51 +126,25 @@ class RPS(interactions.Extension):
                 user_choice = int(res.ctx.values[0])
                 bot_choice = int(random.randint(1, 3))
                 result = rps_get_winner(user_choice, bot_choice)
+                content: list[str] = [
+                    f"{res.ctx.user.mention} chose ",
+                    f"**{self.choice_convert[user_choice]}**.\n",
+                    "**Articuno** chose ",
+                    f"**{self.choice_convert[bot_choice]}**.\n",
+                ]
 
                 if result is None:
-                    await res.ctx.edit_origin(
-                        content="".join(
-                            [
-                                f"{res.ctx.user.mention} chose ",
-                                f"**{self.choice_convert[user_choice]}**.\n",
-                                "**Articuno** chose ",
-                                f"**{self.choice_convert[bot_choice]}**.\n",
-                                "> It's a `TIE`!",
-                            ]
-                        ),
-                        components=rps_selection,
-                        allowed_mentions={"parse": []},
-                    )
-
+                    content.append("> It's a `TIE`!")
                 elif result is True:
-                    await res.ctx.edit_origin(
-                        content="".join(
-                            [
-                                f"{res.ctx.user.mention} chose ",
-                                f"**{self.choice_convert[user_choice]}**.\n",
-                                "**Articuno** chose ",
-                                f"**{self.choice_convert[bot_choice]}**.\n",
-                                f"> {res.ctx.user.mention} `WON`!",
-                            ]
-                        ),
-                        components=rps_selection,
-                        allowed_mentions={"parse": []},
-                    )
-
+                    content.append(f"> {res.ctx.user.mention} `WON`!")
                 elif result is False:
-                    await res.ctx.edit_origin(
-                        content="".join(
-                            [
-                                f"{res.ctx.user.mention} chose ",
-                                f"**{self.choice_convert[user_choice]}**.\n",
-                                "**Articuno** chose ",
-                                f"**{self.choice_convert[bot_choice]}**.\n",
-                                "> **Articuno** `WON`!",
-                            ]
-                        ),
-                        components=rps_selection,
-                        allowed_mentions={"parse": []},
-                    )
+                    content.append("> **Articuno** `WON`!")
+
+                await res.ctx.edit_origin(
+                    content="".join(content),
+                    components=rps_selection,
+                    allowed_mentions={"parse": []},
+                )
                 break
 
             except asyncio.TimeoutError:
@@ -181,7 +155,6 @@ class RPS(interactions.Extension):
     @hybrid_slash_subcommand(
         base="rock_paper_scissors",
         base_description="Play a game of Rock-Paper-Scissors.",
-        # aliases=["rps"],
         name="human",
         description="Play against someone else.",
     )
@@ -286,52 +259,29 @@ class RPS(interactions.Extension):
                                 pass
 
                         result = rps_get_winner(choice1, choice2)
+                        content: list[str] = [
+                            f"{ctx.user.mention} chose ",
+                            f"**{self.choice_convert[choice1]}**.\n",
+                            f"{user.mention} chose ",
+                            f"**{self.choice_convert[choice2]}**.\n",
+                        ]
+                        allowed_mentions = {}
 
                         if result is None:
-                            await cmp2.ctx.edit_origin(
-                                content="".join(
-                                    [
-                                        f"{ctx.user.mention} chose ",
-                                        f"**{self.choice_convert[choice1]}**.\n",
-                                        f"{user.mention} chose ",
-                                        f"**{self.choice_convert[choice2]}**.\n",
-                                        "> It is a tie!",
-                                    ]
-                                ),
-                                components=rps_selection,
-                                allowed_mentions={"users": []},
-                            )
-
+                            content.append("> It is a tie!")
+                            allowed_mentions["users"] = []
                         elif result is True:
-                            await cmp2.ctx.edit_origin(
-                                content="".join(
-                                    [
-                                        f"{ctx.user.mention} chose ",
-                                        f"**{self.choice_convert[choice1]}**.\n",
-                                        f"{user.mention} chose ",
-                                        f"**{self.choice_convert[choice2]}**.\n",
-                                        f"> {ctx.user.mention} won!",
-                                    ],
-                                ),
-                                components=rps_selection,
-                                allowed_mentions={"users": [int(ctx.user.id)]},
-                            )
-
+                            content.append(f"> {ctx.user.mention} won!")
+                            allowed_mentions["users"] = [int(ctx.user.id)]
                         elif result is False:
-                            await cmp2.ctx.edit_origin(
-                                content="".join(
-                                    [
-                                        f"{ctx.user.mention} chose ",
-                                        f"**{self.choice_convert[choice1]}**.\n",
-                                        f"{user.mention} chose ",
-                                        f"**{self.choice_convert[choice2]}**.\n",
-                                        f"> {user.mention} won!",
-                                    ]
-                                ),
-                                components=rps_selection,
-                                allowed_mentions={"users": [int(user.id)]},
-                            )
+                            content.append(f"> {user.mention} won!")
+                            allowed_mentions["users"] = [int(user.id)]
 
+                        await cmp2.ctx.edit_origin(
+                            content="".join(content),
+                            components=rps_selection,
+                            allowed_mentions=allowed_mentions,
+                        )
                         break
 
                     elif op.ctx.custom_id == "deny":
