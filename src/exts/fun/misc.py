@@ -11,8 +11,8 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from utils.utils import get_response
-from const import APIKEY as apikey
+from src.utils.utils import get_response
+from src.const import SOME_RANDOM_API
 
 
 class Misc(interactions.Extension):
@@ -59,8 +59,8 @@ class Misc(interactions.Extension):
                 nick = user.nick
         else:
             nick = username
-        url = "https://some-random-api.com/canvas/tweet"
-        params = {
+        url: str = "https://some-random-api.com/canvas/tweet"
+        params: dict = {
             "avatar": user.avatar.url
             if user.guild_avatar is None
             else user.guild_avatar.url,
@@ -143,13 +143,13 @@ class Misc(interactions.Extension):
         """Amogus."""
 
         await ctx.defer()
-        url = "https://some-random-api.com/premium/amongus"
-        params = {
+        url: str = "https://some-random-api.com/premium/amongus"
+        params: dict = {
             "avatar": user.avatar.url
             if user.guild_avatar is None
             else user.guild_avatar.url,
             "username": user.user.username,
-            "key": apikey,
+            "key": SOME_RANDOM_API,
             "imposter": str(random.choice(["true", "false"])),
         }
         resp = await get_response(url, params)

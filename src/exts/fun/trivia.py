@@ -12,7 +12,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from utils.utils import get_response
+from src.utils.utils import get_response
 
 
 class Trivia(interactions.Extension):
