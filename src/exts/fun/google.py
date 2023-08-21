@@ -13,7 +13,7 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from googleapiclient.discovery import build
-from const import GOOGLE_CLOUD, GOOGLE_CSE
+from src.const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
 class Image:
@@ -72,11 +72,6 @@ class Google(interactions.Extension):
                 style=interactions.ButtonStyle.PRIMARY,
                 emoji=interactions.PartialEmoji(name="🔀"),
                 custom_id="random",
-            ),
-            interactions.Button(
-                style=interactions.ButtonStyle.SUCCESS,
-                emoji=interactions.PartialEmoji(name="📄"),
-                custom_id="page",
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.SECONDARY,
@@ -149,25 +144,6 @@ class Google(interactions.Extension):
                             ran += 1
                         all_res = all_result[ran]
 
-                        embed = interactions.Embed(
-                            title=f"Image for: {query}",
-                            color=0x000000,
-                        )
-                        embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/9",
-                            icon_url=self.google_icon,
-                        )
-                        embed.add_field(
-                            name=f"**{all_res.source}**",
-                            value=f"[{all_res.title}]({all_res.contextlink})",
-                            inline=False,
-                        )
-                        embed.set_image(url=all_res.link)
-
-                        msg = await res.ctx.edit_origin(
-                            embeds=embed, components=buttons
-                        )
-
                     elif res.ctx.custom_id == "previous":
                         if ran == 0:
                             ran = 0
@@ -175,106 +151,31 @@ class Google(interactions.Extension):
                             ran -= 1
                         all_res = all_result[ran]
 
-                        embed = interactions.Embed(
-                            title=f"Image for: {query}",
-                            color=0x000000,
-                        )
-                        embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/9",
-                            icon_url=self.google_icon,
-                        )
-                        embed.add_field(
-                            name=f"**{all_res.source}**",
-                            value=f"[{all_res.title}]({all_res.contextlink})",
-                            inline=False,
-                        )
-                        embed.set_image(url=all_res.link)
-
-                        msg = await res.ctx.edit_origin(
-                            embeds=embed, components=buttons
-                        )
-
                     elif res.ctx.custom_id == "random":
                         ran = random.randint(0, 9)
                         all_res = all_result[ran]
 
-                        embed = interactions.Embed(
-                            title=f"Image for: {query}",
-                            color=0x000000,
-                        )
-                        embed.set_footer(
-                            text=f"Google Search  •  Page {ran}/9",
-                            icon_url=self.google_icon,
-                        )
-                        embed.add_field(
-                            name=f"**{all_res.source}**",
-                            value=f"[{all_res.title}]({all_res.contextlink})",
-                            inline=False,
-                        )
-                        embed.set_image(url=all_res.link)
-
-                        msg = await res.ctx.edit_origin(
-                            embeds=embed, components=buttons
-                        )
-
-                    elif res.ctx.custom_id == "page":
-                        await res.ctx.send("Which page?", ephemeral=True)
-
-                        def check(_message: interactions.Message):
-                            if int(_message.message.author.id) == int(
-                                ctx.user.id
-                            ) and int(_message.message.channel.id) == int(
-                                ctx.channel_id
-                            ):
-                                return True
-                            else:
-                                return False
-
-                        _msg = await self.client.wait_for(
-                            event=interactions.events.MessageCreate,
-                            checks=check,
-                            timeout=10,
-                        )
-
-                        if (
-                            _msg.message.content.isdigit() is False
-                            or int(_msg.message.content) < 0
-                            or int(_msg.message.content) > 10
-                        ):
-                            await res.ctx.send(
-                                "That is not a valid number.",
-                                ephemeral=True,
-                            )
-                        else:
-                            ran = int(_msg.message.content)
-                            all_res = all_result[ran]
-
-                            embed = interactions.Embed(
-                                title=f"Image for: {query}",
-                                color=0x000000,
-                            )
-                            embed.set_footer(
-                                text=f"Google Search  •  Page {ran}/9",
-                                icon_url=self.google_icon,
-                            )
-                            embed.add_field(
-                                name=f"**{all_res.source}**",
-                                value=f"[{all_res.title}]({all_res.contextlink})",
-                                inline=False,
-                            )
-                            embed.set_image(url=all_res.link)
-
-                            await _msg.message.delete()
-
-                            msg = await msg.edit(
-                                embeds=embed, components=buttons
-                            )
-
                     elif res.ctx.custom_id == "stop":
                         await res.ctx.edit_origin(components=[])
                         break
-                    else:
-                        msg = await res.ctx.edit_origin()
+
+                    embed = interactions.Embed(
+                        title=f"Image for: {query}",
+                        color=0x000000,
+                    )
+                    embed.set_footer(
+                        text=f"Google Search  •  Page {ran}/9",
+                        icon_url=self.google_icon,
+                    )
+                    embed.add_field(
+                        name=f"**{all_res.source}**",
+                        value=f"[{all_res.title}]({all_res.contextlink})",
+                        inline=False,
+                    )
+                    embed.set_image(url=all_res.link)
+                    msg = await res.ctx.edit_origin(
+                        embeds=embed, components=buttons
+                    )
 
                 except asyncio.TimeoutError:
                     await msg.edit(components=[])
