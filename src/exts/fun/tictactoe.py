@@ -1,3 +1,9 @@
+"""
+Tic_tac_toe command.
+
+(C) 2023 - B1ue-Dev
+"""
+
 import logging
 import asyncio
 import enum
