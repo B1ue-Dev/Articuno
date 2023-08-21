@@ -15,11 +15,11 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-import requests
 from PIL import Image
+from src.utils.utils import get_response
 
 
-def extract_pokemon_image(url: str) -> Image.Image:
+async def extract_pokemon_image(url: str) -> Image.Image:
     """
     Format the Pokemon image from the URL.
 
@@ -29,15 +29,58 @@ def extract_pokemon_image(url: str) -> Image.Image:
     :rtype: Image
     """
 
-    _resp = requests.get(url)
-    if _resp.status_code == 200:
-        img = Image.open(io.BytesIO(_resp.content)).convert("RGBA")
-        if img.size[0] > 120 and img.size[1] > 240:
-            img = img.resize((int(img.width * 2.2), int(img.height * 2.2)))
-        else:
-            img = img.resize((int(img.width * 3), int(img.height * 3)))
+    _resp = await get_response(url)
+    img = Image.open(_resp).convert("RGBA")
+    if img.size[0] > 120 and img.size[1] > 240:
+        img = img.resize((int(img.width * 2.2), int(img.height * 2.2)))
+    else:
+        img = img.resize((int(img.width * 3), int(img.height * 3)))
 
-        return img
+    return img
+
+
+async def generate_images(correct_pokemon) -> list[Image.Image]:
+    """Generate the images for the command."""
+
+    """The image of the Pokemon."""
+    _image = await extract_pokemon_image(
+        f"https://www.serebii.net/art/th/{correct_pokemon['num']}.png"
+    )
+
+    """Process the image and background."""
+    _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
+    bg = Image.open("./src/img/whos_that_pokemon.png")
+
+    _num = (400, 230)
+    text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+    text_img.paste(bg, (0, 0))
+    text_img.paste(_black_image, _num, _image)
+
+    """Image for the user guessing the Pokemon."""
+    out1 = io.BytesIO()
+    text_img.save(out1, format="PNG")
+    out1.seek(0)
+    file = interactions.File(
+        file_name="image.png",
+        file=out1,
+        description="Guess the Pokemon.",
+    )
+
+    """Image for the correct Pokemon."""
+    _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+    _text_img.paste(bg, (0, 0))
+    _text_img.paste(_image, _num, _image)
+
+    out2 = io.BytesIO()
+    _text_img.save(out2, format="PNG")
+    out2.seek(0)
+    _file = interactions.File(
+        file_name="image.png",
+        file=out2,
+        description=f"{correct_pokemon['name']}",
+    )
+
+    return [file, _file]
 
 
 def get_pokemon(generation: int = None) -> list:
@@ -51,7 +94,7 @@ def get_pokemon(generation: int = None) -> list:
     """
 
     _pokemon_list = {}
-    db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
+    db = json.loads(open("./src/db/pokemon.json", "r", encoding="utf8").read())
 
     if generation is None:
         generation = [1, 905]
@@ -156,43 +199,9 @@ class WTP(interactions.Extension):
                 """The correct Pokemon."""
                 correct_pokemon: Any = pokemon_list[random.randint(0, 3)]
 
-                """The image of the Pokemon."""
-                _image = extract_pokemon_image(
-                    f"https://www.serebii.net/art/th/{correct_pokemon['num']}.png"
-                )
-
-                """Process the image and background."""
-                _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
-                bg = Image.open("./img/whos_that_pokemon.png")
-
-                _num = (400, 230)
-                text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                text_img.paste(bg, (0, 0))
-                text_img.paste(_black_image, _num, _image)
-
-                """Image for the user guessing the Pokemon."""
-                out1 = io.BytesIO()
-                text_img.save(out1, format="PNG")
-                out1.seek(0)
-                file = interactions.File(
-                    file_name="image.png",
-                    file=out1,
-                    description="Guess the Pokemon.",
-                )
-
-                """Image for the correct Pokemon."""
-                _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                _text_img.paste(bg, (0, 0))
-                _text_img.paste(_image, _num, _image)
-
-                out2 = io.BytesIO()
-                _text_img.save(out2, format="PNG")
-                out2.seek(0)
-                _file = interactions.File(
-                    file_name="image.png",
-                    file=out2,
-                    description=f"{correct_pokemon['name']}",
-                )
+                results = await generate_images(correct_pokemon)
+                file = results[0]
+                _file = results[1]
 
                 _button_list = []
                 for i in range(4):
@@ -203,13 +212,19 @@ class WTP(interactions.Extension):
                             custom_id=f"{pokemon_list[i]['num']}",
                         )
                     )
+                _button_list.append(
+                    interactions.Button(
+                        style=interactions.ButtonStyle.DANGER,
+                        label="Give up",
+                        custom_id="give_up",
+                    )
+                )
 
                 msg = await _msg.edit(
                     content="**Who's that Pokemon?**",
                     components=_button_list,
                     file=file,
                 )
-                out1.close()
 
                 try:
 
@@ -251,7 +266,6 @@ class WTP(interactions.Extension):
                             components=_button_disabled,
                             file=_file,
                         )
-                        out2.close()
                         cnt += 1
                         await asyncio.sleep(3)
                         await _msg.edit(
@@ -260,6 +274,55 @@ class WTP(interactions.Extension):
                             attachments=[],
                         )
                         continue
+
+                    if res.ctx.custom_id == "give_up":
+                        _button_disabled = []
+                        for i in range(4):
+                            _button_disabled.append(
+                                interactions.Button(
+                                    style=(
+                                        interactions.ButtonStyle.SECONDARY
+                                        if str(pokemon_list[i]["num"])
+                                        != str(correct_pokemon["num"])
+                                        and str(pokemon_list[i]["num"])
+                                        != str(res.ctx.custom_id)
+                                        else (
+                                            interactions.ButtonStyle.DANGER
+                                            if str(pokemon_list[i]["num"])
+                                            == str(res.ctx.custom_id)
+                                            else interactions.ButtonStyle.SUCCESS
+                                        )
+                                    ),
+                                    label=f"{pokemon_list[i]['name']}",
+                                    custom_id=f"{pokemon_list[i]['num']}",
+                                    disabled=True,
+                                )
+                            )
+
+                        action_rows: list[interactions.ActionRow] = [
+                            interactions.ActionRow(*_button_disabled),
+                            interactions.ActionRow(
+                                interactions.Button(
+                                    style=interactions.ButtonStyle.LINK,
+                                    label=f"{correct_pokemon['name']} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                )
+                            ),
+                        ]
+
+                        await res.ctx.edit_origin(
+                            content="".join(
+                                [
+                                    "**Who's that Pokemon?**\n\n",
+                                    f"It's **{correct_pokemon['name']}**!",
+                                    f" {ctx.user.mention} gave up.",
+                                    f"\nStreak: {cnt}",
+                                ],
+                            ),
+                            components=action_rows,
+                            files=_file,
+                        )
+                        break
 
                     else:
                         _button_disabled = []
@@ -345,7 +408,6 @@ class WTP(interactions.Extension):
                         files=_file,
                     )
                     break
-            out2.close()  # Close the file.
 
         elif difficulty == "hard":
             cnt = 0
@@ -357,49 +419,22 @@ class WTP(interactions.Extension):
                 """The correct Pokemon."""
                 correct_pokemon: Any = pokemon_list[random.randint(0, 3)]
 
-                """The image of the Pokemon."""
-                _image = extract_pokemon_image(
-                    f"https://www.serebii.net/art/th/{correct_pokemon['num']}.png"
-                )
+                results = await generate_images(correct_pokemon)
+                file = results[0]
+                _file = results[1]
 
-                """Process the image and background."""
-                _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
-                bg = Image.open("./img/whos_that_pokemon.png")
-
-                _num = (400, 230)
-                text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                text_img.paste(bg, (0, 0))
-                text_img.paste(_black_image, _num, _image)
-
-                """Image for the user guessing the Pokemon."""
-                out1 = io.BytesIO()
-                text_img.save(out1, format="PNG")
-                out1.seek(0)
-                file = interactions.File(
-                    file_name="image.png",
-                    file=out1,
-                    description="Guess the Pokemon.",
-                )
-
-                """Image for the correct Pokemon."""
-                _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-                _text_img.paste(bg, (0, 0))
-                _text_img.paste(_image, _num, _image)
-
-                out2 = io.BytesIO()
-                _text_img.save(out2, format="PNG")
-                out2.seek(0)
-                _file = interactions.File(
-                    file_name="image.png",
-                    file=out2,
-                    description=f"{correct_pokemon['name']}",
-                )
-
-                button = interactions.Button(
-                    style=interactions.ButtonStyle.SECONDARY,
-                    label="Answer",
-                    custom_id="answer",
-                )
+                button = [
+                    interactions.Button(
+                        style=interactions.ButtonStyle.SECONDARY,
+                        label="Answer",
+                        custom_id="answer",
+                    ),
+                    interactions.Button(
+                        style=interactions.ButtonStyle.DANGER,
+                        label="Give up",
+                        custom_id="give_up",
+                    ),
+                ]
                 msg = await _msg.edit(
                     content="**Who's that Pokemon?**",
                     components=button,
@@ -412,7 +447,7 @@ class WTP(interactions.Extension):
                         return int(_ctx.ctx.user.id) == int(ctx.user.id)
 
                     res = await self.client.wait_for_component(
-                        components=[button],
+                        components=button,
                         check=_check,
                         messages=int(msg.id),
                         timeout=15,
@@ -431,53 +466,7 @@ class WTP(interactions.Extension):
                             max_length=100,
                         ),
                     )
-
-                    await res.ctx.send_modal(modal)
-
-                    def _check(_ctx):
-                        return int(_ctx.ctx.user.id) == int(ctx.user.id)
-
-                    _res = await self.client.wait_for_modal(
-                        modal=modal,
-                        author=ctx.author,
-                        timeout=15,
-                    )
-
-                    if (
-                        _res.responses["answer"].lower().rstrip()
-                        == correct_pokemon["name"].lower()
-                    ):
-                        button_disabled = interactions.Button(
-                            style=interactions.ButtonStyle.SECONDARY,
-                            label="Answer",
-                            custom_id="answer",
-                            disabled=True,
-                        )
-
-                        await _res.edit(
-                            message=_res.message_id,
-                            content="".join(
-                                [
-                                    "**Who's that Pokemon?**\n\n",
-                                    f"It's **{correct_pokemon['name']}**! ",
-                                    f"{ctx.user.mention} had the right answer.",
-                                ]
-                            ),
-                            components=button_disabled,
-                            files=_file,
-                            attachments=[],
-                        )
-                        out2.close()
-                        cnt += 1
-                        await asyncio.sleep(3)
-                        await _msg.edit(
-                            content=f"Generating...\nStreak: {cnt}",
-                            components=[],
-                            attachments=[],
-                        )
-                        continue
-
-                    else:
+                    if res.ctx.custom_id == "give_up":
                         action_rows = [
                             interactions.ActionRow(
                                 interactions.Button(
@@ -496,21 +485,99 @@ class WTP(interactions.Extension):
                             ),
                         ]
 
-                        await _res.edit(
-                            message=_res.message_id,
+                        await res.ctx.edit_origin(
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
                                     f"It's **{correct_pokemon['name']}**!",
-                                    f"{ctx.user.mention} had the wrong answer.",
+                                    f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
                             ),
                             components=action_rows,
                             files=_file,
-                            attachments=[],
                         )
                         break
+
+                    else:
+                        await res.ctx.send_modal(modal)
+
+                        def _check(_ctx):
+                            return int(_ctx.ctx.user.id) == int(ctx.user.id)
+
+                        _res = await self.client.wait_for_modal(
+                            modal=modal,
+                            author=ctx.author,
+                            timeout=15,
+                        )
+
+                        if (
+                            _res.responses["answer"].lower().rstrip()
+                            == correct_pokemon["name"].lower()
+                        ):
+                            button_disabled = interactions.Button(
+                                style=interactions.ButtonStyle.SECONDARY,
+                                label="Answer",
+                                custom_id="answer",
+                                disabled=True,
+                            )
+
+                            await _res.edit(
+                                message=_res.message_id,
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{correct_pokemon['name']}**! ",
+                                        f"{ctx.user.mention} had the right answer.",
+                                    ]
+                                ),
+                                components=button_disabled,
+                                files=_file,
+                                attachments=[],
+                            )
+                            cnt += 1
+                            await asyncio.sleep(3)
+                            await _msg.edit(
+                                content=f"Generating...\nStreak: {cnt}",
+                                components=[],
+                                attachments=[],
+                            )
+                            continue
+
+                        else:
+                            action_rows = [
+                                interactions.ActionRow(
+                                    interactions.Button(
+                                        style=interactions.ButtonStyle.SECONDARY,
+                                        label="Answer",
+                                        custom_id="answer",
+                                        disabled=True,
+                                    )
+                                ),
+                                interactions.ActionRow(
+                                    interactions.Button(
+                                        style=interactions.ButtonStyle.LINK,
+                                        label=f"{correct_pokemon['name']} (Bulbapedia)",
+                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                    )
+                                ),
+                            ]
+
+                            await _res.edit(
+                                message=_res.message_id,
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{correct_pokemon['name']}**!",
+                                        f" {ctx.user.mention} had the wrong answer.",
+                                        f"\nStreak: {cnt}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                                attachments=[],
+                            )
+                            break
 
                 except asyncio.TimeoutError:
                     action_rows = [
@@ -544,7 +611,6 @@ class WTP(interactions.Extension):
                         file=_file,
                     )
                     break
-            out2.close()  # Close the file.
 
 
 def setup(client) -> None:
