@@ -35,7 +35,9 @@ class Pokemon(interactions.Extension):
         """Shows the information about a Pokemon."""
 
         name_lower = pokemon_name.lower()
-        db = json.loads(open("./db/pokemon.json", "r", encoding="utf8").read())
+        db = json.loads(
+            open("./src/db/pokemon.json", "r", encoding="utf8").read()
+        )
         if name_lower in db:
             name = db[name_lower]["name"] + (
                 " (Hey, that's me!)"
@@ -44,7 +46,6 @@ class Pokemon(interactions.Extension):
             )
             id = db[name_lower]["num"]
             types = ", ".join(db[name_lower]["types"])
-            desp = db[name_lower]["description"]
             stats = "".join(
                 [
                     f"**HP:** {db[name_lower]['baseStats']['hp']}\n",
@@ -103,7 +104,6 @@ class Pokemon(interactions.Extension):
             ]
             embed = interactions.Embed(
                 title=f"{name}",
-                description=f"{desp}",
                 footer=footer,
                 thumbnail=thumbnail,
                 fields=fields,
@@ -125,7 +125,7 @@ class Pokemon(interactions.Extension):
         else:
             letters = []
         data: list[str] = json.loads(
-            open("./db/pokemon.json", "r", encoding="utf8").read()
+            open("./src/db/pokemon.json", "r", encoding="utf8").read()
         )
         if len(pokemon_name) == 0:
             await ctx.send(
@@ -166,7 +166,7 @@ class Pokemon(interactions.Extension):
             ends = int(len(_msg.content) - 7)
             msg = str(_msg.content)[-ends:].lower()
             data = json.loads(
-                open("./db/pokemon.json", "r", encoding="utf8").read()
+                open("./src/db/pokemon.json", "r", encoding="utf8").read()
             )
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{msg}.gif"
@@ -179,7 +179,7 @@ class Pokemon(interactions.Extension):
             ends = int(len(_msg.content) - 1)
             msg = str(_msg.content)[-ends:].lower()
             data = json.loads(
-                open("./db/pokemon.json", "r", encoding="utf8").read()
+                open("./src/db/pokemon.json", "r", encoding="utf8").read()
             )
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani/{msg}.gif"
