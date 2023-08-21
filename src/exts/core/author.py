@@ -11,6 +11,7 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from src.const import VERSION
+from src.utils.utils import handle_username
 
 
 class Author(interactions.Extension):
@@ -81,7 +82,7 @@ class Author(interactions.Extension):
         )
 
         footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+            text=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
@@ -119,7 +120,7 @@ class Author(interactions.Extension):
         ]
 
         footer = interactions.EmbedFooter(
-            text=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+            text=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
