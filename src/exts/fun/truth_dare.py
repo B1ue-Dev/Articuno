@@ -5,13 +5,12 @@ Truth n Dare command.
 """
 
 import logging
-import datetime
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.utils.utils import get_response
+from src.utils.utils import get_response, handle_username
 
 
 def _buttons() -> "list[interactions.Button]":
@@ -74,13 +73,12 @@ class TruthDare(interactions.Extension):
             description=f"```\n{_question}\n```",
             color=0x2D7D46,
             author=interactions.EmbedAuthor(
-                name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
                 icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: TRUTH  •  ID: {_id}  •  Rating: PG"
             ),
-            timestamp=datetime.datetime.utcnow(),
         )
         await ctx.send(embeds=embed, components=_buttons())
 
@@ -97,13 +95,12 @@ class TruthDare(interactions.Extension):
             description=f"```\n{_question}\n```",
             color=0xD83C3E,
             author=interactions.EmbedAuthor(
-                name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
                 icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: DARE  •  ID: {_id}  •  Rating: PG"
             ),
-            timestamp=datetime.datetime.utcnow(),
         )
         await ctx.send(embeds=embed, components=_buttons())
 
@@ -120,13 +117,12 @@ class TruthDare(interactions.Extension):
             description=f"```\n{_question}\n```",
             color=0x5865F2,
             author=interactions.EmbedAuthor(
-                name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
                 icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: Would you rather...  •  ID: {_id}  •  Rating: PG"
             ),
-            timestamp=datetime.datetime.utcnow(),
         )
         await ctx.send(embeds=embed, components=_buttons())
 
@@ -143,13 +139,12 @@ class TruthDare(interactions.Extension):
             description=f"```\n{_question}\n```",
             color=0x4F545C,
             author=interactions.EmbedAuthor(
-                name=f"Requested by {ctx.user.username}#{ctx.user.discriminator}",
+                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
                 icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
                 text=f"Type: Paranoia  •  ID: {_id}  •  Rating: PG"
             ),
-            timestamp=datetime.datetime.utcnow(),
         )
         await ctx.send(embeds=embed, components=_buttons())
 
