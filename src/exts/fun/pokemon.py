@@ -13,6 +13,11 @@ from interactions.ext.hybrid_commands import (
 )
 
 
+data: list[str] = json.loads(
+    open("./src/db/pokemon.json", "r", encoding="utf8").read()
+)
+
+
 class Pokemon(interactions.Extension):
     """Extension for /pokedex command."""
 
@@ -35,31 +40,28 @@ class Pokemon(interactions.Extension):
         """Shows the information about a Pokemon."""
 
         name_lower = pokemon_name.lower()
-        db = json.loads(
-            open("./src/db/pokemon.json", "r", encoding="utf8").read()
-        )
-        if name_lower in db:
-            name = db[name_lower]["name"] + (
+        if name_lower in data:
+            name = data[name_lower]["name"] + (
                 " (Hey, that's me!)"
-                if db[name_lower]["name"] == "Articuno"
+                if data[name_lower]["name"] == "Articuno"
                 else ""
             )
-            id = db[name_lower]["num"]
-            types = ", ".join(db[name_lower]["types"])
+            id = data[name_lower]["num"]
+            types = ", ".join(data[name_lower]["types"])
             stats = "".join(
                 [
-                    f"**HP:** {db[name_lower]['baseStats']['hp']}\n",
-                    f"**Attack:** {db[name_lower]['baseStats']['atk']}\n",
-                    f"**Defense:** {db[name_lower]['baseStats']['def']}\n",
-                    f"**Special Attack:** {db[name_lower]['baseStats']['spa']}\n",
-                    f"**Special Defense:** {db[name_lower]['baseStats']['spd']}\n",
-                    f"**Speed:** {db[name_lower]['baseStats']['spe']}\n",
+                    f"**HP:** {data[name_lower]['baseStats']['hp']}\n",
+                    f"**Attack:** {data[name_lower]['baseStats']['atk']}\n",
+                    f"**Defense:** {data[name_lower]['baseStats']['def']}\n",
+                    f"**Special Attack:** {data[name_lower]['baseStats']['spa']}\n",
+                    f"**Special Defense:** {data[name_lower]['baseStats']['spd']}\n",
+                    f"**Speed:** {data[name_lower]['baseStats']['spe']}\n",
                 ]
             )
-            abilities = ", ".join(list(db[name_lower]["abilities"].values()))
-            egg_group = ", ".join(db[name_lower]["eggGroups"])
-            height = db[name_lower]["heightm"]
-            weight = db[name_lower]["weightkg"]
+            abilities = ", ".join(list(data[name_lower]["abilities"].values()))
+            egg_group = ", ".join(data[name_lower]["eggGroups"])
+            height = data[name_lower]["heightm"]
+            weight = data[name_lower]["weightkg"]
 
             if int(id) < int(10):
                 id = "00" + str(id)
@@ -70,7 +72,7 @@ class Pokemon(interactions.Extension):
             else:
                 id = int(id)
 
-            evs = db[name_lower]["evolutionLine"]
+            evs = data[name_lower]["evolutionLine"]
             if str(evs) != "[]":
                 evs = "\n".join(evs)
             else:
@@ -79,7 +81,7 @@ class Pokemon(interactions.Extension):
             sprites_url_still = f"https://www.serebii.net/art/th/{id}.png"
 
             footer = interactions.EmbedFooter(
-                text=f"First introduced in Generation {db[name_lower]['generation']}",
+                text=f"First introduced in Generation {data[name_lower]['generation']}",
                 icon_url="https://seeklogo.com/images/P/pokeball-logo-DC23868CA1-seeklogo.com.png",
             )
             thumbnail = interactions.EmbedAttachment(url=sprites_url_still)
@@ -124,20 +126,17 @@ class Pokemon(interactions.Extension):
             letters: list = pokemon_name
         else:
             letters = []
-        data: list[str] = json.loads(
-            open("./src/db/pokemon.json", "r", encoding="utf8").read()
-        )
         if len(pokemon_name) == 0:
             await ctx.send(
                 [
                     {
-                        "name": name[0].capitalize(),
-                        "value": name[0].capitalize(),
+                        "name": data[name]["name"],
+                        "value": name,
                     }
                     for name in (
-                        list(data.items())[0:24]
+                        list(data.keys())[0:24]
                         if len(data) > 10
-                        else list(data.items())
+                        else list(data.keys())
                     )
                 ]
             )
@@ -148,8 +147,8 @@ class Pokemon(interactions.Extension):
                 if focus.lower() in pkmn_name and len(choices) < 20:
                     choices.append(
                         {
-                            "name": pkmn_name.capitalize(),
-                            "value": pkmn_name.capitalize(),
+                            "name": data[pkmn_name]["name"],
+                            "value": pkmn_name,
                         }
                     )
             await ctx.send(choices)
@@ -165,9 +164,6 @@ class Pokemon(interactions.Extension):
         if _msg.content.startswith("$shiny"):
             ends = int(len(_msg.content) - 7)
             msg = str(_msg.content)[-ends:].lower()
-            data = json.loads(
-                open("./src/db/pokemon.json", "r", encoding="utf8").read()
-            )
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani-shiny/{msg}.gif"
                 embed = interactions.Embed(
@@ -178,9 +174,6 @@ class Pokemon(interactions.Extension):
         elif _msg.content.startswith("$"):
             ends = int(len(_msg.content) - 1)
             msg = str(_msg.content)[-ends:].lower()
-            data = json.loads(
-                open("./src/db/pokemon.json", "r", encoding="utf8").read()
-            )
             if msg in data:
                 img = f"https://play.pokemonshowdown.com/sprites/ani/{msg}.gif"
                 embed = interactions.Embed(
