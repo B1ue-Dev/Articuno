@@ -16,6 +16,9 @@ from interactions.ext.hybrid_commands import (
 data: list[str] = json.loads(
     open("./src/db/pokemon.json", "r", encoding="utf8").read()
 )
+poketwo_list: list[str] = []
+for mon in list(data.keys()):
+    poketwo_list.append(data[mon]["name"])
 
 
 class Pokemon(interactions.Extension):
@@ -152,6 +155,36 @@ class Pokemon(interactions.Extension):
                         }
                     )
             await ctx.send(choices)
+
+    @hybrid_slash_command(
+        name="poketwo",
+        description="Search for Pokemon based on Poketwo hint.",
+    )
+    @interactions.slash_option(
+        name="hint",
+        description="The Poketwo hint.",
+        opt_type=interactions.OptionType.STRING,
+        required=True,
+    )
+    async def poketwo(self, ctx: HybridContext, *, hint: interactions.ConsumeRest[str]) -> None:
+        """Search for Pokemon based on Poketwo hint."""
+
+        result = []
+        for i in poketwo_list:
+            if len(i) == len(hint) and all(
+                [
+                    i[j] == hint[j] or hint[j] == "_" or (hint[j] == "-" and i[j] == "-")
+                    for j in range(len(hint))
+                ]
+            ):
+                result.append(i)
+        if len(result) == 0:
+            return await ctx.send("No result found.")
+
+        cases: str = ""
+        for case in result:
+            cases += f"- {case}\n"
+        await ctx.send(f"Here are all possible cases:\n{cases}")
 
     @interactions.listen()
     async def on_message_create(
