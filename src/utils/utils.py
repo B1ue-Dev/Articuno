@@ -146,10 +146,10 @@ def get_local_time() -> datetime:
     local_time = utc_time + timedelta(hours=7)
     return local_time
 
-def handle_username(name: str, discriminator: int) -> str:
+def handle_username(name: str, discriminator: str) -> str:
     """Returns the username in old/new format."""
 
-    if discriminator == 0:
+    if str(discriminator) == "0":
         return f"@{name}"
     else:
         return f"{name}#{discriminator}"
