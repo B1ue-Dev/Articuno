@@ -5,9 +5,8 @@ Root file for exts/fun.
 """
 
 import logging
-import datetime
 import interactions
-from const import EXT_FUN
+from src.const import EXT_FUN
 
 
 class Fun(interactions.Extension):
@@ -15,14 +14,10 @@ class Fun(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        [self.client.load_extension(f"exts.fun.{ext}") for ext in EXT_FUN]
+        [self.client.load_extension(f"src.exts.fun.{ext}") for ext in EXT_FUN]
 
 
 def setup(client) -> None:
     """Setup the extension"""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
     Fun(client)
     logging.info("Loaded Fun extension.")
-    print(f"[{log_time}] Loaded Fun extension.")

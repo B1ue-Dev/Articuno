@@ -4,13 +4,10 @@ Main runner file.
 (C) 2023 - B1ue-Dev
 """
 
-import sys
-sys.path.append("src")
-
 import asyncio
 import logging
-from bot import start
-from utils.utils import get_local_time
+from src.bot import start
+from src.utils.utils import get_local_time
 
 
 logger = logging.getLogger()

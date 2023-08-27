@@ -12,14 +12,13 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from utils.utils import get_response
-from const import SOME_RANDOM_API
+from src.utils.utils import get_response
+from src.const import SOME_RANDOM_API
 
 
 class Fun(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-
 
     @hybrid_slash_command(
         name="coffee",
