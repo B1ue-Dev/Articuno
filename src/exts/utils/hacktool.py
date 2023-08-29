@@ -12,7 +12,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
     HybridContext,
 )
-from utils import brainfuck, utils
+from src.utils import brainfuck, utils
 
 
 class HackTool(interactions.Extension):

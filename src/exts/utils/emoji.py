@@ -9,7 +9,7 @@ import io
 import re
 import interactions
 import aiohttp
-from utils.permission import Permissions, has_permission
+from src.utils.utils import Permissions, has_permission
 
 
 class Emote:

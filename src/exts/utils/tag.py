@@ -10,8 +10,8 @@ from datetime import datetime, timezone
 from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
-from utils.permission import Permissions, has_permission
-from utils.utils import tags
+from src.utils.utils import Permissions, has_permission
+from src.utils.utils import tags
 
 
 def get_utc_time() -> datetime:
