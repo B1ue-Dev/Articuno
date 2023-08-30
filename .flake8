@@ -6,3 +6,4 @@ exclude =
     .db
     .conda
     .env
+    env
