@@ -109,8 +109,7 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
     @hybrid_slash_command(
-        name="dadjoke",
-        description="Sends a random dadjoke."
+        name="dadjoke", description="Sends a random dadjoke."
     )
     async def dadjoke(self, ctx: HybridContext) -> None:
         """Sends a random dadjoke."""
