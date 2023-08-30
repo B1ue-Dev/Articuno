@@ -160,42 +160,6 @@ class Misc(interactions.Extension):
         )
         await ctx.send(file=img)
 
-    @hybrid_slash_command(
-        name="pet",
-        description="Pet someone.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.USER,
-                name="user",
-                description="Targeted user",
-                required=True,
-            ),
-        ],
-        dm_permission=False,
-    )
-    async def pet(self, ctx: HybridContext, user: interactions.Member) -> None:
-        """Pet someone."""
-
-        url = "https://some-random-api.com/premium/petpet"
-        params = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
-            "key": apikey,
-        }
-        resp = await get_response(url, params)
-        img = interactions.File(
-            file_name="image.gif",
-            file=resp,
-            description="PetPet",
-        )
-        await ctx.send(
-            content="Hey, thanks for the pat. ^_^"
-            if int(user.id) == int(self.client.user.id)
-            else None,
-            file=img,
-        )
-
 
 def setup(client) -> None:
     """Setup the extension."""
