@@ -10,8 +10,11 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.const import VERSION
-from src.utils.utils import handle_username
+from src.const import VERSION, TOPGGAPI
+from src.utils.utils import (
+    handle_username,
+    get_response,
+)
 
 
 class Author(interactions.Extension):
@@ -136,6 +139,39 @@ class Author(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, components=buttons)
+
+    @hybrid_slash_command(
+        name="vote", description="Vote for Articuno on Top-gg."
+    )
+    async def vote(self, ctx: HybridContext) -> None:
+        """Vote for Articuno on Top-gg."""
+
+        url: str = "https://top.gg/api/bots/809084067446259722/check"
+        headers: dict = {"Authorization": TOPGGAPI}
+        params: dict = {"userId": ctx.user.id}
+        resp = await get_response(url=url, headers=headers, params=params)
+
+        button = interactions.Button(
+            style=interactions.ButtonStyle.LINK,
+            label="Vote here",
+            url=f"{self.topgg}/vote",
+        )
+
+        embed = interactions.Embed(
+            title=f"Vote for Articuno on Top-gg.",
+            description="".join(
+                [
+                    "Thanks for voting. ",
+                    f"""You have voted for Articuno {resp["voted"]} times.""",
+                    " While you get nothing, it helps the bot grow!",
+                ]
+            ),
+            color=0x7CB7D3,
+        )
+
+        await ctx.send(
+            content=f"{self.topgg}/vote", embed=embed, components=[button]
+        )
 
 
 def setup(client) -> None:
