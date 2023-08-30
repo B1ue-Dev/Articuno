@@ -17,6 +17,8 @@ from src.const import SOME_RANDOM_API
 
 
 class Fun(interactions.Extension):
+    """Extension for fun related commands."""
+
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
@@ -63,33 +65,6 @@ class Fun(interactions.Extension):
         await ctx.edit(
             message=msg.id, content=f"The coin landed on **{coin}**."
         )
-
-    @hybrid_slash_command(
-        name="gay",
-        description="Calculate the gay percentage of a user.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="user",
-                description="Targeted user",
-                required=False,
-            ),
-        ],
-    )
-    async def gay(self, ctx: HybridContext, user: str = None) -> None:
-        """Calculates the gay percentage of a user."""
-
-        if not user:
-            user = ctx.user.username
-        perc = int(random.randint(0, 100))
-
-        embed = interactions.Embed(
-            title="Gay measure tool",
-            description=f"**{user}** is {perc}% gay.",
-            color=random.randint(0, 0xFFFFFF),
-        )
-
-        await ctx.send(embeds=embed)
 
     @hybrid_slash_command(
         name="joke",
