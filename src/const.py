@@ -53,3 +53,6 @@ GOOGLE_CSE = os.getenv("GOOGLE_CSE")
 
 MONGO_DB_URL = os.getenv("MONGO_DB_URL")
 """MongoDB Cluster URL."""
+
+TOPGGAPI = os.getenv("TOPGGAPI")
+"""Top-gg API key."""
