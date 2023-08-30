@@ -166,14 +166,18 @@ class Pokemon(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def poketwo(self, ctx: HybridContext, *, hint: interactions.ConsumeRest[str]) -> None:
+    async def poketwo(
+        self, ctx: HybridContext, *, hint: interactions.ConsumeRest[str]
+    ) -> None:
         """Search for Pokemon based on Poketwo hint."""
 
         result = []
         for i in poketwo_list:
             if len(i) == len(hint) and all(
                 [
-                    i[j] == hint[j] or hint[j] == "_" or (hint[j] == "-" and i[j] == "-")
+                    i[j] == hint[j]
+                    or hint[j] == "_"
+                    or (hint[j] == "-" and i[j] == "-")
                     for j in range(len(hint))
                 ]
             ):

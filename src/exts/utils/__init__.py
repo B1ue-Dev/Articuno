@@ -15,7 +15,10 @@ class Utils(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        [self.client.load_extension(f"src.exts.utils.{ext}") for ext in EXT_UTILS]
+        [
+            self.client.load_extension(f"src.exts.utils.{ext}")
+            for ext in EXT_UTILS
+        ]
 
 
 def setup(client) -> None:

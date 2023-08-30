@@ -6,7 +6,7 @@ Utils for Articuno.
 
 import math
 import io
-from typing import Any, Union
+from typing import Union
 from enum import Enum
 from datetime import datetime, timedelta, timezone
 import aiohttp
@@ -24,7 +24,7 @@ class tags(Document):
 
 async def get_response(
     url: str = None, params: dict = None, headers: dict = None
-) -> Any:
+) -> io.BytesIO | dict:
     """Return the data type from the request."""
 
     async with aiohttp.ClientSession() as session:
@@ -147,6 +147,7 @@ def get_local_time() -> datetime:
     local_time = utc_time + timedelta(hours=7)
     return local_time
 
+
 def handle_username(name: str, discriminator: str) -> str:
     """Returns the username in old/new format."""
 
@@ -154,6 +155,7 @@ def handle_username(name: str, discriminator: str) -> str:
         return f"@{name}"
     else:
         return f"{name}#{discriminator}"
+
 
 # https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
 class Permissions(Enum):

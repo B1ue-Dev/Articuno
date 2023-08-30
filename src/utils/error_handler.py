@@ -8,7 +8,7 @@ import logging
 import datetime
 import traceback
 import interactions
-from interactions.ext.hybrid_commands import HybridContext
+from interactions.ext.prefixed_commands import PrefixedContext
 from src.const import LOG_CHANNEL
 
 
@@ -77,7 +77,9 @@ async def handle_error(
 
     await log_channel.send(embeds=log_error)
 
-    if ctx and isinstance(ctx, interactions.InteractionContext | HybridContext):
+    if ctx and isinstance(
+        ctx, interactions.InteractionContext | PrefixedContext
+    ):
         embed = interactions.Embed(
             title="**Uh oh...**",
             description="".join(
@@ -101,7 +103,7 @@ async def handle_error(
 
 
 class Error(interactions.Extension):
-    """on_command_error callback."""
+    """on_error callback."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
@@ -132,7 +134,9 @@ class Error(interactions.Extension):
                 )
 
         else:
-            if not isinstance(event.ctx, interactions.InteractionContext | HybridContext):
+            if not isinstance(
+                event.ctx, interactions.InteractionContext | PrefixedContext
+            ):
                 return await handle_error(
                     self, error=event.error, error_time=error_time
                 )
