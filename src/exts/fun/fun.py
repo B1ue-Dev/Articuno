@@ -109,6 +109,27 @@ class Fun(interactions.Extension):
         await ctx.send(embeds=embed)
 
     @hybrid_slash_command(
+        name="dadjoke",
+        description="Sends a random dadjoke."
+    )
+    async def dadjoke(self, ctx: HybridContext) -> None:
+        """Sends a random dadjoke."""
+
+        url: str = "https://icanhazdadjoke.com"
+        headers: dict = {
+            "User-Agent": "Articuno (https://github.com/B1ue-Dev/Articuno)",
+            "Accept": "application/json",
+        }
+        resp = await get_response(url=url, headers=headers)
+
+        embed = interactions.Embed(
+            description=resp["joke"],
+            color=random.randint(0, 0xFFFFFF),
+        )
+
+        await ctx.send(embeds=embed)
+
+    @hybrid_slash_command(
         name="quote",
         description="Send a quote.",
     )
