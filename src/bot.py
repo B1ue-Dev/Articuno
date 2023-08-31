@@ -9,13 +9,14 @@ import logging
 import datetime
 import aiohttp
 import interactions
+import colorlog
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from beanie import init_beanie
-from const import TOKEN, VERSION, MONGO_DB_URL
-from utils.utils import get_response, tags
+from src.const import TOKEN, VERSION, MONGO_DB_URL
+from src.utils.utils import get_response, tags, get_local_time
 
 
 async def get_latest_release_version() -> str:
@@ -24,6 +25,35 @@ async def get_latest_release_version() -> str:
     url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
     response = await get_response(url)
     return response["tag_name"]
+
+
+def logger_config() -> logging.Logger:
+    """Setup the logging environment."""
+
+    log = logging.getLogger()
+    logging.Formatter.converter = lambda *args: get_local_time().timetuple()
+    log.setLevel(logging.INFO)
+    format_str = (
+        "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s"
+    )
+    date_format = "%d/%m/%Y %H:%M:%S"
+    cformat = "%(log_color)s" + format_str
+    colors = {
+        "DEBUG": "white",
+        "INFO": "white",
+        "WARNING": "fg_bold_yellow",
+        "ERROR": "fg_bold_red",
+        "CRITICAL": "red",
+    }
+    formatter = colorlog.ColoredFormatter(
+        fmt=cformat,
+        datefmt=date_format,
+        log_colors=colors,
+    )
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    log.addHandler(stream_handler)
+    return log
 
 
 client = interactions.Client(
@@ -36,13 +66,7 @@ client = interactions.Client(
     | interactions.Intents.GUILD_MEMBERS,
     status=interactions.Status.ONLINE,
     send_command_tracebacks=False,
-    message_cache=interactions.utils.TTLCache(600, 10, 100),
-    role_cache=interactions.utils.TTLCache(10, 10, 50),
-    user_cache=interactions.utils.TTLCache(100, 10, 50),
-    member_cache=interactions.utils.TTLCache(100, 10, 50),
-    voice_state_cache=interactions.utils.NullCache(),
-    user_guilds=interactions.utils.NullCache(100, 10, 50),
-    dm_channels=interactions.utils.NullCache(),
+    logger=logger_config(),
 )
 prefixed_setup(client, default_prefix="$")
 hybrid_setup(client)
@@ -152,7 +176,7 @@ async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
                 [
                     "I could not help much but noticed you mentioned me.",
                     f"You can type ``/`` and choose **{client.user.username}**",
-                    "to start using me. Alternatively, you can use ",
+                    " to start using me. Alternatively, you can use ",
                     "`$help` or `/help` to see a list of available ",
                     "commands. Thank you for choosing Articuno. ^-^",
                 ],
@@ -170,15 +194,16 @@ async def start() -> None:
         mongo_client.admin.command("ping")
         logging.info("Successfully connected to MongoDB!")
     except Exception as e:
-        logging.error(e)
+        logging.critical(e)
     await init_beanie(mongo_client["Articuno"], document_models=[tags])
 
     client.session = aiohttp.ClientSession()
 
-    client.load_extension("exts.core.__init__")
-    client.load_extension("exts.fun.__init__")
-    client.load_extension("exts.server.__init__")
-    client.load_extension("exts.utils.__init__")
+    client.load_extension("src.utils.jsk")
+    client.load_extension("src.utils.error_handler")
+    client.load_extension("src.exts.core.__init__")
+    client.load_extension("src.exts.fun.__init__")
+    client.load_extension("src.exts.utils.__init__")
 
     try:
         await client.astart(TOKEN)
