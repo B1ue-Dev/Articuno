@@ -5,7 +5,6 @@ Root file for exts/utils.
 """
 
 import logging
-import datetime
 import interactions
 from src.const import EXT_UTILS
 
@@ -23,9 +22,5 @@ class Utils(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension"""
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
     Utils(client)
     logging.info("Loaded Utils extension.")
-    print(f"[{log_time}] Loaded Utils extension.")
