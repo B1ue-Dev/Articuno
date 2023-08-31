@@ -4,6 +4,7 @@ Utils for Articuno.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import logging
 import math
 import io
 from typing import Union
@@ -24,7 +25,7 @@ class tags(Document):
 
 async def get_response(
     url: str = None, params: dict = None, headers: dict = None
-) -> io.BytesIO | dict:
+) -> io.BytesIO | dict | None:
     """Return the data type from the request."""
 
     async with aiohttp.ClientSession() as session:
@@ -38,6 +39,9 @@ async def get_response(
                     "image/gif",
                 }:
                     return io.BytesIO(await resp.read())
+            else:
+                logging.critical(f"{url} returned {resp.status}.")
+                return None
     await session.close()
 
 
