@@ -24,6 +24,8 @@ class HackTool(interactions.Extension):
     @hybrid_slash_subcommand(
         base="base64",
         base_description="Base64 commands.",
+        name="encode",
+        description="Encodes a string using base64.",
     )
     @interactions.slash_option(
         name="string",
@@ -54,6 +56,8 @@ class HackTool(interactions.Extension):
     @hybrid_slash_subcommand(
         base="base64",
         base_description="Base64 commands.",
+        name="decode",
+        description="Decodes a string using base64.",
     )
     @interactions.slash_option(
         name="string",
@@ -76,7 +80,10 @@ class HackTool(interactions.Extension):
             )
 
     @hybrid_slash_subcommand(
-        base="brainfuck", base_description="Brainfuck commands."
+        base="brainfuck",
+        base_description="Brainfuck commands.",
+        name="convert",
+        description="Converts a string into brainfuck code.",
     )
     @interactions.slash_option(
         name="string",
@@ -102,7 +109,10 @@ class HackTool(interactions.Extension):
             )
 
     @hybrid_slash_subcommand(
-        base="brainfuck", base_description="Brainfuck commands."
+        base="brainfuck",
+        base_description="Brainfuck commands.",
+        name="interpret",
+        description="Interprets a brainfuck code.",
     )
     @interactions.slash_option(
         name="code",

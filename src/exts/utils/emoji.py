@@ -107,7 +107,10 @@ class Emoji(interactions.Extension):
         """Emoji management commands."""
         ...
 
-    @emoji.subcommand()
+    @emoji.subcommand(
+        sub_cmd_name="info",
+        sub_cmd_description="Checks the information about an emoji."
+    )
     @interactions.slash_option(
         name="emoji",
         description="Target emoji",
@@ -251,7 +254,10 @@ class Emoji(interactions.Extension):
                 ephemeral=True,
             )
 
-    @emoji.subcommand()
+    @emoji.subcommand(
+        sub_cmd_name="steal",
+        sub_cmd_description="Gets an emoji from another server and adds to the current one."
+    )
     @interactions.slash_option(
         name="emoji",
         description="The emoji you wish to add",
@@ -382,7 +388,10 @@ class Emoji(interactions.Extension):
         else:
             await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
 
-    @emoji.subcommand()
+    @emoji.subcommand(
+        sub_cmd_name="add",
+        sub_cmd_description="Creates an emoji from a URL or an image."
+    )
     @interactions.slash_option(
         name="emoji_name",
         description="The name of the emoji you want to create",
@@ -408,7 +417,7 @@ class Emoji(interactions.Extension):
         url: str = None,
         image: interactions.Attachment = None,
     ):
-        """Creates an emoji from a URL."""
+        """Creates an emoji from a URL or an image."""
 
         if not (
             has_permission(
@@ -535,7 +544,10 @@ class Emoji(interactions.Extension):
                         )
                     )
 
-    @emoji.subcommand()
+    @emoji.subcommand(
+        sub_cmd_name="remove",
+        sub_cmd_description="Deletes an emoji from the server.",
+    )
     @interactions.slash_option(
         name="emoji",
         description="The emoji you wish to remove",

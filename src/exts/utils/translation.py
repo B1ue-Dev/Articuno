@@ -249,7 +249,10 @@ class Translation(interactions.Extension):
         """Handle message translation aspects."""
         ...
 
-    @translate.subcommand()
+    @translate.subcommand(
+        sub_cmd_name="text",
+        sub_cmd_description="Translate a piece of text."
+    )
     @interactions.slash_option(
         name="text",
         description="The text to translate.",
@@ -333,7 +336,10 @@ class Translation(interactions.Extension):
             except asyncio.TimeoutError:
                 break
 
-    @translate.subcommand()
+    @translate.subcommand(
+        sub_cmd_name="message",
+        sub_cmd_description="Translate a message to another language.",
+    )
     @interactions.slash_option(
         name="message_id",
         description="The ID of the message to translate.",

@@ -35,7 +35,10 @@ class Tag(interactions.Extension):
         """Handle all tag aspects."""
         ...
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="create",
+        sub_cmd_description="Creates a new tag."
+    )
     async def create(self, ctx: interactions.SlashContext) -> None:
         """Creates a new tag."""
 
@@ -76,7 +79,10 @@ class Tag(interactions.Extension):
 
         await ctx.send_modal(modal)
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="view",
+        sub_cmd_description="Views a tag.",
+    )
     @interactions.slash_option(
         name="tag_name",
         description="The name of the tag",
@@ -106,7 +112,10 @@ class Tag(interactions.Extension):
             else:
                 return await ctx.send("Tag not found.")
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="edit",
+        sub_cmd_description="Edits a tag.",
+    )
     @interactions.slash_option(
         name="tag_name",
         description="The name of the tag",
@@ -169,7 +178,10 @@ class Tag(interactions.Extension):
 
         await ctx.send_modal(modal)
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="info",
+        sub_cmd_description="Shows the information about a tag.",
+    )
     @interactions.slash_option(
         name="tag_name",
         description="The name of the tag",
@@ -238,7 +250,10 @@ class Tag(interactions.Extension):
             else:
                 return await ctx.send("Tag not found.")
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="delete",
+        sub_cmd_description="Deletes a tag."
+    )
     @interactions.slash_option(
         name="tag_name",
         description="The name of the tag",
@@ -340,7 +355,10 @@ class Tag(interactions.Extension):
                 components=[],
             )
 
-    @tag.subcommand()
+    @tag.subcommand(
+        sub_cmd_name="list",
+        sub_cmd_description="Lists all tag within the server.",
+    )
     async def list(self, ctx: interactions.SlashContext) -> None:
         """Lists all tag within the server."""
 
