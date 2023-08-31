@@ -4,7 +4,6 @@ Error system handler.
 (C) 2022-2023 - B1ue-Dev
 """
 
-import logging
 import datetime
 import traceback
 import interactions
@@ -45,7 +44,6 @@ async def handle_error(
     for i in traceb:
         er = er + f"{i}"
 
-    logging.error(traceb)
     log_channel = self.client.get_channel(LOG_CHANNEL)
 
     log_error = interactions.Embed(
@@ -108,10 +106,8 @@ class Error(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.listen(
-        disable_default_listeners=True,
-    )
-    async def on_error(
+    @interactions.listen()
+    async def on_command_error(
         self,
         event: interactions.events.CommandError,
     ) -> None:
