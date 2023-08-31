@@ -158,7 +158,7 @@ class Author(interactions.Extension):
         )
 
         embed = interactions.Embed(
-            title=f"Vote for Articuno on Top-gg.",
+            title="Vote for Articuno on Top-gg.",
             description="".join(
                 [
                     "Thanks for voting. ",
