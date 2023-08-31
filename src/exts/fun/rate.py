@@ -126,7 +126,7 @@ class Rate(interactions.Extension):
         perc = int(random.randint(0, 100))
 
         embed = interactions.Embed(
-            title="Sany check tool",
+            title="Sanity check tool",
             description=f"**{user}** is {perc}% sane today.",
             color=random.randint(0, 0xFFFFFF),
         )
