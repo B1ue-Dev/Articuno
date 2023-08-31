@@ -109,7 +109,7 @@ class Emoji(interactions.Extension):
 
     @emoji.subcommand(
         sub_cmd_name="info",
-        sub_cmd_description="Checks the information about an emoji."
+        sub_cmd_description="Checks the information about an emoji.",
     )
     @interactions.slash_option(
         name="emoji",
@@ -256,7 +256,7 @@ class Emoji(interactions.Extension):
 
     @emoji.subcommand(
         sub_cmd_name="steal",
-        sub_cmd_description="Gets an emoji from another server and adds to the current one."
+        sub_cmd_description="Gets an emoji from another server and adds to the current one.",
     )
     @interactions.slash_option(
         name="emoji",
@@ -390,7 +390,7 @@ class Emoji(interactions.Extension):
 
     @emoji.subcommand(
         sub_cmd_name="add",
-        sub_cmd_description="Creates an emoji from a URL or an image."
+        sub_cmd_description="Creates an emoji from a URL or an image.",
     )
     @interactions.slash_option(
         name="emoji_name",

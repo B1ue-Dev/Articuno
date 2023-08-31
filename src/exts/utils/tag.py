@@ -36,8 +36,7 @@ class Tag(interactions.Extension):
         ...
 
     @tag.subcommand(
-        sub_cmd_name="create",
-        sub_cmd_description="Creates a new tag."
+        sub_cmd_name="create", sub_cmd_description="Creates a new tag."
     )
     async def create(self, ctx: interactions.SlashContext) -> None:
         """Creates a new tag."""
@@ -251,8 +250,7 @@ class Tag(interactions.Extension):
                 return await ctx.send("Tag not found.")
 
     @tag.subcommand(
-        sub_cmd_name="delete",
-        sub_cmd_description="Deletes a tag."
+        sub_cmd_name="delete", sub_cmd_description="Deletes a tag."
     )
     @interactions.slash_option(
         name="tag_name",

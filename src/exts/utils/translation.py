@@ -250,8 +250,7 @@ class Translation(interactions.Extension):
         ...
 
     @translate.subcommand(
-        sub_cmd_name="text",
-        sub_cmd_description="Translate a piece of text."
+        sub_cmd_name="text", sub_cmd_description="Translate a piece of text."
     )
     @interactions.slash_option(
         name="text",
