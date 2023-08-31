@@ -57,6 +57,9 @@ def logger_config() -> logging.Logger:
 
 
 client = interactions.Client(
+    sync_interactions=True,
+    sync_ext=True,
+    delete_unused_application_cmds=True,
     activity=interactions.Activity(
         name=f"for {VERSION}",
         type=interactions.ActivityType.WATCHING,
