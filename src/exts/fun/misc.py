@@ -22,6 +22,148 @@ class Misc(interactions.Extension):
         self.client: interactions.Client = client
 
     @hybrid_slash_command(
+        name="jail",
+        description="Jail a user.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.USER,
+                name="user",
+                description="Targeted user",
+                required=True,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def jail(
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
+    ) -> None:
+        """Jail a user."""
+
+        await ctx.defer()
+
+        url: str = "https://some-random-api.com/canvas/jail"
+        params: dict = {
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
+        }
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
+        name="tonikawa",
+        description="Tonikawa a user.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.USER,
+                name="user",
+                description="Targeted user",
+                required=True,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def tonikawa(
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
+    ) -> None:
+        """Tonikawa a user."""
+
+        await ctx.defer()
+
+        url: str = "https://some-random-api.com/canvas/tonikawa"
+        params: dict = {
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
+        }
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
+        name="oogway",
+        description="Oogway a quote.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.STRING,
+                name="quote",
+                description="The quote to process.",
+                required=True,
+                max_length=100,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def oogway(
+        self,
+        ctx: HybridContext,
+        *,
+        quote: interactions.ConsumeRest[str],
+    ) -> None:
+        """Oogway a quote."""
+
+        await ctx.defer()
+
+        url: str = "https://some-random-api.com/canvas/oogway"
+        params: dict = {"quote": str(quote)}
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
+        name="trigger",
+        description="Trigger a user.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.USER,
+                name="user",
+                description="Targeted user",
+                required=True,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def trigger(
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
+    ) -> None:
+        """Trigger a user."""
+
+        await ctx.defer()
+
+        url: str = "https://some-random-api.com/canvas/triggered"
+        params: dict = {
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
+        }
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.gif",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
         name="tweet",
         description="Sends a Twitter tweet.",
         options=[
@@ -47,6 +189,8 @@ class Misc(interactions.Extension):
         comment: interactions.ConsumeRest[str],
     ) -> None:
         """Sends a Twitter tweet."""
+
+        await ctx.defer()
 
         if len(user.user.username) >= 15:
             username = user.user.username[:12] + "..."
@@ -104,6 +248,8 @@ class Misc(interactions.Extension):
     ) -> None:
         """Sends a YouTube comment."""
 
+        await ctx.defer()
+
         if len(user.user.username) >= 15:
             username = user.user.username[:12] + "..."
         else:
@@ -143,6 +289,7 @@ class Misc(interactions.Extension):
         """Amogus."""
 
         await ctx.defer()
+
         url: str = "https://some-random-api.com/premium/amongus"
         params: dict = {
             "avatar": user.avatar.url
