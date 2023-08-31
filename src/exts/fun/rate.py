@@ -48,20 +48,6 @@ class Rate(interactions.Extension):
 
         if not user:
             user = ctx.user.username
-            random.seed(
-                str(ctx.user.id)
-                + str(int(time.time() / 300))
-                + str(self.client.user.id)
-            )
-        else:
-            _user = get_user_id(user)
-            if _user:
-                random.seed(
-                    str(_user)
-                    + str(int(time.time() / 300))
-                    + str(self.client.user.id)
-                )
-
         perc: int = int(random.randint(0, 100))
 
         embed = interactions.Embed(
@@ -93,7 +79,6 @@ class Rate(interactions.Extension):
             random.seed(
                 str(ctx.user.id)
                 + str(int(time.time() / 300))
-                + str(self.client.user.id)
             )
         else:
             _user = get_user_id(user)
@@ -101,7 +86,6 @@ class Rate(interactions.Extension):
                 random.seed(
                     str(_user)
                     + str(int(time.time() / 300))
-                    + str(self.client.user.id)
                 )
         perc: int = random.choice(range(0, 100))
 
