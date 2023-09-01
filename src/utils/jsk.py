@@ -121,15 +121,15 @@ class Jsk(interactions.Extension):
                 await asyncio.sleep(0.8)
                 try:
                     _msg += f"🔀 {ext}\n"
-                    self.client.unload_extension(ext)
+                    self.client.reload_extension(ext)
                 except Exception:
                     _msg += f"⚠ {ext}\n"
                     continue
                 await msg.edit(content=f"{_msg}")
             await msg.add_reaction("✅")
         else:
-            self.client.load_extension(module)
-            await ctx.reply(f"🔀 Loaded `{module}`.")
+            self.client.reload_extension(module)
+            await ctx.reply(f"🔀 Reloaded `{module}`.")
 
     @jsk.subcommand()
     async def load(self, ctx: PrefixedContext, module: str) -> None:
@@ -144,7 +144,7 @@ class Jsk(interactions.Extension):
                 await asyncio.sleep(0.8)
                 try:
                     _msg += f"📥 {ext}\n"
-                    self.client.unload_extension(ext)
+                    self.client.load_extension(ext)
                 except Exception:
                     _msg += f"⚠ {ext}\n"
                     continue
@@ -174,8 +174,8 @@ class Jsk(interactions.Extension):
                 await msg.edit(content=f"{_msg}")
             await msg.add_reaction("✅")
         else:
-            self.client.load_extension(module)
-            await ctx.reply(f"📤 Loaded `{module}`.")
+            self.client.unload_extension(module)
+            await ctx.reply(f"📤 Unloaded `{module}`.")
 
     @jsk.subcommand()
     async def eval(self, ctx: PrefixedContext, *, code: str) -> None:
