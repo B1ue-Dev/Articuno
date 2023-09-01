@@ -116,16 +116,19 @@ class Jsk(interactions.Extension):
             msg = await ctx.send("Reloading all extensions...")
             _msg: str = ""
             for ext in (
-                e.extension_name for e in self.client.ext.copy().values()
+                e.extension_name for e in self._exts
             ):
                 await asyncio.sleep(0.8)
                 try:
-                    _msg += f"🔀 {ext}\n"
-                    self.client.reload_extension(ext)
+                    if "jsk" in ext or "error_handler" in ext:
+                        pass
+                    else:
+                        _msg += f"🔀 `{ext}`\n"
+                        self.client.reload_extension(ext)
                 except Exception:
-                    _msg += f"⚠ {ext}\n"
+                    _msg += f"⚠ `{ext}`\n"
                     continue
-                await msg.edit(content=f"{_msg}")
+                await msg.edit(content=f"Reloading all extensions...\n\n{_msg}")
             await msg.add_reaction("✅")
         else:
             self.client.reload_extension(module)
@@ -135,47 +138,25 @@ class Jsk(interactions.Extension):
     async def load(self, ctx: PrefixedContext, module: str) -> None:
         """Loads an extension."""
 
-        if module in ["~", "."]:
-            msg = await ctx.send("Loading all extensions...")
-            _msg: str = ""
-            for ext in (
-                e.extension_name for e in self.client.ext.copy().values()
-            ):
-                await asyncio.sleep(0.8)
-                try:
-                    _msg += f"📥 {ext}\n"
-                    self.client.load_extension(ext)
-                except Exception:
-                    _msg += f"⚠ {ext}\n"
-                    continue
-                await msg.edit(content=f"{_msg}")
-            await msg.add_reaction("✅")
-        else:
+        try:
             self.client.load_extension(module)
-            await ctx.reply(f"📥 Loaded `{module}`.")
+            await ctx.message.add_reaction("✅")
+            await ctx.reply(f"📤 Loaded `{module}`.")
+        except Exception:
+            await ctx.message.add_reaction("❌")
+            await ctx.reply(f"⚠ Error in loading `{module}`.")
 
     @jsk.subcommand()
     async def unload(self, ctx: PrefixedContext, module: str) -> None:
         """Unloads an extension."""
 
-        if module in ["~", "."]:
-            msg = await ctx.send("Unloading all extensions...")
-            _msg: str = ""
-            for ext in (
-                e.extension_name for e in self.client.ext.copy().values()
-            ):
-                await asyncio.sleep(0.8)
-                try:
-                    _msg += f"📤 {ext}\n"
-                    self.client.unload_extension(ext)
-                except Exception:
-                    _msg += f"⚠ {ext}\n"
-                    continue
-                await msg.edit(content=f"{_msg}")
-            await msg.add_reaction("✅")
-        else:
+        try:
             self.client.unload_extension(module)
+            await ctx.message.add_reaction("✅")
             await ctx.reply(f"📤 Unloaded `{module}`.")
+        except Exception:
+            await ctx.message.add_reaction("❌")
+            await ctx.reply(f"⚠ Error in unloading `{module}`.")
 
     @jsk.subcommand()
     async def eval(self, ctx: PrefixedContext, *, code: str) -> None:
