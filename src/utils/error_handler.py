@@ -140,5 +140,8 @@ class Error(interactions.Extension):
                 )
 
             await handle_error(
-                self.client, error=event.error, error_time=error_time, ctx=event.ctx
+                self.client,
+                error=event.error,
+                error_time=error_time,
+                ctx=event.ctx,
             )

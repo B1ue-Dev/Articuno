@@ -115,9 +115,7 @@ class Jsk(interactions.Extension):
         if module in ["~", "."]:
             msg = await ctx.send("Reloading all extensions...")
             _msg: str = ""
-            for ext in (
-                e.extension_name for e in self._exts
-            ):
+            for ext in (e.extension_name for e in self._exts):
                 await asyncio.sleep(0.8)
                 try:
                     if "jsk" in ext or "error_handler" in ext:
@@ -128,7 +126,9 @@ class Jsk(interactions.Extension):
                 except Exception:
                     _msg += f"⚠ `{ext}`\n"
                     continue
-                await msg.edit(content=f"Reloading all extensions...\n\n{_msg}")
+                await msg.edit(
+                    content=f"Reloading all extensions...\n\n{_msg}"
+                )
             await msg.add_reaction("✅")
         else:
             self.client.reload_extension(module)
