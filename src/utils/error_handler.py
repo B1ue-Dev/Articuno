@@ -7,12 +7,13 @@ Error system handler.
 import datetime
 import traceback
 import interactions
+from interactions import models
 from interactions.ext.prefixed_commands import PrefixedContext
 from src.const import LOG_CHANNEL
 
 
 async def handle_error(
-    self,
+    _client: interactions.Client,
     error: Exception,
     error_time: float,
     ctx: interactions.BaseContext = None,
@@ -44,8 +45,6 @@ async def handle_error(
     for i in traceb:
         er = er + f"{i}"
 
-    log_channel = self.client.get_channel(LOG_CHANNEL)
-
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
@@ -73,7 +72,10 @@ async def handle_error(
         )
     log_error.fields = err_field
 
-    await log_channel.send(embeds=log_error)
+    payload: dict = models.discord.message.process_message_payload(
+        embeds=log_error
+    )
+    await _client.http.create_message(channel_id=LOG_CHANNEL, payload=payload)
 
     if ctx and isinstance(
         ctx, interactions.InteractionContext | PrefixedContext
@@ -107,9 +109,9 @@ class Error(interactions.Extension):
         self.client: interactions.Client = client
 
     @interactions.listen()
-    async def on_command_error(
+    async def on_error(
         self,
-        event: interactions.events.CommandError,
+        event: interactions.events.Error,
     ) -> None:
         """For Error callback."""
 
@@ -134,9 +136,9 @@ class Error(interactions.Extension):
                 event.ctx, interactions.InteractionContext | PrefixedContext
             ):
                 return await handle_error(
-                    self, error=event.error, error_time=error_time
+                    self.client, error=event.error, error_time=error_time
                 )
 
             await handle_error(
-                self, error=event.error, error_time=error_time, ctx=event.ctx
+                self.client, error=event.error, error_time=error_time, ctx=event.ctx
             )
