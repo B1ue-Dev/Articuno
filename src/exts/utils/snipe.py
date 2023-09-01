@@ -7,6 +7,10 @@ Snipe command.
 import logging
 import asyncio
 import interactions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_command,
+    HybridContext,
+)
 
 _snipe_message_author = {}
 _snipe_message_author_id = {}
@@ -44,7 +48,7 @@ class Snipe(interactions.Extension):
         )
         _snipe_message_content[_channel_id] = str(message.content)
         _snipe_message_content_id[_channel_id] = str(message.id)
-        await asyncio.sleep(10)
+        await asyncio.sleep(300)
         try:
             del _snipe_message_author[_channel_id]
             del _snipe_message_author_id[_channel_id]
@@ -54,15 +58,15 @@ class Snipe(interactions.Extension):
         except KeyError:
             pass
 
-    @interactions.slash_command(
+    @hybrid_slash_command(
         name="snipe",
         description="Snipes the last deleted message from the current channel.",
         dm_permission=False,
     )
-    async def snipe(self, ctx: interactions.SlashContext) -> None:
+    async def snipe(self, ctx: HybridContext) -> None:
         """Snipes the last deleted message from the current channel."""
 
-        channel_id = int(ctx.channel_id)
+        channel_id = str(ctx.channel_id)
         try:
             author = interactions.EmbedAuthor(
                 name=_snipe_message_author[channel_id],
@@ -75,7 +79,6 @@ class Snipe(interactions.Extension):
                         f"#{ctx.author.user.discriminator}",
                     ],
                 ),
-                icon_url=ctx.author.user.avatar.url,
             )
             embed = interactions.Embed(
                 description="".join(
