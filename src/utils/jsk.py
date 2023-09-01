@@ -99,7 +99,7 @@ class Jsk(interactions.Extension):
     async def cache(self, ctx: PrefixedContext) -> None:
         """Shows the current cache."""
 
-        await ctx.send(f"{get_cache_state(self.client)}")
+        await ctx.send(f"```\n{get_cache_state(self.client)}\n```")
 
     @jsk.subcommand()
     async def shutdown(self, ctx: PrefixedContext) -> None:
