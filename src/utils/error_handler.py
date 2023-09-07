@@ -48,7 +48,7 @@ async def handle_error(
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
-        description=f"```\n{traceb[-4096:]}\n```",
+        description=f"```py\n{traceb[-4096:]}\n```",
     )
     err_field = [
         interactions.EmbedField(
@@ -99,7 +99,7 @@ async def handle_error(
             ],
         )
 
-        await ctx.send(embeds=embed, ephemeral=True)
+        await ctx.send(embeds=embed)
 
 
 class Error(interactions.Extension):
@@ -130,6 +130,9 @@ class Error(interactions.Extension):
                 return await event.ctx.send(
                     content="You do not have permission to do this action.",
                 )
+
+        elif isinstance(event.error, RuntimeError):
+            pass
 
         else:
             if not isinstance(
