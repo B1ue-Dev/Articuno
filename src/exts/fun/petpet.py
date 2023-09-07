@@ -48,7 +48,10 @@ class Petpet(interactions.Extension):
                 else user.guild_avatar.hash
             )
 
-        _url: str = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{_hash}.png"
+        if _hash.isdigit():
+            _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
+        else:
+            _url: str = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{_hash}.png"
 
         member_avatar = Image.open(await get_response(_url)).convert("RGBA")
         member_avatar = member_avatar.resize(
@@ -97,6 +100,11 @@ class Petpet(interactions.Extension):
         for im in images:
             im.close()
         _file = interactions.File(file=fp, file_name="petpet.gif")
+
+        if int(user.id) == int(self.client.user.id):
+            return await ctx.send(
+                file=_file, content="Aww, thanks for the pet. ^^"
+            )
 
         await ctx.send(file=_file)
 
