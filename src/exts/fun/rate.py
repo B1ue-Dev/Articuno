@@ -93,7 +93,7 @@ class Rate(interactions.Extension):
 
     @hybrid_slash_command(
         name="sanitycheck",
-        description="Calculate the gay percentage of a user.",
+        description="Calculate the sanity percentage of a user.",
         options=[
             interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
