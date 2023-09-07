@@ -84,7 +84,7 @@ class Hug(interactions.Extension):
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + _user_icon.size, fill=255)
 
-        background = Image.open("./img/hug.png")
+        background = Image.open("./src/img/hug.png")
         background.paste(_author_icon, (190, 90), mask=mask)
         background.paste(_user_icon, (285, 157), mask=mask)
         with io.BytesIO() as out:
@@ -95,7 +95,7 @@ class Hug(interactions.Extension):
                 file=out,
                 description=f"{ctx.user.username} hugs {user.username}",
             )
-            print(int(ctx.user.id) == int(self.client.user.id))
+
             await ctx.send(
                 content="Hey, thanks for the hug. ^_^"
                 if int(user.id) == int(self.client.user.id)
