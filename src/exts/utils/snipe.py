@@ -6,19 +6,13 @@ Snipe command.
 
 import logging
 import asyncio
+from datetime import datetime
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-
-_snipe_message_author = {}
-_snipe_message_author_id = {}
-_snipe_message_author_avatar_url = {}
-_snipe_message_content = {}
-_snipe_message_content_id = {}
-# TODO: Actually store the message object
-# and being able to store more messages.
+from src.utils.utils import handle_username
 
 
 class Snipe(interactions.Extension):
@@ -26,6 +20,7 @@ class Snipe(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
+        self._cached: dict[str, str] = {}
 
     @interactions.listen(interactions.events.MessageDelete)
     async def on_message_delete(
@@ -39,24 +34,32 @@ class Snipe(interactions.Extension):
 
         _channel_id = str(message.channel.id)
 
-        _snipe_message_author[_channel_id] = str(
-            f"{message.author.username}#{message.author.discriminator}"
+        if not self._cached.get(_channel_id, None):
+            self._cached[_channel_id] = []
+
+        if len(self._cached[_channel_id]) == 5:
+            self._cached[_channel_id].pop(0)
+
+        self._cached[_channel_id].append(
+            {
+                "content": message.content,
+                "author_id": str(message.author.id),
+                "timestamp": str(round(datetime.now().timestamp())),
+            }
         )
-        _snipe_message_author_id[_channel_id] = str(message.author.id)
-        _snipe_message_author_avatar_url[_channel_id] = str(
-            message.author.avatar.url if message.author.avatar else None
-        )
-        _snipe_message_content[_channel_id] = str(message.content)
-        _snipe_message_content_id[_channel_id] = str(message.id)
-        await asyncio.sleep(300)
-        try:
-            del _snipe_message_author[_channel_id]
-            del _snipe_message_author_id[_channel_id]
-            del _snipe_message_author_avatar_url[_channel_id]
-            del _snipe_message_content[_channel_id]
-            del _snipe_message_content_id[_channel_id]
-        except KeyError:
-            pass
+
+        async def delete_message():
+            try:
+                _item = self._cached[_channel_id][-1:][0]
+                await asyncio.sleep(300)
+                self._cached[_channel_id].remove(_item)
+            except ValueError:
+                pass
+
+            if len(self._cached[_channel_id]) == 0:
+                self._cached.pop(_channel_id)
+
+        asyncio.create_task(delete_message())
 
     @hybrid_slash_command(
         name="snipe",
@@ -67,33 +70,20 @@ class Snipe(interactions.Extension):
         """Snipes the last deleted message from the current channel."""
 
         channel_id = str(ctx.channel_id)
-        try:
-            author = interactions.EmbedAuthor(
-                name=_snipe_message_author[channel_id],
-                icon_url=_snipe_message_author_avatar_url[channel_id],
-            )
-            footer = interactions.EmbedFooter(
-                text="".join(
-                    [
-                        f"Requested by {ctx.author.user.username}",
-                        f"#{ctx.author.user.discriminator}",
-                    ],
-                ),
-            )
-            embed = interactions.Embed(
-                description="".join(
-                    [
-                        f"<@{_snipe_message_author_id[channel_id]}> said: ",
-                        f"{_snipe_message_content[channel_id]}",
-                    ],
-                ),
-                author=author,
-                footer=footer,
-            )
-            await ctx.send(embeds=embed)
+        if not self._cached.get(channel_id, None):
+            return await ctx.send("No message to snipe.")
 
-        except KeyError:
-            await ctx.send("No message to snipe.", ephemeral=True)
+        embed = interactions.Embed(
+            footer=interactions.EmbedFooter(
+                text=f"Requested by {handle_username(ctx.author.user.username, ctx.author.user.discriminator)}",
+                icon_url=ctx.author.avatar.url,
+            ),
+            description="",
+        )
+        for i in self._cached[channel_id]:
+            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n"""
+
+        await ctx.send(embed=embed)
 
 
 def setup(client) -> None:
