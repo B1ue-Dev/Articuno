@@ -181,6 +181,11 @@ class Translation(interactions.Extension):
         translator = Translator()
         message: interactions.Message = ctx.target
         content = message.content
+        if str(content) == "None" or str(content) == "":
+            return await ctx.send(
+                "No content in this message.", ephemeral=True
+            )
+
         lang = translator.detect(content).lang
         translation = translator.translate(content)
         message1 = translation.text
@@ -382,6 +387,11 @@ class Translation(interactions.Extension):
 
         translator = Translator()
         content = _message["content"]
+        if str(content) == "None" or str(content) == "":
+            return await ctx.send(
+                "No content in this message.", ephemeral=True
+            )
+
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
