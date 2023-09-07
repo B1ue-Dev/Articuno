@@ -216,6 +216,20 @@ class TicTacToe(interactions.Extension):
     @hybrid_slash_subcommand(
         base="tictactoe",
         base_description="TicTacToe command.",
+        name="medium",
+        description="Play TicTacToe in medium mode.",
+    )
+    async def ttt_medium(self, ctx: HybridContext) -> None:
+        """Play TicTacToe in medium mode."""
+
+        await ctx.send(
+            content=f"{ctx.author.mention}'s tic tac toe game (medium mode)",
+            components=render_board(copy.deepcopy(BoardTemplate)),
+        )
+
+    @hybrid_slash_subcommand(
+        base="tictactoe",
+        base_description="TicTacToe command.",
         name="hard",
         description="Play TicTacToe in hard mode.",
     )
@@ -429,6 +443,38 @@ class TicTacToe(interactions.Extension):
             else:
                 return
 
+        # Medium mode
+        # Articuno will random between random move or minimax
+        # to get a position.
+        elif ctx.message.content.find("medium mode") != -1:
+            if board[button_pos[0]][button_pos[1]] == GameState.empty:
+                board[button_pos[0]][button_pos[1]] = GameState.player
+                if not win_state(board, GameState.player):
+                    _rand = random.choice(["minimax", "random"])
+                    if _rand == "minimax":
+                        possible_positions = get_possible_positions(board)
+                        # ai pos
+                        if len(possible_positions) != 0:
+                            depth = len(possible_positions)
+
+                            move = await asyncio.to_thread(
+                                min_max,
+                                copy.deepcopy(board),
+                                min(random.choice([4, 6]), depth),
+                                GameState.ai,
+                            )
+                            x, y = move[0], move[1]
+                            board[x][y] = GameState.ai
+                    elif _rand == "random":
+                        if len(get_possible_positions(board)) != 0:
+                            ai_pos = random.choice(
+                                get_possible_positions(board)
+                            )
+                            x, y = ai_pos[0], ai_pos[1]
+                            board[x][y] = GameState.ai
+            else:
+                return
+
         # Hard mode
         # Articuno will use minimax to make sure that the game will
         # never be a win for the player.
@@ -465,6 +511,8 @@ class TicTacToe(interactions.Extension):
             "(easy mode)"
             if ctx.message.content.find("easy mode") != -1
             else "(hard mode)"
+            if ctx.message.content.find("hard mode") != -1
+            else "(medium mode)"
         )
 
         await ctx.edit_origin(
@@ -475,6 +523,8 @@ class TicTacToe(interactions.Extension):
                 "(easy mode)"
                 if ctx.message.content.find("easy mode") != -1
                 else "(hard mode)"
+                if ctx.message.content.find("hard mode") != -1
+                else "(medium mode)"
             ),
             components=render_board(board, disable=winner is not None),
         )
