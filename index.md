@@ -46,7 +46,7 @@ Articuno has a good range of miscellaneous commands, such as ``amogus``, ``flip`
 
 It is very simple. Just add him to your server, select a command from the Articuno list after typing the `/` symbol, read the command description and you are good to go.
 
-Bbeside slash command, Articuno also has some commands that have prefixed message command support. (You may wonder what is a prefixed message command? Remember the old time when slash command wasn't a thing yet? You use bots with symbol and name like `$`, `.`, `h!`, `?`.)
+Beside slash command, Articuno also has some commands that have prefixed message command support. (You may wonder what is a prefixed message command? Remember the old time when slash command wasn't a thing yet? You use bots with symbol and name like `$`, `.`, `h!`, `?`.)
 
 Type `/help` to see a list of available slash commands.
 
