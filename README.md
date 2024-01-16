@@ -1,6 +1,9 @@
 # Articuno [![wakatime](https://wakatime.com/badge/user/4a61584b-76a5-4b28-9ec2-4ebad12be49f/project/c8e18506-9fbe-440b-955f-34219e1ecf5f.svg)](https://wakatime.com/badge/github/B1ue-Dev/Articuno)
 A fun (parody) Discord Bot, written with interactions.py.
 
+ℹ️ **In maintenance mode.**
+Articuno has finished its purpose, and since I'm lacking of time to continue development due to studies and work in real life, the development can be considered as half-ceased. I will continue to fix existing bug (if any), but there will not be any new feature. Thank you so much for supporting Articuno for the last 3 years.
+
 ![banner.png](./articuno_banner.png)
 
 [![Invite link](https://img.shields.io/static/v1?label=Articuno&message=Invite-to-server&color=6aa4c1&style=for-the-badge&logo=discord)](https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=2146958847&scope=bot%20applications.commands)
@@ -46,7 +49,7 @@ Articuno has a good range of miscellaneous commands, such as ``amogus``, ``flip`
 
 It is very simple. Just add him to your server, select a command from the Articuno list after typing the `/` symbol, read the command description and you are good to go.
 
-Bbeside slash command, Articuno also has some commands that have prefixed message command support. (You may wonder what is a prefixed message command? Remember the old time when slash command wasn't a thing yet? You use bots with symbol and name like `$`, `.`, `h!`, `?`.)
+Beside slash command, Articuno also has some commands that have prefixed message command support. (You may wonder what is a prefixed message command? Remember the old time when slash command wasn't a thing yet? You use bots with symbol and name like `$`, `.`, `h!`, `?`.)
 
 Type `/help` to see a list of available slash commands.
 

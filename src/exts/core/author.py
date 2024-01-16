@@ -55,12 +55,13 @@ class Author(interactions.Extension):
                     " Highlight commands, such as `/img`, `/tag`, `/emoji`, ",
                     "`/whos_that_pokemon`, etc. The goal of Articuno is to ",
                     "make your server a better place, with different fun ",
-                    "commands in any possible way.\n\nArticuno is a ",
-                    "side-project that I work on, so commands can be broken ",
-                    "sometimes. If you encounter any be sure to use ",
+                    "commands in any possible way.\n\nArticuno is now under",
+                    "maintenance mode, meaning it should be bug-free.",
+                    " If you encounter any issue be sure to use ",
                     "`/invite` and join the support server to report the ",
                     "problem.\n\nWhenever creating tags, bringing joys ",
-                    "to members Articuno has you covered.",
+                    "to members with the most ridiculous or random way, ",
+                    " Articuno has you covered!",
                 ]
             ),
             color=0x7CB7D3,
@@ -90,7 +91,7 @@ class Author(interactions.Extension):
         )
         embed = interactions.Embed(
             title="Credits",
-            description="Articuno is being maintained, developed and improved by @b1uedev.",
+            description="Articuno is being maintained by @b1uedev.",
             color=0x7CB7D3,
             footer=footer,
         )
