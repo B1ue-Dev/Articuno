@@ -13,7 +13,6 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from src.utils.utils import get_response
-from src.const import SOME_RANDOM_API
 
 
 class Fun(interactions.Extension):
@@ -214,34 +213,6 @@ class Fun(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
-
-    @hybrid_slash_command(
-        name="ai",
-        description="Chat with an AI.",
-        aliases=["gpt"],
-    )
-    @interactions.slash_option(
-        name="message",
-        description="The message you want to send",
-        opt_type=interactions.OptionType.STRING,
-        required=True,
-    )
-    @interactions.cooldown(interactions.Buckets.USER, 1, 5)
-    async def ai(
-        self, ctx: HybridContext, *, message: interactions.ConsumeRest[str]
-    ) -> None:
-        """Chat with an AI."""
-
-        await ctx.defer()
-
-        url: str = "https://some-random-api.com/chatbot"
-        params: dict = {
-            "message": str(message),
-            "key": str(SOME_RANDOM_API),
-        }
-        res: str = await get_response(url=url, params=params)
-
-        await ctx.send(f"""{res["response"]}""")
 
 
 def setup(client) -> None:

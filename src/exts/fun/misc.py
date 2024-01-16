@@ -5,14 +5,12 @@ Miscellaneous commands.
 """
 
 import logging
-import random
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
 from src.utils.utils import get_response
-from src.const import SOME_RANDOM_API
 
 
 class Misc(interactions.Extension):
@@ -267,43 +265,6 @@ class Misc(interactions.Extension):
             file_name="image.png",
             file=resp,
             description=f"{user.username} YouTube comment.",
-        )
-        await ctx.send(file=img)
-
-    @hybrid_slash_command(
-        name="amogus",
-        description="Amogus.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.USER,
-                name="user",
-                description="Targeted user",
-                required=True,
-            )
-        ],
-        dm_permission=False,
-    )
-    async def amogus(
-        self, ctx: HybridContext, user: interactions.Member
-    ) -> None:
-        """Amogus."""
-
-        await ctx.defer()
-
-        url: str = "https://some-random-api.com/premium/amongus"
-        params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
-            "username": user.user.username,
-            "key": SOME_RANDOM_API,
-            "imposter": str(random.choice(["true", "false"])),
-        }
-        resp = await get_response(url, params)
-        img = interactions.File(
-            file_name="image.gif",
-            file=resp,
-            description="Amogus.",
         )
         await ctx.send(file=img)
 
