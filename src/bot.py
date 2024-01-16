@@ -60,14 +60,10 @@ client = interactions.Client(
     sync_interactions=True,
     sync_ext=True,
     delete_unused_application_cmds=True,
-    activity=interactions.Activity(
-        name=f"for {VERSION}",
-        type=interactions.ActivityType.WATCHING,
-    ),
     intents=interactions.Intents.DEFAULT
     | interactions.Intents.MESSAGE_CONTENT
     | interactions.Intents.GUILD_MEMBERS,
-    status=interactions.Status.ONLINE,
+    status=interactions.Status.IDLE,
     send_command_tracebacks=False,
     logger=logger_config(),
 )
@@ -194,7 +190,7 @@ async def start() -> None:
 
     mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
     try:
-        mongo_client.admin.command("ping")
+        await mongo_client.admin.command("ping")
         logging.info("Successfully connected to MongoDB!")
     except Exception as e:
         logging.critical(e)
