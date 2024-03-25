@@ -97,9 +97,11 @@ class Hug(interactions.Extension):
             )
 
             await ctx.send(
-                content="Hey, thanks for the hug. ^_^"
-                if int(user.id) == int(self.client.user.id)
-                else None,
+                content=(
+                    "Hey, thanks for the hug. ^_^"
+                    if int(user.id) == int(self.client.user.id)
+                    else None
+                ),
                 files=file,
             )
 

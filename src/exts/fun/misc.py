@@ -43,9 +43,11 @@ class Misc(interactions.Extension):
 
         url: str = "https://some-random-api.com/canvas/jail"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
@@ -79,9 +81,11 @@ class Misc(interactions.Extension):
 
         url: str = "https://some-random-api.com/canvas/tonikawa"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
@@ -149,9 +153,11 @@ class Misc(interactions.Extension):
 
         url: str = "https://some-random-api.com/canvas/triggered"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
@@ -203,9 +209,11 @@ class Misc(interactions.Extension):
             nick = username
         url: str = "https://some-random-api.com/canvas/tweet"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
             "username": username,
             "displayname": nick,
             "comment": comment,
@@ -254,9 +262,11 @@ class Misc(interactions.Extension):
             username = user.user.username
         url = "https://some-random-api.com/canvas/youtube-comment"
         params = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
             "username": username,
             "comment": comment,
         }
