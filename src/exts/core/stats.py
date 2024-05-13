@@ -5,11 +5,8 @@
 """
 
 import logging
+from typing import List
 import interactions
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
-    HybridContext,
-)
 import psutil
 from src.utils import utils, jsk
 from src.const import VERSION
@@ -20,7 +17,7 @@ class Stats(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.button: list(interactions.Button) = [
+        self.button: List[interactions.Button] = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="Site",
@@ -38,11 +35,11 @@ class Stats(interactions.Extension):
             ),
         ]
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="stats",
         description="Shows the stats of Articuno.",
     )
-    async def stats(self, ctx: HybridContext) -> None:
+    async def stats(self, ctx: interactions.SlashContext) -> None:
         """Shows the stats of Articuno."""
 
         proc: "psutil.Process" = psutil.Process()

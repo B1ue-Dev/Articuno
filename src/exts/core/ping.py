@@ -6,10 +6,6 @@
 
 import logging
 import interactions
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
-    HybridContext,
-)
 
 
 class Ping(interactions.Extension):
@@ -18,11 +14,11 @@ class Ping(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="ping",
         description="Ping Articuno.",
     )
-    async def ping(self, ctx: HybridContext) -> None:
+    async def ping(self, ctx: interactions.SlashContext) -> None:
         """Ping Articuno."""
 
         websocket: int = int(f"{self.client.latency * 1000:.0f}")

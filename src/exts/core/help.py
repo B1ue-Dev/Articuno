@@ -6,21 +6,16 @@
 
 import interactions
 from interactions.ext.paginators import Paginator
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
-    HybridContext,
-    HybridSlashCommand,
-)
 
 
 class Help(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="help", description="Get a list of all available commands"
     )
-    async def help(self, ctx: HybridContext) -> None:
+    async def help(self, ctx: interactions.SlashContext) -> None:
         """Get a list of all available commands."""
 
         help_list = []
@@ -32,18 +27,11 @@ class Help(interactions.Extension):
             listed = []
             for command in commands[i : i + 10]:
                 if not isinstance(
-                    command, (HybridSlashCommand, interactions.SlashCommand)
+                    command, (interactions.SlashCommand)
                 ):
                     continue
                 cmd_name = ""
-                if isinstance(command, HybridSlashCommand):
-                    cmd_name = f"/`$`{command.name}"
-                    if command.aliases:
-                        aliases = "\n"
-                        for alias in command.aliases:
-                            aliases += f"`${alias}`"
-                        cmd_name += aliases
-                elif isinstance(command, interactions.SlashCommand):
+                if isinstance(command, interactions.SlashCommand):
                     cmd_name = f"/{command.name}"
                 group_name = (
                     f" {command.group_name}" if command.group_name else ""
@@ -69,15 +57,7 @@ class Help(interactions.Extension):
 
             help_list.append(
                 interactions.Embed(
-                    title="".join(
-                        [
-                            "List of available commands.\n",
-                            "<:information:1125071135575388222> ",
-                            "If a command has **/**`$`, it supports both ",
-                            "prefixed message (the traditional `$`<name> way)",
-                            " and slash command (the new `/`<name> way).",
-                        ]
-                    ),
+                    title="<:information:1125071135575388222> List of available commands.",
                     color=0x7CB7D3,
                     thumbnail=interactions.EmbedAttachment(
                         url=self.client.user.avatar.url
