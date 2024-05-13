@@ -6,10 +6,6 @@
 
 import logging
 import interactions
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
-    HybridContext,
-)
 from src.const import VERSION, TOPGGAPI
 from src.utils.utils import (
     handle_username,
@@ -24,13 +20,13 @@ class Author(interactions.Extension):
         self.client: interactions.Client = client
         self.topgg: str = "https://top.gg/bot/809084067446259722"
         self.github: str = "https://github.com/B1ue-Dev/Articuno"
-        self.invite: str = "https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands"
+        self.invite_url: str = "https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands"
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="about",
         description="Information about Articuno.",
     )
-    async def about(self, ctx: HybridContext) -> None:
+    async def about(self, ctx: interactions.SlashContext) -> None:
         """Information about Articuno."""
 
         button = [
@@ -44,24 +40,24 @@ class Author(interactions.Extension):
                 label="Top.gg",
                 url=self.topgg,
             ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Donate to keep the project alive",
+                url="https://buymeacoffee.com/b1uedev",
+            ),
         ]
 
         embed = interactions.Embed(
             title="About Articuno",
             description="".join(
                 [
-                    "Articuno is a multi-purpose Discord Bot that can do a ",
-                    "wide range of jobs, mostly with different fun commands.",
-                    " Highlight commands, such as `/img`, `/tag`, `/emoji`, ",
-                    "`/whos_that_pokemon`, etc. The goal of Articuno is to ",
-                    "make your server a better place, with different fun ",
-                    "commands in any possible way.\n\nArticuno is now under",
-                    "maintenance mode, meaning it should be bug-free.",
-                    " If you encounter any issue be sure to use ",
-                    "`/invite` and join the support server to report the ",
-                    "problem.\n\nWhenever creating tags, bringing joys ",
-                    "to members with the most ridiculous or random way, ",
-                    " Articuno has you covered!",
+                    "Articuno is a multi-purpose Discord Bot that can do a wide range of jobs, mostly with different fun commands. ",
+                    "Highlight commands, such as `/img`, `/tag`, `/emoji`, `/whos_that_pokemon`, etc. The goal of Articuno is to ",
+                    "make your server a better place, with different fun commands in any possible way.",
+                    "\n\nArticuno is now under maintenance mode, meaning it should be bug-free. ",
+                    "If you encounter any issue be sure to use `/invite` and join the support server to report the ",
+                    "problem.\n\nWhenever creating tags, bringing joys to members with the most ridiculous or random way, ",
+                    "Articuno has you covered!",
                 ]
             ),
             color=0x7CB7D3,
@@ -72,18 +68,25 @@ class Author(interactions.Extension):
 
         await ctx.send(embeds=embed, components=button)
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="credits",
         description="Developers/Contributors to this project.",
     )
-    async def credits(self, ctx: HybridContext) -> None:
+    async def credits(self, ctx: interactions.SlashContext) -> None:
         """Developers/Contributors to this project."""
 
-        profile = interactions.Button(
-            style=interactions.ButtonStyle.LINK,
-            label="Profile",
-            url="https://blue.is-a.dev/",
-        )
+        profile = [
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Profile",
+                url="https://blue.is-a.dev/",
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Donate to keep the project alive",
+                url="https://buymeacoffee.com/b1uedev",
+            ),
+        ]
 
         footer = interactions.EmbedFooter(
             text=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
@@ -91,25 +94,25 @@ class Author(interactions.Extension):
         )
         embed = interactions.Embed(
             title="Credits",
-            description="Articuno is being maintained by @b1uedev.",
+            description="Articuno is being maintained by @b1uedev.\nIf you like Articuno and want to have it online, donate to keep the project alive. Thanks!",
             color=0x7CB7D3,
             footer=footer,
         )
 
-        await ctx.send(embeds=embed, components=[profile])
+        await ctx.send(embeds=embed, components=profile)
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="invite",
         description="Invite Articuno to your server.",
     )
-    async def invite(self, ctx: HybridContext) -> None:
+    async def invite(self, ctx: interactions.SlashContext) -> None:
         """Invite Articuno to your server."""
 
         buttons = [
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
                 label="Add me to your server",
-                url=self.invite,
+                url=self.invite_url,
             ),
             interactions.Button(
                 style=interactions.ButtonStyle.LINK,
@@ -120,6 +123,11 @@ class Author(interactions.Extension):
                 style=interactions.ButtonStyle.LINK,
                 label="Vote me on Top.gg",
                 url=f"{self.topgg}/vote",
+            ),
+            interactions.Button(
+                style=interactions.ButtonStyle.LINK,
+                label="Donate to keep the project alive",
+                url="https://buymeacoffee.com/b1uedev",
             ),
         ]
 
@@ -141,10 +149,10 @@ class Author(interactions.Extension):
 
         await ctx.send(embeds=embed, components=buttons)
 
-    @hybrid_slash_command(
+    @interactions.slash_command(
         name="vote", description="Vote for Articuno on Top-gg."
     )
-    async def vote(self, ctx: HybridContext) -> None:
+    async def vote(self, ctx: interactions.SlashContext) -> None:
         """Vote for Articuno on Top-gg."""
 
         url: str = "https://top.gg/api/bots/809084067446259722/check"
