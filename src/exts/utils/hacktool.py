@@ -8,10 +8,6 @@ import logging
 import base64 as b64
 import binascii
 import interactions
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
-    HybridContext,
-)
 from src.utils import brainfuck, utils
 
 
@@ -21,11 +17,12 @@ class HackTool(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @hybrid_slash_subcommand(
+    @interactions.subcommand(
         base="base64",
         base_description="Base64 commands.",
         name="encode",
         description="Encodes a string using base64.",
+        base_integration_types=[0, 1],
     )
     @interactions.slash_option(
         name="string",
@@ -33,7 +30,9 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def encode(self, ctx: HybridContext, string: str) -> None:
+    async def encode(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Encodes a string using base64."""
 
         string_message = string
@@ -53,11 +52,12 @@ class HackTool(interactions.Extension):
                 ),
             )
 
-    @hybrid_slash_subcommand(
+    @interactions.subcommand(
         base="base64",
         base_description="Base64 commands.",
         name="decode",
         description="Decodes a string using base64.",
+        base_integration_types=[0, 1],
     )
     @interactions.slash_option(
         name="string",
@@ -65,7 +65,9 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def decode(self, ctx: HybridContext, string: str) -> None:
+    async def decode(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Decodes a string using base64."""
 
         string_message = string
@@ -79,11 +81,12 @@ class HackTool(interactions.Extension):
                 "```Invalid string. Please try again!```", ephemeral=True
             )
 
-    @hybrid_slash_subcommand(
+    @interactions.subcommand(
         base="brainfuck",
         base_description="Brainfuck commands.",
         name="convert",
         description="Converts a string into brainfuck code.",
+        base_integration_types=[0, 1],
     )
     @interactions.slash_option(
         name="string",
@@ -91,7 +94,9 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def convert(self, ctx: HybridContext, string: str) -> None:
+    async def convert(
+        self, ctx: interactions.SlashContext, string: str
+    ) -> None:
         """Converts a string into brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().convert(string)
@@ -108,11 +113,12 @@ class HackTool(interactions.Extension):
                 ),
             )
 
-    @hybrid_slash_subcommand(
+    @interactions.subcommand(
         base="brainfuck",
         base_description="Brainfuck commands.",
         name="interpret",
         description="Interprets a brainfuck code.",
+        base_integration_types=[0, 1],
     )
     @interactions.slash_option(
         name="code",
@@ -120,7 +126,9 @@ class HackTool(interactions.Extension):
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    async def interpret(self, ctx: HybridContext, code: str) -> None:
+    async def interpret(
+        self, ctx: interactions.SlashContext, code: str
+    ) -> None:
         """Interprets a brainfuck code."""
 
         string_bytes = brainfuck.Brainfuckery().interpret(code)

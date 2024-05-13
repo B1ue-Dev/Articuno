@@ -8,6 +8,7 @@ import logging
 import asyncio
 import googletrans
 import interactions
+from interactions import integration_types
 from googletrans import Translator
 
 
@@ -171,6 +172,7 @@ class Translation(interactions.Extension):
         )
 
     @interactions.message_context_menu(name="Translate")
+    @integration_types(guild=True, user=True)
     async def msg_cmd_translate(
         self, ctx: interactions.ContextMenuContext
     ) -> None:
@@ -190,10 +192,6 @@ class Translation(interactions.Extension):
         translation = translator.translate(content)
         message1 = translation.text
 
-        footer = interactions.EmbedFooter(
-            text="Powered by Google Translate",
-            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-        )
         embed = interactions.Embed(
             title="".join(
                 [
@@ -202,7 +200,9 @@ class Translation(interactions.Extension):
                 ]
             ),
             description=f"```{message1}```",
-            footer=footer,
+            footer=interactions.EmbedFooter(
+                text="Powered by Google Translate"
+            ),
         )
 
         msg = await ctx.send(
@@ -229,10 +229,9 @@ class Translation(interactions.Extension):
                         ],
                     ),
                     description=f"```{message1}```",
-                )
-                embed.set_footer(
-                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-                    text="Google Translate",
+                    footer=interactions.EmbedFooter(
+                        text="Powered by Google Translate"
+                    ),
                 )
 
                 _select_menu = interactions.StringSelectMenu(
@@ -285,10 +284,6 @@ class Translation(interactions.Extension):
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
-        footer = interactions.EmbedFooter(
-            text="Powered by Google Translate",
-            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-        )
         embed = interactions.Embed(
             title="".join(
                 [
@@ -297,7 +292,9 @@ class Translation(interactions.Extension):
                 ]
             ),
             description=f"```{message1}```",
-            footer=footer,
+            footer=interactions.EmbedFooter(
+                text="Powered by Google Translate"
+            ),
         )
 
         msg = await ctx.send(
@@ -324,10 +321,9 @@ class Translation(interactions.Extension):
                         ],
                     ),
                     description=f"```{message1}```",
-                )
-                embed.set_footer(
-                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-                    text="Google Translate",
+                    footer=interactions.EmbedFooter(
+                        text="Powered by Google Translate"
+                    ),
                 )
 
                 _select_menu = interactions.StringSelectMenu(
@@ -395,10 +391,6 @@ class Translation(interactions.Extension):
         translation = translator.translate(content, dest=lang)
         message1 = translation.text
 
-        footer = interactions.EmbedFooter(
-            text="Powered by Google Translate",
-            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-        )
         embed = interactions.Embed(
             title="".join(
                 [
@@ -407,7 +399,9 @@ class Translation(interactions.Extension):
                 ]
             ),
             description=f"```{message1}```",
-            footer=footer,
+            footer=interactions.EmbedFooter(
+                text="Powered by Google Translate"
+            ),
         )
 
         msg = await ctx.send(
@@ -434,10 +428,9 @@ class Translation(interactions.Extension):
                         ],
                     ),
                     description=f"```{message1}```",
-                )
-                embed.set_footer(
-                    icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
-                    text="Google Translate",
+                    footer=interactions.EmbedFooter(
+                        text="Powered by Google Translate"
+                    ),
                 )
 
                 _select_menu = interactions.StringSelectMenu(
