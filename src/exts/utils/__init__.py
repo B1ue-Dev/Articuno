@@ -9,7 +9,7 @@ import interactions
 from src.const import EXT_UTILS
 
 
-class Utils(interactions.Extension):
+class BaseUtils(interactions.Extension):
     """exts/utils Extension."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -22,5 +22,5 @@ class Utils(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension"""
-    Utils(client)
+    BaseUtils(client)
     logging.info("Loaded Utils extension.")

@@ -9,7 +9,7 @@ import interactions
 from src.const import EXT_FUN
 
 
-class Fun(interactions.Extension):
+class BaseFun(interactions.Extension):
     """exts/fun Extension."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -19,5 +19,5 @@ class Fun(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension"""
-    Fun(client)
+    BaseFun(client)
     logging.info("Loaded Fun extension.")

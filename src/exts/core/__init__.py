@@ -9,7 +9,7 @@ import interactions
 from src.const import EXT_CORE
 
 
-class Core(interactions.Extension):
+class BaseCore(interactions.Extension):
     """exts/core Extension."""
 
     def __init__(self, client: interactions.Client) -> None:
@@ -22,5 +22,5 @@ class Core(interactions.Extension):
 
 def setup(client) -> None:
     """Setup the extension"""
-    Core(client)
+    BaseCore(client)
     logging.info("Loaded Core extension.")
