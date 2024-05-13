@@ -7,10 +7,7 @@ Information commands.
 import logging
 import interactions
 from interactions import UserFlags, Permissions
-from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
-    HybridContext,
-)
+from interactions import integration_types
 from src.utils.utils import get_response
 from src.utils.colorthief import ColorThief
 
@@ -109,11 +106,19 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @hybrid_slash_subcommand(
-        base="info",
-        base_description="For all information aspects.",
-        name="user",
-        description="Shows the information about a user.",
+    @interactions.slash_command(
+        name="info",
+        description="For all information aspects.",
+        dm_permission=False,
+    )
+    @integration_types(guild=True, user=True)
+    async def info(self, ctx: interactions.SlashContext) -> None:
+        """For all information aspects."""
+        ...
+
+    @info.subcommand(
+        sub_cmd_name="user",
+        sub_cmd_description="Shows the information about a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -123,7 +128,7 @@ class Info(interactions.Extension):
     )
     async def user(
         self,
-        ctx: HybridContext,
+        ctx: interactions.SlashContext,
         user: interactions.Member,
     ) -> None:
         """Shows the information about a user."""
@@ -136,7 +141,6 @@ class Info(interactions.Extension):
         public_flags: UserFlags = user.user.public_flags
         hypesquad = None
         flags: str = get_user_flags(public_flags)
-        permissions: str = get_user_permissions(user.guild_permissions)
         if isinstance(public_flags, int):
             if public_flags & 1 << 6:
                 hypesquad = "<:bravery:957684396268322886> Bravery"
@@ -168,19 +172,23 @@ class Info(interactions.Extension):
             interactions.EmbedField(
                 name="Flags", value=f"{flags}", inline=True
             ),
-            interactions.EmbedField(
-                name="Permissions",
-                value=f"{permissions}",
-            ),
-            interactions.EmbedField(
-                name="Roles",
-                value=(
-                    ", ".join([f"<@&{role.id}>" for role in user.roles])
-                    if isinstance(user, interactions.Member) and user.roles
-                    else "`N/A`"
-                ),
-            ),
         ]
+        if ctx.guild:
+            permissions: str = get_user_permissions(user.guild_permissions)
+            fields.append(
+                interactions.EmbedField(
+                    name="Permissions",
+                    value=f"{permissions}",
+                ),
+                interactions.EmbedField(
+                    name="Roles",
+                    value=(
+                        ", ".join([f"<@&{role.id}>" for role in user.roles])
+                        if isinstance(user, interactions.Member) and user.roles
+                        else "`N/A`"
+                    ),
+                ),
+            )
         thumbnail = interactions.EmbedAttachment(url=avatar)
         title: str = (
             f"@{user.user.username}"
@@ -188,12 +196,7 @@ class Info(interactions.Extension):
             else f"{user.user.username}#{user.user.discriminator}"
         )
         footer = interactions.EmbedFooter(
-            text="Requested by "
-            + (
-                f"@{ctx.user.username}"
-                if str(ctx.user.discriminator) == "0"
-                else f"{ctx.user.username}#{ctx.user.discriminator}"
-            ),
+            text=f"Requested by @{ctx.user.username}",
             icon_url=f"{ctx.user.avatar.url}",
         )
         embed = interactions.Embed(
@@ -205,11 +208,9 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @hybrid_slash_subcommand(
-        base="info",
-        base_description="For all information aspects.",
-        name="avatar",
-        description="Shows the profile picture URL of a user.",
+    @info.subcommand(
+        sub_cmd_name="avatar",
+        sub_cmd_description="Shows the profile picture URL of a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -218,14 +219,13 @@ class Info(interactions.Extension):
         required=True,
     )
     async def avatar(
-        self, ctx: HybridContext, user: interactions.Member
+        self, ctx: interactions.SlashContext, user: interactions.Member
     ) -> None:
         """Shows the profile picture URL of a user."""
 
         def clamp(x):
             return max(0, min(x, 255))
 
-        avatar = user.user.avatar_url
         avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar.hash)}.png"
         color = await get_response(avatar_url)
         color = await get_color(color)
@@ -245,7 +245,9 @@ class Info(interactions.Extension):
             ]
         )
         if user.user.avatar.hash.startswith("a_"):
-            format += " | **[** [**GIF**]" + "(" + avatar[:-4] + ".gif) **]**"
+            format += (
+                " | **[** [**GIF**]" + "(" + avatar_url[:-4] + ".gif) **]**"
+            )
 
         size = "".join(
             [
@@ -256,6 +258,14 @@ class Info(interactions.Extension):
             ]
         )
 
+        images = [interactions.EmbedAttachment(url=f"{avatar_url}?size=512")]
+        if user.guild_avatar:
+            images.append(
+                interactions.EmbedAttachment(
+                    url=f"{user.guild_avatar.url}?size=512"
+                )
+            )
+
         embed = interactions.Embed(
             title=(
                 f"@{user.user.username}"
@@ -263,16 +273,10 @@ class Info(interactions.Extension):
                 else f"{user.user.username}#{user.user.discriminator}"
             ),
             color=color,
-            images=[
-                interactions.EmbedAttachment(url=f"{avatar_url}?size=512")
-            ],
+            url=avatar_url,
+            images=images,
             footer=interactions.EmbedFooter(
-                text="Requested by "
-                + (
-                    f"@{ctx.user.username}"
-                    if str(ctx.user.discriminator) == "0"
-                    else f"{ctx.user.username}#{ctx.user.discriminator}"
-                ),
+                text=f"Requested by @{ctx.user.username}",
                 icon_url=f"{ctx.user.avatar_url}?size=512",
             ),
             fields=[
@@ -285,16 +289,20 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @hybrid_slash_subcommand(
-        base="info",
-        base_description="For all information aspects.",
-        name="server",
-        description="Shows the information about the server.",
+    @info.subcommand(
+        sub_cmd_name="server",
+        sub_cmd_description="Shows the information about the server.",
     )
-    async def server(self, ctx: HybridContext) -> None:
+    async def server(self, ctx: interactions.SlashContext) -> None:
         """Shows the information about the server."""
 
         guild: interactions.Guild = ctx.guild
+        if guild is None:
+            return await ctx.send(
+                content="Due to Discord limitation, Articuno cannot get the information about this server through user-app command.",
+                ephemeral=True,
+            )
+
         guild_owner = await guild.fetch_owner()
 
         name: str = guild.name
@@ -423,12 +431,7 @@ class Info(interactions.Extension):
         ]
         thumbnail = interactions.EmbedAttachment(url=icon)
         footer = interactions.EmbedFooter(
-            text="Requested by "
-            + (
-                f"@{ctx.user.username}"
-                if str(ctx.user.discriminator) == "0"
-                else f"{ctx.user.username}#{ctx.user.discriminator}"
-            ),
+            text=f"Requested by @{ctx.user.username}",
             icon_url=f"{ctx.author.user.avatar_url}",
         )
         embed = interactions.Embed(
@@ -472,8 +475,8 @@ class Info(interactions.Extension):
     @interactions.context_menu(
         name="User Information",
         context_type=interactions.CommandType.USER,
-        dm_permission=False,
     )
+    @integration_types(guild=True, user=True)
     async def user_information(
         self, ctx: interactions.InteractionContext
     ) -> None:
@@ -481,7 +484,6 @@ class Info(interactions.Extension):
 
         user: interactions.Member = ctx.target
         user_id: str = str(user.id)
-        joined_at: float = round(user.joined_at.timestamp())
         created_at: float = round(user.created_at.timestamp())
         avatar: str = user.avatar.url
         bot: bool = user.bot
@@ -503,21 +505,28 @@ class Info(interactions.Extension):
             ),
             interactions.EmbedField(name="ID", value=user_id, inline=True),
             interactions.EmbedField(
-                name="Joined at", value=f"<t:{joined_at}:F>", inline=False
-            ),
-            interactions.EmbedField(
-                name="Created on", value=f"<t:{created_at}:F>", inline=False
+                name="Created on", value=f"<t:{created_at}:F>", inline=True
             ),
             interactions.EmbedField(name="Bot?", value=bot, inline=True),
-            interactions.EmbedField(
-                name="Roles",
-                value=(
-                    ", ".join([f"<@&{role.id}>" for role in user.roles])
-                    if isinstance(user, interactions.Member) and user.roles
-                    else "`N/A`"
-                ),
-            ),
         ]
+        if ctx.guild:
+            fields.append(
+                interactions.EmbedField(
+                    name="Roles",
+                    value=(
+                        ", ".join([f"<@&{role.id}>" for role in user.roles])
+                        if isinstance(user, interactions.Member) and user.roles
+                        else "`N/A`"
+                    ),
+                ),
+            )
+        if user.joined_at:
+            joined_at: float = round(user.joined_at.timestamp())
+            fields.append(
+                interactions.EmbedField(
+                    name="Joined at", value=f"<t:{joined_at}:F>", inline=True
+                ),
+            )
         embed = interactions.Embed(
             title="User Information", thumbnail=thumbnail, fields=fields
         )
