@@ -6,54 +6,61 @@ Root bot file.
 
 import asyncio
 import logging
-import datetime
+from datetime import datetime, timedelta, timezone
 import aiohttp
 import interactions
 import colorlog
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
+
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from beanie import init_beanie
+
+from src.utils.error_handler import debug_system
 from src.const import TOKEN, VERSION, MONGO_DB_URL
 from src.utils.utils import get_response, tags, get_local_time
 
 
-async def get_latest_release_version() -> str:
-    """Returns the latest version of Articuno on GitHub."""
+class Init:
+    """Init."""
 
-    url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
-    response = await get_response(url)
-    return response["tag_name"]
+    @classmethod
+    async def get_latest_release_version(cls) -> str:
+        """Returns the latest version of Articuno on GitHub."""
 
+        url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
+        response = await get_response(url)
+        return response["tag_name"]
 
-def logger_config() -> logging.Logger:
-    """Setup the logging environment."""
+    @classmethod
+    def logger_config(cls) -> logging.Logger:
+        """Setup the logging environment."""
 
-    log = logging.getLogger()
-    logging.Formatter.converter = lambda *args: get_local_time().timetuple()
-    log.setLevel(logging.INFO)
-    format_str = (
-        "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s"
-    )
-    date_format = "%d/%m/%Y %H:%M:%S"
-    cformat = "%(log_color)s" + format_str
-    colors = {
-        "DEBUG": "white",
-        "INFO": "white",
-        "WARNING": "fg_bold_yellow",
-        "ERROR": "fg_bold_red",
-        "CRITICAL": "red",
-    }
-    formatter = colorlog.ColoredFormatter(
-        fmt=cformat,
-        datefmt=date_format,
-        log_colors=colors,
-    )
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    log.addHandler(stream_handler)
-    return log
+        log = logging.getLogger()
+        logging.Formatter.converter = (
+            lambda *args: get_local_time().timetuple()
+        )
+        log.setLevel(logging.INFO)
+        format_str = "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s"
+        date_format = "%d/%m/%Y %H:%M:%S"
+        cformat = "%(log_color)s" + format_str
+        colors = {
+            "DEBUG": "white",
+            "INFO": "white",
+            "WARNING": "fg_bold_yellow",
+            "ERROR": "fg_bold_red",
+            "CRITICAL": "red",
+        }
+        formatter = colorlog.ColoredFormatter(
+            fmt=cformat,
+            datefmt=date_format,
+            log_colors=colors,
+        )
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        log.addHandler(stream_handler)
+        return log
 
 
 client = interactions.Client(
@@ -65,7 +72,7 @@ client = interactions.Client(
     | interactions.Intents.GUILD_MEMBERS,
     status=interactions.Status.IDLE,
     send_command_tracebacks=False,
-    logger=logger_config(),
+    logger=Init.logger_config(),
 )
 prefixed_setup(client, default_prefix="$")
 hybrid_setup(client)
@@ -82,9 +89,9 @@ async def on_startup() -> None:
     counted = True
 
     websocket = f"{client.latency * 1:.0f}"
-    log_time = (
-        datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    ).strftime("%d/%m/%Y %H:%M:%S")
+    log_time = (datetime.now() + timedelta(hours=7)).strftime(
+        "%d/%m/%Y %H:%M:%S"
+    )
 
     print(
         "".join(
@@ -94,7 +101,7 @@ async def on_startup() -> None:
             ],
         )
     )
-    latest_release_version = await get_latest_release_version()
+    latest_release_version = await Init.get_latest_release_version()
     if latest_release_version is not None and latest_release_version > VERSION:
         print(
             "".join(
@@ -120,7 +127,7 @@ async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
     _guild = guild.guild
     _channel = client.get_channel(957090401418899526)
     current_time: float = round(
-        datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+        datetime.datetime.now(tz=timezone.utc).timestamp()
     )
 
     embed = interactions.Embed(title=f"Joined {_guild.name}")
@@ -144,7 +151,7 @@ async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     _guild = guild.guild
     _channel = client.get_channel(957090401418899526)
     current_time: float = round(
-        datetime.datetime.now(tz=datetime.timezone.utc).timestamp()
+        datetime.datetime.now(tz=timezone.utc).timestamp()
     )
 
     embed = interactions.Embed(title=f"Left {_guild.name}")
@@ -177,7 +184,7 @@ async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
                     f"You can type ``/`` and choose **{client.user.username}**",
                     " to start using me. Alternatively, you can use ",
                     "`$help` or `/help` to see a list of available ",
-                    "commands. Thank you for choosing Articuno. ^-^",
+                    "commands. Thank you for choosing Articuno.",
                 ],
             ),
             color=0x6AA4C1,
@@ -187,6 +194,9 @@ async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
 
 async def start() -> None:
     """Starts the bot."""
+
+    if debug_system is True:
+        logging.warn("Debug mode for Articuno is enabled.")
 
     mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
     try:

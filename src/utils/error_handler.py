@@ -11,6 +11,13 @@ from interactions import models
 from interactions.ext.prefixed_commands import PrefixedContext
 from src.const import LOG_CHANNEL
 
+debug_system: bool = False
+
+
+def enableDebug(opt: bool):
+    global debug_system
+    debug_system = opt
+
 
 async def handle_error(
     _client: interactions.Client,
@@ -48,7 +55,7 @@ async def handle_error(
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
-        description=f"```py\n{traceb[-4096:]}\n```",
+        description=f"```\n{traceb[-4096:]}\n```",
     )
     err_field = [
         interactions.EmbedField(
@@ -63,19 +70,25 @@ async def handle_error(
                 inline=True,
             )
         )
-        err_field.append(
-            interactions.EmbedField(
-                name="Guild",
-                value=f"{ctx.guild.name}\n``{ctx.guild.id}``",
-                inline=True,
+        if ctx.guild:
+            err_field.append(
+                interactions.EmbedField(
+                    name="Guild",
+                    value=f"{ctx.guild.name}\n``{ctx.guild.id}``",
+                    inline=True,
+                )
             )
-        )
     log_error.fields = err_field
 
     payload: dict = models.discord.message.process_message_payload(
         embeds=log_error
     )
-    await _client.http.create_message(channel_id=LOG_CHANNEL, payload=payload)
+    await _client.http.create_message(
+        channel_id=(
+            LOG_CHANNEL if debug_system is False else int(ctx.channel_id)
+        ),
+        payload=payload,
+    )
 
     if ctx and isinstance(
         ctx, interactions.InteractionContext | PrefixedContext
@@ -99,40 +112,40 @@ async def handle_error(
             ],
         )
 
-        await ctx.send(embeds=embed)
+        await ctx.send(
+            embeds=embed, ephemeral=(True if debug_system is False else False)
+        )
 
 
 class Error(interactions.Extension):
-    """on_error callback."""
+    """Error callback."""
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.listen()
-    async def on_error(
+    @interactions.listen(disable_default_listeners=True)
+    async def on_command_error(
         self,
-        event: interactions.events.Error,
+        event: interactions.events.CommandError,
     ) -> None:
-        """For Error callback."""
+        """For CommandError callback."""
 
-        error_time = datetime.datetime.utcnow().timestamp()
+        error_time = datetime.datetime.now().timestamp()
 
         if isinstance(event.error, interactions.errors.BadArgument):
             return await event.ctx.send(f"{event.error}")
 
         elif isinstance(event.error, interactions.errors.CommandOnCooldown):
             await event.ctx.send(
-                f"You are on cooldown. Please wait {round(event.error.cooldown.get_cooldown_time(), 2)} seconds."
+                f"Wow! Trying to catch up with Sonic or something?"
             )
 
         elif isinstance(event.error, interactions.errors.CommandCheckFailure):
-            if event.ctx.guild:
-                return await event.ctx.send(
-                    content="You do not have permission to do this action.",
-                )
 
-        elif isinstance(event.error, RuntimeError):
-            pass
+            class Null:
+                ...
+
+            return Null
 
         else:
             if not isinstance(
