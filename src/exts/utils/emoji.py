@@ -7,6 +7,7 @@ Emoji management commands.
 import logging
 import io
 import re
+import asyncio
 import interactions
 import aiohttp
 from src.utils.utils import Permissions, has_permission
@@ -94,6 +95,17 @@ class Emote:
         return f"https://cdn.discordapp.com/emojis/{self.id}" + (
             ".gif" if self.animated else ".png"
         )
+
+    @property
+    async def raw(self) -> bytes:
+        """Return the bytes type of the emoji."""
+
+        _io = 0
+        async with aiohttp.ClientSession() as session:
+            async with session.get(self.url) as resp:
+                _io = (io.BytesIO(await resp.read())).read()
+
+        return _io
 
 
 class Emoji(interactions.Extension):
@@ -614,6 +626,98 @@ class Emoji(interactions.Extension):
         else:
             return await ctx.send(
                 "Invalid emoji. Please try again.", ephemeral=True
+            )
+
+    @interactions.message_context_menu(
+        name="Get emoji",
+        integration_types=[
+            interactions.IntegrationType.GUILD_INSTALL,
+            interactions.IntegrationType.USER_INSTALL,
+        ],
+    )
+    async def user_get_emoji(
+        self, ctx: interactions.ContextMenuContext
+    ) -> None:
+        """Message context for getting the emoji information."""
+
+        message: interactions.Message = ctx.target
+        emoji_regex = re.compile(r"<?(a)?:(\w*):(\d+)>?")
+        parsed = emoji_regex.findall(message.content)
+
+        if len(parsed) > 1:
+            emoji_select = interactions.StringSelectMenu(
+                custom_id=f"emoji_select_{ctx.user.id}",
+                placeholder="Select the emoji you want to get.",
+                min_values=1,
+                max_values=1,
+            )
+            for emj in parsed:
+                emoji_name = emj[1]
+                emoji_id = emj[2]
+                emoji_select.options.append(
+                    interactions.StringSelectOption(
+                        label=f"<:{emoji_name}:{emoji_id}>",
+                        emoji=interactions.PartialEmoji(
+                            name=emoji_name, id=emoji_id
+                        ),
+                        value=f"<{emj[0]}:{emoji_name}:{emoji_id}>",
+                    )
+                )
+            msg = await ctx.send(components=emoji_select)
+            while True:
+                try:
+                    res = await self.client.wait_for_component(
+                        components=emoji_select,
+                        messages=int(msg.id),
+                        timeout=30,
+                    )
+                    _emoji = Emote().get_emoji(res.ctx.values[0])
+
+                    image = interactions.EmbedAttachment(url=_emoji.url)
+                    embed = interactions.Embed(
+                        title=f"``<a:{_emoji.name}:{_emoji.id}>``"
+                        if _emoji.animated
+                        else f"``<:{_emoji.name}:{_emoji.id}>``",
+                        description="".join(
+                            [
+                                f"[Emoji link]({_emoji.url})\n",
+                                f"Created at: {_emoji.created_at}",
+                            ],
+                        ),
+                        color=0x788CDC,
+                        images=[image],
+                    )
+                    await res.ctx.edit_origin(
+                        content=f"<{_emoji.url}>", embeds=embed
+                    )
+                except asyncio.TimeoutError:
+                    await msg.edit(components=[], content="Timeout.")
+                    break
+
+        elif len(parsed) == 1:
+            _emoji = Emote().get_emoji(
+                f"<{parsed[0][0]}:{parsed[0][1]}:{parsed[0][2]}>"
+            )
+
+            image = interactions.EmbedAttachment(url=_emoji.url)
+            embed = interactions.Embed(
+                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
+                if _emoji.animated
+                else f"``<:{_emoji.name}:{_emoji.id}>``",
+                description="".join(
+                    [
+                        f"[Emoji link]({_emoji.url})\n",
+                        f"Created at: {_emoji.created_at}",
+                    ],
+                ),
+                color=0x788CDC,
+                images=[image],
+            )
+            await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
+
+        elif len(parsed) == 0:
+            return await ctx.send(
+                "No emoji found in this message.", ephemeral=True
             )
 
 
