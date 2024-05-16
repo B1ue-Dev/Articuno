@@ -9,6 +9,10 @@ import asyncio
 import googletrans
 import interactions
 from interactions import integration_types
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 from googletrans import Translator
 
 
@@ -181,25 +185,25 @@ class Translation(interactions.Extension):
         await ctx.defer(ephemeral=True)
 
         translator = Translator()
-        message: interactions.Message = ctx.target
-        content = message.content
+        msg: interactions.Message = ctx.target
+        content = msg.content
+
         if str(content) == "None" or str(content) == "":
             return await ctx.send(
                 "No content in this message.", ephemeral=True
             )
 
-        lang = translator.detect(content).lang
-        translation = translator.translate(content)
-        message1 = translation.text
+        detected_lang = translator.detect(content).lang
+        translated_text = translator.translate(content).text
 
         embed = interactions.Embed(
             title="".join(
                 [
                     "Detected language: ",
-                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                    f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
                 ]
             ),
-            description=f"```{message1}```",
+            description=f"```{translated_text}```",
             footer=interactions.EmbedFooter(
                 text="Powered by Google Translate"
             ),
@@ -218,17 +222,17 @@ class Translation(interactions.Extension):
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
-                message1 = translation.text
+                translated_text = translation.text
 
                 embed = interactions.Embed(
                     title="".join(
                         [
                             "Detected language: ",
-                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],
                     ),
-                    description=f"```{message1}```",
+                    description=f"```{translated_text}```",
                     footer=interactions.EmbedFooter(
                         text="Powered by Google Translate"
                     ),
@@ -245,53 +249,41 @@ class Translation(interactions.Extension):
             except asyncio.TimeoutError:
                 break
 
-    @interactions.slash_command(
-        name="translate",
-        description="Handle message translation aspects.",
-    )
-    async def translate(self, ctx: interactions.SlashContext) -> None:
-        """Handle message translation aspects."""
-        ...
-
-    @translate.subcommand(
-        sub_cmd_name="text", sub_cmd_description="Translate a piece of text."
+    @hybrid_slash_subcommand(
+        base="translate",
+        base_description="Handle message translation aspects.",
+        name="text",
+        description="Translate a piece of content.",
     )
     @interactions.slash_option(
-        name="text",
-        description="The text to translate.",
+        name="content",
+        description="The content to translate.",
         opt_type=interactions.OptionType.STRING,
         required=True,
     )
-    @interactions.slash_option(
-        name="lang",
-        description="The language you want to translate to.",
-        opt_type=interactions.OptionType.STRING,
-        choices=choices,
-        required=False,
-    )
     async def text(
         self,
-        ctx: interactions.SlashContext,
-        text: str,
-        lang: str = "en",
+        ctx: HybridContext,
+        content: interactions.ConsumeRest[str],
     ) -> None:
         """Translate a piece of text."""
 
         await ctx.defer(ephemeral=True)
 
         translator = Translator()
-        content = text
-        translation = translator.translate(content, dest=lang)
-        message1 = translation.text
+        detected_lang = translator.detect(content).lang
+        translation = translator.translate(content, dest="en")
+        translated_text = translation.text
 
         embed = interactions.Embed(
             title="".join(
                 [
                     "Detected language: ",
-                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                    f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
+                    f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                 ]
             ),
-            description=f"```{message1}```",
+            description=f"```{translated_text}```",
             footer=interactions.EmbedFooter(
                 text="Powered by Google Translate"
             ),
@@ -310,17 +302,17 @@ class Translation(interactions.Extension):
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
-                message1 = translation.text
+                translated_text = translation.text
 
                 embed = interactions.Embed(
                     title="".join(
                         [
                             "Detected language: ",
-                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],
                     ),
-                    description=f"```{message1}```",
+                    description=f"```{translated_text}```",
                     footer=interactions.EmbedFooter(
                         text="Powered by Google Translate"
                     ),
@@ -336,9 +328,11 @@ class Translation(interactions.Extension):
             except asyncio.TimeoutError:
                 break
 
-    @translate.subcommand(
-        sub_cmd_name="message",
-        sub_cmd_description="Translate a message to another language.",
+    @hybrid_slash_subcommand(
+        base="translate",
+        base_description="Handle message translation aspects.",
+        name="message",
+        description="Translate a message to another language.",
     )
     @interactions.slash_option(
         name="message_id",
@@ -361,7 +355,7 @@ class Translation(interactions.Extension):
     )
     async def message(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         message_id: int,
         channel_id: int,
         lang: str = "en",
@@ -370,11 +364,9 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        _message: interactions.Message = None
+        msg: interactions.Message = None
         try:
-            _message = await self.client.http.get_message(
-                channel_id, message_id
-            )
+            msg = await self.client.http.get_message(channel_id, message_id)
         except interactions.errors.HTTPException:
             return await ctx.send(
                 content="Invalid message ID or channel ID. Please try again.",
@@ -382,23 +374,26 @@ class Translation(interactions.Extension):
             )
 
         translator = Translator()
-        content = _message["content"]
+        content = msg["content"]
         if str(content) == "None" or str(content) == "":
             return await ctx.send(
                 "No content in this message.", ephemeral=True
             )
 
+        detected_lang = translator.detect(content).lang
         translation = translator.translate(content, dest=lang)
-        message1 = translation.text
+        translated_text = translation.text
+        lang = translator.detect(content).lang
 
         embed = interactions.Embed(
             title="".join(
                 [
                     "Detected language: ",
-                    f"{str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
+                    f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
+                    f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                 ]
             ),
-            description=f"```{message1}```",
+            description=f"```{translated_text}```",
             footer=interactions.EmbedFooter(
                 text="Powered by Google Translate"
             ),
@@ -417,17 +412,17 @@ class Translation(interactions.Extension):
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
                 translation = translator.translate(content, dest=selects)
-                message1 = translation.text
+                translated_text = translation.text
 
                 embed = interactions.Embed(
                     title="".join(
                         [
                             "Detected language: ",
-                            f"{str(googletrans.LANGUAGES.get(lang)).capitalize()}",
+                            f"{str(googletrans.LANGUAGES.get(detected_lang)).capitalize()}",
                             f" ➡ {str(googletrans.LANGUAGES.get(translation.dest)).capitalize()}",
                         ],
                     ),
-                    description=f"```{message1}```",
+                    description=f"```{translated_text}```",
                     footer=interactions.EmbedFooter(
                         text="Powered by Google Translate"
                     ),
