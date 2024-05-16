@@ -6,8 +6,12 @@ Information commands.
 
 import logging
 import interactions
-from interactions import UserFlags, Permissions
 from interactions import integration_types
+from interactions import UserFlags, Permissions
+from interactions.ext.hybrid_commands import (
+    hybrid_slash_subcommand,
+    HybridContext,
+)
 from src.utils.utils import get_response
 from src.utils.colorthief import ColorThief
 
@@ -40,15 +44,16 @@ def get_user_flags(flags: UserFlags) -> str:
 
     user_flags: list = []
     discord_flags = {
-        "STAFF": "<:BadgeDiscordStaff:1043234580813066270> Discord Employee",
-        "PARTNER": "<:BadgeDiscordPartner:1043234716079366184> Partnered Server Owner",
+        "DISCORD_EMPLOYEE": "<:BadgeDiscordStaff:1043234580813066270> Discord Employee",
+        "PARTNERED_SERVER_OWNER": "<:BadgeDiscordPartner:1043234716079366184> Partnered Server Owner",
         "HYPESQUAD": "<:BadgeHypesquadEvent:1043234630075158548> HypeSquad Events Member",
         "BUG_HUNTER_LEVEL_1": "<:BadgeDiscordBugHunterLv1:1043234778914242701> Bug Hunter Level 1",
-        "PREMIUM_EARLY_SUPPORTER": "<:BadgeEarlySupporter:1043234890566619246> Early Nitro Supporter",
+        "EARLY_SUPPORTER": "<:BadgeEarlySupporter:1043234890566619246> Early Nitro Supporter",
         "BUG_HUNTER_LEVEL_2": "<:BadgeDiscordBugHunterLv2:1043234838255259698> Bug Hunter Level 2",
         "VERIFIED_BOT": "<:BadgeVerifiedBot:1043235024704634900> Verified Bot",
-        "VERIFIED_DEVELOPER": "<:BadgeEarlyVerifiedDeveloper:1043234961219657829> Early Verified Bot Developer",
+        "EARLY_VERIFIED_BOT_DEVELOPER": "<:BadgeEarlyVerifiedDeveloper:1043234961219657829> Early Verified Bot Developer",
         "DISCORD_CERTIFIED_MODERATOR": "<:BadgeDiscordCertifiedModerator:1043235073169825923> Discord Certified Moderator",
+        "SPAMMER": "⚠ Suspected spammer",
         "ACTIVE_DEVELOPER": "<:BadgeActiveDev:1042443072186896476> Active Developer",
     }
 
@@ -106,19 +111,13 @@ class Info(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @interactions.slash_command(
-        name="info",
-        description="For all information aspects.",
-        dm_permission=False,
-    )
-    @integration_types(guild=True, user=True)
-    async def info(self, ctx: interactions.SlashContext) -> None:
-        """For all information aspects."""
-        ...
-
-    @info.subcommand(
-        sub_cmd_name="user",
-        sub_cmd_description="Shows the information about a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        base_dm_permission=False,
+        base_integration_types=[0, 1],
+        name="user",
+        description="Shows the information about a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -128,7 +127,7 @@ class Info(interactions.Extension):
     )
     async def user(
         self,
-        ctx: interactions.SlashContext,
+        ctx: HybridContext,
         user: interactions.Member,
     ) -> None:
         """Shows the information about a user."""
@@ -151,7 +150,7 @@ class Info(interactions.Extension):
 
         fields = [
             interactions.EmbedField(
-                name="Name", value=f"{user.user.username}", inline=True
+                name="Name", value=f"{user.user.display_name}", inline=True
             ),
             interactions.EmbedField(
                 name="Nickname", value=f"{nick}", inline=True
@@ -179,7 +178,9 @@ class Info(interactions.Extension):
                 interactions.EmbedField(
                     name="Permissions",
                     value=f"{permissions}",
-                ),
+                )
+            )
+            fields.append(
                 interactions.EmbedField(
                     name="Roles",
                     value=(
@@ -187,7 +188,7 @@ class Info(interactions.Extension):
                         if isinstance(user, interactions.Member) and user.roles
                         else "`N/A`"
                     ),
-                ),
+                )
             )
         thumbnail = interactions.EmbedAttachment(url=avatar)
         title: str = (
@@ -208,9 +209,13 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="avatar",
-        sub_cmd_description="Shows the profile picture URL of a user.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        base_dm_permission=False,
+        base_integration_types=[0, 1],
+        name="avatar",
+        description="Shows the profile picture URL of a user.",
     )
     @interactions.slash_option(
         name="user",
@@ -219,7 +224,7 @@ class Info(interactions.Extension):
         required=True,
     )
     async def avatar(
-        self, ctx: interactions.SlashContext, user: interactions.Member
+        self, ctx: HybridContext, user: interactions.Member
     ) -> None:
         """Shows the profile picture URL of a user."""
 
@@ -289,11 +294,15 @@ class Info(interactions.Extension):
 
         await ctx.send(embeds=embed)
 
-    @info.subcommand(
-        sub_cmd_name="server",
-        sub_cmd_description="Shows the information about the server.",
+    @hybrid_slash_subcommand(
+        base="info",
+        base_description="For all information aspects.",
+        base_dm_permission=False,
+        base_integration_types=[0, 1],
+        name="server",
+        description="Shows the information about the server.",
     )
-    async def server(self, ctx: interactions.SlashContext) -> None:
+    async def server(self, ctx: HybridContext) -> None:
         """Shows the information about the server."""
 
         guild: interactions.Guild = ctx.guild
@@ -483,52 +492,93 @@ class Info(interactions.Extension):
         """User context menu for information."""
 
         user: interactions.Member = ctx.target
-        user_id: str = str(user.id)
-        created_at: float = round(user.created_at.timestamp())
+        if isinstance(user, interactions.Member):
+            user = user.user
+        created_at: int = round(user.created_at.timestamp())
         avatar: str = user.avatar.url
-        bot: bool = user.bot
-        if bot is True:
-            bot = "Yes"
-        else:
-            bot = "No"
+        bot: str = "Yes" if user.bot is True else "No"
+        public_flags: UserFlags = user.public_flags
+        hypesquad = None
+        flags: str = get_user_flags(public_flags)
+        if isinstance(public_flags, int):
+            if public_flags & 1 << 6:
+                hypesquad = "<:bravery:957684396268322886> Bravery"
+            elif public_flags & 1 << 7:
+                hypesquad = "<:brilliance:957684592498843658> Brilliance"
+            elif public_flags & 1 << 8:
+                hypesquad = "<:balance:957684753174241330> Balance"
 
-        thumbnail = interactions.EmbedAttachment(url=avatar)
         fields = [
             interactions.EmbedField(
-                name="Name",
-                value=(
-                    f"@{user.username}"
-                    if str(user.discriminator) == "0"
-                    else f"{user.username}#{user.discriminator}"
-                ),
-                inline=True,
+                name="Name", value=f"{user.display_name}", inline=True
             ),
-            interactions.EmbedField(name="ID", value=user_id, inline=True),
+            interactions.EmbedField(
+                name="ID", value=f"{user.id}", inline=True
+            ),
             interactions.EmbedField(
                 name="Created on", value=f"<t:{created_at}:F>", inline=True
             ),
-            interactions.EmbedField(name="Bot?", value=bot, inline=True),
+            interactions.EmbedField(
+                name="HypeSquad", value=f"{hypesquad}", inline=True
+            ),
+            interactions.EmbedField(name="Bot", value=f"{bot}", inline=True),
+            interactions.EmbedField(
+                name="Flags", value=f"{flags}", inline=True
+            ),
         ]
-        if ctx.guild:
-            fields.append(
+        if ctx.guild is None and ctx.guild_id:
+            nick: str = ctx.target.nick
+            fields.insert(
+                1,
                 interactions.EmbedField(
-                    name="Roles",
-                    value=(
-                        ", ".join([f"<@&{role.id}>" for role in user.roles])
-                        if isinstance(user, interactions.Member) and user.roles
-                        else "`N/A`"
-                    ),
+                    name="Nickname", value=f"{nick}", inline=True
                 ),
             )
-        if user.joined_at:
-            joined_at: float = round(user.joined_at.timestamp())
-            fields.append(
+            joined_at: int = round(ctx.target.joined_at.timestamp())
+            fields.insert(
+                4,
                 interactions.EmbedField(
                     name="Joined at", value=f"<t:{joined_at}:F>", inline=True
                 ),
             )
+        if ctx.guild:
+            permissions: str = get_user_permissions(
+                ctx.target.guild_permissions
+            )
+            fields.append(
+                interactions.EmbedField(
+                    name="Permissions",
+                    value=f"{permissions}",
+                )
+            )
+            fields.append(
+                interactions.EmbedField(
+                    name="Roles",
+                    value=(
+                        ", ".join(
+                            [f"<@&{role.id}>" for role in ctx.target.roles]
+                        )
+                        if isinstance(ctx.target, interactions.Member)
+                        and ctx.target.roles
+                        else "`N/A`"
+                    ),
+                )
+            )
+        thumbnail = interactions.EmbedAttachment(url=avatar)
+        title: str = (
+            f"@{user.username}"
+            if str(user.discriminator) == "0"
+            else f"{user.username}#{user.discriminator}"
+        )
+        footer = interactions.EmbedFooter(
+            text=f"Requested by @{ctx.user.username}",
+            icon_url=f"{ctx.user.avatar.url}",
+        )
         embed = interactions.Embed(
-            title="User Information", thumbnail=thumbnail, fields=fields
+            title=title,
+            thumbnail=thumbnail,
+            footer=footer,
+            fields=fields,
         )
 
         await ctx.send(embeds=embed, ephemeral=True)
