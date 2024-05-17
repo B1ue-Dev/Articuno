@@ -9,7 +9,6 @@ import io
 import random
 import asyncio
 from time import time
-from typing import Any
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
