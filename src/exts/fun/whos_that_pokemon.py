@@ -8,7 +8,7 @@ import logging
 import io
 import random
 import asyncio
-import json
+from time import time
 from typing import Any
 import interactions
 from interactions.ext.hybrid_commands import (
@@ -16,6 +16,7 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from PIL import Image
+from src.exts.fun.pokemon import Pokemon
 from src.utils.utils import get_response
 
 
@@ -39,13 +40,11 @@ async def extract_pokemon_image(url: str) -> Image.Image:
     return img
 
 
-async def generate_images(correct_pokemon) -> list[Image.Image]:
+async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
     """Generate the images for the command."""
 
     """The image of the Pokemon."""
-    _image = await extract_pokemon_image(
-        f"https://www.serebii.net/art/th/{correct_pokemon['num']}.png"
-    )
+    _image = await extract_pokemon_image(correct_pokemon.url)
 
     """Process the image and background."""
     _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
@@ -77,13 +76,13 @@ async def generate_images(correct_pokemon) -> list[Image.Image]:
     _file = interactions.File(
         file_name="image.png",
         file=out2,
-        description=f"{correct_pokemon['name']}",
+        description=f"{correct_pokemon.name}",
     )
 
     return [file, _file]
 
 
-def get_pokemon(generation: int = None) -> list:
+def get_pokemon(generation: int = None, user_id: int = None) -> list:
     """
     Get a random Pokemon from the database.
 
@@ -93,54 +92,21 @@ def get_pokemon(generation: int = None) -> list:
     :rtype: list
     """
 
-    _pokemon_list = {}
-    db = json.loads(open("./src/db/pokemon.json", "r", encoding="utf8").read())
+    seed = hash(str(user_id) + str(time()))
+    random.seed(seed)
 
-    if generation is None:
-        generation = [1, 905]
-    else:
-        if generation == "1":
-            generation = [1, 151]
-        elif generation == "2":
-            generation = [152, 251]
-        elif generation == "3":
-            generation = [252, 386]
-        elif generation == "4":
-            generation = [387, 493]
-        elif generation == "5":
-            generation = [494, 649]
-        elif generation == "6":
-            generation = [650, 721]
-        elif generation == "7":
-            generation = [722, 809]
-        elif generation == "8":
-            generation = [810, 905]
-        elif generation == "9":
-            generation = [906, 1010]
+    pokemon_list = Pokemon.get_gen_list(generation)
+    indices = list(range(len(pokemon_list)))
+    chosen_indices = random.sample(indices, 4)
+    chosen_pokemon = [
+        {
+            "num": list(pokemon_list.values())[i]["num"],
+            "name": list(pokemon_list.values())[i]["name"],
+        }
+        for i in chosen_indices
+    ]
 
-    _num_list = list(range(generation[0] - 1, generation[1]))
-    random.shuffle(_num_list)
-
-    for i in range(4):
-        _num = _num_list[i]
-        _val = list(db.values())[_num]
-
-        _pokemon_list[i] = _val
-
-    _lists = {}
-    _list_number = []
-    for i in range(4):
-        if len(_list_number) < 5:
-            if i not in _list_number:
-                _lists[i] = {
-                    "num": _pokemon_list[i]["num"],
-                    "name": _pokemon_list[i]["name"],
-                }
-                _list_number.append(i)
-            else:
-                continue
-
-    return _lists
+    return chosen_pokemon
 
 
 class WTP(interactions.Extension):
@@ -194,12 +160,14 @@ class WTP(interactions.Extension):
 
             while True:
                 """List of Pokemon."""
-                pokemon_list: list = get_pokemon(generation)
+                pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
 
                 """The correct Pokemon."""
-                correct_pokemon: Any = pokemon_list[random.randint(0, 3)]
+                corrected_pokemon: Pokemon = Pokemon.get_pokemon(
+                    (pokemon_list[random.randint(0, 3)])["name"]
+                )
 
-                results = await generate_images(correct_pokemon)
+                results = await generate_images(corrected_pokemon)
                 file = results[0]
                 _file = results[1]
 
@@ -240,14 +208,14 @@ class WTP(interactions.Extension):
                         timeout=15,
                     )
 
-                    if res.ctx.custom_id == str(correct_pokemon["num"]):
+                    if res.ctx.custom_id == str(corrected_pokemon.num):
                         _button_disabled = []
                         for i in range(4):
                             _button_disabled.append(
                                 interactions.Button(
                                     style=interactions.ButtonStyle.SECONDARY
                                     if str(pokemon_list[i]["num"])
-                                    != str(correct_pokemon["num"])
+                                    != str(corrected_pokemon.num)
                                     else interactions.ButtonStyle.SUCCESS,
                                     label=f"{pokemon_list[i]['name']}",
                                     custom_id=f"{pokemon_list[i]['num']}",
@@ -259,7 +227,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{correct_pokemon['name']}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
                                     f" {ctx.user.mention} had the right answer.",
                                 ],
                             ),
@@ -283,7 +251,7 @@ class WTP(interactions.Extension):
                                     style=(
                                         interactions.ButtonStyle.SECONDARY
                                         if str(pokemon_list[i]["num"])
-                                        != str(correct_pokemon["num"])
+                                        != str(corrected_pokemon.num)
                                         and str(pokemon_list[i]["num"])
                                         != str(res.ctx.custom_id)
                                         else (
@@ -304,8 +272,8 @@ class WTP(interactions.Extension):
                             interactions.ActionRow(
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
-                                    label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -314,7 +282,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{correct_pokemon['name']}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
                                     f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -332,7 +300,7 @@ class WTP(interactions.Extension):
                                     style=(
                                         interactions.ButtonStyle.SECONDARY
                                         if str(pokemon_list[i]["num"])
-                                        != str(correct_pokemon["num"])
+                                        != str(corrected_pokemon.num)
                                         and str(pokemon_list[i]["num"])
                                         != str(res.ctx.custom_id)
                                         else (
@@ -353,8 +321,8 @@ class WTP(interactions.Extension):
                             interactions.ActionRow(
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
-                                    label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -363,7 +331,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{correct_pokemon['name']}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
                                     f" {ctx.user.mention} had the wrong answer.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -390,8 +358,8 @@ class WTP(interactions.Extension):
                         interactions.ActionRow(
                             interactions.Button(
                                 style=interactions.ButtonStyle.LINK,
-                                label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                             )
                         ),
                     ]
@@ -400,7 +368,7 @@ class WTP(interactions.Extension):
                         content="".join(
                             [
                                 "**Who's that Pokemon?**\n\n",
-                                f"Timeout! It's **{correct_pokemon['name']}**!",
+                                f"Timeout! It's **{corrected_pokemon.name}**!",
                                 f"\nStreak: {cnt}",
                             ],
                         ),
@@ -414,12 +382,14 @@ class WTP(interactions.Extension):
 
             while True:
                 """List of Pokemon."""
-                pokemon_list: list = get_pokemon(generation)
+                pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
 
                 """The correct Pokemon."""
-                correct_pokemon: Any = pokemon_list[random.randint(0, 3)]
+                corrected_pokemon: Pokemon = Pokemon.get_pokemon(
+                    (pokemon_list[random.randint(0, 3)])["name"]
+                )
 
-                results = await generate_images(correct_pokemon)
+                results = await generate_images(corrected_pokemon)
                 file = results[0]
                 _file = results[1]
 
@@ -479,8 +449,8 @@ class WTP(interactions.Extension):
                             interactions.ActionRow(
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
-                                    label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -489,7 +459,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{correct_pokemon['name']}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
                                     f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -513,7 +483,7 @@ class WTP(interactions.Extension):
 
                         if (
                             _res.responses["answer"].lower().rstrip()
-                            == correct_pokemon["name"].lower()
+                            == corrected_pokemon.name.lower()
                         ):
                             button_disabled = interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
@@ -527,7 +497,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{correct_pokemon['name']}**! ",
+                                        f"It's **{corrected_pokemon.name}**! ",
                                         f"{ctx.user.mention} had the right answer.",
                                     ]
                                 ),
@@ -557,8 +527,8 @@ class WTP(interactions.Extension):
                                 interactions.ActionRow(
                                     interactions.Button(
                                         style=interactions.ButtonStyle.LINK,
-                                        label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                        label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                                     )
                                 ),
                             ]
@@ -568,7 +538,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{correct_pokemon['name']}**!",
+                                        f"It's **{corrected_pokemon.name}**!",
                                         f" {ctx.user.mention} had the wrong answer.",
                                         f"\nStreak: {cnt}",
                                     ],
@@ -592,8 +562,8 @@ class WTP(interactions.Extension):
                         interactions.ActionRow(
                             interactions.Button(
                                 style=interactions.ButtonStyle.LINK,
-                                label=f"{correct_pokemon['name']} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{correct_pokemon['name']}_(Pokémon)",
+                                label=f"{corrected_pokemon.name} (Bulbapedia)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
                             ),
                         ),
                     ]
@@ -602,7 +572,7 @@ class WTP(interactions.Extension):
                         content="".join(
                             [
                                 "**Who's that Pokemon?**\n\nTimeout! ",
-                                f"It's **{correct_pokemon['name']}**!",
+                                f"It's **{corrected_pokemon.name}**!",
                                 f"\nStreak: {cnt}",
                             ],
                         ),
