@@ -6,6 +6,7 @@ Hangman command.
 
 import logging
 import asyncio
+from typing import List
 from unicodedata import normalize
 import interactions
 from interactions.ext.hybrid_commands import (
@@ -93,7 +94,9 @@ def display_hangman(tries):
 async def get_word() -> str:
     """Get a word from the API."""
 
-    resp = await get_response(url="https://random-words-api.vercel.app/word")
+    resp = await get_response(
+        url="https://random-words-fqeqqcwxs-b1ue-dev-home.vercel.app/word"
+    )
     return (resp[0]["word"], resp[0]["definition"])
 
 
@@ -123,7 +126,7 @@ class Hangman(interactions.Extension):
         guessed_words: list = []
         tries: int = 6
 
-        button: list(button) = [  # noqa: F821
+        button: List[interactions.Button] = [  # noqa: F821
             interactions.Button(
                 style=interactions.ButtonStyle.SECONDARY,
                 label="Answer",
@@ -136,7 +139,7 @@ class Hangman(interactions.Extension):
             ),
         ]
 
-        over_button: list(button) = [
+        over_button: List[interactions.Button] = [
             interactions.Button(
                 style=interactions.ButtonStyle.SECONDARY,
                 label="Answer",
@@ -239,6 +242,10 @@ class Hangman(interactions.Extension):
                                 name=f"Word ({len(word_completion)} characters): `{word_completion}`",
                                 value=f"""```\n{display_hangman(tries)}\n```""",
                             )
+                            embed.set_footer(
+                                text="Guessed word: "
+                                + ", ".join(guessed_letters)
+                            )
                             await _res.edit(
                                 message=_res.message_id, embed=embed
                             )
@@ -262,6 +269,10 @@ class Hangman(interactions.Extension):
                             embed.add_field(
                                 name=f"Word ({len(word_completion)} characters): `{word_completion}`",
                                 value=f"""```\n{display_hangman(tries)}\n```""",
+                            )
+                            embed.set_footer(
+                                text="Guessed word: "
+                                + ", ".join(guessed_letters)
                             )
                             await _res.edit(
                                 message=_res.message_id, embed=embed
@@ -288,6 +299,10 @@ class Hangman(interactions.Extension):
                             embed.add_field(
                                 name=f"Word ({len(word_completion)} characters): `{word_completion}`",
                                 value=f"""```\n{display_hangman(tries)}\n```""",
+                            )
+                            embed.set_footer(
+                                text="Guessed word: "
+                                + ", ".join(guessed_letters)
                             )
                             await _res.edit(
                                 message=_res.message_id, embed=embed
@@ -321,6 +336,9 @@ class Hangman(interactions.Extension):
                         embed.add_field(
                             name=f"Word ({len(word_completion)} characters): `{word_completion}`",
                             value=f"""```\n{display_hangman(tries)}\n```""",
+                        )
+                        embed.set_footer(
+                            text="Guessed word: " + ", ".join(guessed_letters)
                         )
                         await _res.edit(message=_res.message_id, embed=embed)
 
