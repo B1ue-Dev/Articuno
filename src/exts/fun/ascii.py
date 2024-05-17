@@ -115,7 +115,6 @@ class ASCII(interactions.Extension):
         i = Image.new("RGB", (2000, 1000))
         img = ImageDraw.Draw(i)
         ascii_text = pyfiglet.figlet_format(text, width=150)
-        print(ascii_text)
         size = img.textbbox((1, 1), ascii_text)
         text_width, text_height = (size[2] - size[0], size[3] - size[1])
         imgs = Image.new("RGB", (text_width + 30, text_height))

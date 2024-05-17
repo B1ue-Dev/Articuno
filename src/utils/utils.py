@@ -6,7 +6,7 @@ Utils for Articuno.
 
 import logging
 import math
-import io
+from io import BytesIO, StringIO
 from typing import Union
 from enum import Enum
 from datetime import datetime, timedelta, timezone
@@ -24,8 +24,8 @@ class tags(Document):
 
 
 async def get_response(
-    url: str = None, params: dict = None, headers: dict = None
-) -> io.BytesIO | dict | None:
+    url: str, params: dict | None = None, headers: dict | None = None
+) -> dict | BytesIO | None:
     """Return the data type from the request."""
 
     async with aiohttp.ClientSession() as session:
@@ -38,7 +38,7 @@ async def get_response(
                     "image/jpeg",
                     "image/gif",
                 }:
-                    return io.BytesIO(await resp.read())
+                    return BytesIO(await resp.read())
             else:
                 logging.critical(f"{url} returned {resp.status}.")
                 return None
@@ -53,7 +53,7 @@ def natural_size(size_in_bytes: int) -> str:
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
-def timestamp(times: str) -> int:
+def timestamp(times: str) -> str:
     """Return the round() format of a timestamp."""
 
     res = int(f"{times.timestamp():.0f}")
@@ -110,21 +110,21 @@ def pretty_date(time: int) -> str:
     return str(day_diff // 365) + " years ago"
 
 
-def send_as_file(text: str) -> io.StringIO:
+def send_as_file(text: str) -> StringIO:
     """Converts a text into a bytesteam object."""
 
-    _io = io.StringIO(text)
+    _io = StringIO(text)
     _io.seek(0)
     return _io
 
 
-def get_color(img) -> str:
+def get_color(img) -> int:
     """
     Get the dominant color of an image.
     :param img: The image.
     :type img:
     :return: The dominant color hex.
-    :rtype: str
+    :rtype: int
     """
 
     clr_thief = ColorThief(img)
@@ -210,6 +210,7 @@ class Permissions(Enum):
     USE_SOUNDBOARD = 42
     USE_EXTERNAL_SOUNDS = 45
     SEND_VOICE_MESSAGES = 46
+    SEND_POLLS = 49
 
 
 # https://discord.com/developers/docs/topics/permissions#permissions

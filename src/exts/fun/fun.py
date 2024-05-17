@@ -140,6 +140,7 @@ class Fun(interactions.Extension):
     async def xkcd(self, ctx: HybridContext, page: int = None) -> None:
         """Sends a xkcd comic page."""
 
+        await ctx.defer()
         url = "https://xkcd.com/info.0.json"
         resp = await get_response(url)
         newest = resp["num"]
@@ -166,7 +167,7 @@ class Fun(interactions.Extension):
         author = interactions.EmbedAuthor(
             name=f"{title}",
             url=f"https://xkcd.com/{page}/",
-            icon_url="https://camo.githubusercontent.com/8bd4217be107c9c190ef649b3d1550841f8b45c32fc0b71aa851b9107d70cdea/68747470733a2f2f6173736574732e7365727661746f6d2e636f6d2f786b63642d626f742f62616e6e6572332e706e67",
+            icon_url="https://xkcd.com/s/0b7742.png",
         )
         embed = interactions.Embed(
             description=alt,
