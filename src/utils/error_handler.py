@@ -6,6 +6,7 @@ Error system handler.
 
 import datetime
 import traceback
+import logging
 import interactions
 from interactions import models
 from interactions.ext.prefixed_commands import PrefixedContext
@@ -52,6 +53,8 @@ async def handle_error(
     for i in traceb:
         er = er + f"{i}"
 
+    logging.error(traceb)
+
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
@@ -97,7 +100,7 @@ async def handle_error(
             title="**Uh oh...**",
             description="".join(
                 [
-                    "An error occurred. The developer team is dealing with the ",
+                    "An error occurred. The developer is dealing with the ",
                     " problem now.\nHave any question? ",
                     "Join the [**support server**](https://discord.gg/mE967ub6Ct)",
                     " for more help.",
