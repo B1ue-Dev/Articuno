@@ -11,16 +11,24 @@ from typing import Union
 from enum import Enum
 from datetime import datetime, timedelta, timezone
 import aiohttp
-from beanie import Document
+from typing import Annotated
+from beanie import Document, Indexed
 from src.utils.colorthief import ColorThief
 
 
-__all__ = ("tags",)
+__all__ = ("tags", "hangman_saves")
 
 
 class tags(Document):
     guild_id: str
     tags: dict
+
+
+class hangman_saves(Document):
+    user_id: Annotated[int, Indexed(int)]
+    user_name: Annotated[str, Indexed(str)]
+    highest_point: Annotated[int, Indexed(int)]
+    history: list
 
 
 async def get_response(

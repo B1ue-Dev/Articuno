@@ -19,7 +19,7 @@ from beanie import init_beanie
 
 from src.utils.error_handler import debug_system
 from src.const import TOKEN, VERSION, MONGO_DB_URL
-from src.utils.utils import get_response, tags, get_local_time
+from src.utils.utils import get_response, get_local_time, tags, hangman_saves
 
 
 class Init:
@@ -204,7 +204,9 @@ async def start() -> None:
         logging.info("Successfully connected to MongoDB!")
     except Exception as e:
         logging.critical(e)
-    await init_beanie(mongo_client["Articuno"], document_models=[tags])
+    await init_beanie(
+        mongo_client["Articuno"], document_models=[tags, hangman_saves]
+    )
 
     client.session = aiohttp.ClientSession()
 
