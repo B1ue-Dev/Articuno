@@ -7,7 +7,7 @@ Pokemon related commands.
 import logging
 import json
 import re
-from typing import List, Dict, Union
+from typing import List
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
@@ -265,7 +265,7 @@ class PKMCommand(interactions.Extension):
             await ctx.send(
                 [
                     {
-                        "name": Pokemon.db[name]["name"],
+                        "name": Pokemon.db()[name]["name"],
                         "value": name,
                     }
                     for name in (
@@ -281,12 +281,12 @@ class PKMCommand(interactions.Extension):
                 focus: str = "".join(letters)
                 if (
                     focus.lower().strip()
-                    in Pokemon.db[pkmn_name]["name"].lower()
+                    in Pokemon.db()[pkmn_name]["name"].lower()
                     and len(choices) < 20
                 ):
                     choices.append(
                         {
-                            "name": Pokemon.db[pkmn_name]["name"],
+                            "name": Pokemon.db()[pkmn_name]["name"],
                             "value": pkmn_name,
                         }
                     )
