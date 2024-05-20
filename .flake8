@@ -7,3 +7,4 @@ exclude =
     .conda
     .env
     env
+    .venv

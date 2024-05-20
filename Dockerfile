@@ -1,4 +1,8 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.11-alpine
+
+# Install git, linux-headers
+RUN apk update
+RUN apk add build-base linux-headers git
 
 # we want stdout
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -10,11 +14,11 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # install uvloop for faster asyncio
-RUN pip3.10 install uvloop
+RUN pip3.11 install uvloop
 
 # install the requirements
 COPY requirements.txt /tmp/
-RUN pip3.10 install -r /tmp/requirements.txt
+RUN pip3.11 install --no-cache-dir -r /tmp/requirements.txt
 
 # copy over the source files
 COPY . /app/
@@ -24,4 +28,4 @@ ENV PYTHONPATH "${PYTHONPATH}:/app"
 
 # start the bot
 WORKDIR /app
-CMD ["python3.10", "-OO", "main.py"]
+CMD ["python3.11", "-OO", "main.py"]

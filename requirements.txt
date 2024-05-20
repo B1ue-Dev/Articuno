@@ -1,6 +1,6 @@
 beanie==1.21.0
 colorlog==6.7.0
-discord-py-interactions==5.9.2
+git+https://github.com/B1ue-Dev/interactions.py@userapps
 google-api-python-client==2.97.0
 googletrans-py==4.0.0
 Pillow==9.5.0
