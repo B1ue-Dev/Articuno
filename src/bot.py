@@ -4,6 +4,7 @@ Root bot file.
 (C) 2022-2023 - B1ue-Dev
 """
 
+import sys
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
@@ -37,29 +38,45 @@ class Init:
     def logger_config(cls) -> logging.Logger:
         """Setup the logging environment."""
 
+        class ErrorAndDebugFilter(logging.Filter):
+            def filter(self, record):
+                return record.levelno in (logging.ERROR, logging.DEBUG, logging.CRITICAL)
+
+        class StdOutFilter(logging.Filter):
+            def filter(self, record):
+                return record.levelno not in (logging.ERROR, logging.DEBUG, logging.CRITICAL)
+
         log = logging.getLogger()
         logging.Formatter.converter = (
             lambda *args: get_local_time().timetuple()
         )
         log.setLevel(logging.INFO)
-        format_str = "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s"
-        date_format = "%d/%m/%Y %H:%M:%S"
-        cformat = "%(log_color)s" + format_str
-        colors = {
-            "DEBUG": "white",
-            "INFO": "white",
-            "WARNING": "fg_bold_yellow",
-            "ERROR": "fg_bold_red",
-            "CRITICAL": "red",
-        }
+
         formatter = colorlog.ColoredFormatter(
-            fmt=cformat,
-            datefmt=date_format,
-            log_colors=colors,
+            fmt="%(log_color)s" + "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+            datefmt="%d/%m/%Y %H:%M:%S",
+            reset=True,
+            log_colors={
+                "DEBUG": "white",
+                "INFO": "white",
+                "WARNING": "fg_bold_yellow",
+                "ERROR": "fg_bold_red",
+                "CRITICAL": "red",
+            },
         )
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(formatter)
-        log.addHandler(stream_handler)
+
+        # Stream handler for sys.stdout
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setFormatter(formatter)
+        stdout_handler.addFilter(StdOutFilter())
+        log.addHandler(stdout_handler)
+
+        # Stream handler for sys.stderr
+        stderr_handler = logging.StreamHandler(sys.stderr)
+        stderr_handler.setFormatter(formatter)
+        stderr_handler.addFilter(ErrorAndDebugFilter())
+        log.addHandler(stderr_handler)
+
         return log
 
 
