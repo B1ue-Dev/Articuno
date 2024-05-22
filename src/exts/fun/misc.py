@@ -5,6 +5,7 @@ Miscellaneous commands.
 """
 
 import logging
+import random
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
@@ -265,6 +266,51 @@ class Misc(interactions.Extension):
             file_name="image.png",
             file=resp,
             description=f"{user.username} YouTube comment.",
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
+        name="amogus",
+        description="Amogus.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.USER,
+                name="user",
+                description="Targeted user",
+                required=True,
+            ),
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.STRING,
+                name="text",
+                description="The custom text you want to set",
+                required=False,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def amogus(
+        self, ctx: HybridContext, user: interactions.Member, text: str = None
+    ) -> None:
+        """Amogus."""
+
+        await ctx.defer()
+
+        if not text:
+            text = f"""{user.user.username} was {"not" if str(random.choice(["true", "false"])) == "false" else ""} The Impostor"""
+        url: str = "https://some-random-api.com/premium/amongus"
+        params: dict = {
+            "avatar": user.avatar.url
+            if user.guild_avatar is None
+            else user.guild_avatar.url,
+            "username": user.user.username,
+            "custom": text,
+            "key": "hello",
+        }
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.gif",
+            file=resp,
+            description="Amogus.",
         )
         await ctx.send(file=img)
 
