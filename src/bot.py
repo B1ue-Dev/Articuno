@@ -40,11 +40,19 @@ class Init:
 
         class ErrorAndDebugFilter(logging.Filter):
             def filter(self, record):
-                return record.levelno in (logging.ERROR, logging.DEBUG, logging.CRITICAL)
+                return record.levelno in (
+                    logging.ERROR,
+                    logging.DEBUG,
+                    logging.CRITICAL,
+                )
 
         class StdOutFilter(logging.Filter):
             def filter(self, record):
-                return record.levelno not in (logging.ERROR, logging.DEBUG, logging.CRITICAL)
+                return record.levelno not in (
+                    logging.ERROR,
+                    logging.DEBUG,
+                    logging.CRITICAL,
+                )
 
         log = logging.getLogger()
         logging.Formatter.converter = (
@@ -53,7 +61,8 @@ class Init:
         log.setLevel(logging.INFO)
 
         formatter = colorlog.ColoredFormatter(
-            fmt="%(log_color)s" + "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
+            fmt="%(log_color)s"
+            + "[%(asctime)s] %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s",
             datefmt="%d/%m/%Y %H:%M:%S",
             reset=True,
             log_colors={

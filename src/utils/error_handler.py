@@ -140,7 +140,7 @@ class Error(interactions.Extension):
 
         elif isinstance(event.error, interactions.errors.CommandOnCooldown):
             await event.ctx.send(
-                f"Wow! Trying to catch up with Sonic or something?"
+                "Wow! Trying to catch up with Sonic or something?"
             )
 
         elif isinstance(event.error, interactions.errors.CommandCheckFailure):
