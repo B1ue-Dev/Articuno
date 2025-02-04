@@ -212,10 +212,12 @@ class WTP(interactions.Extension):
                         for i in range(4):
                             _button_disabled.append(
                                 interactions.Button(
-                                    style=interactions.ButtonStyle.SECONDARY
-                                    if str(pokemon_list[i]["num"])
-                                    != str(corrected_pokemon.num)
-                                    else interactions.ButtonStyle.SUCCESS,
+                                    style=(
+                                        interactions.ButtonStyle.SECONDARY
+                                        if str(pokemon_list[i]["num"])
+                                        != str(corrected_pokemon.num)
+                                        else interactions.ButtonStyle.SUCCESS
+                                    ),
                                     label=f"{pokemon_list[i]['name']}",
                                     custom_id=f"{pokemon_list[i]['num']}",
                                     disabled=True,

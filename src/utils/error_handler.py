@@ -145,8 +145,7 @@ class Error(interactions.Extension):
 
         elif isinstance(event.error, interactions.errors.CommandCheckFailure):
 
-            class Null:
-                ...
+            class Null: ...
 
             return Null
 

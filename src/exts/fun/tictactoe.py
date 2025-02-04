@@ -510,21 +510,27 @@ class TicTacToe(interactions.Extension):
         content = f"{ctx.author.mention}'s tic tac toe game " + (
             "(easy mode)"
             if ctx.message.content.find("easy mode") != -1
-            else "(hard mode)"
-            if ctx.message.content.find("hard mode") != -1
-            else "(medium mode)"
+            else (
+                "(hard mode)"
+                if ctx.message.content.find("hard mode") != -1
+                else "(medium mode)"
+            )
         )
 
         await ctx.edit_origin(
-            content=content
-            if not winner
-            else f"{winner} has won! "
-            + (
-                "(easy mode)"
-                if ctx.message.content.find("easy mode") != -1
-                else "(hard mode)"
-                if ctx.message.content.find("hard mode") != -1
-                else "(medium mode)"
+            content=(
+                content
+                if not winner
+                else f"{winner} has won! "
+                + (
+                    "(easy mode)"
+                    if ctx.message.content.find("easy mode") != -1
+                    else (
+                        "(hard mode)"
+                        if ctx.message.content.find("hard mode") != -1
+                        else "(medium mode)"
+                    )
+                )
             ),
             components=render_board(board, disable=winner is not None),
         )

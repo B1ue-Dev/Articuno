@@ -157,9 +157,11 @@ class Emoji(interactions.Extension):
 
             image = interactions.EmbedAttachment(url=_url)
             embed = interactions.Embed(
-                title=f"``<a:{emote.name}:{emote.id}>``"
-                if emote.animated
-                else f"``<:{emote.name}:{emote.id}>``",
+                title=(
+                    f"``<a:{emote.name}:{emote.id}>``"
+                    if emote.animated
+                    else f"``<:{emote.name}:{emote.id}>``"
+                ),
                 description="".join(
                     [
                         f"[Emoji link]({_url})\n",
@@ -199,9 +201,11 @@ class Emoji(interactions.Extension):
             )
             image = interactions.EmbedAttachment(url=url)
             embed = interactions.Embed(
-                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
-                if _emoji.animated
-                else f"``<:{_emoji.name}:{_emoji.id}>``",
+                title=(
+                    f"``<a:{_emoji.name}:{_emoji.id}>``"
+                    if _emoji.animated
+                    else f"``<:{_emoji.name}:{_emoji.id}>``"
+                ),
                 description="".join(
                     [
                         f"[Emoji link]({url})\n",
@@ -241,9 +245,11 @@ class Emoji(interactions.Extension):
             )
             image = interactions.EmbedAttachment(url=url)
             embed = interactions.Embed(
-                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
-                if _emoji.animated
-                else f"``<:{_emoji.name}:{_emoji.id}>``",
+                title=(
+                    f"``<a:{_emoji.name}:{_emoji.id}>``"
+                    if _emoji.animated
+                    else f"``<:{_emoji.name}:{_emoji.id}>``"
+                ),
                 description="".join(
                     [
                         f"[Emoji link]({url})\n",
@@ -327,9 +333,9 @@ class Emoji(interactions.Extension):
 
                     _io = (io.BytesIO(await resp.read())).read()
                     image = interactions.File(
-                        file_name="unknown.gif"
-                        if emote.animated
-                        else "unknown.png",
+                        file_name=(
+                            "unknown.gif" if emote.animated else "unknown.png"
+                        ),
                         file=_io,
                     )
                     try:
@@ -374,9 +380,11 @@ class Emoji(interactions.Extension):
 
                     _io = (io.BytesIO(await resp.read())).read()
                     image = interactions.File(
-                        file_name="unknown.gif"
-                        if str(resp.content_type) == "image/gif"
-                        else "unknown.png",
+                        file_name=(
+                            "unknown.gif"
+                            if str(resp.content_type) == "image/gif"
+                            else "unknown.png"
+                        ),
                         file=_io,
                     )
                     try:
@@ -486,9 +494,11 @@ class Emoji(interactions.Extension):
                     _io = (io.BytesIO(await resp.read())).read()
                     image = interactions.File(
                         file=_io,
-                        file_name="unknown.gif"
-                        if resp.content_type == "image/gif"
-                        else "unknown.png",
+                        file_name=(
+                            "unknown.gif"
+                            if resp.content_type == "image/gif"
+                            else "unknown.png"
+                        ),
                     )
                     try:
                         e = await ctx.guild.create_custom_emoji(
@@ -534,9 +544,11 @@ class Emoji(interactions.Extension):
                     _io = (io.BytesIO(await resp.read())).read()
                     image = interactions.File(
                         file=_io,
-                        file_name="unknown.gif"
-                        if resp.content_type == "image/gif"
-                        else "unknown.png",
+                        file_name=(
+                            "unknown.gif"
+                            if resp.content_type == "image/gif"
+                            else "unknown.png"
+                        ),
                     )
                     try:
                         e = await ctx.guild.create_custom_emoji(
@@ -675,9 +687,11 @@ class Emoji(interactions.Extension):
 
                     image = interactions.EmbedAttachment(url=_emoji.url)
                     embed = interactions.Embed(
-                        title=f"``<a:{_emoji.name}:{_emoji.id}>``"
-                        if _emoji.animated
-                        else f"``<:{_emoji.name}:{_emoji.id}>``",
+                        title=(
+                            f"``<a:{_emoji.name}:{_emoji.id}>``"
+                            if _emoji.animated
+                            else f"``<:{_emoji.name}:{_emoji.id}>``"
+                        ),
                         description="".join(
                             [
                                 f"[Emoji link]({_emoji.url})\n",
@@ -701,9 +715,11 @@ class Emoji(interactions.Extension):
 
             image = interactions.EmbedAttachment(url=_emoji.url)
             embed = interactions.Embed(
-                title=f"``<a:{_emoji.name}:{_emoji.id}>``"
-                if _emoji.animated
-                else f"``<:{_emoji.name}:{_emoji.id}>``",
+                title=(
+                    f"``<a:{_emoji.name}:{_emoji.id}>``"
+                    if _emoji.animated
+                    else f"``<:{_emoji.name}:{_emoji.id}>``"
+                ),
                 description="".join(
                     [
                         f"[Emoji link]({_emoji.url})\n",
