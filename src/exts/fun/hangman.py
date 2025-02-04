@@ -674,9 +674,11 @@ class Hman(interactions.Extension):
         )
         await paginator.send(
             ctx=ctx,
-            content=f"You are at top {current_position}."
-            if current_position != 0
-            else "",
+            content=(
+                f"You are at top {current_position}."
+                if current_position != 0
+                else ""
+            ),
         )
 
 

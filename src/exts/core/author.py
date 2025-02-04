@@ -20,7 +20,9 @@ class Author(interactions.Extension):
         self.client: interactions.Client = client
         self.topgg: str = "https://top.gg/bot/809084067446259722"
         self.github: str = "https://github.com/B1ue-Dev/Articuno"
-        self.invite_url: str = "https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands"
+        self.invite_url: str = (
+            "https://discord.com/oauth2/authorize?client_id=809084067446259722&permissions=1644905889023&scope=bot%20applications.commands"
+        )
 
     @interactions.slash_command(
         name="about",

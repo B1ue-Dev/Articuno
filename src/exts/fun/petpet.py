@@ -51,7 +51,9 @@ class Petpet(interactions.Extension):
         if _hash.isdigit():
             _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
         else:
-            _url: str = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{_hash}.png"
+            _url: str = (
+                f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{_hash}.png"
+            )
 
         member_avatar = Image.open(await get_response(_url)).convert("RGBA")
         member_avatar = member_avatar.resize(
