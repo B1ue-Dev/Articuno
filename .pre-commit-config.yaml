@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
     - id: trailing-whitespace
       name: Trailing Whitespace
@@ -16,14 +16,14 @@ repos:
     - id: check-merge-conflict
       name: Merge Conflicts
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 25.1.0
     hooks:
       - id: black
         name: Black Formatting
         language: python
         types: [ file, python ]
   - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
+    rev: 7.1.1
     hooks:
       - id: flake8
         name: Flake8 Formatting
