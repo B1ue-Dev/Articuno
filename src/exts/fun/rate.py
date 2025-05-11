@@ -13,6 +13,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
+from src.utils.utils import get_response
 
 
 def get_user_id(string: str) -> str | None:
@@ -48,7 +49,39 @@ class Rate(interactions.Extension):
 
         if not user:
             user = ctx.user.username
-        perc: int = int(random.randint(0, 100))
+            random.seed(str(ctx.user.id) + str(int(time.time() / 300)))
+        else:
+            _user = get_user_id(user)
+            if _user:
+                random.seed(str(_user) + str(int(time.time() / 300)))
+        perc: int = random.choice(range(0, 100))
+
+        if perc > 80:
+            _user = get_user_id(user)
+            if _user:
+                user = ctx.guild.get_member(_user)
+                url: str = "https://api.some-random-api.com/canvas/overlay/gay"
+                params: dict = {
+                    "avatar": (
+                        user.avatar.url
+                        if user.guild_avatar is None
+                        else user.guild_avatar.url
+                    ),
+                }
+                resp = await get_response(url, params)
+
+                img = interactions.File(
+                    file_name="image.png",
+                    file=resp,
+                )
+
+                embed = interactions.Embed(
+                    title="Gay measure tool",
+                    description=f"**{user}** is {perc}% gay today.",
+                    color=random.randint(0, 0xFFFFFF),
+                )
+
+                return await ctx.send(embeds=embed, file=img)
 
         embed = interactions.Embed(
             title="Gay measure tool",
