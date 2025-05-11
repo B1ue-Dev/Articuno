@@ -12,6 +12,7 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from src.utils.utils import get_response
+from src.const import SOME_RANDOM_API
 
 
 class Misc(interactions.Extension):
@@ -42,11 +43,13 @@ class Misc(interactions.Extension):
 
         await ctx.defer()
 
-        url: str = "https://some-random-api.com/canvas/jail"
+        url: str = "https://api.some-random-api.com/canvas/overlay/jail"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
@@ -78,11 +81,13 @@ class Misc(interactions.Extension):
 
         await ctx.defer()
 
-        url: str = "https://some-random-api.com/canvas/tonikawa"
+        url: str = "https://api.some-random-api.com/canvas/misc/tonikawa"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
@@ -116,7 +121,7 @@ class Misc(interactions.Extension):
 
         await ctx.defer()
 
-        url: str = "https://some-random-api.com/canvas/oogway"
+        url: str = "https://api.some-random-api.com/canvas/misc/oogway"
         params: dict = {"quote": str(quote)}
 
         resp = await get_response(url, params)
@@ -286,11 +291,13 @@ class Misc(interactions.Extension):
                 nick = user.nick
         else:
             nick = username
-        url: str = "https://some-random-api.com/canvas/tweet"
+        url: str = "https://api.some-random-api.com/canvas/misc/tweet"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
             "username": username,
             "displayname": nick,
             "comment": comment,
@@ -300,7 +307,6 @@ class Misc(interactions.Extension):
         img = interactions.File(
             file_name="image.png",
             file=resp,
-            description=f"{user.username} tweet.",
         )
         await ctx.send(file=img)
 
@@ -337,11 +343,13 @@ class Misc(interactions.Extension):
             username = user.user.username[:12] + "..."
         else:
             username = user.user.username
-        url = "https://some-random-api.com/canvas/youtube-comment"
+        url = "https://api.some-random-api.com/canvas/misc/youtube-comment"
         params = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
             "username": username,
             "comment": comment,
         }
@@ -349,7 +357,6 @@ class Misc(interactions.Extension):
         img = interactions.File(
             file_name="image.png",
             file=resp,
-            description=f"{user.username} YouTube comment.",
         )
         await ctx.send(file=img)
 
@@ -363,38 +370,32 @@ class Misc(interactions.Extension):
                 description="Targeted user",
                 required=True,
             ),
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="text",
-                description="The custom text you want to set",
-                required=False,
-            ),
         ],
         dm_permission=False,
     )
     async def amogus(
-        self, ctx: HybridContext, user: interactions.Member, text: str = None
+        self, ctx: HybridContext, user: interactions.Member
     ) -> None:
         """Amogus."""
 
         await ctx.defer()
 
-        if not text:
-            text = f"""{user.user.username} was {"not" if str(random.choice(["true", "false"])) == "false" else ""} The Impostor"""
-        url: str = "https://some-random-api.com/premium/amongus"
+        url: str = "https://api.some-random-api.com/premium/amongus"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.as_url(extension=".png")
+                if user.guild_avatar is None
+                else user.guild_avatar.as_url(extension=".png")
+            ),
             "username": user.user.username,
-            "custom": text,
-            "key": "hello",
+            "impostor": random.choice(["true", "false"]),
         }
-        resp = await get_response(url, params)
+        resp = await get_response(
+            url, params, headers={"Authorization": SOME_RANDOM_API}
+        )
         img = interactions.File(
             file_name="image.gif",
             file=resp,
-            description="Amogus.",
         )
         await ctx.send(file=img)
 
