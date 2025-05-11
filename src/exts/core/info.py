@@ -16,6 +16,10 @@ from src.utils.utils import get_response
 from src.utils.colorthief import ColorThief
 
 
+def snowflake_time(snowflake):
+    return datetime.fromtimestamp(((snowflake >> 22) + 1420070400000) / 1000)
+
+
 async def get_color(img) -> str:
     """
     Get the dominant color of an image.
@@ -162,7 +166,9 @@ class Info(interactions.Extension):
                 name="Joined at", value=f"<t:{joined_at}:F>", inline=True
             ),
             interactions.EmbedField(
-                name="Created on", value=f"<t:{created_at}:F>", inline=True
+                name="Created on",
+                value=f"<t:{round(snowflake_time(user.user.id).timestamp())}:F>",
+                inline=True,
             ),
             interactions.EmbedField(
                 name="HypeSquad", value=f"{hypesquad}", inline=True
@@ -368,7 +374,6 @@ class Info(interactions.Extension):
         emoji_count = len(await guild.fetch_all_custom_emojis())
         sticker_count = len(await guild.fetch_all_custom_stickers())
         preferred_locale = guild.preferred_locale
-        joined_at = guild.joined_at
         premium_progress_bar = guild.premium_progress_bar_enabled
         if premium_progress_bar is True:
             premium_progress_bar_comment = "Enabled"
@@ -376,7 +381,9 @@ class Info(interactions.Extension):
             premium_progress_bar_comment = "Disabled"
 
         fields = [
-            interactions.EmbedField(name="ID", value=f"{id}", inline=True),
+            interactions.EmbedField(
+                name="ID", value=f"{guild.id}", inline=True
+            ),
             interactions.EmbedField(
                 name="Owner",
                 value=f"{guild_owner.mention}\n"
@@ -409,7 +416,7 @@ class Info(interactions.Extension):
             ),
             interactions.EmbedField(
                 name="Created on",
-                value=f"{joined_at}",
+                value=f"<t:{round(snowflake_time(guild.id).timestamp())}:F>",
                 inline=True,
             ),
             interactions.EmbedField(
