@@ -126,6 +126,50 @@ class Misc(interactions.Extension):
         )
         await ctx.send(file=img)
 
+    @interactions.slash_command(
+        name="nobitches",
+        description="Nobitches.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.STRING,
+                name="above_text",
+                description="The text above the image.",
+                required=True,
+                max_length=12,
+            ),
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.STRING,
+                name="bottom_text",
+                description="The text at the bottom image.",
+                required=False,
+                max_length=12,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def nobitches(
+        self,
+        ctx: HybridContext,
+        above_text: str,
+        bottom_text: str = None,
+    ) -> None:
+        """Oogway a quote."""
+
+        await ctx.defer()
+
+        url: str = "https://api.some-random-api.com/canvas/misc/nobitches"
+        params: dict = {
+            "no": above_text.lower(),
+            "bottomtext": bottom_text.lower(),
+        }
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.png",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
     @hybrid_slash_command(
         name="trigger",
         description="Trigger a user.",
@@ -148,16 +192,56 @@ class Misc(interactions.Extension):
 
         await ctx.defer()
 
-        url: str = "https://some-random-api.com/canvas/triggered"
+        url: str = "https://api.some-random-api.com/canvas/overlay/triggered"
         params: dict = {
-            "avatar": user.avatar.url
-            if user.guild_avatar is None
-            else user.guild_avatar.url,
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
         }
 
         resp = await get_response(url, params)
         img = interactions.File(
-            file_name="image.gif",
+            file_name="image.png",
+            file=resp,
+        )
+        await ctx.send(file=img)
+
+    @hybrid_slash_command(
+        name="wasted",
+        description="Wasted a user.",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.USER,
+                name="user",
+                description="Targeted user",
+                required=True,
+            ),
+        ],
+        dm_permission=False,
+    )
+    async def wasted(
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
+    ) -> None:
+        """Trigger a user."""
+
+        await ctx.defer()
+
+        url: str = "https://api.some-random-api.com/canvas/overlay/wasted"
+        params: dict = {
+            "avatar": (
+                user.avatar.url
+                if user.guild_avatar is None
+                else user.guild_avatar.url
+            ),
+        }
+
+        resp = await get_response(url, params)
+        img = interactions.File(
+            file_name="image.png",
             file=resp,
         )
         await ctx.send(file=img)
