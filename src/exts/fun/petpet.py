@@ -38,27 +38,34 @@ class Petpet(interactions.Extension):
 
         await ctx.defer()
 
-        _hash: str = ""
+        _hash: str | int = None
+        _url = None
         if isinstance(user, interactions.User):
-            _hash = user.avatar.hash
+            if user.avatar is not None:
+                _url = user.avatar.url
+            else:
+                _hash = (user.id << 22) % 6
         elif isinstance(user, interactions.Member):
-            _hash = (
-                user.avatar.hash
-                if user.guild_avatar is None
-                else user.guild_avatar.hash
-            )
+            if user.guild_avatar is not None:
+                _url = user.guild_avatar.url
+            elif user.avatar is not None:
+                _url = user.avatar.url
+            elif user.user.avatar is not None:
+                _url = user.user.avatar.url
+            else:
+                _hash = (user.id << 22) % 6
 
-        if _hash.isdigit():
+        if isinstance(_hash, int):
             _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
-        else:
-            _url: str = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{_hash}.png"
 
         member_avatar = Image.open(await get_response(_url)).convert("RGBA")
         member_avatar = member_avatar.resize(
             (75, 75), Image.Resampling.LANCZOS
         )
         # base canvas
-        sprite = Image.open("./src/img/sprite.png", mode="r").convert("RGBA")
+        sprite = Image.open("./src/assets/sprite.png", mode="r").convert(
+            "RGBA"
+        )
 
         # pasting the pfp
         images = []
