@@ -84,7 +84,7 @@ class Hug(interactions.Extension):
         draw = ImageDraw.Draw(mask)
         draw.ellipse((0, 0) + _user_icon.size, fill=255)
 
-        background = Image.open("./src/img/hug.png")
+        background = Image.open("./src/assets/hug.png")
         background.paste(_author_icon, (190, 90), mask=mask)
         background.paste(_user_icon, (285, 157), mask=mask)
         with io.BytesIO() as out:
@@ -97,9 +97,11 @@ class Hug(interactions.Extension):
             )
 
             await ctx.send(
-                content="Hey, thanks for the hug. ^_^"
-                if int(user.id) == int(self.client.user.id)
-                else None,
+                content=(
+                    "Hey, thanks for the hug. ^_^"
+                    if int(user.id) == int(self.client.user.id)
+                    else None
+                ),
                 files=file,
             )
 

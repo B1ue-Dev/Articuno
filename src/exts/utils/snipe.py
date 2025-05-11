@@ -74,6 +74,7 @@ class Snipe(interactions.Extension):
             return await ctx.send("No message to snipe.")
 
         embed = interactions.Embed(
+            title="Deleted Messages (History)",
             footer=interactions.EmbedFooter(
                 text=f"Requested by {handle_username(ctx.author.user.username, ctx.author.user.discriminator)}",
                 icon_url=ctx.author.avatar.url,

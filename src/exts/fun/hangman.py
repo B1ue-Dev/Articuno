@@ -583,6 +583,7 @@ class Hman(interactions.Extension):
     async def hangman_history(self, ctx: HybridContext) -> None:
         """Shows your history."""
 
+        await ctx.defer()
         color = await get_response(ctx.user.avatar_url)
 
         def clamp(x):
@@ -639,6 +640,8 @@ class Hman(interactions.Extension):
     async def hangman_leaderboard(self, ctx: HybridContext) -> None:
         """Shows the top leaderboard."""
 
+        await ctx.defer()
+
         embeds = []
         current_embed = None
         i: int = 0
@@ -674,9 +677,11 @@ class Hman(interactions.Extension):
         )
         await paginator.send(
             ctx=ctx,
-            content=f"You are at top {current_position}."
-            if current_position != 0
-            else "",
+            content=(
+                f"You are at top {current_position}."
+                if current_position != 0
+                else ""
+            ),
         )
 
 
