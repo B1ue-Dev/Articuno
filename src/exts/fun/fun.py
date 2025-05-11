@@ -7,12 +7,16 @@ Fun related commands.
 import logging
 import random
 import asyncio
+import re
+
 import interactions
+from interactions import Message
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
 from src.utils.utils import get_response
+from src.const import SOME_RANDOM_API
 
 
 class Fun(interactions.Extension):
@@ -137,14 +141,16 @@ class Fun(interactions.Extension):
             ),
         ],
     )
-    async def xkcd(self, ctx: HybridContext, page: int = None) -> None:
+    async def xkcd(
+        self, ctx: HybridContext, page: int = None
+    ) -> Message | None:
         """Sends a xkcd comic page."""
 
         await ctx.defer()
         url = "https://xkcd.com/info.0.json"
         resp = await get_response(url)
         newest = resp["num"]
-        if page is None:
+        if not page:
             page = random.randint(1, newest)
         url = "https://xkcd.com/{page}/info.0.json"
         resp = await get_response(url.format(page=page))
@@ -214,6 +220,44 @@ class Fun(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+
+    @hybrid_slash_command(
+        name="ai",
+        description="Chat with Articuno (experimental)",
+        options=[
+            interactions.SlashCommandOption(
+                type=interactions.OptionType.STRING,
+                name="message",
+                description="The message you want to send",
+                required=True,
+            ),
+        ],
+    )
+    async def ai(
+        self, ctx: HybridContext, *, message: interactions.ConsumeRest[str]
+    ) -> None:
+        """Defines a word."""
+
+        await ctx.defer()
+        await asyncio.sleep(1)
+        url = "https://api.some-random-api.com/chatbot"
+        params = {"message": f"{re.sub(r'[^\w\s]', '', message)}"}
+        resp = await get_response(
+            url, params=params, headers={"Authorization": SOME_RANDOM_API}
+        )
+
+        if resp:
+            await ctx.send(resp["response"])
+        else:
+            msg = [
+                "Articuno used Mist! The path is obscured... try again?",
+                "A wild error appeared! Try another move.",
+                "Articuno's Ice Beam missed! Wanna give it another shot?",
+                "The frosty winds blocked the command. Try once more.",
+                "Articuno is confused... It hurt itself in the process. Try again?",
+                "The cold void answered nothing. Try summoning again?",
+            ]
+            await ctx.send(random.choice(msg))
 
 
 def setup(client) -> None:
