@@ -21,7 +21,7 @@ class Trivia(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    async def get_question(self, category: str, difficulty: str) -> list:
+    async def get_question(self, category: str = None) -> list:
         """Get a list of 50 questions."""
 
         url = "https://opentdb.com/api.php"
@@ -29,9 +29,9 @@ class Trivia(interactions.Extension):
             "amount": "10",
             "type": "boolean",
             "encode": "base64",
-            "category": category,
-            "difficulty": difficulty,
         }
+        if category:
+            params["category"] = category
         resp = await get_response(url=url, params=params)
 
         return resp
@@ -45,6 +45,10 @@ class Trivia(interactions.Extension):
                 name="category",
                 description="The category you want to play",
                 choices=[
+                    interactions.SlashCommandChoice(
+                        name="anything",
+                        value="anything",
+                    ),
                     interactions.SlashCommandChoice(
                         name="general",
                         value="general",
@@ -60,10 +64,6 @@ class Trivia(interactions.Extension):
                     interactions.SlashCommandChoice(
                         name="music",
                         value="music",
-                    ),
-                    interactions.SlashCommandChoice(
-                        name="theatres",
-                        value="theatres",
                     ),
                     interactions.SlashCommandChoice(
                         name="television",
@@ -101,10 +101,6 @@ class Trivia(interactions.Extension):
                         value="vehicles",
                     ),
                     interactions.SlashCommandChoice(
-                        name="comics",
-                        value="comics",
-                    ),
-                    interactions.SlashCommandChoice(
                         name="anime",
                         value="anime",
                     ),
@@ -115,43 +111,22 @@ class Trivia(interactions.Extension):
                 ],
                 required=True,
             ),
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.STRING,
-                name="difficulty",
-                description="The difficulty level",
-                choices=[
-                    interactions.SlashCommandChoice(
-                        name="easy",
-                        value="easy",
-                    ),
-                    interactions.SlashCommandChoice(
-                        name="medium",
-                        value="medium",
-                    ),
-                    interactions.SlashCommandChoice(
-                        name="hard",
-                        value="hard",
-                    ),
-                ],
-                required=True,
-            ),
         ],
     )
     @interactions.cooldown(interactions.Buckets.USER, 1, 10)
     async def trivia(
         self,
         ctx: HybridContext,
-        category: str,
-        difficulty: str,
+        category: str = None,
     ):
         """Plays a game of trivia."""
 
         value_convert: dict = {
+            "anything": None,
             "general": 9,
             "book": 10,
             "film": 11,
             "music": 12,
-            "theatres": 13,
             "television": 14,
             "games": 15,
             "nature": 17,
@@ -161,7 +136,6 @@ class Trivia(interactions.Extension):
             "history": 23,
             "animal": 27,
             "vehicles": 28,
-            "comics": 29,
             "anime": 31,
             "cartoons": 32,
         }
@@ -183,19 +157,14 @@ class Trivia(interactions.Extension):
 
         cnt, i = 0, 0
         _selected_category: str = value_convert[category]
-        _selected_difficulty: str = difficulty
-        resp = await Trivia.get_question(
-            self, _selected_category, _selected_difficulty
-        )
+        resp = await Trivia.get_question(self, _selected_category)
 
         while True:
             if i != 9:
                 pass
             else:
                 i = 0
-                resp = await Trivia.get_question(
-                    self, _selected_category, _selected_difficulty
-                )
+                resp = await Trivia.get_question(self, _selected_category)
 
             _category = b64.b64decode(resp["results"][i]["category"])
             category = _category.decode("utf-8")
