@@ -47,7 +47,7 @@ async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
 
     """Process the image and background."""
     _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
-    bg = Image.open("./src/img/whos_that_pokemon.png")
+    bg = Image.open("./src/assets/whos_that_pokemon.png")
 
     _num = (400, 230)
     text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
@@ -100,7 +100,7 @@ def get_pokemon(generation: int = None, user_id: int = None) -> list:
     chosen_pokemon = [
         {
             "num": list(pokemon_list.values())[i]["num"],
-            "name": list(pokemon_list.values())[i]["name"],
+            "name": list(pokemon_list.keys())[i],
         }
         for i in chosen_indices
     ]
@@ -175,7 +175,7 @@ class WTP(interactions.Extension):
                     _button_list.append(
                         interactions.Button(
                             style=interactions.ButtonStyle.SECONDARY,
-                            label=f"{pokemon_list[i]['name']}",
+                            label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
                             custom_id=f"{pokemon_list[i]['num']}",
                         )
                     )
@@ -194,6 +194,9 @@ class WTP(interactions.Extension):
                 )
 
                 try:
+                    print(
+                        f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)"
+                    )
 
                     def _check(_ctx):
                         return int(_ctx.ctx.user.id) == int(
@@ -212,11 +215,13 @@ class WTP(interactions.Extension):
                         for i in range(4):
                             _button_disabled.append(
                                 interactions.Button(
-                                    style=interactions.ButtonStyle.SECONDARY
-                                    if str(pokemon_list[i]["num"])
-                                    != str(corrected_pokemon.num)
-                                    else interactions.ButtonStyle.SUCCESS,
-                                    label=f"{pokemon_list[i]['name']}",
+                                    style=(
+                                        interactions.ButtonStyle.SECONDARY
+                                        if str(pokemon_list[i]["num"])
+                                        != str(corrected_pokemon.num)
+                                        else interactions.ButtonStyle.SUCCESS
+                                    ),
+                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
                                     custom_id=f"{pokemon_list[i]['num']}",
                                     disabled=True,
                                 )
@@ -260,7 +265,7 @@ class WTP(interactions.Extension):
                                             else interactions.ButtonStyle.SUCCESS
                                         )
                                     ),
-                                    label=f"{pokemon_list[i]['name']}",
+                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
                                     custom_id=f"{pokemon_list[i]['num']}",
                                     disabled=True,
                                 )
@@ -272,7 +277,7 @@ class WTP(interactions.Extension):
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
                                     label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -309,7 +314,7 @@ class WTP(interactions.Extension):
                                             else interactions.ButtonStyle.SUCCESS
                                         )
                                     ),
-                                    label=f"{pokemon_list[i]['name']}",
+                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
                                     custom_id=f"{pokemon_list[i]['num']}",
                                     disabled=True,
                                 )
@@ -321,7 +326,7 @@ class WTP(interactions.Extension):
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
                                     label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -346,7 +351,7 @@ class WTP(interactions.Extension):
                         _button_disabled.append(
                             interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
-                                label=f"{pokemon_list[i]['name']}",
+                                label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
                                 custom_id=f"{pokemon_list[i]['num']}",
                                 disabled=True,
                             )
@@ -358,7 +363,7 @@ class WTP(interactions.Extension):
                             interactions.Button(
                                 style=interactions.ButtonStyle.LINK,
                                 label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                             )
                         ),
                     ]
@@ -367,7 +372,7 @@ class WTP(interactions.Extension):
                         content="".join(
                             [
                                 "**Who's that Pokemon?**\n\n",
-                                f"Timeout! It's **{corrected_pokemon.name}**!",
+                                f"Timeout! It's **{corrected_pokemon.name.basename}**!",
                                 f"\nStreak: {cnt}",
                             ],
                         ),
@@ -449,7 +454,7 @@ class WTP(interactions.Extension):
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
                                     label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -458,7 +463,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{corrected_pokemon.name}**!",
+                                    f"It's **{corrected_pokemon.name.basename()}**!",
                                     f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -481,8 +486,12 @@ class WTP(interactions.Extension):
                         )
 
                         if (
-                            _res.responses["answer"].lower().rstrip()
-                            == corrected_pokemon.name.lower()
+                            _res.responses["answer"]
+                            .lower()
+                            .rstrip()
+                            .replace("hisui ", "")
+                            .replace("hisuian ", "")
+                            == corrected_pokemon.name.basename().lower()
                         ):
                             button_disabled = interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
@@ -496,7 +505,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name}**! ",
+                                        f"It's **{corrected_pokemon.name.basename()}**! ",
                                         f"{ctx.user.mention} had the right answer.",
                                     ]
                                 ),
@@ -527,7 +536,7 @@ class WTP(interactions.Extension):
                                     interactions.Button(
                                         style=interactions.ButtonStyle.LINK,
                                         label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
                                     )
                                 ),
                             ]
@@ -537,7 +546,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name}**!",
+                                        f"It's **{corrected_pokemon.name.basename()}**!",
                                         f" {ctx.user.mention} had the wrong answer.",
                                         f"\nStreak: {cnt}",
                                     ],
@@ -562,7 +571,7 @@ class WTP(interactions.Extension):
                             interactions.Button(
                                 style=interactions.ButtonStyle.LINK,
                                 label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name}_(Pokémon)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
                             ),
                         ),
                     ]
@@ -571,7 +580,7 @@ class WTP(interactions.Extension):
                         content="".join(
                             [
                                 "**Who's that Pokemon?**\n\nTimeout! ",
-                                f"It's **{corrected_pokemon.name}**!",
+                                f"It's **{corrected_pokemon.name.basename()}**!",
                                 f"\nStreak: {cnt}",
                             ],
                         ),

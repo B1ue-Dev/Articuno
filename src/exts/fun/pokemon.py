@@ -31,6 +31,13 @@ class BaseStats:
         self.spe = spe
 
 
+class BaseNameMon(str):
+    @property
+    def basename(self):
+        # Example custom method that returns the base name without extensions
+        return self.replace("Hisuian ", "").replace(" ", "_")
+
+
 class Pokemon:
     """
     A class representing a Pokemon object.
@@ -53,7 +60,7 @@ class Pokemon:
 
     num: int
     """The index number of the Pokemon."""
-    name: str
+    name: BaseNameMon
     """The name of the Pokemon."""
     description: str
     """A brief description of the Pokemon."""
@@ -76,9 +83,9 @@ class Pokemon:
     evolutionLine: List[str]
     """A list representing the Pokemon's evolution line (e.g., ["Cyndaquil", "Quilava", "Typhlosion"])."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, name, **kwargs) -> None:
         self.num = kwargs.get("num", None)
-        self.name = kwargs.get("name", None)
+        self.name = BaseNameMon(name)
         self.description = kwargs.get("description", None)
         self.generation = kwargs.get("generation", None)
         self.types = kwargs.get("types", [])
