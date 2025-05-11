@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Articuno"
-version = "v5.4.0"
+version = "v5.5.0"
 description = "A fun Discord Bot, written with interactions.py."
 license = "GPL-3.0-only"
 authors = ["B1ue-Dev <b1uedev@duck.com>"]
@@ -9,7 +9,7 @@ homepage = "https://blue.is-a.dev/Articuno"
 repository = "https://github.com/B1ue-Dev/Articuno"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<4.0"
+python = ">=3.13,<4.0"
 beanie = "1.21.0"
 colorlog = "6.8.2"
 interactions.py = "5.12.0"

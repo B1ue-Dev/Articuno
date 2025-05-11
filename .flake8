@@ -1,5 +1,5 @@
 [flake8]
-ignore = E501, W503, W504, W605, E203
+ignore = E501, W503, W504, W605, E203, E231, E702, E225, E226
 max-line-length = 79
 exclude =
     .codesandbox
@@ -8,3 +8,4 @@ exclude =
     .env
     env
     .venv
+    test

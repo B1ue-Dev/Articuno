@@ -36,7 +36,7 @@ class Init:
 
     @classmethod
     def logger_config(cls) -> logging.Logger:
-        """Setup the logging environment."""
+        """Set up the logging environment."""
 
         class ErrorAndDebugFilter(logging.Filter):
             def filter(self, record):
@@ -106,7 +106,7 @@ counted: bool = False
 """For stopping `GUILD_JOIN` spam on `STARTUP`"""
 
 
-@client.listen(interactions.events.Startup)
+@client.listen("startup")
 async def on_startup() -> None:
     """Fires up READY"""
 
@@ -127,22 +127,9 @@ async def on_startup() -> None:
             ],
         )
     )
-    latest_release_version = await Init.get_latest_release_version()
-    if latest_release_version is not None and latest_release_version > VERSION:
-        print(
-            "".join(
-                [
-                    "This Articuno version is not up to date.",
-                    f"Your Articuno version: {VERSION}\n",
-                    f"Latest version: {latest_release_version}",
-                ],
-            )
-        )
-    else:
-        print("You are on latest version. Enjoy using Articuno!")
 
 
-@client.listen(interactions.events.GuildJoin)
+@client.listen("guild_join")
 async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
     """Fires when bot joins a new guild."""
 
@@ -152,9 +139,7 @@ async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
 
     _guild = guild.guild
     _channel = client.get_channel(957090401418899526)
-    current_time: float = round(
-        datetime.datetime.now(tz=timezone.utc).timestamp()
-    )
+    current_time: float = round(datetime.now(tz=timezone.utc).timestamp())
 
     embed = interactions.Embed(title=f"Joined {_guild.name}")
     embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
@@ -170,15 +155,13 @@ async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
     await _channel.send(embeds=embed)
 
 
-@client.listen(interactions.events.GuildLeft)
+@client.listen("guild_left")
 async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     """Fires when bot leaves a guild."""
 
     _guild = guild.guild
     _channel = client.get_channel(957090401418899526)
-    current_time: float = round(
-        datetime.datetime.now(tz=timezone.utc).timestamp()
-    )
+    current_time: float = round(datetime.now(tz=timezone.utc).timestamp())
 
     embed = interactions.Embed(title=f"Left {_guild.name}")
     embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
@@ -194,8 +177,8 @@ async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     await _channel.send(embeds=embed)
 
 
-@client.listen(interactions.events.MessageCreate)
-async def bot_mentions(_msg: interactions.events.MessageCreate) -> None:
+@client.listen("message_create")
+async def on_bot_mentions(_msg: interactions.events.MessageCreate) -> None:
     """Check for bot mentions."""
     msg = _msg.message
     if (
@@ -223,6 +206,23 @@ async def start() -> None:
 
     if debug_system is True:
         logging.warn("Debug mode for Articuno is enabled.")
+    else:
+        latest_release_version = await Init.get_latest_release_version()
+        if (
+            latest_release_version is not None
+            and latest_release_version > VERSION
+        ):
+            print(
+                "".join(
+                    [
+                        "This Articuno version is not up to date.",
+                        f"Your Articuno version: {VERSION}\n",
+                        f"Latest version: {latest_release_version}",
+                    ],
+                )
+            )
+        else:
+            print("You are on latest version. Enjoy using Articuno!")
 
     mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
     try:
