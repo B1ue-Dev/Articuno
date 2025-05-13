@@ -7,9 +7,10 @@ Root bot file.
 import sys
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 import aiohttp
 import interactions
+import interactions.models as models
 import colorlog
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
@@ -19,7 +20,7 @@ from pymongo.server_api import ServerApi
 from beanie import init_beanie
 
 from src.utils.error_handler import debug_system
-from src.const import TOKEN, VERSION, MONGO_DB_URL
+from src.const import TOKEN, VERSION, MONGO_DB_URL, LOG_CHANNEL
 from src.utils.utils import get_response, get_local_time, tags, hangman_saves
 
 
@@ -129,52 +130,22 @@ async def on_startup() -> None:
     )
 
 
-@client.listen("guild_join")
+@client.listen()
 async def on_guild_join(guild: interactions.events.GuildJoin) -> None:
-    """Fires when bot joins a new guild."""
+    """Fires when bot joins a guild."""
 
     global counted
     if not counted:
         return
 
-    _guild = guild.guild
-    _channel = client.get_channel(957090401418899526)
-    current_time: float = round(datetime.now(tz=timezone.utc).timestamp())
-
-    embed = interactions.Embed(title=f"Joined {_guild.name}")
-    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
-    embed.add_field(
-        name="Joined on",
-        value=f"<t:{round(current_time)}:F>",
-        inline=True,
-    )
-    embed.add_field(name="Member", value=f"{_guild.member_count}", inline=True)
-    if _guild.icon:
-        embed.set_thumbnail(url=f"{_guild.icon.url}")
-
-    await _channel.send(embeds=embed)
+    await join_leave_msg(action="join", client=client, guild=guild)
 
 
-@client.listen("guild_left")
+@client.listen(event_name=interactions.events.GuildLeft)
 async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     """Fires when bot leaves a guild."""
 
-    _guild = guild.guild
-    _channel = client.get_channel(957090401418899526)
-    current_time: float = round(datetime.now(tz=timezone.utc).timestamp())
-
-    embed = interactions.Embed(title=f"Left {_guild.name}")
-    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
-    embed.add_field(
-        name="Left on",
-        value=f"<t:{round(current_time)}:F>",
-        inline=True,
-    )
-    embed.add_field(name="Member", value=f"{_guild.member_count}", inline=True)
-    if _guild.icon:
-        embed.set_thumbnail(url=f"{_guild.icon.url}")
-
-    await _channel.send(embeds=embed)
+    await join_leave_msg(action="left", client=client, guild=guild)
 
 
 @client.listen("message_create")
@@ -246,3 +217,37 @@ async def start() -> None:
         await client.astart(TOKEN)
     finally:
         await client.session.close()
+
+async def join_leave_msg(
+    action: str,
+    client: interactions.Client,
+    guild: interactions.events.GuildJoin | interactions.events.GuildLeft,
+) -> None:
+    _guild = guild.guild
+    current_time: float = round(datetime.now(UTC).timestamp())
+    function_name: str = ""
+
+    if action == "join":
+        function_name = "Joined"
+    elif action == "left":
+        function_name = "Left"
+
+    embed = interactions.Embed(title=f"{function_name} {_guild.name}")
+    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+    embed.add_field(
+        name=f"{function_name} on",
+        value=f"<t:{round(current_time)}:F>",
+        inline=True,
+    )
+    embed.add_field(
+        name="Member",
+        value=f"{_guild.member_count}",
+        inline=True,
+    )
+    if _guild.icon:
+        embed.set_thumbnail(url=f"{_guild.icon.url}")
+
+    payload: dict = models.discord.message.process_message_payload(
+        embeds=embed
+    )
+    await client.http.create_message(channel_id=LOG_CHANNEL, payload=payload)
