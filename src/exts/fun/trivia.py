@@ -269,12 +269,14 @@ class Trivia(interactions.Extension):
                     break
 
             except asyncio.TimeoutError:
-                await msg.edit(
+                try:
+                    return await msg.edit(
                     content=f"Time's up! Streak: {cnt}",
                     embeds=embed_ed,
                     components=buttons_disabled,
                 )
-                break
+                except interactions.client.errors.NotFound:
+                    return
 
 
 def setup(client) -> None:

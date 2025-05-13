@@ -178,7 +178,10 @@ class Google(interactions.Extension):
                     )
 
                 except asyncio.TimeoutError:
-                    await msg.edit(components=[])
+                    try:
+                        return await msg.edit(components=[])
+                    except (interactions.client.errors.NotFound, interactions.client.errors.HTTPException):
+                        return
 
         except KeyError:
             await ctx.send("No result found.", ephemeral=True)

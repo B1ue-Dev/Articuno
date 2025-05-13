@@ -612,7 +612,7 @@ class Emoji(interactions.Extension):
 
         elif emote.id is None and emote.name is not None:
             emojis = await ctx.guild.fetch_all_custom_emojis()
-            _emoji: interactions.CustomEmoji = None
+            _emoji: interactions.CustomEmoji | None = None
 
             for e in emojis:
                 if e.name == emoji:
@@ -705,8 +705,10 @@ class Emoji(interactions.Extension):
                         content=f"<{_emoji.url}>", embeds=embed
                     )
                 except asyncio.TimeoutError:
-                    await msg.edit(components=[], content="Timeout.")
-                    break
+                    try:
+                        return await msg.edit(components=[], content="Timeout.")
+                    except interactions.client.errors.NotFound:
+                        return
 
         elif len(parsed) == 1:
             _emoji = Emote().get_emoji(

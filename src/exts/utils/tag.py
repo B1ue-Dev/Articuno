@@ -348,10 +348,13 @@ class Tag(interactions.Extension):
                 await res.ctx.edit_origin(content="Cancelled.", components=[])
 
         except asyncio.TimeoutError:
-            return await msg.edit(
-                content="Operation cancelled because of no response.",
-                components=[],
-            )
+            try:
+                return await msg.edit(
+                    content="Operation cancelled because of no response.",
+                    components=[],
+                )
+            except interactions.client.errors.NotFound:
+                return
 
     @tag.subcommand(
         sub_cmd_name="list",

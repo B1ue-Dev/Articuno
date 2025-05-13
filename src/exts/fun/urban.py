@@ -210,7 +210,10 @@ class Urban(interactions.Extension):
                     msg = await res.edit()
 
             except asyncio.TimeoutError:
-                await msg.edit(components=[])
+                try:
+                    return await msg.edit(components=[])
+                except interactions.client.errors.NotFound:
+                    return
 
 
 def setup(client) -> None:

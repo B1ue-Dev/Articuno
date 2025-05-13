@@ -149,8 +149,10 @@ class RPS(interactions.Extension):
 
             except asyncio.TimeoutError:
                 rps_selection.disabled = True
-                await msg.edit(content="Time's up!", components=rps_selection)
-                break
+                try:
+                    return await msg.edit(content="Time's up!", components=rps_selection)
+                except interactions.client.errors.NotFound:
+                    return
 
     @hybrid_slash_subcommand(
         base="rock_paper_scissors",
@@ -319,8 +321,10 @@ class RPS(interactions.Extension):
                     pass
 
             except asyncio.TimeoutError:
-                await msg.edit(content="Time's up!", components=[])
-                break
+                try:
+                    return await msg.edit(content="Time's up!", components=[])
+                except interactions.client.errors.NotFound:
+                    return
 
 
 def setup(client) -> None:

@@ -165,6 +165,8 @@ class WTP(interactions.Extension):
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
                     (pokemon_list[random.randint(0, 3)])["name"]
                 )
+                logging.info("Pokemon list: {}".format(pokemon_list))
+                logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
                 results = await generate_images(corrected_pokemon)
                 file = results[0]
@@ -194,9 +196,6 @@ class WTP(interactions.Extension):
                 )
 
                 try:
-                    print(
-                        f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)"
-                    )
 
                     def _check(_ctx):
                         return int(_ctx.ctx.user.id) == int(
@@ -367,19 +366,20 @@ class WTP(interactions.Extension):
                             )
                         ),
                     ]
-
-                    await msg.edit(
-                        content="".join(
-                            [
-                                "**Who's that Pokemon?**\n\n",
-                                f"Timeout! It's **{corrected_pokemon.name.basename}**!",
-                                f"\nStreak: {cnt}",
-                            ],
-                        ),
-                        components=action_rows,
-                        files=_file,
-                    )
-                    break
+                    try:
+                        return await msg.edit(
+                            content="".join(
+                                [
+                                    "**Who's that Pokemon?**\n\n",
+                                    f"Timeout! It's **{corrected_pokemon.name.basename}**!",
+                                    f"\nStreak: {cnt}",
+                                ],
+                            ),
+                            components=action_rows,
+                            files=_file,
+                        )
+                    except interactions.client.errors.NotFound:
+                        return
 
         elif difficulty == "hard":
             cnt = 0
@@ -392,6 +392,9 @@ class WTP(interactions.Extension):
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
                     (pokemon_list[random.randint(0, 3)])["name"]
                 )
+
+                logging.info("Pokemon list: {}".format(pokemon_list))
+                logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
                 results = await generate_images(corrected_pokemon)
                 file = results[0]
@@ -454,7 +457,7 @@ class WTP(interactions.Extension):
                                 interactions.Button(
                                     style=interactions.ButtonStyle.LINK,
                                     label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
+                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                                 )
                             ),
                         ]
@@ -463,7 +466,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{corrected_pokemon.name.basename()}**!",
+                                    f"It's **{corrected_pokemon.name.basename}**!",
                                     f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -491,7 +494,7 @@ class WTP(interactions.Extension):
                             .rstrip()
                             .replace("hisui ", "")
                             .replace("hisuian ", "")
-                            == corrected_pokemon.name.basename().lower()
+                            == corrected_pokemon.name.basename.lower()
                         ):
                             button_disabled = interactions.Button(
                                 style=interactions.ButtonStyle.SECONDARY,
@@ -505,7 +508,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name.basename()}**! ",
+                                        f"It's **{corrected_pokemon.name.basename}**! ",
                                         f"{ctx.user.mention} had the right answer.",
                                     ]
                                 ),
@@ -536,7 +539,7 @@ class WTP(interactions.Extension):
                                     interactions.Button(
                                         style=interactions.ButtonStyle.LINK,
                                         label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
+                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                                     )
                                 ),
                             ]
@@ -546,7 +549,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name.basename()}**!",
+                                        f"It's **{corrected_pokemon.name.basename}**!",
                                         f" {ctx.user.mention} had the wrong answer.",
                                         f"\nStreak: {cnt}",
                                     ],
@@ -571,24 +574,26 @@ class WTP(interactions.Extension):
                             interactions.Button(
                                 style=interactions.ButtonStyle.LINK,
                                 label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename()}_(Pokémon)",
+                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
                             ),
                         ),
                     ]
 
-                    await msg.edit(
-                        content="".join(
-                            [
-                                "**Who's that Pokemon?**\n\nTimeout! ",
-                                f"It's **{corrected_pokemon.name.basename()}**!",
-                                f"\nStreak: {cnt}",
-                            ],
-                        ),
-                        components=action_rows,
-                        attachments=[],
-                        file=_file,
-                    )
-                    break
+                    try:
+                        return await msg.edit(
+                            content="".join(
+                                [
+                                    "**Who's that Pokemon?**\n\nTimeout! ",
+                                    f"It's **{corrected_pokemon.name.basename}**!",
+                                    f"\nStreak: {cnt}",
+                                ],
+                            ),
+                            components=action_rows,
+                            attachments=[],
+                            file=_file,
+                        )
+                    except interactions.client.errors.NotFound:
+                        return
 
 
 def setup(client) -> None:

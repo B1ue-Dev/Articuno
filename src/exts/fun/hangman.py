@@ -533,7 +533,10 @@ class Hman(interactions.Extension):
                     name="\u200b",
                     value=f"""```\n{display_hangman(tries)}\n```""",
                 )
-                return await msg.edit(embed=embed, components=over_button)
+                try:
+                    return await msg.edit(embed=embed, components=over_button)
+                except interactions.client.errors.NotFound:
+                    return
 
         if guessed is False:
             user_data = await hangman_saves.get(

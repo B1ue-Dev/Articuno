@@ -104,6 +104,9 @@ class Pokemon:
         self.eggGroups = kwargs.get("eggGroups", [])
         self.evolutionLine = kwargs.get("evolutionLine", [])
 
+    def __repr__(self):
+        return f"<Pokemon: {self.name} (#{self.num})>"
+
     @classmethod
     def get_pokemon(cls, name: str) -> "Pokemon":
         """Get the information about a Pokemon."""
