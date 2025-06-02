@@ -188,7 +188,10 @@ class PKMCommand(interactions.Extension):
         """Shows the information about a Pokemon."""
 
         name_lower = pokemon_name.lower()
-        pkm = Pokemon.get_pokemon(name_lower)
+        try:
+            pkm = Pokemon.get_pokemon(name_lower)
+        except KeyError:
+            return await ctx.send("Pokemon not found. Please try again.", ephemeral=True)
         name = data[name_lower]["name"] + (
             " (Hey, that's me!)"
             if data[name_lower]["name"] == "Articuno"
