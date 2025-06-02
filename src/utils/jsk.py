@@ -12,6 +12,7 @@ import textwrap
 import inspect
 import contextlib
 import traceback
+import time
 import typing
 from datetime import datetime
 from interactions.ext.prefixed_commands import (
@@ -158,7 +159,7 @@ class Jsk(interactions.Extension):
             await ctx.message.add_reaction("❌")
             await ctx.reply(f"⚠ Error in unloading `{module}`.")
 
-    @jsk.subcommand()
+    @jsk.subcommand(aliases=["py"])
     async def eval(self, ctx: PrefixedContext, *, code: str) -> None:
         """Evaluates code."""
 
@@ -201,37 +202,57 @@ class Jsk(interactions.Extension):
         else:
             return await self.handle_exec_result(ctx, ret, stdout.getvalue())
 
-    @jsk.subcommand()
+    @jsk.subcommand(aliases=["sh"])
     async def shell(self, ctx: PrefixedContext, *, cmd: str) -> None:
         """Executes statements in the system shell."""
 
         if int(ctx.user.id) != int(self.client.owner.id):
-            return await ctx.send(
-                "You must be the bot owner to perform this action."
-            )
+            return await ctx.send("You must be the bot owner to perform this action.")
 
-        async with ctx.channel.typing:
-            process = await asyncio.create_subprocess_shell(
-                cmd,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.STDOUT,
-            )
+        msg = await ctx.send("⏳ Running shell command...")
 
-            output, _ = await process.communicate()
-            output_str = output.decode("utf-8")
-            output_str += f"\nReturn code {process.returncode}"
-
-        if len(output_str) <= 2000:
-            return await ctx.message.reply(f"```sh\n{output_str}```")
-
-        paginator = Paginator.create_from_string(
-            self.client,
-            output_str,
-            prefix="```sh",
-            suffix="```",
-            page_size=4000,
+        process = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
         )
-        return await paginator.reply(ctx)
+
+        output_lines = []
+        last_update_time = time.monotonic()
+
+        while True:
+            line = await process.stdout.readline()
+            if not line:
+                break
+
+            output_lines.append(line.decode("utf-8"))
+
+            now = time.monotonic()
+            if now - last_update_time >= 5:
+                preview_output = "".join(output_lines)[-1900:]
+                try:
+                    await msg.edit(content=f"```sh\n{preview_output}```")
+                except Exception:
+                    pass
+                last_update_time = now
+
+        # Wait for the process to fully complete
+        return_code = await process.wait()
+        output_lines.append(f"\n\n[✅ Command finished — Return code {return_code}]")
+        final_output = "".join(output_lines)
+
+        # Send final output
+        if len(final_output) > 2000:
+            paginator = Paginator.create_from_string(
+                self.client,
+                final_output,
+                prefix="```sh",
+                suffix="```",
+                page_size=4000,
+            )
+            return await paginator.reply(ctx)
+
+        return await msg.edit(content=f"```sh\n{final_output}```")
 
     async def handle_exec_result(
         self,
