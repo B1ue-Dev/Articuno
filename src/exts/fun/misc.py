@@ -163,10 +163,9 @@ class Misc(interactions.Extension):
         await ctx.defer()
 
         url: str = "https://api.some-random-api.com/canvas/misc/nobitches"
-        params: dict = {
-            "no": above_text.lower(),
-            "bottomtext": bottom_text.lower(),
-        }
+        params: dict = {"no": above_text.lower()}
+        if bottom_text:
+            params["bottomtext"] = bottom_text.lower()
 
         resp = await get_response(url, params)
         img = interactions.File(
