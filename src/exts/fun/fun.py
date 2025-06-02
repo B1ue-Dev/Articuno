@@ -76,15 +76,16 @@ class Fun(interactions.Extension):
     async def joke(self, ctx: HybridContext) -> None:
         """Sends a random joke."""
 
-        url = "https://some-random-api.com/joke"
-        resp = await get_response(url)
+        # url = "https://some-random-api.com/joke"
+        # resp = await get_response(url)
 
-        embed = interactions.Embed(
-            description=resp["joke"],
-            color=random.randint(0, 0xFFFFFF),
-        )
+        # embed = interactions.Embed(
+        #     description=resp["joke"],
+        #     color=random.randint(0, 0xFFFFFF),
+        # )
 
-        await ctx.send(embeds=embed)
+        # await ctx.send(embeds=embed)
+        await ctx.send("This command is under maintenance. ETA is unknown.", ephemeral=True)
 
     @hybrid_slash_command(
         name="dadjoke", description="Sends a random dadjoke."
