@@ -33,7 +33,7 @@ class hangman_saves(Document):
 
 async def get_response(
     url: str, params: dict | None = None, headers: dict | None = None
-) -> dict | BytesIO | None:
+) -> Union[dict, BytesIO, None]:
     """Return the data type from the request."""
 
     async with aiohttp.ClientSession() as session:
@@ -61,7 +61,7 @@ def natural_size(size_in_bytes: int) -> str:
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
-def timestamp(times: str) -> str:
+def timestamp(times: datetime) -> str:
     """Return the round() format of a timestamp."""
 
     res = int(f"{times.timestamp():.0f}")

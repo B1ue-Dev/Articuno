@@ -158,7 +158,7 @@ class Author(interactions.Extension):
         url: str = "https://top.gg/api/bots/809084067446259722/check"
         headers: dict = {"Authorization": TOPGGAPI}
         params: dict = {"userId": ctx.user.id}
-        resp = await get_response(url=url, headers=headers, params=params)
+        resp: dict = await get_response(url=url, headers=headers, params=params)
 
         button = interactions.Button(
             style=interactions.ButtonStyle.LINK,

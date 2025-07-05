@@ -396,7 +396,7 @@ class Info(interactions.Extension):
         icon: str = guild.icon.url
         boost: int = guild.premium_subscription_count
         members: int = guild.member_count
-        channels: list[interactions.Channel] = guild.channels
+        channels: list[interactions.BaseChannel] = guild.channels
         text_channels = 0
         voice_channels = 0
         categories = 0

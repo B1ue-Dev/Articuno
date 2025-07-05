@@ -32,7 +32,7 @@ class Init:
         """Returns the latest version of Articuno on GitHub."""
 
         url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
-        response = await get_response(url)
+        response: dict = await get_response(url)
         return response["tag_name"]
 
     @classmethod
@@ -176,7 +176,7 @@ async def start() -> None:
     """Starts the bot."""
 
     if debug_system is True:
-        logging.warn("Debug mode for Articuno is enabled.")
+        logging.warning("Debug mode for Articuno is enabled.")
     else:
         latest_release_version = await Init.get_latest_release_version()
         if (

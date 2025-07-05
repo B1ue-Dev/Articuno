@@ -98,7 +98,7 @@ def display_hangman(tries):
 async def get_word() -> str:
     """Get a word from the API."""
 
-    resp = await get_response(
+    resp: dict = await get_response(
         url="https://random-words-api-b1uedev.vercel.app/word"
     )
     return (resp[0]["word"], resp[0]["definition"])
@@ -121,7 +121,7 @@ class Hman(interactions.Extension):
 
         await ctx.defer()
 
-        resp = await get_word()
+        resp: dict = await get_word()
         correct_word: str = normalize(
             "NFKD", resp[0].encode("ASCII", "ignore").decode("ASCII")
         ).lower()

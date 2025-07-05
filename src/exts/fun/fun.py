@@ -33,7 +33,7 @@ class Fun(interactions.Extension):
         """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
-        resp = await get_response(url)
+        resp: dict = await get_response(url)
         file = resp["file"]
 
         image = interactions.EmbedAttachment(url=file)
@@ -77,7 +77,7 @@ class Fun(interactions.Extension):
         """Sends a random joke."""
 
         # url = "https://some-random-api.com/joke"
-        # resp = await get_response(url)
+        # resp: dict = await get_response(url)
 
         # embed = interactions.Embed(
         #     description=resp["joke"],
@@ -98,7 +98,7 @@ class Fun(interactions.Extension):
             "User-Agent": "Articuno (https://github.com/B1ue-Dev/Articuno)",
             "Accept": "application/json",
         }
-        resp = await get_response(url=url, headers=headers)
+        resp: dict = await get_response(url=url, headers=headers)
 
         embed = interactions.Embed(
             description=resp["joke"],
@@ -115,7 +115,7 @@ class Fun(interactions.Extension):
         """Sends a quote."""
 
         url = "https://api.quotable.io/random"
-        resp = await get_response(url)
+        resp: dict = await get_response(url)
         author = resp["author"]
         content = resp["content"]
         dateAdded = resp["dateAdded"]
@@ -149,12 +149,12 @@ class Fun(interactions.Extension):
 
         await ctx.defer()
         url = "https://xkcd.com/info.0.json"
-        resp = await get_response(url)
+        resp: dict = await get_response(url)
         newest = resp["num"]
         if not page:
             page = random.randint(1, newest)
         url = "https://xkcd.com/{page}/info.0.json"
-        resp = await get_response(url.format(page=page))
+        resp: dict = await get_response(url.format(page=page))
         if resp is None:
             return await ctx.send(
                 "Invalid page. Please try again.", ephemeral=True
@@ -203,7 +203,7 @@ class Fun(interactions.Extension):
 
         url = "https://some-random-api.com/dictionary"
         params = {"word": word}
-        resp = await get_response(url, params=params)
+        resp: dict = await get_response(url, params=params)
 
         if resp is None:
             return await ctx.send(
@@ -243,7 +243,7 @@ class Fun(interactions.Extension):
         await asyncio.sleep(1)
         url = "https://api.some-random-api.com/chatbot"
         params = {"message": f"{re.sub(r'[^\w\s]', '', message)}"}
-        resp = await get_response(
+        resp: dict = await get_response(
             url, params=params, headers={"Authorization": SOME_RANDOM_API}
         )
 

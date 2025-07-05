@@ -59,7 +59,7 @@ class Urban(interactions.Extension):
         await ctx.defer()
         url = "https://api.urbandictionary.com/v0/define"
         params = {"term": term}
-        resp = await get_response(url, params=params)
+        resp: dict = await get_response(url, params=params)
 
         if len(resp["list"]) == 0:
             embed = interactions.Embed(

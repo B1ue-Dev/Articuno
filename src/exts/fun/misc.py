@@ -52,7 +52,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -90,7 +90,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -124,7 +124,7 @@ class Misc(interactions.Extension):
         url: str = "https://api.some-random-api.com/canvas/misc/oogway"
         params: dict = {"quote": str(quote)}
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -167,7 +167,7 @@ class Misc(interactions.Extension):
         if bottom_text:
             params["bottomtext"] = bottom_text.lower()
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -205,7 +205,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -243,7 +243,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -302,7 +302,7 @@ class Misc(interactions.Extension):
             "comment": comment,
             "theme": "dark",
         }
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -352,7 +352,7 @@ class Misc(interactions.Extension):
             "username": username,
             "comment": comment,
         }
-        resp = await get_response(url, params)
+        resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -389,7 +389,7 @@ class Misc(interactions.Extension):
             "username": user.user.username,
             "impostor": random.choice(["true", "false"]),
         }
-        resp = await get_response(
+        resp: dict = await get_response(
             url, params, headers={"Authorization": SOME_RANDOM_API}
         )
         img = interactions.File(

@@ -164,7 +164,7 @@ class Trivia(interactions.Extension):
                 pass
             else:
                 i = 0
-                resp = await Trivia.get_question(self, _selected_category)
+                resp: dict = await Trivia.get_question(self, _selected_category)
 
             _category = b64.b64decode(resp["results"][i]["category"])
             category = _category.decode("utf-8")

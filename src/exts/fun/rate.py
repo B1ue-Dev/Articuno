@@ -68,7 +68,7 @@ class Rate(interactions.Extension):
                         else user.guild_avatar.url
                     ),
                 }
-                resp = await get_response(url, params)
+                resp: dict = await get_response(url, params)
 
                 img = interactions.File(
                     file_name="image.png",

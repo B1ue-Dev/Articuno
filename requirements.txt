@@ -1,6 +1,6 @@
 beanie==1.21.0
 colorlog==6.8.2
-interactions-py==5.15.0rc1
+interactions-py==5.15.0
 google-api-python-client==2.97.0
 googletrans-py==4.0.0
 Pillow==11.2.1
