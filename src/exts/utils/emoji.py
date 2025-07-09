@@ -10,7 +10,7 @@ import re
 import asyncio
 import interactions
 import aiohttp
-from src.utils.utils import Permissions, has_permission
+from src.common.utils import Permissions, has_permission
 
 
 class Emote:

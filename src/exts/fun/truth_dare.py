@@ -10,7 +10,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.utils.utils import get_response, handle_username
+from src.common.utils import get_response, handle_username
 
 
 def _buttons() -> "list[interactions.Button]":

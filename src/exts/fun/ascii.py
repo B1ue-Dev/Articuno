@@ -16,7 +16,7 @@ from interactions.ext.hybrid_commands import (
 import pyfiglet
 import aiohttp
 from PIL import Image, ImageDraw, ImageFont
-from src.utils.ascii import (
+from src.common.ascii import (
     image_to_ascii,
     ascii_to_image,
     base_font,
@@ -148,7 +148,8 @@ class ASCII(interactions.Extension):
                 ascii_art_txt, custom_font, color=rgb_tuple
             )
         else:
-            ascii_art_png = ascii_to_image(ascii_art_txt, color=rgb_tuple)
+            # use defaut font in ./src/assets/mno16.ttf
+            ascii_art_png = ascii_to_image(ascii_art_txt, color=rgb_tuple, font=base_font)
 
         send_file = []
 

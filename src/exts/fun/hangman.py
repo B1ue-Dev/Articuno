@@ -17,7 +17,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
 )
 from src.exts.core.info import get_color
-from src.utils.utils import get_response, hangman_saves
+from src.common.utils import get_response, hangman_saves
 
 
 def display_hangman(tries):

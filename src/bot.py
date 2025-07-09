@@ -19,9 +19,9 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo.server_api import ServerApi
 from beanie import init_beanie
 
-from src.utils.error_handler import debug_system
+from src.common.error_handler import debug_system
 from src.const import TOKEN, VERSION, MONGO_DB_URL, LOG_CHANNEL
-from src.utils.utils import get_response, get_local_time, tags, hangman_saves
+from src.common.utils import get_response, get_local_time, tags, hangman_saves
 
 
 class Init:
@@ -207,8 +207,8 @@ async def start() -> None:
 
     client.session = aiohttp.ClientSession()
 
-    client.load_extension("src.utils.jsk")
-    client.load_extension("src.utils.error_handler")
+    client.load_extension("src.common.jsk")
+    client.load_extension("src.common.error_handler")
     client.load_extension("src.exts.core.__init__")
     client.load_extension("src.exts.fun.__init__")
     client.load_extension("src.exts.utils.__init__")

@@ -7,7 +7,7 @@
 import logging
 import interactions
 from src.const import VERSION, TOPGGAPI
-from src.utils.utils import (
+from src.common.utils import (
     handle_username,
     get_response,
 )

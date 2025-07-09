@@ -16,7 +16,7 @@ from interactions.ext.hybrid_commands import (
 )
 from PIL import Image
 from src.exts.fun.pokemon import Pokemon
-from src.utils.utils import get_response
+from src.common.utils import get_response
 
 
 async def extract_pokemon_image(url: str) -> Image.Image:

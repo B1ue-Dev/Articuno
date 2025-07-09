@@ -13,8 +13,8 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
     HybridContext,
 )
-from src.utils.utils import get_response
-from src.utils.colorthief import ColorThief
+from src.common.utils import get_response
+from src.common.colorthief import ColorThief
 
 
 def snowflake_time(snowflake):

@@ -13,7 +13,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.utils.utils import get_response
+from src.common.utils import get_response
 
 
 def get_user_id(string: str) -> str | None:

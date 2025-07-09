@@ -12,7 +12,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.utils.utils import handle_username
+from src.common.utils import handle_username
 
 
 class Snipe(interactions.Extension):
@@ -82,7 +82,7 @@ class Snipe(interactions.Extension):
             description="",
         )
         for i in self._cached[channel_id]:
-            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n"""
+            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n""" # type: ignore
 
         await ctx.send(embed=embed)
 

@@ -12,7 +12,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from src.utils.utils import handle_username
+from src.common.utils import handle_username
 
 
 class Edited(interactions.Extension):
@@ -100,7 +100,7 @@ class Edited(interactions.Extension):
             author_id = versions[0]["author_id"]
             embed.description += (
                 f"<@{author_id}> edited a message (ID: `{message_id}`):\n"
-            )
+            ) # type: ignore
             for i, version in enumerate(versions):
                 label = "Original" if i == 0 else f"Edit {i}"
                 embed.description += (

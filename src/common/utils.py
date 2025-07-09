@@ -16,7 +16,7 @@ import aiohttp
 import interactions
 from interactions import Task, IntervalTrigger
 from beanie import Document, Indexed
-from src.utils.colorthief import ColorThief
+from src.common.colorthief import ColorThief
 
 
 __all__ = ("tags", "hangman_saves")

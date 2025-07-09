@@ -21,7 +21,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        from src.utils.error_handler import enableDebug
+        from src.common.error_handler import enableDebug
 
         enableDebug(args.debug)
         from src.bot import start
