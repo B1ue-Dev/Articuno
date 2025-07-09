@@ -20,7 +20,7 @@ def load_font(
         return ImageFont.load_default(size=24)
 
 
-base_font = load_font("src\\assets\\Mno16.ttf", 16)
+base_font = load_font(".\\src\\assets\\Mno16.ttf", 16)
 
 
 def sizeof(

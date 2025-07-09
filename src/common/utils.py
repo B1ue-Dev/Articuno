@@ -6,12 +6,15 @@ Utils for Articuno.
 
 import logging
 import math
+import random
 from io import BytesIO, StringIO
 from typing import Union
 from enum import Enum
 from datetime import datetime, timedelta, timezone
-import aiohttp
 from typing import Annotated
+import aiohttp
+import interactions
+from interactions import Task, IntervalTrigger
 from beanie import Document, Indexed
 from src.utils.colorthief import ColorThief
 
@@ -239,3 +242,50 @@ def has_permission(
         permission = permission.value
 
     return permission_val & (1 << permission) == 1 << permission
+
+
+random_easy_number = 0
+random_hard_number = 0
+easy_chosen = False
+hard_chosen = False
+
+@Task.create(IntervalTrigger(seconds=10))
+async def random_promote() -> None:
+    global random_easy_number
+    global random_hard_number
+    global easy_chosen
+    global hard_chosen
+    if easy_chosen is False:
+        easy_chosen = True
+        random_easy_number = random.randint(10, 20)
+    if hard_chosen is False:
+        hard_chosen = True
+        random_hard_number = random.randint(15, 25)
+
+
+random_promote.start()
+
+async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
+    global random_easy_number
+    global random_hard_number
+    global easy_chosen
+    global hard_chosen
+    if cmd_type == "easy":
+        if random_easy_number != 0:
+            random_easy_number -= 1
+        else:
+            embed = interactions.Embed(
+                title="Like Articuno so far?",
+                description="Consider voting the bot on Top.gg "
+                color=0x00FF00
+            )
+            embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/60958064?v=4")
+            await ctx.send(content="Like the bot? Consider voting the bot on Top.gg, so more people will be able to find me, or you just want to support me. If you are *that* generous, consider donating to keep it online.\nThank you. :)", embed=embed)
+            easy_chosen = False
+    elif cmd_type == "hard":
+        if random_hard_number != 0:
+            random_hard_number -= 1
+        else:
+            embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/60958064?v=4")
+            await ctx.send(content="Like the bot? Consider voting the bot on Top.gg, so more people will be able to find me, or you just want to support me. If you are *that* generous, consider donating to keep it online.\nThank you. :)", embed=embed)
+            hard_chosen = False
