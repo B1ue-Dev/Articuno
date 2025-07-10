@@ -111,23 +111,22 @@ counted: bool = False
 async def on_startup() -> None:
     """Fires up READY"""
 
+    websocket = ""
     global counted
-    await asyncio.sleep(10)
-    counted = True
+    if debug_system is True:
+        logging.warning("Skipping latency check in debug mode.")
+        await asyncio.sleep(10)
+        counted = True
+    else:
+        logging.info("Articuno is starting up. Please wait, this may take a while.")
+        await asyncio.sleep(40)
+        counted = True
+        websocket = f"{client.latency * 1:.0f}"
 
-    websocket = f"{client.latency * 1:.0f}"
-    log_time = (datetime.now() + timedelta(hours=7)).strftime(
-        "%d/%m/%Y %H:%M:%S"
-    )
+    msg = f"""✅ Logged in as {client.user.username}. """
+    msg += f"Latency: {websocket}ms." if websocket else ""
 
-    print(
-        "".join(
-            [
-                f"""[{log_time}] Logged in as {client.user.username}.""",
-                f"""Latency: {websocket}ms.""",
-            ],
-        )
-    )
+    logging.info(msg)
 
 
 @client.listen()
