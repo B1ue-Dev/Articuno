@@ -5,14 +5,12 @@ Miscellaneous commands.
 """
 
 import logging
-import random
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
 from src.common.utils import get_response
-from src.const import SOME_RANDOM_API
 
 
 class Misc(interactions.Extension):

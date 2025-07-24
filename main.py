@@ -3,10 +3,13 @@ Main runner file.
 
 (C) 2023 - B1ue-Dev
 """
-
+# Disable writing of .pyc files
+import sys
 import asyncio
 import argparse
 import logging
+
+sys.dont_write_bytecode = True
 
 
 if __name__ == "__main__":

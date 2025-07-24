@@ -148,7 +148,10 @@ class Amogus(interactions.Extension):
         dm_permission=False,
     )
     async def amogus(
-        self, ctx: HybridContext, user: interactions.Member, impostor: int = None
+        self,
+        ctx: HybridContext,
+        user: interactions.Member,
+        impostor: int = None,
     ) -> None:
         """Amogus."""
 

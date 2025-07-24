@@ -7,7 +7,7 @@ Root bot file.
 import sys
 import asyncio
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 import aiohttp
 import interactions
 import interactions.models as models
@@ -20,8 +20,16 @@ from pymongo.server_api import ServerApi
 from beanie import init_beanie
 
 from src.common.error_handler import debug_system
+from src.common.utils import random_promote
 from src.const import TOKEN, VERSION, MONGO_DB_URL, LOG_CHANNEL
-from src.common.utils import get_response, get_local_time, tags, hangman_saves
+from src.common.utils import (
+    get_response,
+    get_local_time,
+    tags,
+    hangman_saves,
+    wtp_easy_saves,
+    wtp_hard_saves,
+)
 
 
 class Init:
@@ -91,13 +99,17 @@ class Init:
 
 
 client = interactions.Client(
-    sync_interactions=True,
-    sync_ext=True,
+    sync_interactions=False,
+    sync_ext=False,
     delete_unused_application_cmds=True,
     intents=interactions.Intents.DEFAULT
     | interactions.Intents.MESSAGE_CONTENT
     | interactions.Intents.GUILD_MEMBERS,
     status=interactions.Status.IDLE,
+    activity=interactions.Activity(
+        name="$help 🦅",
+        type=interactions.ActivityType.WATCHING,
+    ),
     send_command_tracebacks=False,
     logger=Init.logger_config(),
 )
@@ -118,11 +130,14 @@ async def on_startup() -> None:
         await asyncio.sleep(10)
         counted = True
     else:
-        logging.info("Articuno is starting up. Please wait, this may take a while.")
+        logging.info(
+            "Articuno is starting up. Please wait, this may take a while."
+        )
         await asyncio.sleep(40)
         counted = True
         websocket = f"{client.latency * 1:.0f}"
 
+    random_promote.start()
     msg = f"""✅ Logged in as {client.user.username}. """
     msg += f"Latency: {websocket}ms." if websocket else ""
 
@@ -201,7 +216,8 @@ async def start() -> None:
     except Exception as e:
         logging.critical(e)
     await init_beanie(
-        mongo_client["Articuno"], document_models=[tags, hangman_saves]
+        mongo_client["Articuno"],
+        document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves],
     )
 
     client.session = aiohttp.ClientSession()
@@ -216,6 +232,7 @@ async def start() -> None:
         await client.astart(TOKEN)
     finally:
         await client.session.close()
+
 
 async def join_leave_msg(
     action: str,

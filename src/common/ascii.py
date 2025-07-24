@@ -1,6 +1,7 @@
 """A program to convert images to ASCII art."""
 
 from typing import Optional
+import logging
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
@@ -14,13 +15,14 @@ def load_font(
     font_path: str, font_size: int
 ) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     try:
+        logging.info(f"Loading font from {font_path} with size {font_size}")
         return ImageFont.truetype(font_path, font_size)
     except OSError:
-        # print(f"Load {font_path} font failed. Using default font.")
+        logging.warning(f"Load {font_path} font failed. Using default font.")
         return ImageFont.load_default(size=24)
 
 
-base_font = load_font(".\\src\\assets\\Mno16.ttf", 16)
+base_font = load_font("./src/assets/Mno16.ttf", 16)
 
 
 def sizeof(

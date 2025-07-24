@@ -58,7 +58,7 @@ async def handle_error(
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
-        description=f"```\n{traceb[-4096:]}\n```",
+        description=f"```\n{traceb[-4000:]}\n```",
     )
     err_field = [
         interactions.EmbedField(
