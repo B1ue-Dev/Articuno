@@ -81,7 +81,10 @@ class Rate(interactions.Extension):
                     color=random.randint(0, 0xFFFFFF),
                 )
 
-                return await ctx.send(embeds=embed, file=img)
+                await ctx.send(embeds=embed, file=img)
+                from src.common.utils import send_promote
+
+                await send_promote(ctx, "easy")
 
         embed = interactions.Embed(
             title="Gay measure tool",
@@ -90,6 +93,10 @@ class Rate(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="clownrate",
@@ -123,6 +130,9 @@ class Rate(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="sanitycheck",
@@ -165,6 +175,9 @@ class Rate(interactions.Extension):
         )
 
         await ctx.send(embeds=embed)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
 
 def setup(client) -> None:

@@ -7,6 +7,7 @@ Utils for Articuno.
 import logging
 import math
 import random
+import asyncio
 from io import BytesIO, StringIO
 from typing import Union
 from enum import Enum
@@ -249,6 +250,7 @@ random_hard_number = 0
 easy_chosen = False
 hard_chosen = False
 
+
 @Task.create(IntervalTrigger(seconds=10))
 async def random_promote() -> None:
     global random_easy_number
@@ -257,13 +259,11 @@ async def random_promote() -> None:
     global hard_chosen
     if easy_chosen is False:
         easy_chosen = True
-        random_easy_number = random.randint(10, 20)
+        random_easy_number = random.randint(50, 90)
     if hard_chosen is False:
         hard_chosen = True
-        random_hard_number = random.randint(15, 25)
+        random_hard_number = random.randint(100, 250)
 
-
-random_promote.start()
 
 async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
     global random_easy_number
@@ -274,18 +274,53 @@ async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
         if random_easy_number != 0:
             random_easy_number -= 1
         else:
-            embed = interactions.Embed(
-                title="Like Articuno so far?",
-                description="Consider voting the bot on Top.gg "
-                color=0x00FF00
+            topgg_button = interactions.Button(
+                style=interactions.ButtonStyle.URL,
+                label="Vote for Articuno",
+                url="https://top.gg/bot/809084067446259722/vote",
             )
-            embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/60958064?v=4")
-            await ctx.send(content="Like the bot? Consider voting the bot on Top.gg, so more people will be able to find me, or you just want to support me. If you are *that* generous, consider donating to keep it online.\nThank you. :)", embed=embed)
+            donate_button = interactions.Button(
+                style=interactions.ButtonStyle.URL,
+                label="Support Articuno",
+                url="https://buymeacoffee.com/b1uedev",
+            )
+            msg = await ctx.send(
+                components=[topgg_button, donate_button],
+                content="**Like the bot?**\n"
+                "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
+                "It's a great way to support Articuno too and help it grow :)\n"
+                "-# This message will be deleted in 10 seconds.",
+            )
             easy_chosen = False
+            await asyncio.sleep(10)
+            try:
+                await msg.delete()
+            except interactions.errors.NotFound:
+                pass
     elif cmd_type == "hard":
         if random_hard_number != 0:
             random_hard_number -= 1
         else:
-            embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/60958064?v=4")
-            await ctx.send(content="Like the bot? Consider voting the bot on Top.gg, so more people will be able to find me, or you just want to support me. If you are *that* generous, consider donating to keep it online.\nThank you. :)", embed=embed)
+            topgg_button = interactions.Button(
+                style=interactions.ButtonStyle.URL,
+                label="Vote for Articuno",
+                url="https://top.gg/bot/809084067446259722/vote",
+            )
+            donate_button = interactions.Button(
+                style=interactions.ButtonStyle.URL,
+                label="Support Articuno",
+                url="https://buymeacoffee.com/b1uedev",
+            )
+            msg = await ctx.send(
+                components=[topgg_button, donate_button],
+                content="**Like the bot?**\n"
+                "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
+                "It's a great way to support Articuno too and help it grow :)\n"
+                "-# This message will be deleted in 10 seconds.",
+            )
             hard_chosen = False
+            await asyncio.sleep(10)
+            try:
+                await msg.delete()
+            except interactions.errors.NotFound:
+                pass

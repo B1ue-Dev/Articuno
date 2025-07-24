@@ -126,6 +126,9 @@ class UwU(interactions.Extension):
 
         res = OwO.create_uwu_text(self, text)
         await ctx.send(res)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @interactions.context_menu(
         name="UwU-fier",

@@ -182,6 +182,9 @@ class Amogus(interactions.Extension):
             user.user.username, impostor=impostor, image=_url
         )
         await ctx.send(file=file)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
 
 def setup(client) -> None:

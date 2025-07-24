@@ -58,6 +58,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="tonikawa",
@@ -96,6 +99,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="oogway",
@@ -130,6 +136,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @interactions.slash_command(
         name="nobitches",
@@ -173,6 +182,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="trigger",
@@ -211,6 +223,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="wasted",
@@ -249,6 +264,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="tweet",
@@ -308,6 +326,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
     @hybrid_slash_command(
         name="youtube",
@@ -358,6 +379,9 @@ class Misc(interactions.Extension):
             file=resp,
         )
         await ctx.send(file=img)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
 
 def setup(client) -> None:

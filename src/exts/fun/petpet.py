@@ -114,6 +114,9 @@ class Petpet(interactions.Extension):
             )
 
         await ctx.send(file=_file)
+        from src.common.utils import send_promote
+
+        await send_promote(ctx, "easy")
 
 
 def setup(client) -> None:
