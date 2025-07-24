@@ -34,7 +34,7 @@ def draw_frame(crewmate_img, stars, text, crewmate_x):
     for x, y in stars:
         draw.ellipse((x, y, x + 3, y + 3), fill="white")
     # Draw text
-    font = ImageFont.truetype("arial.ttf", 32)
+    font = ImageFont.load_default(size=32)
     bbox = draw.textbbox((0, 0), text, font=font)
     w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
     draw.text(
