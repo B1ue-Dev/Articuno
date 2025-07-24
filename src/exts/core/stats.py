@@ -8,7 +8,7 @@ import logging
 from typing import List
 import interactions
 import psutil
-from src.utils import utils, jsk
+from src.common import utils, jsk
 from src.const import VERSION
 
 

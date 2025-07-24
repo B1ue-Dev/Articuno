@@ -8,7 +8,7 @@ import logging
 import base64 as b64
 import binascii
 import interactions
-from src.utils import brainfuck, utils
+from src.common import brainfuck, utils
 
 
 class HackTool(interactions.Extension):

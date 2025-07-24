@@ -23,7 +23,7 @@ import psutil
 import interactions
 from interactions.ext.paginators import Paginator
 from interactions.ext.debug_extension.utils import get_cache_state
-from src.utils import utils
+from src.common import utils
 from src.const import VERSION
 
 
