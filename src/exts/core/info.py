@@ -228,7 +228,13 @@ class Info(interactions.Extension):
             fields=fields,
         )
 
-        await ctx.send(embeds=embed)
+        copy_id = interactions.Button(
+            style=interactions.ButtonStyle.GRAY,
+            emoji="📋",
+            label="Copy User ID",
+            custom_id="copy_user_id",
+        )
+        await ctx.send(embeds=embed, components=copy_id)
 
     @hybrid_slash_subcommand(
         base="info",
@@ -531,6 +537,15 @@ class Info(interactions.Extension):
 
         components = []
 
+        components.append(
+            interactions.Button(
+                style=interactions.ButtonStyle.GRAY,
+                emoji="📋",
+                label="Copy Server ID",
+                custom_id="copy_server_id",
+            )
+        )
+
         if splash_bool is True and guild.splash.url is not None:
             components.append(
                 interactions.Button(
@@ -660,6 +675,14 @@ class Info(interactions.Extension):
         )
 
         await ctx.send(embeds=embed, ephemeral=True)
+
+    @interactions.component_callback("copy_user_id")
+    async def c_user_id(self, ctx: interactions.ComponentContext):
+        await ctx.send(ctx.message.embeds[0].fields[2].value, ephemeral=True)
+
+    @interactions.component_callback("copy_server_id")
+    async def c_server_id(self, ctx: interactions.ComponentContext):
+        await ctx.send(ctx.message.embeds[0].fields[0].value, ephemeral=True)
 
 
 def setup(client) -> None:
