@@ -101,7 +101,12 @@ async def get_word() -> str:
     resp: dict = await get_response(
         url="https://random-words-api-b1uedev.vercel.app/word"
     )
-    return (resp[0]["word"], resp[0]["definition"])
+    try:
+        logging.info(f"Got word: {resp[0]['word']} - {resp[0]['definition']}")
+        return (resp[0]["word"], resp[0]["definition"])
+    except Exception as e:
+        logging.error(f"Error parsing API response: {e}. resp={resp}")
+        raise
 
 
 class Hman(interactions.Extension):
@@ -131,7 +136,6 @@ class Hman(interactions.Extension):
         guessed_letters: list = []
         guessed_words: list = []
         tries: int = 6
-        print(correct_word)
 
         button: List[interactions.Button] = [  # noqa: F821
             interactions.Button(
