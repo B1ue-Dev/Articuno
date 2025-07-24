@@ -207,7 +207,9 @@ class Jsk(interactions.Extension):
         """Executes statements in the system shell."""
 
         if int(ctx.user.id) != int(self.client.owner.id):
-            return await ctx.send("You must be the bot owner to perform this action.")
+            return await ctx.send(
+                "You must be the bot owner to perform this action."
+            )
 
         msg = await ctx.send("⏳ Running shell command...")
 
@@ -238,7 +240,9 @@ class Jsk(interactions.Extension):
 
         # Wait for the process to fully complete
         return_code = await process.wait()
-        output_lines.append(f"\n\n[✅ Command finished — Return code {return_code}]")
+        output_lines.append(
+            f"\n\n[✅ Command finished — Return code {return_code}]"
+        )
         final_output = "".join(output_lines)
 
         # Send final output

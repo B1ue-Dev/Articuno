@@ -706,7 +706,9 @@ class Emoji(interactions.Extension):
                     )
                 except asyncio.TimeoutError:
                     try:
-                        return await msg.edit(components=[], content="Timeout.")
+                        return await msg.edit(
+                            components=[], content="Timeout."
+                        )
                     except interactions.client.errors.NotFound:
                         return
 

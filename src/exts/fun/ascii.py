@@ -148,9 +148,9 @@ class ASCII(interactions.Extension):
                 ascii_art_txt, custom_font, color=rgb_tuple
             )
         else:
-            # use defaut font in ./src/assets/mno16.ttf
-            print(base_font.path)
-            ascii_art_png = ascii_to_image(ascii_art_txt, color=rgb_tuple, font=base_font)
+            ascii_art_png = ascii_to_image(
+                ascii_art_txt, color=rgb_tuple, font=base_font
+            )
 
         send_file = []
 

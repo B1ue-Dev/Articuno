@@ -150,7 +150,9 @@ class RPS(interactions.Extension):
             except asyncio.TimeoutError:
                 rps_selection.disabled = True
                 try:
-                    return await msg.edit(content="Time's up!", components=rps_selection)
+                    return await msg.edit(
+                        content="Time's up!", components=rps_selection
+                    )
                 except interactions.client.errors.NotFound:
                     return
 

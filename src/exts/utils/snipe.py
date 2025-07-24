@@ -82,7 +82,7 @@ class Snipe(interactions.Extension):
             description="",
         )
         for i in self._cached[channel_id]:
-            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n""" # type: ignore
+            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n"""  # type: ignore
 
         await ctx.send(embed=embed)
 

@@ -100,7 +100,7 @@ class Edited(interactions.Extension):
             author_id = versions[0]["author_id"]
             embed.description += (
                 f"<@{author_id}> edited a message (ID: `{message_id}`):\n"
-            ) # type: ignore
+            )  # type: ignore
             for i, version in enumerate(versions):
                 label = "Original" if i == 0 else f"Edit {i}"
                 embed.description += (

@@ -77,7 +77,9 @@ class Fun(interactions.Extension):
         """Sends a random joke."""
 
         url = "https://v2.jokeapi.dev/joke/Any"
-        params = {"blacklistFlags": "nsfw,religious,political,racist,sexist,explicit"}
+        params = {
+            "blacklistFlags": "nsfw,religious,political,racist,sexist,explicit"
+        }
         resp: dict = await get_response(url, params=params)
         if resp.get("joke"):
             embed = interactions.Embed(
