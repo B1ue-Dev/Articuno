@@ -602,41 +602,49 @@ class Hman(interactions.Extension):
         )
         color = str("0x" + color[1:])
         color = int(color, 16)
-        user_data = await hangman_saves.get(
-            PydanticObjectId(
-                (
-                    await hangman_saves.find_one(
-                        hangman_saves.user_id == int(ctx.user.id)
-                    )
-                ).id
-            )
-        )
-
-        fields = []
-        for index, history in enumerate(reversed(list(user_data.history))):
-            fields.append(
-                interactions.EmbedField(
-                    name=f"#{index+1}",
-                    value="".join(
-                        [
-                            f"""<t:{history["created_at"]}:f> UTC\n""",
-                            f"""Word: {history["word"]}\n""",
-                            f"""Total tries: {history["tries"]}\n""",
-                            f"""Gained {history["gained_point"]} point""",
-                        ]
-                    ),
+        try:
+            user_data = await hangman_saves.get(
+                PydanticObjectId(
+                    (
+                        await hangman_saves.find_one(
+                            hangman_saves.user_id == int(ctx.user.id)
+                        )
+                    ).id
                 )
             )
-        embed = interactions.Embed(
-            title=f"Your highest score is {user_data.highest_point}.",
-            color=color,
-            fields=fields,
-            thumbnail=interactions.EmbedAttachment(
-                url=ctx.user.avatar_url,
-            ),
-        )
 
-        await ctx.send(embeds=embed)
+            fields = []
+            for index, history in enumerate(reversed(list(user_data.history))):
+                fields.append(
+                    interactions.EmbedField(
+                        name=f"#{index+1}",
+                        value="".join(
+                            [
+                                f"""<t:{history["created_at"]}:f> UTC\n""",
+                                f"""Word: {history["word"]}\n""",
+                                f"""Total tries: {history["tries"]}\n""",
+                                f"""Gained {history["gained_point"]} point""",
+                            ]
+                        ),
+                    )
+                )
+            embed = interactions.Embed(
+                title=f"Your score is {user_data.highest_point}.",
+                color=color,
+                fields=fields,
+                thumbnail=interactions.EmbedAttachment(
+                    url=ctx.user.avatar_url,
+                ),
+            )
+
+            await ctx.send(embeds=embed)
+        except Exception:
+            embed = interactions.Embed(
+                title="You have no history.",
+                description="You have not played hangman yet.",
+                color=color,
+            )
+            await ctx.send(embeds=embed)
 
     @hybrid_slash_subcommand(
         base="hangman",
