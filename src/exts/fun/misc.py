@@ -1,7 +1,7 @@
 """
 Miscellaneous commands.
 
-(C) 2022-2023 - B1ue-Dev
+(C) 2022-2025 - B1ue-Dev
 """
 
 import logging
@@ -355,45 +355,6 @@ class Misc(interactions.Extension):
         resp: dict = await get_response(url, params)
         img = interactions.File(
             file_name="image.png",
-            file=resp,
-        )
-        await ctx.send(file=img)
-
-    @hybrid_slash_command(
-        name="amogus",
-        description="Amogus.",
-        options=[
-            interactions.SlashCommandOption(
-                type=interactions.OptionType.USER,
-                name="user",
-                description="Targeted user",
-                required=True,
-            ),
-        ],
-        dm_permission=False,
-    )
-    async def amogus(
-        self, ctx: HybridContext, user: interactions.Member
-    ) -> None:
-        """Amogus."""
-
-        await ctx.defer()
-
-        url: str = "https://api.some-random-api.com/premium/amongus"
-        params: dict = {
-            "avatar": (
-                user.avatar.as_url(extension=".png")
-                if user.guild_avatar is None
-                else user.guild_avatar.as_url(extension=".png")
-            ),
-            "username": user.user.username,
-            "impostor": random.choice(["true", "false"]),
-        }
-        resp: dict = await get_response(
-            url, params, headers={"Authorization": SOME_RANDOM_API}
-        )
-        img = interactions.File(
-            file_name="image.gif",
             file=resp,
         )
         await ctx.send(file=img)
