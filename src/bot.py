@@ -99,8 +99,8 @@ class Init:
 
 
 client = interactions.Client(
-    sync_interactions=False,
-    sync_ext=False,
+    sync_interactions=True,
+    sync_ext=True,
     delete_unused_application_cmds=True,
     intents=interactions.Intents.DEFAULT
     | interactions.Intents.MESSAGE_CONTENT
@@ -133,7 +133,7 @@ async def on_startup() -> None:
         logging.info(
             "Articuno is starting up. Please wait, this may take a while."
         )
-        await asyncio.sleep(40)
+        await asyncio.sleep(60)
         counted = True
         websocket = f"{client.latency * 1:.0f}"
 
