@@ -7,12 +7,13 @@ Image search command.
 import logging
 import asyncio
 import random
+from typing import List
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-from googleapiclient.discovery import build
+import aiohttp
 from src.const import GOOGLE_CLOUD, GOOGLE_CSE
 
 
@@ -30,6 +31,56 @@ class Image:
         """source: The source of the image."""
         self.contextlink: str = contextlink
         """contextlink: The link to the source."""
+
+    def __repr__(self) -> str:
+        return f"<Image title={self.title!r} link={self.link!r}>"
+
+
+async def fetch_images(
+    session: aiohttp.ClientSession, query: str, page: int = 1
+) -> List[Image]:
+    start = (page - 1) * 10 + 1
+    url = (
+        f"https://www.googleapis.com/customsearch/v1?"
+        f"key={GOOGLE_CLOUD}&cx={GOOGLE_CSE}&q={query}"
+        f"&searchType=image&start={start}"
+    )
+
+    async with session.get(url) as response:
+        data = await response.json()
+
+        items = data.get("items", [])
+        images = []
+
+        for i, item in enumerate(items, start=0):
+            try:
+                images.append(
+                    Image(
+                        link=item["link"],
+                        title=item["title"],
+                        source=item["displayLink"],
+                        contextlink=item["image"]["contextLink"],
+                    )
+                )
+            except KeyError:
+                logging.warning(
+                    f"Missing key in search item with query {query} at {i}, skipping."
+                )
+                images.append(
+                    Image(
+                        link=item.get(
+                            "link",
+                            "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg",
+                        ),
+                        title=item.get("title", "N/A"),
+                        source=item.get("displayLink", "N/A"),
+                        contextlink=item.get("image", {}).get(
+                            "contextLink", "N/A"
+                        ),
+                    )
+                )
+
+        return images
 
 
 class Google(interactions.Extension):
@@ -84,22 +135,10 @@ class Google(interactions.Extension):
 
         all_result: "list[Image]" = []
         ran = int(0)
-        resource = build("customsearch", "v1", developerKey=GOOGLE_CLOUD).cse()
-        result = resource.list(
-            q=f"{query}",
-            cx=GOOGLE_CSE,
-            searchType="image",  # sort="date"
-        ).execute()
-
-        for i in range(0, 10):
-            all_result.append(
-                Image(
-                    link=result["items"][i]["link"],
-                    title=result["items"][i]["title"],
-                    source=result["items"][i]["displayLink"],
-                    contextlink=result["items"][i]["image"]["contextLink"],
-                )
-            )
+        async with aiohttp.ClientSession() as session:
+            res = await fetch_images(session, query, 1)
+            for images in res:
+                all_result.append(images)
 
         try:
             ran: int = 0
@@ -110,7 +149,7 @@ class Google(interactions.Extension):
                 color=0x000000,
             )
             embed.set_footer(
-                text=f"Google Search • Page {ran}/9",
+                text=f"Google Search • Page {ran + 1}/10",
                 icon_url=self.google_icon,
             )
             embed.add_field(
@@ -164,7 +203,7 @@ class Google(interactions.Extension):
                         color=0x000000,
                     )
                     embed.set_footer(
-                        text=f"Google Search  •  Page {ran}/9",
+                        text=f"Google Search  •  Page {ran + 1}/10",
                         icon_url=self.google_icon,
                     )
                     embed.add_field(
@@ -180,7 +219,10 @@ class Google(interactions.Extension):
                 except asyncio.TimeoutError:
                     try:
                         return await msg.edit(components=[])
-                    except (interactions.client.errors.NotFound, interactions.client.errors.HTTPException):
+                    except (
+                        interactions.client.errors.NotFound,
+                        interactions.client.errors.HTTPException,
+                    ):
                         return
 
         except KeyError:
