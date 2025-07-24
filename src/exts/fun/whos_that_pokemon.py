@@ -9,14 +9,18 @@ import io
 import random
 import asyncio
 from time import time
+from datetime import datetime
+from beanie import PydanticObjectId
 import interactions
+from interactions.ext.paginators import Paginator
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
+    hybrid_slash_subcommand,
     HybridContext,
 )
 from PIL import Image
 from src.exts.fun.pokemon import Pokemon
-from src.common.utils import get_response
+from src.exts.core.info import get_color
+from src.common.utils import get_response, wtp_easy_saves, wtp_hard_saves
 
 
 async def extract_pokemon_image(url: str) -> Image.Image:
@@ -66,7 +70,6 @@ async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
     paste_y = center_y - _image.height // 2
     paste_pos = (paste_x, paste_y)
 
-    _num = (280, 165)
     text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
     text_img.paste(bg, (0, 0))
     text_img.paste(_black_image, paste_pos, _image)
@@ -131,10 +134,11 @@ class WTP(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
 
-    @hybrid_slash_command(
-        name="whos_that_pokemon",
-        description="Who's that Pokemon game.",
-        aliases=["wtp"],
+    @hybrid_slash_subcommand(
+        base="whos_that_pokemon",
+        base_description="Who's that Pokemon game.",
+        name="play",
+        description="Play Who's that Pokemon game.",
         options=[
             interactions.SlashCommandOption(
                 type=interactions.OptionType.STRING,
@@ -178,6 +182,22 @@ class WTP(interactions.Extension):
                 """List of Pokemon."""
                 pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
 
+                # Only allow points if generation is not specified
+                point_eligible = True
+                if generation is not None:
+                    point_eligible = False
+
+                if point_eligible:
+                    if not await wtp_easy_saves.find_one(
+                        wtp_easy_saves.user_id == int(ctx.user.id)
+                    ).exists():
+                        await wtp_easy_saves(
+                            user_id=int(ctx.user.id),
+                            user_name=ctx.user.username,
+                            points=0,
+                            history=[],
+                        ).save()
+
                 """The correct Pokemon."""
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
                     (pokemon_list[random.randint(0, 3)])["name"]
@@ -207,7 +227,7 @@ class WTP(interactions.Extension):
                 )
 
                 msg = await _msg.edit(
-                    content="**Who's that Pokemon?**",
+                    content=f"""**Who's that Pokemon?**\n\n{"Point system enabled (random generation)." if point_eligible else "Point system disabled (specific generation)."}""",
                     components=_button_list,
                     file=file,
                 )
@@ -298,6 +318,47 @@ class WTP(interactions.Extension):
                             ),
                         ]
 
+                        # Calculating point
+                        if point_eligible:
+                            total_score = cnt * 10 + (cnt // 10) * 10
+
+                            user_data = await wtp_easy_saves.get(
+                                PydanticObjectId(
+                                    (
+                                        await wtp_easy_saves.find_one(
+                                            wtp_easy_saves.user_id
+                                            == int(ctx.user.id)
+                                        )
+                                    ).id
+                                )
+                            )
+                            user_data.points = user_data.points + total_score
+                            created_at: int = round(datetime.now().timestamp())
+                            if len(user_data.history) == 5:
+                                user_data.history.pop(0)
+                            user_data.history.append(
+                                {
+                                    "created_at": created_at,
+                                    "streak": cnt,
+                                    "gained_point": total_score,
+                                }
+                            )
+                            await user_data.save()
+
+                            await res.ctx.edit_origin(
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} gave up.",
+                                        f"\nStreak: {cnt}",
+                                        f"\nTotal score: {total_score}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                            )
+                            break
                         await res.ctx.edit_origin(
                             content="".join(
                                 [
@@ -346,7 +407,46 @@ class WTP(interactions.Extension):
                                 )
                             ),
                         ]
+                        if point_eligible:
+                            total_score = cnt * 10 + (cnt // 10) * 10
 
+                            user_data = await wtp_easy_saves.get(
+                                PydanticObjectId(
+                                    (
+                                        await wtp_easy_saves.find_one(
+                                            wtp_easy_saves.user_id
+                                            == int(ctx.user.id)
+                                        )
+                                    ).id
+                                )
+                            )
+                            user_data.points = user_data.points + total_score
+                            created_at: int = round(datetime.now().timestamp())
+                            if len(user_data.history) == 5:
+                                user_data.history.pop(0)
+                            user_data.history.append(
+                                {
+                                    "created_at": created_at,
+                                    "streak": cnt,
+                                    "gained_point": total_score,
+                                }
+                            )
+                            await user_data.save()
+
+                            await res.ctx.edit_origin(
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} had the wrong answer.",
+                                        f"\nStreak: {cnt}",
+                                        f"\nTotal score: {total_score}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                            )
+                            break
                         await res.ctx.edit_origin(
                             content="".join(
                                 [
@@ -384,6 +484,46 @@ class WTP(interactions.Extension):
                         ),
                     ]
                     try:
+                        if point_eligible:
+                            total_score = cnt * 10 + (cnt // 10) * 10
+
+                            user_data = await wtp_easy_saves.get(
+                                PydanticObjectId(
+                                    (
+                                        await wtp_easy_saves.find_one(
+                                            wtp_easy_saves.user_id
+                                            == int(ctx.user.id)
+                                        )
+                                    ).id
+                                )
+                            )
+                            user_data.points = user_data.points + total_score
+                            created_at: int = round(datetime.now().timestamp())
+                            if len(user_data.history) == 5:
+                                user_data.history.pop(0)
+                            user_data.history.append(
+                                {
+                                    "created_at": created_at,
+                                    "streak": cnt,
+                                    "gained_point": total_score,
+                                }
+                            )
+                            await user_data.save()
+
+                            await msg.edit(
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        "Timeout! ",
+                                        f"It's **{corrected_pokemon.name.basename}**!",
+                                        f"\nStreak: {cnt}",
+                                        f"\nTotal score: {total_score}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                            )
+                            return
                         return await msg.edit(
                             content="".join(
                                 [
@@ -404,6 +544,22 @@ class WTP(interactions.Extension):
             while True:
                 """List of Pokemon."""
                 pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
+
+                # Only allow points if generation is not specified
+                point_eligible = True
+                if generation is not None:
+                    point_eligible = False
+
+                if point_eligible:
+                    if not await wtp_hard_saves.find_one(
+                        wtp_hard_saves.user_id == int(ctx.user.id)
+                    ).exists():
+                        await wtp_hard_saves(
+                            user_id=int(ctx.user.id),
+                            user_name=ctx.user.username,
+                            points=0,
+                            history=[],
+                        ).save()
 
                 """The correct Pokemon."""
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
@@ -430,7 +586,7 @@ class WTP(interactions.Extension):
                     ),
                 ]
                 msg = await _msg.edit(
-                    content="**Who's that Pokemon?**",
+                    content=f"""**Who's that Pokemon?**\n\n{"Point system enabled (random generation)." if point_eligible else "Point system disabled (specific generation)."}""",
                     components=button,
                     files=file,
                 )
@@ -478,6 +634,48 @@ class WTP(interactions.Extension):
                                 )
                             ),
                         ]
+
+                        # Calculating point
+                        if point_eligible:
+                            total_score = cnt * 10 + (cnt // 5) * 10
+
+                            user_data = await wtp_hard_saves.get(
+                                PydanticObjectId(
+                                    (
+                                        await wtp_hard_saves.find_one(
+                                            wtp_hard_saves.user_id
+                                            == int(ctx.user.id)
+                                        )
+                                    ).id
+                                )
+                            )
+                            user_data.points = user_data.points + total_score
+                            created_at: int = round(datetime.now().timestamp())
+                            if len(user_data.history) == 5:
+                                user_data.history.pop(0)
+                            user_data.history.append(
+                                {
+                                    "created_at": created_at,
+                                    "streak": cnt,
+                                    "gained_point": total_score,
+                                }
+                            )
+                            await user_data.save()
+
+                            await res.ctx.edit_origin(
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} gave up.",
+                                        f"\nStreak: {cnt}",
+                                        f"\nTotal score: {total_score}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                            )
+                            break
 
                         await res.ctx.edit_origin(
                             content="".join(
@@ -561,6 +759,53 @@ class WTP(interactions.Extension):
                                 ),
                             ]
 
+                            # Calculating point
+                            if point_eligible:
+                                total_score = cnt * 10 + (cnt // 5) * 10
+
+                                user_data = await wtp_hard_saves.get(
+                                    PydanticObjectId(
+                                        (
+                                            await wtp_hard_saves.find_one(
+                                                wtp_hard_saves.user_id
+                                                == int(ctx.user.id)
+                                            )
+                                        ).id
+                                    )
+                                )
+                                user_data.points = (
+                                    user_data.points + total_score
+                                )
+                                created_at: int = round(
+                                    datetime.now().timestamp()
+                                )
+                                if len(user_data.history) == 5:
+                                    user_data.history.pop(0)
+                                user_data.history.append(
+                                    {
+                                        "created_at": created_at,
+                                        "streak": cnt,
+                                        "gained_point": total_score,
+                                    }
+                                )
+                                await user_data.save()
+
+                                await _res.edit(
+                                    message=_res.message_id,
+                                    content="".join(
+                                        [
+                                            "**Who's that Pokemon?**\n\n",
+                                            f"It's **{corrected_pokemon.name}**!",
+                                            f" {ctx.user.mention} gave up.",
+                                            f"\nStreak: {cnt}",
+                                            f"\nTotal score: {total_score}",
+                                        ],
+                                    ),
+                                    components=action_rows,
+                                    files=_file,
+                                )
+                                break
+
                             await _res.edit(
                                 message=_res.message_id,
                                 content="".join(
@@ -597,6 +842,47 @@ class WTP(interactions.Extension):
                     ]
 
                     try:
+                        # Calculating point
+                        if point_eligible:
+                            total_score = cnt * 10 + (cnt // 5) * 10
+
+                            user_data = await wtp_hard_saves.get(
+                                PydanticObjectId(
+                                    (
+                                        await wtp_hard_saves.find_one(
+                                            wtp_hard_saves.user_id
+                                            == int(ctx.user.id)
+                                        )
+                                    ).id
+                                )
+                            )
+                            user_data.points = user_data.points + total_score
+                            created_at: int = round(datetime.now().timestamp())
+                            if len(user_data.history) == 5:
+                                user_data.history.pop(0)
+                            user_data.history.append(
+                                {
+                                    "created_at": created_at,
+                                    "streak": cnt,
+                                    "gained_point": total_score,
+                                }
+                            )
+                            await user_data.save()
+
+                            await msg.edit(
+                                content="".join(
+                                    [
+                                        "**Who's that Pokemon?**\n\n",
+                                        f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} gave up.",
+                                        f"\nStreak: {cnt}",
+                                        f"\nTotal score: {total_score}",
+                                    ],
+                                ),
+                                components=action_rows,
+                                files=_file,
+                            )
+                            return
                         return await msg.edit(
                             content="".join(
                                 [
@@ -611,6 +897,182 @@ class WTP(interactions.Extension):
                         )
                     except interactions.client.errors.NotFound:
                         return
+
+    @hybrid_slash_subcommand(
+        base="whos_that_pokemon",
+        base_description="Who's that Pokemon game.",
+        name="leaderboard",
+        description="View the Who's that Pokemon game leaderboard.",
+    )
+    @interactions.slash_option(
+        name="mode",
+        description="View mode",
+        opt_type=interactions.OptionType.STRING,
+        choices=[
+            interactions.SlashCommandChoice(name="easy", value="easy"),
+            interactions.SlashCommandChoice(name="hard", value="hard"),
+        ],
+        required=True,
+    )
+    async def wtp_leaderboard(
+        self,
+        ctx: HybridContext,
+        mode: str,
+    ) -> None:
+        """View the Who's that Pokemon game leaderboard."""
+
+        await ctx.defer()
+
+        embeds = []
+        current_embed = None
+        i: int = 0
+        current_position: int = 0
+
+        leaderboard: list = []
+        if mode == "easy":
+            leaderboard = (
+                await wtp_easy_saves.find_all()
+                .sort("-highest_point")
+                .to_list()
+            )
+        elif mode == "hard":
+            leaderboard = (
+                await wtp_hard_saves.find_all()
+                .sort("-highest_point")
+                .to_list()
+            )
+        for position, user in enumerate(leaderboard, start=1):
+            value: str = ""
+            if user.user_id == int(ctx.user.id):
+                current_position = position
+                value = f"**{user.user_name} - {user.points} points**"
+            else:
+                value = f"{user.user_name} - {user.points} points"
+            if i % 10 == 0:
+                if current_embed:
+                    embeds.append(current_embed)
+                current_embed = interactions.Embed(color=0x4192C7)
+
+            current_embed.add_field(
+                name=f"#{position}",
+                value=value,
+            )
+            i += 1
+        if current_embed:
+            embeds.append(current_embed)
+
+        paginator = Paginator.create_from_embeds(
+            self.client,
+            *embeds,
+            timeout=60,
+        )
+        await paginator.send(
+            ctx=ctx,
+            content=(
+                f"You are at top {current_position}."
+                if current_position != 0
+                else ""
+            ),
+        )
+
+    @hybrid_slash_subcommand(
+        base="whos_that_pokemon",
+        base_description="Who's that Pokemon game.",
+        name="history",
+        description="View your Who's that Pokemon game history.",
+    )
+    @interactions.slash_option(
+        name="mode",
+        description="View mode",
+        opt_type=interactions.OptionType.STRING,
+        choices=[
+            interactions.SlashCommandChoice(name="easy", value="easy"),
+            interactions.SlashCommandChoice(name="hard", value="hard"),
+        ],
+        required=True,
+    )
+    async def wtp_history(
+        self,
+        ctx: HybridContext,
+        mode: str,
+    ) -> None:
+        """View your Who's that Pokemon game history."""
+
+        await ctx.defer()
+        color = await get_response(ctx.user.avatar_url)
+
+        def clamp(x):
+            return max(0, min(x, 255))
+
+        color = await get_color(color)
+        color = "#{0:02x}{1:02x}{2:02x}".format(
+            clamp(color[0]), clamp(color[1]), clamp(color[2])
+        )
+        color = str("0x" + color[1:])
+        color = int(color, 16)
+
+        user_data = None
+        if mode == "easy":
+            try:
+                user_data = await wtp_easy_saves.get(
+                    PydanticObjectId(
+                        (
+                            await wtp_easy_saves.find_one(
+                                wtp_easy_saves.user_id == int(ctx.user.id)
+                            )
+                        ).id
+                    )
+                )
+            except AttributeError:
+                embed = interactions.Embed(
+                    title="You have no history.",
+                    description="You have not played Who's that Pokemon yet.",
+                    color=color,
+                )
+                return await ctx.send(embeds=embed)
+        elif mode == "hard":
+            try:
+                user_data = await wtp_hard_saves.get(
+                    PydanticObjectId(
+                        (
+                            await wtp_hard_saves.find_one(
+                                wtp_hard_saves.user_id == int(ctx.user.id)
+                            )
+                        ).id
+                    )
+                )
+            except AttributeError:
+                embed = interactions.Embed(
+                    title="You have no history.",
+                    description="You have not played Who's that Pokemon yet.",
+                    color=color,
+                )
+                return await ctx.send(embeds=embed)
+
+        fields = []
+        for index, history in enumerate(reversed(list(user_data.history))):
+            fields.append(
+                interactions.EmbedField(
+                    name=f"#{index+1}",
+                    value="".join(
+                        [
+                            f"""<t:{history["created_at"]}:f> UTC\n""",
+                            f"""Streak: {history["streak"]}\n""",
+                            f"""Gained {history["gained_point"]} point""",
+                        ]
+                    ),
+                )
+            )
+        embed = interactions.Embed(
+            title=f"Your score is {user_data.points}.",
+            color=color,
+            fields=fields,
+            thumbnail=interactions.EmbedAttachment(
+                url=ctx.user.avatar_url,
+            ),
+        )
+
+        await ctx.send(embeds=embed)
 
 
 def setup(client) -> None:
