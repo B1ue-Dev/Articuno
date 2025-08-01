@@ -932,13 +932,13 @@ class WTP(interactions.Extension):
         if mode == "easy":
             leaderboard = (
                 await wtp_easy_saves.find_all()
-                .sort("-highest_point")
+                .sort("-points")
                 .to_list()
             )
         elif mode == "hard":
             leaderboard = (
                 await wtp_hard_saves.find_all()
-                .sort("-highest_point")
+                .sort("-points")
                 .to_list()
             )
         for position, user in enumerate(leaderboard, start=1):
