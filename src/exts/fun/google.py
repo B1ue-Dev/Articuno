@@ -225,8 +225,8 @@ class Google(interactions.Extension):
                     ):
                         return
 
-        except KeyError:
-            await ctx.send("No result found.", ephemeral=True)
+        except Exception:
+            await ctx.send("No result found. Maybe try another query?")
 
 
 def setup(client) -> None:
