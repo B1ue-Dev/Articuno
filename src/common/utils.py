@@ -114,38 +114,28 @@ def send_as_file(text: str) -> StringIO:
     return _io
 
 
-def get_color(img) -> int:
+def get_color(img) -> str:
     """
     Get the dominant color of an image.
     :param img: The image.
     :type img:
     :return: The dominant color hex.
-    :rtype: int
+    :rtype: str
     """
 
     clr_thief = ColorThief(img)
     dominant_color = clr_thief.get_color(quality=1)
 
+    return dominant_color
+
+
+def rgb_to_int(rgb: tuple[int, int, int]) -> int:
+    """Converts an RGB tuple to a base-16 integer for Discord embeds."""
+
     def clamp(x):
         return max(0, min(x, 255))
 
-    color = "#{0:02x}{1:02x}{2:02x}".format(
-        clamp(dominant_color[0]),
-        clamp(dominant_color[1]),
-        clamp(dominant_color[2]),
-    )
-    color = str("0x" + color[1:])
-    color = int(color, 16)
-
-    return color
-
-
-def get_local_time() -> datetime:
-    """Returns latest UTC+7 time."""
-
-    utc_time = datetime.now(tz=timezone.utc)
-    local_time = utc_time + timedelta(hours=7)
-    return local_time
+    return (clamp(rgb[0]) << 16) + (clamp(rgb[1]) << 8) + clamp(rgb[2])
 
 
 def handle_username(name: str, discriminator: str) -> str:

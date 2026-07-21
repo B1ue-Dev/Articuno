@@ -13,28 +13,12 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_subcommand,
     HybridContext,
 )
-from src.common.utils import get_response
-from src.common.colorthief import ColorThief
+from src.common.utils import get_response, get_color, rgb_to_int
+
 
 
 def snowflake_time(snowflake):
     return datetime.fromtimestamp(((snowflake >> 22) + 1420070400000) / 1000)
-
-
-async def get_color(img) -> str:
-    """
-    Get the dominant color of an image.
-
-    :param img: The image.
-    :type img:
-    :return: The dominant color hex.
-    :rtype: str
-    """
-
-    clr_thief = ColorThief(img)
-    dominant_color = clr_thief.get_color(quality=1)
-
-    return dominant_color
 
 
 def get_user_flags(flags: UserFlags) -> str:
@@ -255,19 +239,11 @@ class Info(interactions.Extension):
     ) -> None:
         """Shows the profile picture URL of a user."""
 
-        def clamp(x):
-            return max(0, min(x, 255))
-
         fields = []
         if user.user.avatar.hash is not None:
             avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar.hash)}.png"
-            color = await get_response(avatar_url)
-            color = await get_color(color)
-            color = "#{0:02x}{1:02x}{2:02x}".format(
-                clamp(color[0]), clamp(color[1]), clamp(color[2])
-            )
-            color = str("0x" + color[1:])
-            color = int(color, 16)
+            color = await get_response(avatar_url, session=self.client.session)
+            color = rgb_to_int(get_color(color))
             avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
             avatar_png = user.user.avatar_url[:-4] + ".png"
             avatar_webp = user.user.avatar_url[:-4] + ".webp"
@@ -313,13 +289,8 @@ class Info(interactions.Extension):
 
         else:
             avatar_url = f"https://cdn.discordapp.com/embed/avatars/{(user.id >> 22) % 6}.png"
-            color = await get_response(avatar_url)
-            color = await get_color(color)
-            color = "#{0:02x}{1:02x}{2:02x}".format(
-                clamp(color[0]), clamp(color[1]), clamp(color[2])
-            )
-            color = str("0x" + color[1:])
-            color = int(color, 16)
+            color = await get_response(avatar_url, session=self.client.session)
+            color = rgb_to_int(get_color(color))
 
             images = [
                 interactions.EmbedAttachment(url=f"{avatar_url}?size=4096")

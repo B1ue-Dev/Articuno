@@ -999,17 +999,9 @@ class WTP(interactions.Extension):
         """View your Who's that Pokemon game history."""
 
         await ctx.defer()
-        color = await get_response(ctx.user.avatar_url)
 
-        def clamp(x):
-            return max(0, min(x, 255))
-
-        color = await get_color(color)
-        color = "#{0:02x}{1:02x}{2:02x}".format(
-            clamp(color[0]), clamp(color[1]), clamp(color[2])
-        )
-        color = str("0x" + color[1:])
-        color = int(color, 16)
+        color = await get_response(ctx.user.avatar_url, session=self.client.session)
+        color = rgb_to_int(get_color(color))
 
         user_data = None
         if mode == "easy":
