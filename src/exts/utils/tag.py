@@ -11,7 +11,7 @@ from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
 from src.common.utils import Permissions, has_permission
-from src.common.utils import tags
+from src.common.models import tags
 
 
 def get_utc_time() -> datetime:

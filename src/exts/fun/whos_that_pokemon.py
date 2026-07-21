@@ -19,8 +19,8 @@ from interactions.ext.hybrid_commands import (
 )
 from PIL import Image
 from src.exts.fun.pokemon import Pokemon
-from src.exts.core.info import get_color
-from src.common.utils import get_response, wtp_easy_saves, wtp_hard_saves
+from src.common.utils import get_response, get_color, rgb_to_int
+from src.common.models import wtp_easy_saves, wtp_hard_saves
 
 
 async def extract_pokemon_image(url: str) -> Image.Image:
