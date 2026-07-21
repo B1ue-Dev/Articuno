@@ -5,17 +5,17 @@ For value data.
 """
 
 import os
-import dotenv
-import configparser
+from dotenv import load_dotenv
+import tomllib
 
-config = configparser.ConfigParser()
-config.read("pyproject.toml")
-dotenv.load_dotenv()
+with open("pyproject.toml", "rb") as f:
+    config = tomllib.load(f)
+load_dotenv()
 
 TOKEN = os.getenv("TOKEN")
 """The token of the bot."""
 
-VERSION = str(config["tool.poetry"]["version"]).replace('"', "")
+VERSION = config["tool"]["poetry"]["version"]
 """Bot version."""
 
 LOG_CHANNEL = os.getenv("LOG_CHANNEL")
