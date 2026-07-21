@@ -21,8 +21,9 @@ from interactions.ext.prefixed_commands import (
 )
 import psutil
 import interactions
+from interactions import check, is_owner
 from interactions.ext.paginators import Paginator
-from interactions.ext.debug_extension.utils import get_cache_state
+from interactions.ext.debug_extension.utils import get_cache_state, debug_embed
 from src.common import utils
 from src.const import VERSION
 
@@ -60,13 +61,9 @@ class Jsk(interactions.Extension):
         self.client: interactions.Client = client
 
     @prefixed_command()
+    @check(is_owner())
     async def jsk(self, ctx: PrefixedContext) -> None:
         """Get basic information about the bot."""
-
-        if int(ctx.user.id) != int(self.client.owner.id):
-            return await ctx.send(
-                "You must be the bot owner to perform this action."
-            )
 
         proc: "psutil.Process" = psutil.Process()
         rss_mem: str = f"{utils.natural_size(proc.memory_full_info().rss)}"
@@ -97,19 +94,22 @@ class Jsk(interactions.Extension):
         await ctx.send(content=text)
 
     @jsk.subcommand()
+    @check(is_owner())
     async def cache(self, ctx: PrefixedContext) -> None:
         """Shows the current cache."""
 
         await ctx.send(f"```\n{get_cache_state(self.client)}\n```")
 
     @jsk.subcommand()
+    @check(is_owner())
     async def shutdown(self, ctx: PrefixedContext) -> None:
         """Shuts down the bot."""
 
         await ctx.reply("💤 Shutting down...")
         await self.client.stop()
 
-    @jsk.subcommand()
+    @jsk.subcommand(aliases=["r"])
+    @check(is_owner())
     async def reload(self, ctx: PrefixedContext, module: str) -> None:
         """Reloads an extension."""
 
@@ -135,7 +135,8 @@ class Jsk(interactions.Extension):
             self.client.reload_extension(module)
             await ctx.reply(f"🔀 Reloaded `{module}`.")
 
-    @jsk.subcommand()
+    @jsk.subcommand(aliases=["l"])
+    @check(is_owner())
     async def load(self, ctx: PrefixedContext, module: str) -> None:
         """Loads an extension."""
 
@@ -147,7 +148,8 @@ class Jsk(interactions.Extension):
             await ctx.message.add_reaction("❌")
             await ctx.reply(f"⚠ Error in loading `{module}`.")
 
-    @jsk.subcommand()
+    @jsk.subcommand(aliases=["u"])
+    @check(is_owner())
     async def unload(self, ctx: PrefixedContext, module: str) -> None:
         """Unloads an extension."""
 
@@ -159,18 +161,13 @@ class Jsk(interactions.Extension):
             await ctx.message.add_reaction("❌")
             await ctx.reply(f"⚠ Error in unloading `{module}`.")
 
-    @jsk.subcommand(aliases=["py"])
-    async def eval(self, ctx: PrefixedContext, *, code: str) -> None:
+    @jsk.subcommand(aliases=["e", "py"])
+    @check(is_owner())
+    async def eval(self, ctx: PrefixedContext, *, body: str) -> None:
         """Evaluates code."""
 
-        if int(ctx.user.id) != 892080548342820925:
-            return await ctx.send(
-                "You must be the bot owner to perform this action."
-            )
         if isinstance(ctx.channel, interactions.GuildText):
             await ctx.channel.trigger_typing()
-
-        code = cleanup_code(code)
 
         env = {
             "ctx": ctx,
@@ -184,32 +181,34 @@ class Jsk(interactions.Extension):
             "self.client": self.client,
         } | globals()
 
-        env.update(globals())
+        body = (
+            "\n".join(body.split("\n")[1:-1])
+            if body.startswith("```") and body.endswith("```")
+            else body.strip("` \n")
+        )
+
         stdout = io.StringIO()
 
-        to_compile = "async def func():\n%s" % textwrap.indent(code, "  ")
+        to_compile = f"async def func():\n{textwrap.indent(body, '  ')}"
         try:
-            exec(to_compile, env)
-        except Exception:
-            return await ctx.send(f"{traceback.format_exc()}")
+            exec(to_compile, env)  # noqa: S102
+        except SyntaxError:
+            return await ctx.reply(f"```py\n{traceback.format_exc()}\n```")
 
         func = env["func"]
         try:
             with contextlib.redirect_stdout(stdout):
                 ret = await func()
         except Exception:
-            return await ctx.send(content=f"{traceback.format_exc()}")
+            await ctx.message.add_reaction("❌")
+            raise
         else:
             return await self.handle_exec_result(ctx, ret, stdout.getvalue())
 
     @jsk.subcommand(aliases=["sh"])
+    @check(is_owner())
     async def shell(self, ctx: PrefixedContext, *, cmd: str) -> None:
         """Executes statements in the system shell."""
-
-        if int(ctx.user.id) != int(self.client.owner.id):
-            return await ctx.send(
-                "You must be the bot owner to perform this action."
-            )
 
         msg = await ctx.send("⏳ Running shell command...")
 
@@ -270,6 +269,25 @@ class Jsk(interactions.Extension):
             result = value or "No Output."
 
         await ctx.message.add_reaction("✅")
+
+        if isinstance(result, interactions.Message):
+            try:
+                e = debug_embed(
+                    "Exec", timestamp=result.created_at, url=result.jump_url
+                )
+                e.description = result.content
+                e.set_author(
+                    result.author.tag,
+                    icon_url=result.author.display_avatar.url,
+                )
+                e.add_field(
+                    "\u200b",
+                    f"[Jump To]({result.jump_url})\n{result.channel.mention}",
+                )
+
+                return await ctx.message.reply(embeds=e)
+            except Exception:
+                return await ctx.message.reply(result.jump_url)
 
         if isinstance(result, interactions.Embed):
             return await ctx.send(embeds=result)
