@@ -30,5 +30,6 @@ if __name__ == "__main__":
         from src.bot import start
 
         asyncio.run(start())
-    except KeyboardInterrupt:
-        logging.info("Shutting down.")
+    except (KeyboardInterrupt, Exception, BaseException):
+        logging.info("Shutting down...")
+        sys.exit(1)
