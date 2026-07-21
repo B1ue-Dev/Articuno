@@ -1,7 +1,7 @@
 """
 Tic_tac_toe command.
 
-(C) 2023 - B1ue-Dev
+(C) 2023-2026 - B1ue-Dev
 """
 
 import logging

@@ -1,7 +1,7 @@
-"""
+﻿"""
 Main runner file.
 
-(C) 2023 - B1ue-Dev
+(C) 2023-2026 - B1ue-Dev
 """
 # Disable writing of .pyc files
 import sys

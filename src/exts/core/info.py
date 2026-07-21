@@ -1,7 +1,7 @@
 """
 Information commands.
 
-(C) 2022-2023 - B1ue-Dev
+(C) 2022-2026 - B1ue-Dev
 """
 
 import logging

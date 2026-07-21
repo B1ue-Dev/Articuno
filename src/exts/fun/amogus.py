@@ -1,7 +1,7 @@
 """
 /amogus command.
 
-(C) 2025 - B1ue-Dev
+(C) 2025-2026 - B1ue-Dev
 """
 
 import logging
