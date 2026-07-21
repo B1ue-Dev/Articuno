@@ -49,16 +49,22 @@ async def handle_error(
     traceb = traceb.replace("\\t", "\t")
     traceb = traceb.replace("\\r", "\r")
     traceb = traceb.replace("\\", "/")
-    er = ""
-    for i in traceb:
-        er = er + f"{i}"
 
     logging.error(traceb)
+
+    traceb_desc = "".join(
+        [
+            "```\n",
+            f"{traceb[-3000:]}\n",
+            "```\n",
+            f"**Command Called**\n```\n/{ctx.invoke_target} with {ctx.args = } | {ctx.kwargs = }\n```\n",
+        ]
+    )
 
     log_error = interactions.Embed(
         title="An error occurred!",
         color=0xED4245,
-        description=f"```\n{traceb[-4000:]}\n```",
+        description=traceb_desc,
     )
     err_field = [
         interactions.EmbedField(
@@ -87,9 +93,7 @@ async def handle_error(
         embeds=log_error
     )
     await _client.http.create_message(
-        channel_id=(
-            LOG_CHANNEL if debug_system is False else int(ctx.channel_id)
-        ),
+        channel_id=(LOG_CHANNEL if not debug_system else int(ctx.channel_id)),
         payload=payload,
     )
 
@@ -116,7 +120,7 @@ async def handle_error(
         )
 
         await ctx.send(
-            embeds=embed, ephemeral=(True if debug_system is False else False)
+            embeds=embed, ephemeral=(True if not debug_system else False)
         )
 
 
