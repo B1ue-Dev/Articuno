@@ -7,7 +7,7 @@ Root bot file.
 import sys
 import asyncio
 import logging
-from datetime import datetime, UTC
+from datetime import datetime, timedelta, timezone, UTC
 import aiohttp
 import interactions
 import interactions.models as models
@@ -15,16 +15,14 @@ import colorlog
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from interactions.ext.hybrid_commands import setup as hybrid_setup
 
-from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import AsyncMongoClient
 from pymongo.server_api import ServerApi
 from beanie import init_beanie
 
 from src.common.error_handler import debug_system
-from src.common.utils import random_promote
 from src.const import TOKEN, VERSION, MONGO_DB_URL, LOG_CHANNEL
-from src.common.utils import (
-    get_response,
-    get_local_time,
+from src.common.utils import get_response
+from src.common.models import (
     tags,
     hangman_saves,
     wtp_easy_saves,
@@ -34,6 +32,14 @@ from src.common.utils import (
 
 class Init:
     """Init."""
+
+    @classmethod
+    def get_local_time(cls) -> datetime:
+        """Returns latest UTC+7 time."""
+
+        UTC_PLUS_7 = timezone(timedelta(hours=7))
+        return datetime.now(tz=UTC_PLUS_7)
+
 
     @classmethod
     async def get_latest_release_version(cls) -> str:
@@ -65,7 +71,7 @@ class Init:
 
         log = logging.getLogger()
         logging.Formatter.converter = (
-            lambda *args: get_local_time().timetuple()
+            lambda *args: Init.get_local_time().timetuple()
         )
         log.setLevel(logging.INFO)
 
@@ -102,7 +108,8 @@ client = interactions.Client(
     sync_interactions=True,
     sync_ext=True,
     delete_unused_application_cmds=True,
-    intents=interactions.Intents.DEFAULT
+    intents=interactions.Intents.GUILDS
+    | interactions.Intents.GUILD_MESSAGES
     | interactions.Intents.MESSAGE_CONTENT
     | interactions.Intents.GUILD_MEMBERS,
     status=interactions.Status.IDLE,
@@ -112,6 +119,8 @@ client = interactions.Client(
     ),
     send_command_tracebacks=False,
     logger=Init.logger_config(),
+    voice_state_cache=interactions.utils.NullCache(),
+    role_cache=interactions.utils.NullCache(),
 )
 prefixed_setup(client, default_prefix="$")
 hybrid_setup(client)
@@ -137,9 +146,23 @@ async def on_startup() -> None:
         counted = True
         websocket = f"{client.latency * 1:.0f}"
 
-    random_promote.start()
     msg = f"""✅ Logged in as {client.user.username}. """
     msg += f"Latency: {websocket}ms." if websocket else ""
+
+    if hasattr(client, "mongo_client"):
+        db_name = client.mongo_db.name
+        try:
+            stats = await client.mongo_db.command("dbstats")
+            size_in_mb = stats["dataSize"] / (1024 ** 2)
+            logging.info(
+                f"Connected to MongoDB cluster.\n"
+                f"Database: {db_name}\n"
+                f"Collections: {stats['collections']}\n"
+                f"Objects: {stats['objects']}\n"
+                f"Data Size: {size_in_mb:.2f} MB"
+            )
+        except Exception as e:
+            logging.warning(f"Failed to get MongoDB stats: {e}")
 
     logging.info(msg)
 
@@ -160,6 +183,15 @@ async def on_guild_left(guild: interactions.events.GuildLeft) -> None:
     """Fires when bot leaves a guild."""
 
     await join_leave_msg(action="left", client=client, guild=guild)
+
+
+@client.listen(event_name=interactions.events.Disconnect)
+async def on_disconnect() -> None:
+    """Handle bot disconnection."""
+
+    logging.error("Disconnected! Terminating...")
+    await client.stop()
+    sys.exit(1)
 
 
 @client.listen("message_create")
@@ -209,29 +241,43 @@ async def start() -> None:
         else:
             print("You are on latest version. Enjoy using Articuno!")
 
-    mongo_client = AsyncIOMotorClient(MONGO_DB_URL, server_api=ServerApi("1"))
     try:
+        mongo_client = AsyncMongoClient(
+            MONGO_DB_URL,
+            server_api=ServerApi("1"),
+            uuidRepresentation="standard",
+        )
+        client.mongo_client = mongo_client
+        client.mongo_db = mongo_client["Articuno"]
         await mongo_client.admin.command("ping")
         logging.info("Successfully connected to MongoDB!")
+        await init_beanie(
+            client.mongo_db,
+            document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves],
+        )
     except Exception as e:
-        logging.critical(e)
-    await init_beanie(
-        mongo_client["Articuno"],
-        document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves],
-    )
-
-    client.session = aiohttp.ClientSession()
-
-    client.load_extension("src.common.jsk")
-    client.load_extension("src.common.error_handler")
-    client.load_extension("src.exts.core.__init__")
-    client.load_extension("src.exts.fun.__init__")
-    client.load_extension("src.exts.utils.__init__")
+        logging.error("Failed to connect to MongoDB: %s", e)
+        return
 
     try:
+        client.session = aiohttp.ClientSession()
+
+        client.load_extension("src.common.jsk")
+        client.load_extension("src.common.error_handler")
+        client.load_extension("src.exts.core.__init__")
+        client.load_extension("src.exts.fun.__init__")
+        client.load_extension("src.exts.utils.__init__")
+
         await client.astart(TOKEN)
+    except aiohttp.ClientError as e:
+        logging.error("AIOHTTP Client Error: %s", e)
+        sys.exit(1)
+    except Exception as e:
+        logging.error("An error occurred during bot startup: %s", e)
+        sys.exit(1)
     finally:
-        await client.session.close()
+        if client.session:
+            await client.session.close()
 
 
 async def join_leave_msg(

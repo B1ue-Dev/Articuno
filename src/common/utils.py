@@ -4,48 +4,47 @@ Utils for Articuno.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
-import math
+from math import log
 import random
 import asyncio
 from io import BytesIO, StringIO
-from typing import Union
+from typing import Union, Any
 from enum import Enum
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
-import aiohttp
+from aiohttp import ClientSession
 import interactions
-from interactions import Task, IntervalTrigger
 from src.common.colorthief import ColorThief
 
 
 async def get_response(
-    url: str, params: dict | None = None, headers: dict | None = None
-) -> Union[dict, BytesIO, None]:
+    url: str,
+    session: ClientSession,
+    params: dict = None,
+    headers: dict = None,
+) -> Any:
     """Return the data type from the request."""
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, params=params, headers=headers) as resp:
+    async def _request(sess: ClientSession):
+        async with sess.get(url, params=params, headers=headers) as resp:
             if resp.status == 200:
                 if resp.content_type == "application/json":
                     return await resp.json()
-                elif resp.content_type in {
-                    "image/png",
-                    "image/jpeg",
-                    "image/gif",
-                }:
+                elif resp.content_type.startswith("image/"):
                     return BytesIO(await resp.read())
-            else:
-                logging.critical(f"{url} returned {resp.status}.")
-                return None
-    await session.close()
+            return None
+
+    if session:
+        return await _request(session)
 
 
 def natural_size(size_in_bytes: int) -> str:
     """Returns the natural human-friendly size format."""
 
+    if size_in_bytes == 0:
+        return "0 B"
+
     units = ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB")
-    power = int(math.log(size_in_bytes, 1024))
+    power = int(log(size_in_bytes, 1024))
     return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
 
 
@@ -56,7 +55,7 @@ def timestamp(times: datetime) -> str:
     return f"{res}"
 
 
-def pretty_date(time: int) -> str:
+def pretty_date(time: int | datetime) -> str:
     """
     Get a datetime object or a int() Epoch timestamp and return a
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
@@ -68,14 +67,13 @@ def pretty_date(time: int) -> str:
     :rtype: str
     """
 
-    now = datetime.now()
-    diff = now - now
-    if type(time) is int:
-        diff = now - datetime.fromtimestamp(time)
+    now = datetime.now(timezone.utc)
+    if isinstance(time, int) and not isinstance(time, bool):
+        diff = now - datetime.fromtimestamp(time, tz=timezone.utc)
     elif isinstance(time, datetime):
         diff = now - time
-    elif not time:
-        diff = now - now
+    else:
+        diff = timedelta(0)
     second_diff = diff.seconds
     day_diff = diff.days
 
@@ -84,11 +82,11 @@ def pretty_date(time: int) -> str:
 
     if day_diff == 0:
         if second_diff < 10:
-            return "Just now"
+            return "just now"
         if second_diff < 60:
             return str(second_diff) + " seconds ago"
         if second_diff < 120:
-            return "A minute ago"
+            return "a minute ago"
         if second_diff < 3600:
             return str(second_diff // 60) + " minutes ago"
         if second_diff < 7200:
@@ -96,7 +94,7 @@ def pretty_date(time: int) -> str:
         if second_diff < 86400:
             return str(second_diff // 3600) + " hours ago"
     if day_diff == 1:
-        return "Yesterday"
+        return "yesterday"
     if day_diff < 7:
         return str(day_diff) + " days ago"
     if day_diff < 31:
@@ -219,53 +217,37 @@ def has_permission(
     return permission_val & (1 << permission) == 1 << permission
 
 
-random_easy_number = 0
-random_hard_number = 0
-easy_chosen = False
-hard_chosen = False
-
-
-@Task.create(IntervalTrigger(seconds=10))
-async def random_promote() -> None:
-    global random_easy_number
-    global random_hard_number
-    global easy_chosen
-    global hard_chosen
-    if easy_chosen is False:
-        easy_chosen = True
-        random_easy_number = random.randint(50, 90)
-    if hard_chosen is False:
-        hard_chosen = True
-        random_hard_number = random.randint(100, 250)
+random_easy_number = random.randint(50, 90)
+random_hard_number = random.randint(100, 250)
 
 
 async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
     global random_easy_number
     global random_hard_number
-    global easy_chosen
-    global hard_chosen
+
+    topgg_button = interactions.Button(
+        style=interactions.ButtonStyle.URL,
+        label="Vote for Articuno",
+        url="https://top.gg/bot/809084067446259722/vote",
+    )
+    donate_button = interactions.Button(
+        style=interactions.ButtonStyle.URL,
+        label="Support Articuno",
+        url="https://buymeacoffee.com/b1uedev",
+    )
+    msg = await ctx.send(
+        components=[topgg_button, donate_button],
+        content="**Like the bot?**\n"
+        "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
+        "It's a great way to support Articuno too and help it grow :)\n"
+        "-# This message will be deleted in 10 seconds.",
+    )
+
     if cmd_type == "easy":
         if random_easy_number != 0:
             random_easy_number -= 1
         else:
-            topgg_button = interactions.Button(
-                style=interactions.ButtonStyle.URL,
-                label="Vote for Articuno",
-                url="https://top.gg/bot/809084067446259722/vote",
-            )
-            donate_button = interactions.Button(
-                style=interactions.ButtonStyle.URL,
-                label="Support Articuno",
-                url="https://buymeacoffee.com/b1uedev",
-            )
-            msg = await ctx.send(
-                components=[topgg_button, donate_button],
-                content="**Like the bot?**\n"
-                "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
-                "It's a great way to support Articuno too and help it grow :)\n"
-                "-# This message will be deleted in 10 seconds.",
-            )
-            easy_chosen = False
+            random_easy_number = random.randint(50, 90)
             await asyncio.sleep(10)
             try:
                 await msg.delete()
@@ -275,24 +257,7 @@ async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
         if random_hard_number != 0:
             random_hard_number -= 1
         else:
-            topgg_button = interactions.Button(
-                style=interactions.ButtonStyle.URL,
-                label="Vote for Articuno",
-                url="https://top.gg/bot/809084067446259722/vote",
-            )
-            donate_button = interactions.Button(
-                style=interactions.ButtonStyle.URL,
-                label="Support Articuno",
-                url="https://buymeacoffee.com/b1uedev",
-            )
-            msg = await ctx.send(
-                components=[topgg_button, donate_button],
-                content="**Like the bot?**\n"
-                "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
-                "It's a great way to support Articuno too and help it grow :)\n"
-                "-# This message will be deleted in 10 seconds.",
-            )
-            hard_chosen = False
+            random_hard_number = random.randint(100, 250)
             await asyncio.sleep(10)
             try:
                 await msg.delete()

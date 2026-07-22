@@ -1,4 +1,4 @@
-﻿"""
+"""
 Main runner file.
 
 (C) 2023-2026 - B1ue-Dev
@@ -7,7 +7,7 @@ Main runner file.
 import sys
 import asyncio
 import argparse
-import logging
+import traceback
 
 sys.dont_write_bytecode = True
 
@@ -30,6 +30,9 @@ if __name__ == "__main__":
         from src.bot import start
 
         asyncio.run(start())
-    except (KeyboardInterrupt, Exception, BaseException):
-        logging.info("Shutting down...")
+    except KeyboardInterrupt:
+        print("Shutting down...")
+        sys.exit(0)
+    except Exception as e:
+        traceback.print_exc()
         sys.exit(1)
