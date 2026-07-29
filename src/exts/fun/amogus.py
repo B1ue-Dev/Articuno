@@ -6,6 +6,7 @@
 
 import logging
 import random
+import asyncio
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 import interactions
@@ -49,8 +50,8 @@ def draw_frame(crewmate_img, stars, text, crewmate_x):
     return img
 
 
-async def make_gif(username, impostor, image):
-    member_avatar = Image.open(await get_response(image)).convert("RGBA")
+def make_gif(username, impostor, buf):
+    member_avatar = Image.open(buf).convert("RGBA")
     crewmate_img_orig = member_avatar.resize((128, 128), Image.LANCZOS)
 
     text = (
@@ -114,8 +115,7 @@ async def make_gif(username, impostor, image):
         loop=0,
     )
     fp.seek(0)
-    _file = interactions.File(file=fp, file_name="eject.gif")
-    return _file
+    return fp
 
 
 class Amogus(interactions.Extension):
@@ -181,9 +181,13 @@ class Amogus(interactions.Extension):
         if isinstance(_hash, int):
             _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
 
-        file = await make_gif(
-            user.user.username, impostor=impostor, image=_url
-        )
+        buf = await get_response(_url, session=self.client.session)
+
+        if not buf:
+            return await ctx.send("Failed to download avatar. Please try again later.", ephemeral=True)
+
+        fp = await asyncio.to_thread(make_gif, user.user.username, impostor, buf)
+        file = interactions.File(file=fp, file_name="amogus.gif")
         await ctx.send(file=file)
         from src.common.utils import send_promote
 
