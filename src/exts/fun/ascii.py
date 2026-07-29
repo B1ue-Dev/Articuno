@@ -6,6 +6,7 @@ Turn image into ASCII art.
 
 import logging
 import io
+import asyncio
 
 import interactions
 from interactions import Message
@@ -14,7 +15,6 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 import pyfiglet
-import aiohttp
 from PIL import Image, ImageDraw, ImageFont
 from src.common.ascii import (
     image_to_ascii,
@@ -22,6 +22,45 @@ from src.common.ascii import (
     base_font,
     sizeof as ascii_sizeof,
 )
+from src.common.utils import get_response
+
+
+def generate_ascii_image(img, size, sharpness, brightness, rgb_tuple, custom_font=None):
+    ascii_art_txt = image_to_ascii(img, size=(size, size), sharpness=sharpness, brightness=brightness)
+
+    if custom_font:
+        ascii_art_png = ascii_to_image(ascii_art_txt, custom_font, color=rgb_tuple)
+    else:
+        ascii_art_png = ascii_to_image(ascii_art_txt, color=rgb_tuple, font=base_font)
+
+    img_buffer = io.BytesIO()
+    ascii_art_png.save(img_buffer, "PNG")
+    img_buffer.seek(0)
+
+    return ascii_art_txt, img_buffer
+
+
+def generate_text_image(text: str, rgb_tuple: tuple) -> io.BytesIO:
+    ascii_text = pyfiglet.figlet_format(text, width=150)
+    i = Image.new("RGB", ascii_sizeof(ascii_text, base_font))
+    img = ImageDraw.Draw(i)
+    size = img.textbbox((0, 0), ascii_text, font=base_font)
+
+    text_width, text_height = (size[2] - size[0], size[3] - size[1])
+    imgs = Image.new("RGB", (int(text_width), int(text_height)))
+    ii = ImageDraw.Draw(imgs)
+
+    ii.text(
+        (0, 0),
+        ascii_text,
+        fill=rgb_tuple,
+        font=base_font,
+    )
+
+    final = io.BytesIO()
+    imgs.save(final, "png")
+    final.seek(0)
+    return final
 
 
 class ASCII(interactions.Extension):
@@ -115,27 +154,19 @@ class ASCII(interactions.Extension):
             )
 
         url = user.user.avatar.url
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                image_bytes = io.BytesIO(await resp.read())
-                img = Image.open(image_bytes)
+        buf = await get_response(url, session=self.client.session)
+        img = await asyncio.to_thread(Image.open, buf)
 
         font_stream = None
         if font:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(font.url) as response:
-                    if response.status == 200:
-                        font_data = await response.read()
-                        font_stream = io.BytesIO(font_data)
-                    else:
-                        return await ctx.send(
-                            "Failed to get the font.", ephemeral=True
-                        )
+            async with self.client.session.get(font.url) as response:
+                if response.status == 200:
+                    font_stream = io.BytesIO(await response.read())
+                else:
+                    return await ctx.send("Failed to get the font.", ephemeral=True)
 
-        ascii_art_txt = image_to_ascii(
-            img, size=(size, size), sharpness=sharpness, brightness=brightness
-        )
         rgb_tuple = tuple(map(int, color.split(",")))
+        custom_font = None
         if font and font_stream:
             try:
                 custom_font = ImageFont.truetype(font_stream, font_size)
@@ -144,13 +175,16 @@ class ASCII(interactions.Extension):
                     "This doesn't seem to be a valid font size. Please try again.",
                     ephemeral=True,
                 )
-            ascii_art_png = ascii_to_image(
-                ascii_art_txt, custom_font, color=rgb_tuple
-            )
-        else:
-            ascii_art_png = ascii_to_image(
-                ascii_art_txt, color=rgb_tuple, font=base_font
-            )
+
+        ascii_art_txt, img_buffer = await asyncio.to_thread(
+            generate_ascii_image,
+            img,
+            size,
+            sharpness,
+            brightness,
+            rgb_tuple,
+            custom_font
+        )
 
         send_file = []
 
@@ -164,10 +198,6 @@ class ASCII(interactions.Extension):
                 file_name="ascii.txt", file=text_bytes
             )
             send_file.append(txt_file)
-
-        img_buffer = io.BytesIO()
-        ascii_art_png.save(img_buffer, "PNG")
-        img_buffer.seek(0)
         img_file = interactions.File(file_name="image.png", file=img_buffer)
         send_file.append(img_file)
 
@@ -210,23 +240,10 @@ class ASCII(interactions.Extension):
         """Turn texts into ASCII art word."""
 
         await ctx.defer()
+        rgb_tuple = tuple(map(int, color.split(",")))
 
-        ascii_text = pyfiglet.figlet_format(text, width=150)
-        i = Image.new("RGB", ascii_sizeof(ascii_text, base_font))
-        img = ImageDraw.Draw(i)
-        size = img.textbbox((0, 0), ascii_text, font=base_font)
-        text_width, text_height = (size[2] - size[0], size[3] - size[1])
-        imgs = Image.new("RGB", (int(text_width), int(text_height)))
-        ii = ImageDraw.Draw(imgs)
-        ii.text(
-            (0, 0),
-            ascii_text,
-            fill=tuple(map(int, color.split(","))),
-            font=base_font,
-        )
-        final = io.BytesIO()
-        imgs.save(final, "png")
-        final.seek(0)
+        final = await asyncio.to_thread(generate_text_image, text, rgb_tuple)
+
         file = interactions.File(file=final, file_name="unknown.png")
         await ctx.send(file=file)
 
