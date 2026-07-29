@@ -59,9 +59,9 @@ class Urban(interactions.Extension):
         await ctx.defer()
         url = "https://api.urbandictionary.com/v0/define"
         params = {"term": term}
-        resp: dict = await get_response(url, params=params)
+        resp: dict = await get_response(url, session=self.client.session, params=params)
 
-        if len(resp["list"]) == 0:
+        if not resp or len(resp.get("list", [])) == 0:
             embed = interactions.Embed(
                 description="No results found.",
             )
@@ -69,42 +69,47 @@ class Urban(interactions.Extension):
 
         ran = 0
         page = int(len(resp["list"]) - 1)
-        definition = resp["list"][ran]["definition"]
-        if len(definition) > 700:
-            definition = definition[:690] + "..."
-        definition = definition.replace("[", "")
-        definition = definition.replace("]", "")
-        example = resp["list"][ran]["example"]
-        if len(example) > 700:
-            example = example[:330] + "..."
-        example = example.replace("[", "")
-        example = example.replace("]", "")
 
-        footer = interactions.EmbedFooter(
-            text="".join(
-                [
-                    f"👍 {resp['list'][ran]['thumbs_up']} • ",
-                    f"👎 {resp['list'][ran]['thumbs_down']} • ",
-                    f"Page {ran}/{page}",
-                ]
-            ),
-            icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
-        )
-        embed = interactions.Embed(
-            title=f"{resp['list'][ran]['word']}", footer=footer
-        )
-        embed.add_field(
-            name="Definition",
-            value=definition if len(definition) != 0 else "N/A",
-            inline=True,
-        )
-        embed.add_field(
-            name="Example",
-            value=example if len(example) != 0 else "N/A",
-            inline=True,
-        )
 
-        msg = await ctx.send(embeds=embed, components=buttons)
+        def build_embed(index: int) -> interactions.Embed:
+            definition = resp["list"][index]["definition"]
+            if len(definition) > 700:
+                definition = definition[:690] + "..."
+            definition = definition.replace("[", "")
+            definition = definition.replace("]", "")
+            example = resp["list"][index]["example"]
+            if len(example) > 700:
+                example = example[:330] + "..."
+            example = example.replace("[", "")
+            example = example.replace("]", "")
+
+            footer = interactions.EmbedFooter(
+                text="".join(
+                    [
+                        f"👍 {resp['list'][index]['thumbs_up']} • ",
+                        f"👎 {resp['list'][index]['thumbs_down']} • ",
+                        f"Page {index + 1}/{page + 1}",
+                    ]
+                ),
+                icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
+            )
+            embed = interactions.Embed(
+                title=f"{resp['list'][index]['word']}", footer=footer
+            )
+            embed.add_field(
+                name="Definition",
+                value=definition if len(definition) != 0 else "N/A",
+                inline=True,
+            )
+            embed.add_field(
+                name="Example",
+                value=example if len(example) != 0 else "N/A",
+                inline=True,
+            )
+
+            return embed
+
+        msg = await ctx.send(embeds=build_embed(ran), components=buttons)
         while True:
             try:
 
@@ -118,90 +123,12 @@ class Urban(interactions.Extension):
                     timeout=15,
                 )
                 if res.ctx.custom_id == "previous":
-                    if ran == 0:
-                        ran = 0
-                    else:
-                        ran -= 1
-
-                    definition = resp["list"][ran]["definition"]
-                    if len(definition) > 700:
-                        definition = definition[:690] + "..."
-                    definition = definition.replace("[", "")
-                    definition = definition.replace("]", "")
-                    example = resp["list"][ran]["example"]
-                    if len(example) > 700:
-                        example = example[:330] + "..."
-                    example = example.replace("[", "")
-                    example = example.replace("]", "")
-
-                    footer = interactions.EmbedFooter(
-                        text="".join(
-                            [
-                                f"👍 {resp['list'][ran]['thumbs_up']} • ",
-                                f"👎 {resp['list'][ran]['thumbs_down']} • ",
-                                f"Page {ran}/{page}",
-                            ]
-                        ),
-                        icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
-                    )
-                    embed = interactions.Embed(
-                        title=f"{resp['list'][ran]['word']}", footer=footer
-                    )
-                    embed.add_field(
-                        name="Definition",
-                        value=definition if len(definition) != 0 else "N/A",
-                        inline=True,
-                    )
-                    embed.add_field(
-                        name="Example",
-                        value=example if len(example) != 0 else "N/A",
-                        inline=True,
-                    )
-
-                    msg = await res.ctx.edit_origin(embeds=embed)
+                    ran = max(0, ran - 1)
+                    msg = await res.ctx.edit_origin(embeds=build_embed(ran))
 
                 elif res.ctx.custom_id == "next":
-                    if ran == page:
-                        ran = page
-                    else:
-                        ran += 1
-
-                    definition = resp["list"][ran]["definition"]
-                    if len(definition) > 700:
-                        definition = definition[:690] + "..."
-                    definition = definition.replace("[", "")
-                    definition = definition.replace("]", "")
-                    example = resp["list"][ran]["example"]
-                    if len(example) > 700:
-                        example = example[:330] + "..."
-                    example = example.replace("[", "")
-                    example = example.replace("]", "")
-
-                    footer = interactions.EmbedFooter(
-                        text="".join(
-                            [
-                                f"👍 {resp['list'][ran]['thumbs_up']} • ",
-                                f"👎 {resp['list'][ran]['thumbs_down']} • ",
-                                f"Page {ran}/{page}",
-                            ]
-                        ),
-                        icon_url="https://media.discordapp.net/attachments/1054042920203866152/1085875672620220516/urban-dictionary.png",
-                    )
-                    embed = interactions.Embed(
-                        title=f"{resp['list'][ran]['word']}", footer=footer
-                    )
-                    embed.add_field(
-                        name="Definition",
-                        value=definition if len(definition) != 0 else "N/A",
-                        inline=True,
-                    )
-                    embed.add_field(
-                        name="Example",
-                        value=example if len(example) != 0 else "N/A",
-                        inline=True,
-                    )
-
-                    msg = await res.ctx.edit_origin(embeds=embed)
+                    ran = min(page, ran + 1)
+                    msg = await res.ctx.edit_origin(embeds=build_embed(ran))
 
                 elif res.ctx.custom_id == "stop":
                     await res.ctx.edit_origin(components=[])
