@@ -209,17 +209,16 @@ class Fun(interactions.Extension):
     async def dictionary(self, ctx: HybridContext, word: str) -> None:
         """Defines a word."""
 
-        url = "https://some-random-api.com/dictionary"
-        params = {"word": word}
-        resp: dict = await get_response(url, params=params)
+        url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
+        resp: dict = await get_response(url, session=self.client.session)
 
-        if resp is None:
+        if not resp or resp[0].get("title", None):
             return await ctx.send(
                 "No word found. Please try again.", ephemeral=True
             )
 
-        term = resp["word"]
-        definition = resp["definition"]
+        term = resp[0]["word"]
+        definition = resp[0]["meanings"][0]["definitions"][0]["definition"]
         if len(definition) > 4096:
             definition = definition[:4000] + "..."
         embed = interactions.Embed(
