@@ -64,74 +64,33 @@ class TruthDare(interactions.Extension):
     async def _truth(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /truth."""
 
-        url: str = self.base_url + ctx.custom_id
-        resp: dict = await get_response(url=url, params={"rating": "PG"})
-        _question: str = resp["question"]
-        _id: str = resp["id"]
-
-        embed = interactions.Embed(
-            description=f"```\n{_question}\n```",
-            color=0x2D7D46,
-            author=interactions.EmbedAuthor(
-                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
-                icon_url=ctx.user.avatar.url,
-            ),
-            footer=interactions.EmbedFooter(
-                text=f"Type: TRUTH  •  ID: {_id}  •  Rating: PG"
-            ),
-        )
-        await ctx.send(embeds=embed, components=_buttons())
+        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Truth")
 
     @interactions.component_callback("/dare")
     async def _dare(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /dare."""
 
-        url: str = self.base_url + ctx.custom_id
-        resp: dict = await get_response(url=url, params={"rating": "PG"})
-        _question: str = resp["question"]
-        _id: str = resp["id"]
-
-        embed = interactions.Embed(
-            description=f"```\n{_question}\n```",
-            color=0xD83C3E,
-            author=interactions.EmbedAuthor(
-                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
-                icon_url=ctx.user.avatar.url,
-            ),
-            footer=interactions.EmbedFooter(
-                text=f"Type: DARE  •  ID: {_id}  •  Rating: PG"
-            ),
-        )
-        await ctx.send(embeds=embed, components=_buttons())
+        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Dare")
 
     @interactions.component_callback("/wyr")
     async def _wyr(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /wyr."""
 
-        url: str = self.base_url + ctx.custom_id
-        resp: dict = await get_response(url=url, params={"rating": "PG"})
-        _question: str = resp["question"]
-        _id: str = resp["id"]
-
-        embed = interactions.Embed(
-            description=f"```\n{_question}\n```",
-            color=0x5865F2,
-            author=interactions.EmbedAuthor(
-                name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
-                icon_url=ctx.user.avatar.url,
-            ),
-            footer=interactions.EmbedFooter(
-                text=f"Type: Would you rather...  •  ID: {_id}  •  Rating: PG"
-            ),
-        )
-        await ctx.send(embeds=embed, components=_buttons())
+        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Would you rather")
 
     @interactions.component_callback("/paranoia")
     async def _paranoia(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /paranoia."""
 
-        url: str = self.base_url + ctx.custom_id
-        resp: dict = await get_response(url=url, params={"rating": "PG"})
+        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Paranoia")
+
+
+    async def send_message(self, url: str, ctx: interactions.ComponentContext, type_text: str) -> None:
+        """Send message handler."""
+
+        resp: dict = await get_response(url, session=self.client.session, params={"rating": "PG"})
+        if not resp:
+            return await ctx.send("Unavailable at the moment. Please try again later", ephemeral=True)
         _question: str = resp["question"]
         _id: str = resp["id"]
 
@@ -143,7 +102,7 @@ class TruthDare(interactions.Extension):
                 icon_url=ctx.user.avatar.url,
             ),
             footer=interactions.EmbedFooter(
-                text=f"Type: Paranoia  •  ID: {_id}  •  Rating: PG"
+                text=f"Type: {type_text}  •  ID: {_id}  •  Rating: PG"
             ),
         )
         await ctx.send(embeds=embed, components=_buttons())
