@@ -153,8 +153,7 @@ class ASCII(interactions.Extension):
                 ephemeral=True,
             )
 
-        url = user.user.avatar.url
-        buf = await get_response(url, session=self.client.session)
+        buf = await get_response(user.display_avatar.url, session=self.client.session)
         img = await asyncio.to_thread(Image.open, buf)
 
         font_stream = None
