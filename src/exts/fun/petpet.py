@@ -5,6 +5,7 @@ Petpet command.
 """
 
 import logging
+import asyncio
 from io import BytesIO
 from PIL import Image
 import interactions
@@ -13,6 +14,61 @@ from interactions.ext.hybrid_commands import (
     HybridContext,
 )
 from src.common.utils import get_response
+
+
+def generate_pet_gif(buf) -> BytesIO:
+
+    member_avatar = Image.open(buf).convert("RGBA")
+    member_avatar = member_avatar.resize(
+        (75, 75), Image.Resampling.LANCZOS
+    )
+    # base canvas
+    sprite = Image.open("./src/assets/sprite.png", mode="r").convert(
+        "RGBA"
+    )
+
+    # pasting the pfp
+    images = []
+    resolution = (100, 100)
+    for i in range(5):
+        squeeze = i if i < 5 / 2 else 5 - i
+        width = 0.8 + squeeze * 0.02
+        height = 0.8 - squeeze * 0.05
+        offsetX = (1 - width) * 0.5 + 0.1
+        offsetY = (1 - height) - 0.08
+        im = Image.new("RGBA", (100, 100), None)
+        im.paste(
+            member_avatar.resize(
+                (
+                    round(width * resolution[0]),
+                    round(height * resolution[1]),
+                )
+            ),
+            (
+                round(offsetX * resolution[0]),
+                round(offsetY * resolution[1]),
+            ),
+        )
+        im.paste(sprite, (0 - (112 * i), 0), sprite)
+        images.append(im)
+    sprite.close()
+    member_avatar.close()
+
+    fp = BytesIO()
+    images[0].save(
+        fp,
+        "GIF",
+        save_all=True,
+        append_images=images[1:],
+        loop=0,
+        disposal=2,
+    )
+    fp.seek(0)
+    for im in images:
+        im.close()
+
+    return fp
+
 
 
 class Petpet(interactions.Extension):
@@ -38,74 +94,12 @@ class Petpet(interactions.Extension):
 
         await ctx.defer()
 
-        _hash: str | int = None
-        _url = None
-        if isinstance(user, interactions.User):
-            if user.avatar is not None:
-                _url = user.avatar.url
-            else:
-                _hash = (user.id << 22) % 6
-        elif isinstance(user, interactions.Member):
-            if user.guild_avatar is not None:
-                _url = user.guild_avatar.url
-            elif user.avatar is not None:
-                _url = user.avatar.url
-            elif user.user.avatar is not None:
-                _url = user.user.avatar.url
-            else:
-                _hash = (user.id << 22) % 6
+        buf = await get_response(user.display_avatar.url, self.client.session)
 
-        if isinstance(_hash, int):
-            _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
+        if not buf:
+            return await ctx.send("Failed to download avatar. Please try again later.", ephemeral=True)
 
-        member_avatar = Image.open(await get_response(_url)).convert("RGBA")
-        member_avatar = member_avatar.resize(
-            (75, 75), Image.Resampling.LANCZOS
-        )
-        # base canvas
-        sprite = Image.open("./src/assets/sprite.png", mode="r").convert(
-            "RGBA"
-        )
-
-        # pasting the pfp
-        images = []
-        resolution = (100, 100)
-        for i in range(5):
-            squeeze = i if i < 5 / 2 else 5 - i
-            width = 0.8 + squeeze * 0.02
-            height = 0.8 - squeeze * 0.05
-            offsetX = (1 - width) * 0.5 + 0.1
-            offsetY = (1 - height) - 0.08
-            im = Image.new("RGBA", (100, 100), None)
-            im.paste(
-                member_avatar.resize(
-                    (
-                        round(width * resolution[0]),
-                        round(height * resolution[1]),
-                    )
-                ),
-                (
-                    round(offsetX * resolution[0]),
-                    round(offsetY * resolution[1]),
-                ),
-            )
-            im.paste(sprite, (0 - (112 * i), 0), sprite)
-            images.append(im)
-        sprite.close()
-        member_avatar.close()
-
-        fp = BytesIO()
-        images[0].save(
-            fp,
-            "GIF",
-            save_all=True,
-            append_images=images[1:],
-            loop=0,
-            disposal=2,
-        )
-        fp.seek(0)
-        for im in images:
-            im.close()
+        fp = await asyncio.to_thread(generate_pet_gif, buf)
         _file = interactions.File(file=fp, file_name="petpet.gif")
 
         if int(user.id) == int(self.client.user.id):
