@@ -88,7 +88,7 @@ class Google(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.google_icon: str = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png"
+        self.google_icon: str = "https://pngimg.com/uploads/google/google_PNG19645.png"
 
     @hybrid_slash_command(
         name="img",
@@ -135,31 +135,35 @@ class Google(interactions.Extension):
 
         all_result: "list[Image]" = []
         ran = int(0)
-        async with aiohttp.ClientSession() as session:
-            res = await fetch_images(session, query, 1)
-            for images in res:
-                all_result.append(images)
+        res = await fetch_images(self.client.session, query, 1)
+        for images in res:
+            all_result.append(images)
 
         try:
             ran: int = 0
-            all_res = all_result[ran]
+            max_page = len(all_result) - 1
 
-            embed = interactions.Embed(
-                title=f"Image for: {query}",
-                color=0x000000,
-            )
-            embed.set_footer(
-                text=f"Google Search • Page {ran + 1}/10",
-                icon_url=self.google_icon,
-            )
-            embed.add_field(
-                name=f"**{all_res.source}**",
-                value=f"[{all_res.title}]({all_res.contextlink})",
-                inline=False,
-            )
-            embed.set_image(url=all_res.link)
+            def build_embed(index: int) -> interactions.Embed:
 
-            msg = await ctx.send(embeds=embed, components=buttons)
+                image_data = all_result[index]
+                embed = interactions.Embed(
+                    title=f"Image for: {query}",
+                    color=0x000000,
+                )
+                embed.set_footer(
+                    text=f"Google Search • Page {index + 1}/{max_page + 1}",
+                    icon_url=self.google_icon,
+                )
+                embed.add_field(
+                    name=f"**{image_data.source}**",
+                    value=f"[{image_data.title}]({image_data.contextlink})",
+                    inline=False,
+                )
+                embed.set_image(url=image_data.link)
+
+                return embed
+
+            msg = await ctx.send(embeds=build_embed(ran), components=buttons)
 
             while True:
                 try:
@@ -177,43 +181,20 @@ class Google(interactions.Extension):
                     )
 
                     if res.ctx.custom_id == "next":
-                        if ran == 9:
-                            ran = ran
-                        else:
-                            ran += 1
-                        all_res = all_result[ran]
+                        ran = min(max_page, ran + 1)
 
                     elif res.ctx.custom_id == "previous":
-                        if ran == 0:
-                            ran = 0
-                        else:
-                            ran -= 1
-                        all_res = all_result[ran]
+                        ran = max(0, ran - 1)
 
                     elif res.ctx.custom_id == "random":
-                        ran = random.randint(0, 9)
-                        all_res = all_result[ran]
+                        ran = random.randint(0, max_page)
 
                     elif res.ctx.custom_id == "stop":
                         await res.ctx.edit_origin(components=[])
                         break
 
-                    embed = interactions.Embed(
-                        title=f"Image for: {query}",
-                        color=0x000000,
-                    )
-                    embed.set_footer(
-                        text=f"Google Search  •  Page {ran + 1}/10",
-                        icon_url=self.google_icon,
-                    )
-                    embed.add_field(
-                        name=f"**{all_res.source}**",
-                        value=f"[{all_res.title}]({all_res.contextlink})",
-                        inline=False,
-                    )
-                    embed.set_image(url=all_res.link)
                     msg = await res.ctx.edit_origin(
-                        embeds=embed, components=buttons
+                        embeds=build_embed(ran), components=buttons
                     )
 
                 except asyncio.TimeoutError:
