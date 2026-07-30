@@ -364,7 +364,7 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        msg: interactions.Message = None
+        msg: dict | None  = None
         try:
             msg = await self.client.http.get_message(channel_id, message_id)
         except interactions.errors.HTTPException:

@@ -180,7 +180,7 @@ class Emoji(interactions.Extension):
         # If string only contains the emoji name.
         elif emote.id is None and emote.name is not None:
             emojis = await ctx.guild.fetch_all_custom_emojis()
-            _emoji: interactions.CustomEmoji = None
+            _emoji: interactions.CustomEmoji | None = None
 
             for e in emojis:
                 if e.name == emoji:
@@ -224,7 +224,7 @@ class Emoji(interactions.Extension):
         # If string only contains the emoji ID.
         elif emote.id is not None and emote.name is None:
             emojis = await ctx.guild.fetch_all_custom_emojis()
-            _emoji: interactions.CustomEmoji = None
+            _emoji: interactions.CustomEmoji | None = None
 
             for e in emojis:
                 if str(e.id) == str(emoji):

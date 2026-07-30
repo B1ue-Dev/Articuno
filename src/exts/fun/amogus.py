@@ -150,12 +150,12 @@ class Amogus(interactions.Extension):
         self,
         ctx: HybridContext,
         user: interactions.Member,
-        impostor: int = None,
+        impostor: int | None = None,
     ) -> None:
         """Amogus."""
 
         await ctx.defer()
-        if not impostor:
+        if impostor is None:
             impostor = bool(random.randint(0, 1))
         else:
             impostor = bool(impostor)
