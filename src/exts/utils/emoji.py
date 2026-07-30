@@ -96,17 +96,6 @@ class Emote:
             ".gif" if self.animated else ".png"
         )
 
-    @property
-    async def raw(self) -> bytes:
-        """Return the bytes type of the emoji."""
-
-        _io = 0
-        async with aiohttp.ClientSession() as session:
-            async with session.get(self.url) as resp:
-                _io = (io.BytesIO(await resp.read())).read()
-
-        return _io
-
 
 class Emoji(interactions.Extension):
     """Extension for /emoji command."""
