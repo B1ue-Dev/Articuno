@@ -225,6 +225,20 @@ async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
     global random_easy_number
     global random_hard_number
 
+    if cmd_type == "easy":
+        if random_easy_number != 0:
+            random_easy_number -= 1
+            return
+        else:
+            random_easy_number = random.randint(50, 90)
+
+    elif cmd_type == "hard":
+        if random_hard_number != 0:
+            random_hard_number -= 1
+            return
+        else:
+            random_hard_number = random.randint(100, 250)
+
     topgg_button = interactions.Button(
         style=interactions.ButtonStyle.URL,
         label="Vote for Articuno",
@@ -243,23 +257,8 @@ async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
         "-# This message will be deleted in 10 seconds.",
     )
 
-    if cmd_type == "easy":
-        if random_easy_number != 0:
-            random_easy_number -= 1
-        else:
-            random_easy_number = random.randint(50, 90)
-            await asyncio.sleep(10)
-            try:
-                await msg.delete()
-            except interactions.errors.NotFound:
-                pass
-    elif cmd_type == "hard":
-        if random_hard_number != 0:
-            random_hard_number -= 1
-        else:
-            random_hard_number = random.randint(100, 250)
-            await asyncio.sleep(10)
-            try:
-                await msg.delete()
-            except interactions.errors.NotFound:
-                pass
+    await asyncio.sleep(10)
+    try:
+        await msg.delete()
+    except Exception:
+        pass
