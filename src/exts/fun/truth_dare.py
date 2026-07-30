@@ -95,7 +95,7 @@ class TruthDare(interactions.Extension):
         _id: str = resp["id"]
 
         embed = interactions.Embed(
-            description=f"```\n{_question}\n```",
+            description=f"## {_question}",
             color=0x4F545C,
             author=interactions.EmbedAuthor(
                 name=f"Requested by {handle_username(ctx.user.username, ctx.user.discriminator)}",
