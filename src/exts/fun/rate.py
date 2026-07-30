@@ -4,16 +4,68 @@ Rate related commands.
 (C) 2022-2026 - B1ue-Dev
 """
 
+import asyncio
 import logging
 import re
 import random
 import time
+from io import BytesIO
+from PIL import Image
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
 from src.common.utils import get_response
+
+
+def lerp_color(color1, color2, factor):
+
+    return tuple(int(c1 + (c2 - c1) * factor) for c1, c2 in zip(color1, color2))
+
+
+def overlay_gay(buf) -> BytesIO:
+
+    img = Image.open(buf).convert("RGBA")
+    w, h = img.size
+
+    colors = [
+        (228, 3, 3),    # Red
+        (255, 140, 0),  # Orange
+        (255, 237, 0),  # Yellow
+        (0, 128, 38),   # Green
+        (0, 76, 255),   # Blue
+        (115, 41, 130)  # Violet
+    ]
+
+    gradient_1d = Image.new("RGBA", (1, h))
+    pixels = gradient_1d.load()
+
+    alpha_value = int(255 * 0.35)
+    num_segments = len(colors) - 1
+
+    for y in range(h):
+        relative_y = y / (h - 1) if h > 1 else 0
+
+        segment = relative_y * num_segments
+        index = int(segment)
+
+        if index >= num_segments:
+            current_color = colors[-1]
+        else:
+            local_factor = segment - index
+            current_color = lerp_color(colors[index], colors[index + 1], local_factor)
+
+        pixels[0, y] = current_color + (alpha_value, )
+
+    gradient_overlay = gradient_1d.resize((w, h))
+    final_img = Image.alpha_composite(img, gradient_overlay)
+
+    fp = BytesIO()
+    final_img.convert("RGB").save(fp, format="PNG")
+    fp.seek(0)
+
+    return fp
 
 
 def get_user_id(string: str) -> str | None:
