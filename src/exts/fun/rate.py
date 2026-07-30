@@ -54,37 +54,9 @@ class Rate(interactions.Extension):
             _user = get_user_id(user)
             if _user:
                 random.seed(str(_user) + str(int(time.time() / 300)))
+
+        img: interactions.File | None  = None
         perc: int = random.choice(range(0, 100))
-
-        if perc > 80:
-            _user = get_user_id(user)
-            if _user:
-                user = ctx.guild.get_member(_user)
-                url: str = "https://api.some-random-api.com/canvas/overlay/gay"
-                params: dict = {
-                    "avatar": (
-                        user.avatar.url
-                        if user.guild_avatar is None
-                        else user.guild_avatar.url
-                    ),
-                }
-                resp: dict = await get_response(url, params)
-
-                img = interactions.File(
-                    file_name="image.png",
-                    file=resp,
-                )
-
-                embed = interactions.Embed(
-                    title="Gay measure tool",
-                    description=f"**{user}** is {perc}% gay today.",
-                    color=random.randint(0, 0xFFFFFF),
-                )
-
-                await ctx.send(embeds=embed, file=img)
-                from src.common.utils import send_promote
-
-                await send_promote(ctx, "easy")
 
         embed = interactions.Embed(
             title="Gay measure tool",
@@ -92,7 +64,25 @@ class Rate(interactions.Extension):
             color=random.randint(0, 0xFFFFFF),
         )
 
-        await ctx.send(embeds=embed)
+        if perc > 80:
+            _user = get_user_id(user)
+            if _user:
+                await ctx.defer()
+                try:
+                    user = ctx.guild.get_member(_user)
+                except:
+                    user = await ctx.client.fetch_user(_user)
+
+                user_avatar = await get_response(user.display_avatar.url, self.client.session)
+                res = await asyncio.to_thread(overlay_gay, user_avatar)
+
+                img = interactions.File(
+                    file_name="image.png",
+                    file=res,
+                )
+        if img:
+            embed.set_image("attachment://image.png")
+        await ctx.send(embeds=embed, file=img)
 
         from src.common.utils import send_promote
 
