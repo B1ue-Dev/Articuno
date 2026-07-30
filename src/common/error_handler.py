@@ -51,13 +51,14 @@ async def handle_error(
     traceb = traceb.replace("\\", "/")
 
     logging.error(traceb)
+    cmd_called = f"{ctx.invoke_target} with {ctx.args = } | {ctx.kwargs = }"
 
     traceb_desc = "".join(
         [
             "```\n",
             f"{traceb[-3000:]}\n",
             "```\n",
-            f"**Command Called**\n```\n/{ctx.invoke_target} with {ctx.args = } | {ctx.kwargs = }\n```\n",
+            f"**Command Called**\n```\n/{cmd_called[:1000]}...\n```\n",
         ]
     )
 
