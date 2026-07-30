@@ -33,7 +33,7 @@ class Fun(interactions.Extension):
         """Sends an image of coffee."""
 
         url = "https://coffee.alexflipnote.dev/random.json"
-        resp: dict = await get_response(url)
+        resp: dict = await get_response(url, self.client.session)
         file = resp["file"]
 
         image = interactions.EmbedAttachment(url=file)
@@ -80,7 +80,7 @@ class Fun(interactions.Extension):
         params = {
             "blacklistFlags": "nsfw,religious,political,racist,sexist,explicit"
         }
-        resp: dict = await get_response(url, params=params)
+        resp: dict = await get_response(url, session=self.client.session, params=params)
         if resp.get("joke"):
             embed = interactions.Embed(
                 description=resp["joke"],
@@ -106,7 +106,7 @@ class Fun(interactions.Extension):
             "User-Agent": "Articuno (https://github.com/B1ue-Dev/Articuno)",
             "Accept": "application/json",
         }
-        resp: dict = await get_response(url=url, headers=headers)
+        resp: dict = await get_response(url=url, session=self.client.session, headers=headers)
 
         embed = interactions.Embed(
             description=resp["joke"],
@@ -123,7 +123,7 @@ class Fun(interactions.Extension):
         """Sends a quote."""
 
         url = "https://api.quotable.io/random"
-        resp: dict = await get_response(url)
+        resp: dict = await get_response(url, session=self.client.session)
         author = resp["author"]
         content = resp["content"]
         dateAdded = resp["dateAdded"]
@@ -157,13 +157,13 @@ class Fun(interactions.Extension):
 
         await ctx.defer()
         url = "https://xkcd.com/info.0.json"
-        resp: dict = await get_response(url)
+        resp: dict = await get_response(url, session=self.client.session)
         newest = resp["num"]
         if not page:
             page = random.randint(1, newest)
         url = "https://xkcd.com/{page}/info.0.json"
-        resp: dict = await get_response(url.format(page=page))
-        if resp is None:
+        resp: dict = await get_response(url.format(page=page), session=self.client.session)
+        if not resp:
             return await ctx.send(
                 "Invalid page. Please try again.", ephemeral=True
             )
@@ -251,7 +251,7 @@ class Fun(interactions.Extension):
         url = "https://api.some-random-api.com/chatbot"
         params = {"message": f"{re.sub(r'[^\w\s]', '', message)}"}
         resp: dict = await get_response(
-            url, params=params, headers={"Authorization": SOME_RANDOM_API}
+            url, session=self.client.session, params=params, headers={"Authorization": SOME_RANDOM_API}
         )
 
         if resp:

@@ -30,7 +30,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def jail(
         self,
@@ -50,7 +49,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -71,7 +70,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def tonikawa(
         self,
@@ -91,7 +89,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -113,7 +111,6 @@ class Misc(interactions.Extension):
                 max_length=100,
             ),
         ],
-        dm_permission=False,
     )
     async def oogway(
         self,
@@ -128,7 +125,7 @@ class Misc(interactions.Extension):
         url: str = "https://api.some-random-api.com/canvas/misc/oogway"
         params: dict = {"quote": str(quote)}
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -157,7 +154,6 @@ class Misc(interactions.Extension):
                 max_length=12,
             ),
         ],
-        dm_permission=False,
     )
     async def nobitches(
         self,
@@ -174,7 +170,7 @@ class Misc(interactions.Extension):
         if bottom_text:
             params["bottomtext"] = bottom_text.lower()
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -195,7 +191,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def trigger(
         self,
@@ -215,7 +210,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -236,7 +231,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def wasted(
         self,
@@ -256,7 +250,7 @@ class Misc(interactions.Extension):
             ),
         }
 
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -283,7 +277,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def tweet(
         self,
@@ -318,7 +311,7 @@ class Misc(interactions.Extension):
             "comment": comment,
             "theme": "dark",
         }
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,
@@ -345,7 +338,6 @@ class Misc(interactions.Extension):
                 required=True,
             ),
         ],
-        dm_permission=False,
     )
     async def youtube(
         self,
@@ -371,7 +363,7 @@ class Misc(interactions.Extension):
             "username": username,
             "comment": comment,
         }
-        resp: dict = await get_response(url, params)
+        resp: dict = await get_response(url, self.client.session, params)
         img = interactions.File(
             file_name="image.png",
             file=resp,

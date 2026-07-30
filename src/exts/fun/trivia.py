@@ -32,7 +32,7 @@ class Trivia(interactions.Extension):
         }
         if category:
             params["category"] = category
-        resp = await get_response(url=url, params=params)
+        resp = await get_response(url=url, session=self.client.session, params=params)
 
         return resp
 

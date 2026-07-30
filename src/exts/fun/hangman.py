@@ -9,6 +9,7 @@ import asyncio
 from datetime import datetime
 from typing import List
 from unicodedata import normalize
+from aiohttp import ClientSession
 from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
@@ -95,11 +96,12 @@ def display_hangman(tries):
     return stages[tries]
 
 
-async def get_word() -> str:
+async def get_word(session: ClientSession) -> str:
     """Get a word from the API."""
 
     resp: dict = await get_response(
-        url="https://random-words-api-b1uedev.vercel.app/word"
+        url="https://random-words-api-b1uedev.vercel.app/word",
+        session=session,
     )
     try:
         logging.info(f"Got word: {resp[0]['word']} - {resp[0]['definition']}")
@@ -126,7 +128,7 @@ class Hman(interactions.Extension):
 
         await ctx.defer()
 
-        resp: dict = await get_word()
+        resp: dict = await get_word(self.client.session)
         correct_word: str = normalize(
             "NFKD", resp[0].encode("ASCII", "ignore").decode("ASCII")
         ).lower()
@@ -303,7 +305,6 @@ class Hman(interactions.Extension):
                                 gained_point: int = (10 + tries) * (
                                     2 if tries > 3 else 1
                                 )
-                                print(gained_point)
 
                                 user_data = await hangman_saves.get(
                                     PydanticObjectId(
@@ -427,7 +428,6 @@ class Hman(interactions.Extension):
                             gained_point: int = (10 + tries) * (
                                 2 if tries > 3 else 1
                             )
-                            print(gained_point)
 
                             user_data = await hangman_saves.get(
                                 PydanticObjectId(
