@@ -5,51 +5,51 @@ Hug command.
 """
 
 import logging
+import asyncio
 import io
 import interactions
 from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
     HybridContext,
 )
-import aiohttp
 from PIL import Image, ImageDraw, ImageOps
 
+from src.common.utils import get_response
 
-async def fixed_icon(user_id: str, user_avatar: str):
-    """
-    Return Image object from an icon link.
 
-    :param user_id: The user ID.
-    :type user_id: str
-    :param user_avatar: The user icon hash.
-    :type user_avatar: str
-    :return: Image object.
-    :rtype: Image
-    """
-    user_avatar = f"https://cdn.discordapp.com/avatars/{str(user_id)}/{str(user_avatar)}.png"
+def make_hug_image(buf_user, buf_author):
 
-    async with aiohttp.ClientSession() as session:
-        async with session.get(user_avatar) as _resp:
-            if _resp.status == 200:
-                _icon = Image.open(
-                    io.BytesIO(await _resp.content.read())
-                ).resize((102, 102))
+    _user_icon = Image.open(buf_user).convert("RGBA").resize((102, 102))
+    _mask_user = Image.new("L", _user_icon.size, 0)
+    _draw_user = ImageDraw.Draw(_mask_user)
+    _draw_user.ellipse((0, 0) + _user_icon.size, fill=255)
+    _user_icon = ImageOps.fit(_user_icon, _mask_user.size, centering=(0, 0))
+    _user_icon.putalpha(_mask_user)
+    _user_bg = Image.new("RGBA", _user_icon.size, (255, 255, 255))
+    _user_icon = Image.alpha_composite(_user_bg, _user_icon)
 
-                await session.close()
+    _author_icon = Image.open(buf_author).convert("RGBA").resize((102, 102))
+    _mask_author = Image.new("L", _author_icon.size, 0)
+    _draw_author = ImageDraw.Draw(_mask_author)
+    _draw_author.ellipse((0, 0) + _author_icon.size, fill=255)
+    _author_icon = ImageOps.fit(_author_icon, _mask_author.size, centering=(0, 0))
+    _author_icon.putalpha(_mask_author)
+    _author_bg = Image.new("RGBA", _author_icon.size, (255, 255, 255))
+    _author_icon = Image.alpha_composite(_author_bg, _author_icon)
 
-                _mask = Image.new("L", _icon.size, 0)
-                _draw = ImageDraw.Draw(_mask)
-                _draw.ellipse((0, 0) + _icon.size, fill=255)
+    mask = Image.new("L", _user_icon.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + _user_icon.size, fill=255)
 
-                _icon = ImageOps.fit(_icon, _mask.size, centering=(0, 0))
-                _icon.putalpha(_mask)
+    background = Image.open("./src/assets/hug.png")
+    background.paste(_author_icon, (190, 90), mask=mask)
+    background.paste(_user_icon, (285, 157), mask=mask)
 
-                _icon_background = Image.new(
-                    "RGBA", _icon.size, (255, 255, 255)
-                )
-                icon = Image.alpha_composite(_icon_background, _icon)
+    out = io.BytesIO()
+    background.save(out, format="PNG")
+    out.seek(0)
 
-                return icon
+    return out
 
 
 class Hug(interactions.Extension):
