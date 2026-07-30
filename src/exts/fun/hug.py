@@ -69,7 +69,6 @@ class Hug(interactions.Extension):
                 required=True,
             )
         ],
-        dm_permission=False,
     )
     async def hug(self, ctx: HybridContext, user: interactions.Member) -> None:
         """Hugs a user."""
@@ -77,33 +76,30 @@ class Hug(interactions.Extension):
         if int(ctx.user.id) == int(user.id):
             return await ctx.send("You cannot hug yourself.", ephemeral=True)
 
-        _user_icon = await fixed_icon(user.user.id, user.user.avatar.hash)
-        _author_icon = await fixed_icon(ctx.author.id, ctx.author.avatar.hash)
+        buf_user, buf_author = await asyncio.gather(
+            get_response(user.display_avatar.url, self.client.session),
+            get_response(ctx.author.display_avatar.url, self.client.session),
+        )
 
-        mask = Image.new("L", _user_icon.size, 0)
-        draw = ImageDraw.Draw(mask)
-        draw.ellipse((0, 0) + _user_icon.size, fill=255)
+        if not buf_user or not buf_author:
+            return await ctx.send("Failed to download avatars from Discord!", ephemeral=True)
 
-        background = Image.open("./src/assets/hug.png")
-        background.paste(_author_icon, (190, 90), mask=mask)
-        background.paste(_user_icon, (285, 157), mask=mask)
-        with io.BytesIO() as out:
-            background.save(out, format="PNG")
-            out.seek(0)
-            file = interactions.File(
-                file_name="image.png",
-                file=out,
-                description=f"{ctx.user.username} hugs {user.username}",
-            )
+        out = await asyncio.to_thread(make_hug_image, buf_user, buf_author)
 
-            await ctx.send(
-                content=(
-                    "Hey, thanks for the hug. ^_^"
-                    if int(user.id) == int(self.client.user.id)
-                    else None
-                ),
-                files=file,
-            )
+        file = interactions.File(
+            file_name="image.png",
+            file=out,
+            description=f"{ctx.user.username} hugs {user.username}",
+        )
+
+        await ctx.send(
+            content=(
+                "Hey, thanks for the hug. ^_^"
+                if int(user.id) == int(self.client.user.id)
+                else None
+            ),
+            files=file,
+        )
 
 
 def setup(client) -> None:
