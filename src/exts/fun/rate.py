@@ -126,6 +126,8 @@ class Rate(interactions.Extension):
                     user = await ctx.client.fetch_user(_user)
 
                 user_avatar = await get_response(user.display_avatar.url, self.client.session)
+                if not user_avatar:
+                    return await ctx.send(embed=embed)
                 res = await asyncio.to_thread(overlay_gay, user_avatar)
 
                 img = interactions.File(
@@ -134,7 +136,7 @@ class Rate(interactions.Extension):
                 )
         if img:
             embed.set_image("attachment://image.png")
-        await ctx.send(embeds=embed, file=img)
+        await ctx.send(embed=embed, file=img)
 
         from src.common.utils import send_promote
 

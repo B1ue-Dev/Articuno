@@ -145,7 +145,6 @@ class Amogus(interactions.Extension):
                 ],
             ),
         ],
-        dm_permission=False,
     )
     async def amogus(
         self,
@@ -156,37 +155,17 @@ class Amogus(interactions.Extension):
         """Amogus."""
 
         await ctx.defer()
-        if impostor is None:
+        if not impostor:
             impostor = bool(random.randint(0, 1))
         else:
             impostor = bool(impostor)
 
-        _hash: str | int = None
-        _url = None
-        if isinstance(user, interactions.User):
-            if user.avatar is not None:
-                _url = user.avatar.url
-            else:
-                _hash = (user.id << 22) % 6
-        elif isinstance(user, interactions.Member):
-            if user.guild_avatar is not None:
-                _url = user.guild_avatar.url
-            elif user.avatar is not None:
-                _url = user.avatar.url
-            elif user.user.avatar is not None:
-                _url = user.user.avatar.url
-            else:
-                _hash = (user.id << 22) % 6
-
-        if isinstance(_hash, int):
-            _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
-
-        buf = await get_response(_url, session=self.client.session)
+        buf = await get_response(user.display_avatar.url, session=self.client.session)
 
         if not buf:
             return await ctx.send("Failed to download avatar. Please try again later.", ephemeral=True)
 
-        fp = await asyncio.to_thread(make_gif, user.user.username, impostor, buf)
+        fp = await asyncio.to_thread(make_gif, user.display_name, impostor, buf)
         file = interactions.File(file=fp, file_name="amogus.gif")
         await ctx.send(file=file)
         from src.common.utils import send_promote
