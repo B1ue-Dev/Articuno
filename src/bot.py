@@ -42,11 +42,11 @@ class Init:
 
 
     @classmethod
-    async def get_latest_release_version(cls) -> str:
+    async def get_latest_release_version(cls, session: aiohttp.ClientSession) -> str:
         """Returns the latest version of Articuno on GitHub."""
 
         url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
-        response: dict = await get_response(url)
+        response: dict = await get_response(url, session)
         return response["tag_name"]
 
     @classmethod
@@ -155,11 +155,11 @@ async def on_startup() -> None:
             stats = await client.mongo_db.command("dbstats")
             size_in_mb = stats["dataSize"] / (1024 ** 2)
             logging.info(
-                f"Connected to MongoDB cluster.\n"
-                f"Database: {db_name}\n"
-                f"Collections: {stats['collections']}\n"
-                f"Objects: {stats['objects']}\n"
-                f"Data Size: {size_in_mb:.2f} MB"
+                f"""Connected to MongoDB cluster.
+                Database: {db_name}
+                Collections: {stats['collections']}
+                Objects: {stats['objects']}
+                Data Size: {size_in_mb:.2f} MB"""
             )
         except Exception as e:
             logging.warning(f"Failed to get MongoDB stats: {e}")
@@ -221,10 +221,12 @@ async def on_bot_mentions(_msg: interactions.events.MessageCreate) -> None:
 async def start() -> None:
     """Starts the bot."""
 
+    client.session = aiohttp.ClientSession()
+
     if debug_system is True:
         logging.warning("Debug mode for Articuno is enabled.")
     else:
-        latest_release_version = await Init.get_latest_release_version()
+        latest_release_version = await Init.get_latest_release_version(client.session)
         if (
             latest_release_version is not None
             and latest_release_version > VERSION
@@ -260,8 +262,6 @@ async def start() -> None:
         return
 
     try:
-        client.session = aiohttp.ClientSession()
-
         client.load_extension("src.common.jsk")
         client.load_extension("src.common.error_handler")
         client.load_extension("src.exts.core.__init__")
