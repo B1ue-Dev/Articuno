@@ -3,6 +3,7 @@
 # - https://github.com/redevined/brainfuck/blob/master/brainfuck.py
 
 import sys
+import asyncio
 
 
 def char_to_bf(char):
@@ -69,26 +70,30 @@ def precompute_jumps(program):
     return ret
 
 
-def interpret_bf(code):
+def interpret_bf(code, max_steps=1000000):
     buffer = [0]
     jump_map = precompute_jumps(code)
 
-    ptr = 0
-    pc = 0
+    ptr, pc, steps = 0, 0, 0
     result = ""
 
     while not pc == len(code):
+        steps += 1
+        if steps > max_steps:
+            raise TimeoutError("Exceeded step limit.")
         opcode = code[pc]
         if opcode == ">":
             ptr += 1
             if ptr == len(buffer):
                 buffer.append(0)
         elif opcode == "<":
+            if ptr == 0:
+                raise IndexError("Pointer moved below tape start")
             ptr -= 1
         elif opcode == "+":
-            buffer[ptr] += 1
+            buffer[ptr] = (buffer[ptr] + 1) % 256
         elif opcode == "-":
-            buffer[ptr] -= 1
+            buffer[ptr] = (buffer[ptr] - 1) % 256
         elif opcode == ".":
             result += chr(buffer[ptr])
         elif opcode == ",":
@@ -111,5 +116,10 @@ class Brainfuckery:
     def convert(self, string):
         return string_to_bf(string, False)
 
-    def interpret(self, code):
-        return interpret_bf(code)
+    async def interpret(self, code, max_steps=1000000):
+        try:
+            return await asyncio.to_thread(interpret_bf, code, max_steps)
+        except TimeoutError:
+            return "Exceeded step limit."
+        except IndexError as e:
+            return f"Error: {e}"
