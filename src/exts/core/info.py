@@ -372,7 +372,6 @@ class Info(interactions.Extension):
 
         guild_owner = await guild.fetch_owner()
 
-        icon: str = guild.icon.url
         boost: int = guild.premium_subscription_count
         members: int = guild.member_count
         channels: list[interactions.BaseChannel] = guild.channels
@@ -495,7 +494,6 @@ class Info(interactions.Extension):
                 inline=True,
             ),
         ]
-        thumbnail = interactions.EmbedAttachment(url=icon)
         footer = interactions.EmbedFooter(
             text=f"Requested by @{ctx.user.username}",
             icon_url=f"{ctx.author.user.avatar_url}",
@@ -504,9 +502,10 @@ class Info(interactions.Extension):
             title=f"{guild.name}",
             color=0x788CDC,
             footer=footer,
-            thumbnail=thumbnail,
             fields=fields,
         )
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
 
         components = []
 
