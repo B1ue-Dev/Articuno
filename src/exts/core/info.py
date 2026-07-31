@@ -103,7 +103,6 @@ class Info(interactions.Extension):
     @hybrid_slash_subcommand(
         base="info",
         base_description="For all information aspects.",
-        base_dm_permission=False,
         base_integration_types=[0, 1],
         name="user",
         description="Shows the information about a user.",
@@ -124,23 +123,22 @@ class Info(interactions.Extension):
         _hash: str | int = None
         _url = None
         if isinstance(user, interactions.User):
-            if user.avatar is not None:
+            if getattr(user.avatar, "url", None):
                 _url = user.avatar.url
             else:
-                _hash = (user.id << 22) % 6
+                _hash = (user.id >> 22) % 6
         elif isinstance(user, interactions.Member):
-            if user.user.avatar is not None:
+            if getattr(user.user.avatar, "url"):
                 _url = user.user.avatar.url
             else:
-                _hash = (user.id << 22) % 6
+                _hash = (user.id >> 22) % 6
 
         if isinstance(_hash, int):
             _url: str = f"https://cdn.discordapp.com/embed/avatars/{_hash}.png"
 
-        nick: str = user.nick
-        joined_at: int = round(user.joined_at.timestamp())
-        bot: str = "Yes" if user.user.bot is True else "No"
-        public_flags: UserFlags = user.user.public_flags
+        nick: str = user.nick if getattr(user, "nick", None) else "None"
+        bot: str = "Yes" if user.bot is True else "No"
+        public_flags: UserFlags = user.public_flags
         hypesquad = None
         flags: str = get_user_flags(public_flags)
         if isinstance(public_flags, int):
@@ -153,20 +151,17 @@ class Info(interactions.Extension):
 
         fields = [
             interactions.EmbedField(
-                name="Name", value=f"{user.user.display_name}", inline=True
+                name="Name", value=f"{user.global_name}", inline=True
             ),
             interactions.EmbedField(
                 name="Nickname", value=f"{nick}", inline=True
             ),
             interactions.EmbedField(
-                name="ID", value=f"{user.user.id}", inline=True
-            ),
-            interactions.EmbedField(
-                name="Joined at", value=f"<t:{joined_at}:F>", inline=True
+                name="ID", value=f"{user.id}", inline=True
             ),
             interactions.EmbedField(
                 name="Created on",
-                value=f"<t:{round(snowflake_time(user.user.id).timestamp())}:F>",
+                value=f"<t:{round(snowflake_time(user.id).timestamp())}:F>",
                 inline=True,
             ),
             interactions.EmbedField(
@@ -177,14 +172,23 @@ class Info(interactions.Extension):
                 name="Flags", value=f"{flags}", inline=True
             ),
         ]
-        if ctx.guild:
-            permissions: str = get_user_permissions(user.guild_permissions)
+        if ctx.guild and isinstance(user, interactions.Member):
+            joined_at: int = round(user.joined_at.timestamp())
             fields.append(
                 interactions.EmbedField(
-                    name="Permissions",
-                    value=f"{permissions}",
+                    name="Joined at",
+                    value=f"<t:{joined_at}:F>",
+                    inline=True,
                 )
             )
+            if getattr(user, "guild_permissions", None):
+                permissions: str = get_user_permissions(user.guild_permissions)
+                fields.append(
+                    interactions.EmbedField(
+                        name="Permissions",
+                        value=f"{permissions}",
+                    )
+                )
             fields.append(
                 interactions.EmbedField(
                     name="Roles",
@@ -197,13 +201,13 @@ class Info(interactions.Extension):
             )
         thumbnail = interactions.EmbedAttachment(url=_url)
         title: str = (
-            f"@{user.user.username}"
-            if str(user.user.discriminator) == "0"
-            else f"{user.user.username}#{user.user.discriminator}"
+            f"@{user.username}"
+            if str(user.discriminator) == "0"
+            else f"{user.username}#{user.discriminator}"
         )
         footer = interactions.EmbedFooter(
             text=f"Requested by @{ctx.user.username}",
-            icon_url=f"{ctx.user.avatar.url}",
+            icon_url=f"{ctx.user.avatar_url}",
         )
         embed = interactions.Embed(
             title=title,
@@ -223,7 +227,6 @@ class Info(interactions.Extension):
     @hybrid_slash_subcommand(
         base="info",
         base_description="For all information aspects.",
-        base_dm_permission=False,
         base_integration_types=[0, 1],
         name="avatar",
         description="Shows the profile picture URL of a user.",
@@ -240,14 +243,14 @@ class Info(interactions.Extension):
         """Shows the profile picture URL of a user."""
 
         fields = []
-        if user.user.avatar.hash is not None:
-            avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar.hash)}.png"
+        if user.avatar.hash is not None:
+            avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.id)}/{str(user.avatar.hash)}.png"
             buf = await get_response(avatar_url, session=self.client.session)
             color_tuple = await asyncio.to_thread(get_color, buf)
             color = rgb_to_int(color_tuple)
-            avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
-            avatar_png = user.user.avatar_url[:-4] + ".png"
-            avatar_webp = user.user.avatar_url[:-4] + ".webp"
+            avatar_jpg = user.avatar_url[:-4] + ".jpg"
+            avatar_png = user.avatar_url[:-4] + ".png"
+            avatar_webp = user.avatar_url[:-4] + ".webp"
             fmt_usr = "".join(
                 [
                     f"**[** [**JPG**]({avatar_jpg}) **]** | ",
@@ -255,7 +258,7 @@ class Info(interactions.Extension):
                     f"**[** [**WEBP**]({avatar_webp}) **]**",
                 ]
             )
-            if user.user.avatar.hash.startswith("a_"):
+            if user.avatar.hash.startswith("a_"):
                 fmt_usr += (
                     " | **[** [**GIF**]"
                     + "("
@@ -298,7 +301,7 @@ class Info(interactions.Extension):
                 interactions.EmbedAttachment(url=f"{avatar_url}?size=4096")
             ]
 
-        if user.guild_avatar:
+        if getattr(user, "guild_avatar", None):
             images.append(
                 interactions.EmbedAttachment(
                     url=f"""{user.guild_avatar.as_url(extension=".png", size=4096)}"""
@@ -336,9 +339,9 @@ class Info(interactions.Extension):
 
         embed = interactions.Embed(
             title=(
-                f"@{user.user.username}"
-                if str(user.user.discriminator) == "0"
-                else f"{user.user.username}#{user.user.discriminator}"
+                f"@{user.username}"
+                if str(user.discriminator) == "0"
+                else f"{user.username}#{user.discriminator}"
             ),
             color=color,
             url=avatar_url,
@@ -355,7 +358,6 @@ class Info(interactions.Extension):
     @hybrid_slash_subcommand(
         base="info",
         base_description="For all information aspects.",
-        base_dm_permission=False,
         base_integration_types=[0, 1],
         name="server",
         description="Shows the information about the server.",
@@ -366,7 +368,7 @@ class Info(interactions.Extension):
         guild: interactions.Guild | None = ctx.guild
         if guild is None:
             return await ctx.send(
-                content="Due to Discord limitation, Articuno cannot get the information about this server through user-app command.",
+                content="Due to Discord limitation, Articuno cannot get the information about this server through user-app/DM command.",
                 ephemeral=True,
             )
 
