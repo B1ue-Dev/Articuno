@@ -592,8 +592,9 @@ class Hman(interactions.Extension):
 
         await ctx.defer()
 
-        color = await get_response(ctx.user.avatar_ur, session=self.client.session)
-        color = rgb_to_int(get_color(color))
+        buf = await get_response(ctx.user.avatar_url, session=self.client.session)
+        color_tuple = await asyncio.to_thread(get_color, buf)
+        color = rgb_to_int(color_tuple)
         try:
             user_data = await hangman_saves.get(
                 PydanticObjectId(
