@@ -4,6 +4,7 @@ Information commands.
 (C) 2022-2026 - B1ue-Dev
 """
 
+import asyncio
 import logging
 from datetime import datetime
 import interactions
@@ -242,8 +243,9 @@ class Info(interactions.Extension):
         fields = []
         if user.user.avatar.hash is not None:
             avatar_url = f"https://cdn.discordapp.com/avatars/{str(user.user.id)}/{str(user.user.avatar.hash)}.png"
-            color = await get_response(avatar_url, session=self.client.session)
-            color = rgb_to_int(get_color(color))
+            buf = await get_response(avatar_url, session=self.client.session)
+            color_tuple = await asyncio.to_thread(get_color, buf)
+            color = rgb_to_int(color_tuple)
             avatar_jpg = user.user.avatar_url[:-4] + ".jpg"
             avatar_png = user.user.avatar_url[:-4] + ".png"
             avatar_webp = user.user.avatar_url[:-4] + ".webp"
@@ -289,8 +291,9 @@ class Info(interactions.Extension):
 
         else:
             avatar_url = f"https://cdn.discordapp.com/embed/avatars/{(user.id >> 22) % 6}.png"
-            color = await get_response(avatar_url, session=self.client.session)
-            color = rgb_to_int(get_color(color))
+            buf = await get_response(avatar_url, session=self.client.session)
+            color_tuple = await asyncio.to_thread(get_color, buf)
+            color = rgb_to_int(color_tuple)
 
             images = [
                 interactions.EmbedAttachment(url=f"{avatar_url}?size=4096")
