@@ -23,58 +23,43 @@ from src.common.utils import get_response, get_color, rgb_to_int
 from src.common.models import wtp_easy_saves, wtp_hard_saves
 
 
-async def extract_pokemon_image(url: str) -> Image.Image:
-    """
-    Format the Pokemon image from the URL.
+bg = Image.open("./src/assets/whos_that_pokemon_1_optimized.webp")
 
-    :param url: The URL of the image.
-    :type url: str
-    :return: The formatted image.
-    :rtype: Image
-    """
 
-    _resp = await get_response(url)
-    img = Image.open(_resp).convert("RGBA")
+def _resize_pokemon_image(buf) -> Image.Image:
+    """Resize the original Pokemon image to suit the background."""
+
+    img = Image.open(buf).convert("RGBA")
     print(f"Image size: {img.size}")
     if img.size[1] <= 130:
-        print("small image")
         img = img.resize((int(img.width * 3.9), int(img.height * 3.9)))
     elif img.size[1] <= 160:
-        print("medium image")
         img = img.resize((int(img.width * 3.4), int(img.height * 3.4)))
     elif img.size[1] <= 190:
-        print("large image")
         img = img.resize((int(img.width * 2.7), int(img.height * 2.7)))
     elif img.size[1] <= 235:
-        print("extra large image")
         img = img.resize((int(img.width * 2.35), int(img.height * 2.35)))
     else:
-        print("????? image")
         img = img.resize((int(img.width * 2), int(img.height * 2)))
 
     return img
 
 
-async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
-    """Generate the images for the command."""
+def _generate_image(img: Image, correct_pokemon: Pokemon) -> list[interactions.File]:
+    """Generate the background with the Pokemon."""
 
-    """The image of the Pokemon."""
-    _image = await extract_pokemon_image(correct_pokemon.url)
-
-    """Process the image and background."""
-    _black_image = Image.new("RGBA", _image.size, (0, 0, 0))
-    bg = Image.open("./src/assets/whos_that_pokemon_1_optimized.png")
-    bg_width, bg_height = bg.size
+    # Process the image and background.
+    _black_image = Image.new("RGBA", img.size, (0, 0, 0))
     center_x, center_y = 470, 410
-    paste_x = center_x - _image.width // 2
-    paste_y = center_y - _image.height // 2
+    paste_x = center_x - img.width // 2
+    paste_y = center_y - img.height // 2
     paste_pos = (paste_x, paste_y)
 
     text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
     text_img.paste(bg, (0, 0))
-    text_img.paste(_black_image, paste_pos, _image)
+    text_img.paste(_black_image, paste_pos, img)
 
-    """Image for the user guessing the Pokemon."""
+    # Image for the user guessing the Pokemon.
     out1 = io.BytesIO()
     text_img.save(out1, format="PNG")
     out1.seek(0)
@@ -84,10 +69,10 @@ async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
         description="Guess the Pokemon.",
     )
 
-    """Image for the correct Pokemon."""
+    # Image for the correct Pokemon.
     _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
     _text_img.paste(bg, (0, 0))
-    _text_img.paste(_image, paste_pos, _image)
+    _text_img.paste(img, paste_pos, img)
 
     out2 = io.BytesIO()
     _text_img.save(out2, format="PNG")
@@ -99,6 +84,38 @@ async def generate_images(correct_pokemon: Pokemon) -> list[Image.Image]:
     )
 
     return [file, _file]
+
+
+async def extract_pokemon_image(url: str, session) -> Image.Image:
+    """
+    Gets the Pokemon image after resize.
+    :param url: The url of the Pokemon image.
+    :type url: str
+    :param session: The client session.
+    :type session: ClientSession
+    :return: The Image of resized Pokemon.
+    :rtype: Image
+    """
+
+    buf = await get_response(url, session)
+    img = await asyncio.to_thread(_resize_pokemon_image, buf)
+
+    return img
+
+
+async def generate_images(correct_pokemon: Pokemon, session) -> list[interactions.File]:
+    """
+    Generate the background with the Pokemon for the command.
+    :param correct_pokemon: The correct Pokemon.
+    :type correct_pokemon: Pokemon
+    :param session: The client session.
+    :type session: ClientSession
+    :return: A list 2 File, guessing image and correct image.
+    :rtype: list[interactions.File]
+    """
+
+    _image = await extract_pokemon_image(correct_pokemon.url, session)
+    return await asyncio.to_thread(_generate_image, _image, correct_pokemon)
 
 
 def get_pokemon(generation: int = None, user_id: int = None) -> list:
