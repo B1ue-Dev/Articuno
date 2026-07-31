@@ -44,7 +44,6 @@ def get_user_flags(flags: UserFlags) -> str:
         "EARLY_VERIFIED_BOT_DEVELOPER": "<:BadgeEarlyVerifiedDeveloper:1043234961219657829> Early Verified Bot Developer",
         "DISCORD_CERTIFIED_MODERATOR": "<:BadgeDiscordCertifiedModerator:1043235073169825923> Discord Certified Moderator",
         "SPAMMER": "⚠ Suspected spammer",
-        "ACTIVE_DEVELOPER": "<:BadgeActiveDev:1042443072186896476> Active Developer",
     }
 
     for flag in UserFlags:
