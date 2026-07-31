@@ -74,7 +74,7 @@ class Edited(interactions.Extension):
     @hybrid_slash_command(
         name="edited",
         description="Shows all versions of edited messages in this channel.",
-        dm_permission=False,
+        contexts=[0],
     )
     async def edited(self, ctx: HybridContext) -> None:
         """Send embed with full edit history per message."""

@@ -64,7 +64,7 @@ class Snipe(interactions.Extension):
     @hybrid_slash_command(
         name="snipe",
         description="Snipes the last deleted message from the current channel.",
-        dm_permission=False,
+        contexts=[0],
     )
     async def snipe(self, ctx: HybridContext) -> None:
         """Snipes the last deleted message from the current channel."""

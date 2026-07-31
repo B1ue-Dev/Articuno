@@ -106,7 +106,7 @@ class Emoji(interactions.Extension):
     @interactions.slash_command(
         name="emoji",
         description="Emoji management commands.",
-        dm_permission=False,
+        contexts=[0],
     )
     async def emoji(self, ctx: interactions.SlashContext) -> None:
         """Emoji management commands."""

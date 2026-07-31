@@ -29,7 +29,7 @@ class Tag(interactions.Extension):
     @interactions.slash_command(
         name="tag",
         description="Handle all tag aspects.",
-        dm_permission=False,
+        contexts=[0],
     )
     async def tag(self, ctx: interactions.SlashContext) -> None:
         """Handle all tag aspects."""
