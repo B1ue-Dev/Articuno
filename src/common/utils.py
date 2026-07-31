@@ -112,13 +112,12 @@ def send_as_file(text: str) -> StringIO:
     return _io
 
 
-def get_color(img) -> str:
+def get_color(img) -> tuple[int, int, int]:
     """
     Get the dominant color of an image.
     :param img: The image.
-    :type img:
-    :return: The dominant color hex.
-    :rtype: str
+    :return: The dominant color as an (r, g, b) tuple.
+    :rtype: tuple[int, int, int]
     """
 
     clr_thief = ColorThief(img)
