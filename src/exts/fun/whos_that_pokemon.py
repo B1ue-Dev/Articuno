@@ -205,7 +205,7 @@ class WTP(interactions.Extension):
                 logging.info("Pokemon list: {}".format(pokemon_list))
                 logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
-                results = await generate_images(corrected_pokemon)
+                results = await generate_images(corrected_pokemon, self.client.session)
                 file = results[0]
                 _file = results[1]
 
@@ -569,7 +569,7 @@ class WTP(interactions.Extension):
                 logging.info("Pokemon list: {}".format(pokemon_list))
                 logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
-                results = await generate_images(corrected_pokemon)
+                results = await generate_images(corrected_pokemon, self.client.session)
                 file = results[0]
                 _file = results[1]
 
