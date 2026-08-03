@@ -339,16 +339,7 @@ class WTP(interactions.Extension):
                         if point_eligible:
                             total_score = cnt * 10 + (cnt // 10) * 10
 
-                            user_data = await wtp_easy_saves.get(
-                                PydanticObjectId(
-                                    (
-                                        await wtp_easy_saves.find_one(
-                                            wtp_easy_saves.user_id
-                                            == int(ctx.user.id)
-                                        )
-                                    ).id
-                                )
-                            )
+                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
                             user_data.points = user_data.points + total_score
                             created_at: int = round(datetime.now().timestamp())
                             if len(user_data.history) == 5:
@@ -427,16 +418,7 @@ class WTP(interactions.Extension):
                         if point_eligible:
                             total_score = cnt * 10 + (cnt // 10) * 10
 
-                            user_data = await wtp_easy_saves.get(
-                                PydanticObjectId(
-                                    (
-                                        await wtp_easy_saves.find_one(
-                                            wtp_easy_saves.user_id
-                                            == int(ctx.user.id)
-                                        )
-                                    ).id
-                                )
-                            )
+                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
                             user_data.points = user_data.points + total_score
                             created_at: int = round(datetime.now().timestamp())
                             if len(user_data.history) == 5:
@@ -504,16 +486,7 @@ class WTP(interactions.Extension):
                         if point_eligible:
                             total_score = cnt * 10 + (cnt // 10) * 10
 
-                            user_data = await wtp_easy_saves.get(
-                                PydanticObjectId(
-                                    (
-                                        await wtp_easy_saves.find_one(
-                                            wtp_easy_saves.user_id
-                                            == int(ctx.user.id)
-                                        )
-                                    ).id
-                                )
-                            )
+                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
                             user_data.points = user_data.points + total_score
                             created_at: int = round(datetime.now().timestamp())
                             if len(user_data.history) == 5:
@@ -656,16 +629,7 @@ class WTP(interactions.Extension):
                         if point_eligible:
                             total_score = cnt * 10 + (cnt // 5) * 10
 
-                            user_data = await wtp_hard_saves.get(
-                                PydanticObjectId(
-                                    (
-                                        await wtp_hard_saves.find_one(
-                                            wtp_hard_saves.user_id
-                                            == int(ctx.user.id)
-                                        )
-                                    ).id
-                                )
-                            )
+                            user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
                             user_data.points = user_data.points + total_score
                             created_at: int = round(datetime.now().timestamp())
                             if len(user_data.history) == 5:
@@ -780,16 +744,7 @@ class WTP(interactions.Extension):
                             if point_eligible:
                                 total_score = cnt * 10 + (cnt // 5) * 10
 
-                                user_data = await wtp_hard_saves.get(
-                                    PydanticObjectId(
-                                        (
-                                            await wtp_hard_saves.find_one(
-                                                wtp_hard_saves.user_id
-                                                == int(ctx.user.id)
-                                            )
-                                        ).id
-                                    )
-                                )
+                                user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
                                 user_data.points = (
                                     user_data.points + total_score
                                 )
@@ -863,16 +818,7 @@ class WTP(interactions.Extension):
                         if point_eligible:
                             total_score = cnt * 10 + (cnt // 5) * 10
 
-                            user_data = await wtp_hard_saves.get(
-                                PydanticObjectId(
-                                    (
-                                        await wtp_hard_saves.find_one(
-                                            wtp_hard_saves.user_id
-                                            == int(ctx.user.id)
-                                        )
-                                    ).id
-                                )
-                            )
+                            user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
                             user_data.points = user_data.points + total_score
                             created_at: int = round(datetime.now().timestamp())
                             if len(user_data.history) == 5:
@@ -1023,15 +969,7 @@ class WTP(interactions.Extension):
         user_data = None
         if mode == "easy":
             try:
-                user_data = await wtp_easy_saves.get(
-                    PydanticObjectId(
-                        (
-                            await wtp_easy_saves.find_one(
-                                wtp_easy_saves.user_id == int(ctx.user.id)
-                            )
-                        ).id
-                    )
-                )
+                user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
             except AttributeError:
                 embed = interactions.Embed(
                     title="You have no history.",
@@ -1041,15 +979,7 @@ class WTP(interactions.Extension):
                 return await ctx.send(embeds=embed)
         elif mode == "hard":
             try:
-                user_data = await wtp_hard_saves.get(
-                    PydanticObjectId(
-                        (
-                            await wtp_hard_saves.find_one(
-                                wtp_hard_saves.user_id == int(ctx.user.id)
-                            )
-                        ).id
-                    )
-                )
+                user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
             except AttributeError:
                 embed = interactions.Embed(
                     title="You have no history.",
