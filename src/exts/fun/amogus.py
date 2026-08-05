@@ -51,7 +51,8 @@ def draw_frame(crewmate_img, stars, text, crewmate_x):
 
 
 def make_gif(username, impostor, buf):
-    member_avatar = Image.open(buf).convert("RGBA")
+    with Image.open(buf).convert("RGBA") as _member_avatar:
+        member_avatar = _member_avatar
     crewmate_img_orig = member_avatar.resize((128, 128), Image.LANCZOS)
 
     text = (
@@ -105,12 +106,26 @@ def make_gif(username, impostor, buf):
         frame = draw_frame(crewmate_img, stars, frame_text, x)
         frames.append(frame)
 
+    sample_stride = max(1, len(frames) // 12)
+    samples = frames[::sample_stride]
+
+    strip_w = 64
+    strip = Image.new("RGB", (strip_w * len(samples), HEIGHT))
+    for idx, sample in enumerate(samples):
+        strip.paste(sample.resize((strip_w, HEIGHT)), (idx * strip_w, 0))
+
+    global_palette_img = strip.quantize(colors=256, method=Image.MEDIANCUT)
+    quantized_frames = [
+        frame.quantize(palette=global_palette_img, dither=Image.FLOYDSTEINBERG)
+        for frame in frames
+    ]
+
     fp = BytesIO()
-    frames[0].save(
+    quantized_frames[0].save(
         fp,
         "GIF",
         save_all=True,
-        append_images=frames[1:],
+        append_images=quantized_frames[1:],
         duration=frame_duration,
         loop=0,
     )
