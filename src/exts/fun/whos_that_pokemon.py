@@ -521,8 +521,8 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        "Timeout! ",
                                         f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} didn't answer in time.",
                                         f"\nStreak: {cnt}",
                                         f"\nTotal score: {total_score}",
                                     ],
@@ -535,7 +535,8 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"Timeout! It's **{corrected_pokemon.name}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
+                                    f" {ctx.user.mention} didn't answer in time.",
                                     f"\nStreak: {cnt}",
                                 ],
                             ),
@@ -750,7 +751,8 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"**Timeout!** It's **{corrected_pokemon.name}**!",
+                                        f"It's **{corrected_pokemon.name}**!",
+                                        f" {ctx.user.mention} didn't answer in time.",
                                         f"\nStreak: {cnt}",
                                         f"\nTotal score: {total_score}",
                                     ],
@@ -763,7 +765,8 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"**Timeout!** It's **{corrected_pokemon.name}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
+                                    f" {ctx.user.mention} didn't answer in time.",
                                     f"\nStreak: {cnt}",
                                 ],
                             ),
