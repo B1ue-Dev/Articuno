@@ -10,7 +10,6 @@ import random
 import asyncio
 from time import time
 from datetime import datetime
-from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
 from interactions.ext.hybrid_commands import (
@@ -145,6 +144,152 @@ def get_pokemon(generation: int = None, user_id: int = None) -> list:
     return chosen_pokemon
 
 
+def _choice_buttons(pokemon_list: list) -> list[interactions.Button]:
+    """
+    Build the 4 answer-choice buttons with a give up button (easy mode)
+    :param pokemon_list: A list of Pokemon
+    :type pokemon_list: list
+    :return: List of Button for selection
+    :rtype: list[interactions.Button]
+    """
+
+    buttons = [
+        interactions.Button(
+            style=interactions.ButtonStyle.SECONDARY,
+            label=Pokemon.get_pokemon(entry["name"]).name,
+            custom_id=str(entry["num"]),
+        )
+        for entry in pokemon_list
+    ]
+    buttons.append(
+        interactions.Button(
+            style=interactions.ButtonStyle.DANGER,
+            label="Give up",
+            custom_id="give_up",
+        )
+    )
+    return buttons
+
+
+def _result_buttons(
+    pokemon_list: list,
+    correct_pokemon: Pokemon,
+    chosen_id: str = None,
+    if_chosen: bool = True,
+) -> list[interactions.Button]:
+    """Build the 4 disabled answer buttons showing a round's result (easy mode).
+
+    :param pokemon_list: The 4 pokemon choices for this round.
+    :type pokemon_list: list
+    :param correct_pokemon: The correct Pokemon.
+    :type correct_pokemon: Pokemon
+    :param chosen_id: The custom_id that the user picked (None on timeout/no pick).
+    :type chosen_id: str
+    :param if_chosen: Whenever to highlight the button (if chosen) or not (timeout/give up)
+    :type if_chosen: bool
+    :return: List of disabled Button
+    :rtype: list[interactions.Button]
+    """
+
+    buttons = []
+    for entry in pokemon_list:
+        num = str(entry["num"])
+        label = Pokemon.get_pokemon(entry["name"]).name
+
+        if not if_chosen:
+            style = interactions.ButtonStyle.SECONDARY
+        elif num == str(correct_pokemon.num):
+            style = interactions.ButtonStyle.SUCCESS
+        elif chosen_id is not None and num == str(chosen_id):
+            style = interactions.ButtonStyle.DANGER
+        else:
+            style = interactions.ButtonStyle.SECONDARY
+
+        buttons.append(
+            interactions.Button(
+                style=style,
+                label=label,
+                custom_id=num,
+                disabled=True,
+            )
+        )
+    return buttons
+
+
+def _bulbapedia_button(pokemon: Pokemon) -> interactions.Button:
+    """Build the 'View on Bulbapedia' link button for a Pokemon."""
+
+    return interactions.Button(
+        style=interactions.ButtonStyle.LINK,
+        label=f"{pokemon.name} (Bulbapedia)",
+        url=f"https://bulbapedia.bulbagarden.net/wiki/{pokemon.name.basename}_(Pokémon)",
+    )
+
+
+def _hard_mode_result(
+    corrected_pokemon: Pokemon,
+) -> list[interactions.ActionRow]:
+    """Build the disabled 'Answer' button + Bulbapedia link row (hard mode)."""
+
+    return [
+        interactions.ActionRow(
+            interactions.Button(
+                style=interactions.ButtonStyle.SECONDARY,
+                label="Answer",
+                custom_id="answer",
+                disabled=True,
+            ),
+        ),
+        interactions.ActionRow(_bulbapedia_button(corrected_pokemon)),
+    ]
+
+
+async def _fetch_save_doc(save_model, user_id: int, user_name: str):
+    """Fetch the user's save document, creating it if it doesn't exist yet.
+
+    Replaces the old "exists() query, then a separate find_one() query
+    later when saving" pattern with a single fetch that's reused for the
+    whole game session.
+    """
+
+    user_data = await save_model.find_one(save_model.user_id == user_id)
+    if user_data is None:
+        user_data = save_model(
+            user_id=user_id,
+            user_name=user_name,
+            points=0,
+            history=[],
+        )
+        await user_data.save()
+    return user_data
+
+
+async def _save_score(user_data, cnt: int, divisor: int = 10) -> int:
+    """Add points/history for a finished round onto an already-fetched save doc.
+
+    :param user_data: The user's save document (wtp_easy_saves / wtp_hard_saves instance).
+    :param cnt: Current streak count.
+    :param divisor: Streak bonus divisor (10 for easy mode, 5 for hard mode).
+    :return: The score gained this round.
+    """
+
+    total_score = cnt * 10 + (cnt // divisor) * 10
+
+    user_data.points += total_score
+    if len(user_data.history) == 5:
+        user_data.history.pop(0)
+    user_data.history.append(
+        {
+            "created_at": round(datetime.now().timestamp()),
+            "streak": cnt,
+            "gained_point": total_score,
+        }
+    )
+    await user_data.save()
+
+    return total_score
+
+
 class WTP(interactions.Extension):
     """Extension for /whos_that_pokemon command."""
 
@@ -195,25 +340,17 @@ class WTP(interactions.Extension):
         if difficulty == "easy":
             cnt = 0
 
+            point_eligible = generation is None
+
+            save_doc = None
+            if point_eligible:
+                save_doc = await _fetch_save_doc(
+                    wtp_easy_saves, int(ctx.user.id), ctx.user.username
+                )
+
             while True:
                 """List of Pokemon."""
                 pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
-
-                # Only allow points if generation is not specified
-                point_eligible = True
-                if generation is not None:
-                    point_eligible = False
-
-                if point_eligible:
-                    if not await wtp_easy_saves.find_one(
-                        wtp_easy_saves.user_id == int(ctx.user.id)
-                    ).exists():
-                        await wtp_easy_saves(
-                            user_id=int(ctx.user.id),
-                            user_name=ctx.user.username,
-                            points=0,
-                            history=[],
-                        ).save()
 
                 """The correct Pokemon."""
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
@@ -226,22 +363,7 @@ class WTP(interactions.Extension):
                 file = results[0]
                 _file = results[1]
 
-                _button_list = []
-                for i in range(4):
-                    _button_list.append(
-                        interactions.Button(
-                            style=interactions.ButtonStyle.SECONDARY,
-                            label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
-                            custom_id=f"{pokemon_list[i]['num']}",
-                        )
-                    )
-                _button_list.append(
-                    interactions.Button(
-                        style=interactions.ButtonStyle.DANGER,
-                        label="Give up",
-                        custom_id="give_up",
-                    )
-                )
+                _button_list = _choice_buttons(pokemon_list)
 
                 msg = await _msg.edit(
                     content=f"""**Who's that Pokemon?**\n\n{"Point system enabled (random generation)." if point_eligible else "Point system disabled (specific generation)."}""",
@@ -264,21 +386,11 @@ class WTP(interactions.Extension):
                     )
 
                     if res.ctx.custom_id == str(corrected_pokemon.num):
-                        _button_disabled = []
-                        for i in range(4):
-                            _button_disabled.append(
-                                interactions.Button(
-                                    style=(
-                                        interactions.ButtonStyle.SECONDARY
-                                        if str(pokemon_list[i]["num"])
-                                        != str(corrected_pokemon.num)
-                                        else interactions.ButtonStyle.SUCCESS
-                                    ),
-                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
-                                    custom_id=f"{pokemon_list[i]['num']}",
-                                    disabled=True,
-                                )
-                            )
+                        _button_disabled = _result_buttons(
+                            pokemon_list,
+                            corrected_pokemon,
+                            chosen_id=corrected_pokemon.num
+                        )
 
                         await res.ctx.edit_origin(
                             content="".join(
@@ -301,57 +413,22 @@ class WTP(interactions.Extension):
                         continue
 
                     if res.ctx.custom_id == "give_up":
-                        _button_disabled = []
-                        for i in range(4):
-                            _button_disabled.append(
-                                interactions.Button(
-                                    style=(
-                                        interactions.ButtonStyle.SECONDARY
-                                        if str(pokemon_list[i]["num"])
-                                        != str(corrected_pokemon.num)
-                                        and str(pokemon_list[i]["num"])
-                                        != str(res.ctx.custom_id)
-                                        else (
-                                            interactions.ButtonStyle.DANGER
-                                            if str(pokemon_list[i]["num"])
-                                            == str(res.ctx.custom_id)
-                                            else interactions.ButtonStyle.SUCCESS
-                                        )
-                                    ),
-                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
-                                    custom_id=f"{pokemon_list[i]['num']}",
-                                    disabled=True,
-                                )
-                            )
+                        _button_disabled = _result_buttons(
+                            pokemon_list,
+                            corrected_pokemon,
+                            chosen_id=res.ctx.custom_id
+                        )
 
                         action_rows: list[interactions.ActionRow] = [
                             interactions.ActionRow(*_button_disabled),
                             interactions.ActionRow(
-                                interactions.Button(
-                                    style=interactions.ButtonStyle.LINK,
-                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                                )
+                                _bulbapedia_button(corrected_pokemon)
                             ),
                         ]
 
                         # Calculating point
                         if point_eligible:
-                            total_score = cnt * 10 + (cnt // 10) * 10
-
-                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
-                            user_data.points = user_data.points + total_score
-                            created_at: int = round(datetime.now().timestamp())
-                            if len(user_data.history) == 5:
-                                user_data.history.pop(0)
-                            user_data.history.append(
-                                {
-                                    "created_at": created_at,
-                                    "streak": cnt,
-                                    "gained_point": total_score,
-                                }
-                            )
-                            await user_data.save()
+                            total_score = await _save_score(save_doc, cnt, divisor=10)
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -382,55 +459,20 @@ class WTP(interactions.Extension):
                         break
 
                     else:
-                        _button_disabled = []
-                        for i in range(4):
-                            _button_disabled.append(
-                                interactions.Button(
-                                    style=(
-                                        interactions.ButtonStyle.SECONDARY
-                                        if str(pokemon_list[i]["num"])
-                                        != str(corrected_pokemon.num)
-                                        and str(pokemon_list[i]["num"])
-                                        != str(res.ctx.custom_id)
-                                        else (
-                                            interactions.ButtonStyle.DANGER
-                                            if str(pokemon_list[i]["num"])
-                                            == str(res.ctx.custom_id)
-                                            else interactions.ButtonStyle.SUCCESS
-                                        )
-                                    ),
-                                    label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
-                                    custom_id=f"{pokemon_list[i]['num']}",
-                                    disabled=True,
-                                )
-                            )
+                        _button_disabled = _result_buttons(
+                            pokemon_list,
+                            corrected_pokemon,
+                            chosen_id=res.ctx.custom_id
+                        )
 
                         action_rows: list[interactions.ActionRow] = [
                             interactions.ActionRow(*_button_disabled),
                             interactions.ActionRow(
-                                interactions.Button(
-                                    style=interactions.ButtonStyle.LINK,
-                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                                )
+                                _bulbapedia_button(corrected_pokemon)
                             ),
                         ]
                         if point_eligible:
-                            total_score = cnt * 10 + (cnt // 10) * 10
-
-                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
-                            user_data.points = user_data.points + total_score
-                            created_at: int = round(datetime.now().timestamp())
-                            if len(user_data.history) == 5:
-                                user_data.history.pop(0)
-                            user_data.history.append(
-                                {
-                                    "created_at": created_at,
-                                    "streak": cnt,
-                                    "gained_point": total_score,
-                                }
-                            )
-                            await user_data.save()
+                            total_score = await _save_score(save_doc, cnt, divisor=10)
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -461,44 +503,19 @@ class WTP(interactions.Extension):
                         break
 
                 except asyncio.TimeoutError:  # When timeout.
-                    _button_disabled = []
-                    for i in range(4):
-                        _button_disabled.append(
-                            interactions.Button(
-                                style=interactions.ButtonStyle.SECONDARY,
-                                label=f"{Pokemon.get_pokemon(pokemon_list[i]['name']).name}",
-                                custom_id=f"{pokemon_list[i]['num']}",
-                                disabled=True,
-                            )
-                        )
+                    _button_disabled = _result_buttons(
+                        pokemon_list, corrected_pokemon, highlight=False
+                    )
 
                     action_rows: list[interactions.ActionRow] = [
                         interactions.ActionRow(*_button_disabled),
                         interactions.ActionRow(
-                            interactions.Button(
-                                style=interactions.ButtonStyle.LINK,
-                                label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                            )
+                            _bulbapedia_button(corrected_pokemon)
                         ),
                     ]
                     try:
                         if point_eligible:
-                            total_score = cnt * 10 + (cnt // 10) * 10
-
-                            user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
-                            user_data.points = user_data.points + total_score
-                            created_at: int = round(datetime.now().timestamp())
-                            if len(user_data.history) == 5:
-                                user_data.history.pop(0)
-                            user_data.history.append(
-                                {
-                                    "created_at": created_at,
-                                    "streak": cnt,
-                                    "gained_point": total_score,
-                                }
-                            )
-                            await user_data.save()
+                            total_score = await _save_score(save_doc, cnt, divisor=10)
 
                             await msg.edit(
                                 content="".join(
@@ -531,25 +548,17 @@ class WTP(interactions.Extension):
         elif difficulty == "hard":
             cnt = 0
 
+            point_eligible = generation is None
+
+            save_doc = None
+            if point_eligible:
+                save_doc = await _fetch_save_doc(
+                    wtp_hard_saves, int(ctx.user.id), ctx.user.username
+                )
+
             while True:
                 """List of Pokemon."""
                 pokemon_list: list = get_pokemon(generation, int(ctx.user.id))
-
-                # Only allow points if generation is not specified
-                point_eligible = True
-                if generation is not None:
-                    point_eligible = False
-
-                if point_eligible:
-                    if not await wtp_hard_saves.find_one(
-                        wtp_hard_saves.user_id == int(ctx.user.id)
-                    ).exists():
-                        await wtp_hard_saves(
-                            user_id=int(ctx.user.id),
-                            user_name=ctx.user.username,
-                            points=0,
-                            history=[],
-                        ).save()
 
                 """The correct Pokemon."""
                 corrected_pokemon: Pokemon = Pokemon.get_pokemon(
@@ -607,41 +616,11 @@ class WTP(interactions.Extension):
                         ),
                     )
                     if res.ctx.custom_id == "give_up":
-                        action_rows = [
-                            interactions.ActionRow(
-                                interactions.Button(
-                                    style=interactions.ButtonStyle.SECONDARY,
-                                    label="Answer",
-                                    custom_id="answer",
-                                    disabled=True,
-                                )
-                            ),
-                            interactions.ActionRow(
-                                interactions.Button(
-                                    style=interactions.ButtonStyle.LINK,
-                                    label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                    url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                                )
-                            ),
-                        ]
+                        action_rows = _hard_mode_result(corrected_pokemon)
 
                         # Calculating point
                         if point_eligible:
-                            total_score = cnt * 10 + (cnt // 5) * 10
-
-                            user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
-                            user_data.points = user_data.points + total_score
-                            created_at: int = round(datetime.now().timestamp())
-                            if len(user_data.history) == 5:
-                                user_data.history.pop(0)
-                            user_data.history.append(
-                                {
-                                    "created_at": created_at,
-                                    "streak": cnt,
-                                    "gained_point": total_score,
-                                }
-                            )
-                            await user_data.save()
+                            total_score = await _save_score(save_doc, cnt, divisor=5)
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -722,45 +701,11 @@ class WTP(interactions.Extension):
                             continue
 
                         else:
-                            action_rows = [
-                                interactions.ActionRow(
-                                    interactions.Button(
-                                        style=interactions.ButtonStyle.SECONDARY,
-                                        label="Answer",
-                                        custom_id="answer",
-                                        disabled=True,
-                                    )
-                                ),
-                                interactions.ActionRow(
-                                    interactions.Button(
-                                        style=interactions.ButtonStyle.LINK,
-                                        label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                        url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                                    )
-                                ),
-                            ]
+                            action_rows = _hard_mode_result(corrected_pokemon)
 
                             # Calculating point
                             if point_eligible:
-                                total_score = cnt * 10 + (cnt // 5) * 10
-
-                                user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
-                                user_data.points = (
-                                    user_data.points + total_score
-                                )
-                                created_at: int = round(
-                                    datetime.now().timestamp()
-                                )
-                                if len(user_data.history) == 5:
-                                    user_data.history.pop(0)
-                                user_data.history.append(
-                                    {
-                                        "created_at": created_at,
-                                        "streak": cnt,
-                                        "gained_point": total_score,
-                                    }
-                                )
-                                await user_data.save()
+                                total_score = await _save_score(save_doc, cnt, divisor=5)
 
                                 await _res.edit(
                                     message=_res.message_id,
@@ -795,42 +740,11 @@ class WTP(interactions.Extension):
                             break
 
                 except asyncio.TimeoutError:
-                    action_rows = [
-                        interactions.ActionRow(
-                            interactions.Button(
-                                style=interactions.ButtonStyle.SECONDARY,
-                                label="Answer",
-                                custom_id="answer",
-                                disabled=True,
-                            ),
-                        ),
-                        interactions.ActionRow(
-                            interactions.Button(
-                                style=interactions.ButtonStyle.LINK,
-                                label=f"{corrected_pokemon.name} (Bulbapedia)",
-                                url=f"https://bulbapedia.bulbagarden.net/wiki/{corrected_pokemon.name.basename}_(Pokémon)",
-                            ),
-                        ),
-                    ]
+                    action_rows = _hard_mode_result(corrected_pokemon)
 
                     try:
-                        # Calculating point
                         if point_eligible:
-                            total_score = cnt * 10 + (cnt // 5) * 10
-
-                            user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
-                            user_data.points = user_data.points + total_score
-                            created_at: int = round(datetime.now().timestamp())
-                            if len(user_data.history) == 5:
-                                user_data.history.pop(0)
-                            user_data.history.append(
-                                {
-                                    "created_at": created_at,
-                                    "streak": cnt,
-                                    "gained_point": total_score,
-                                }
-                            )
-                            await user_data.save()
+                            total_score = await _save_score(save_doc, cnt, divisor=5)
 
                             await msg.edit(
                                 content="".join(
