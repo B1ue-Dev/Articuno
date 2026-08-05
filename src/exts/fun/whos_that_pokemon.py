@@ -504,7 +504,7 @@ class WTP(interactions.Extension):
 
                 except asyncio.TimeoutError:  # When timeout.
                     _button_disabled = _result_buttons(
-                        pokemon_list, corrected_pokemon, highlight=False
+                        pokemon_list, corrected_pokemon, if_chosen=False
                     )
 
                     action_rows: list[interactions.ActionRow] = [
@@ -522,7 +522,7 @@ class WTP(interactions.Extension):
                                     [
                                         "**Who's that Pokemon?**\n\n",
                                         "Timeout! ",
-                                        f"It's **{corrected_pokemon.name.basename}**!",
+                                        f"It's **{corrected_pokemon.name}**!",
                                         f"\nStreak: {cnt}",
                                         f"\nTotal score: {total_score}",
                                     ],
@@ -535,7 +535,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"Timeout! It's **{corrected_pokemon.name.basename}**!",
+                                    f"Timeout! It's **{corrected_pokemon.name}**!",
                                     f"\nStreak: {cnt}",
                                 ],
                             ),
@@ -641,7 +641,7 @@ class WTP(interactions.Extension):
                             content="".join(
                                 [
                                     "**Who's that Pokemon?**\n\n",
-                                    f"It's **{corrected_pokemon.name.basename}**!",
+                                    f"It's **{corrected_pokemon.name}**!",
                                     f" {ctx.user.mention} gave up.",
                                     f"\nStreak: {cnt}",
                                 ],
@@ -683,7 +683,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name.basename}**! ",
+                                        f"It's **{corrected_pokemon.name}**! ",
                                         f"{ctx.user.mention} had the right answer.",
                                     ]
                                 ),
@@ -713,7 +713,7 @@ class WTP(interactions.Extension):
                                         [
                                             "**Who's that Pokemon?**\n\n",
                                             f"It's **{corrected_pokemon.name}**!",
-                                            f" {ctx.user.mention} gave up.",
+                                            f" {ctx.user.mention} had the wrong answer.",
                                             f"\nStreak: {cnt}",
                                             f"\nTotal score: {total_score}",
                                         ],
@@ -728,7 +728,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name.basename}**!",
+                                        f"It's **{corrected_pokemon.name}**!",
                                         f" {ctx.user.mention} had the wrong answer.",
                                         f"\nStreak: {cnt}",
                                     ],
@@ -750,8 +750,7 @@ class WTP(interactions.Extension):
                                 content="".join(
                                     [
                                         "**Who's that Pokemon?**\n\n",
-                                        f"It's **{corrected_pokemon.name}**!",
-                                        f" {ctx.user.mention} gave up.",
+                                        f"**Timeout!** It's **{corrected_pokemon.name}**!",
                                         f"\nStreak: {cnt}",
                                         f"\nTotal score: {total_score}",
                                     ],
@@ -763,8 +762,8 @@ class WTP(interactions.Extension):
                         return await msg.edit(
                             content="".join(
                                 [
-                                    "**Who's that Pokemon?**\n\nTimeout! ",
-                                    f"It's **{corrected_pokemon.name.basename}**!",
+                                    "**Who's that Pokemon?**\n\n",
+                                    f"**Timeout!** It's **{corrected_pokemon.name}**!",
                                     f"\nStreak: {cnt}",
                                 ],
                             ),
@@ -883,25 +882,21 @@ class WTP(interactions.Extension):
 
         user_data = None
         if mode == "easy":
-            try:
-                user_data = await wtp_easy_saves.find_one(wtp_easy_saves.user_id == int(ctx.user.id))
-            except AttributeError:
-                embed = interactions.Embed(
-                    title="You have no history.",
-                    description="You have not played Who's that Pokemon yet.",
-                    color=color,
-                )
-                return await ctx.send(embeds=embed)
+            user_data = await wtp_easy_saves.find_one(
+                wtp_easy_saves.user_id == int(ctx.user.id)
+            )
         elif mode == "hard":
-            try:
-                user_data = await wtp_hard_saves.find_one(wtp_hard_saves.user_id == int(ctx.user.id))
-            except AttributeError:
-                embed = interactions.Embed(
-                    title="You have no history.",
-                    description="You have not played Who's that Pokemon yet.",
-                    color=color,
-                )
-                return await ctx.send(embeds=embed)
+            user_data = await wtp_hard_saves.find_one(
+                wtp_hard_saves.user_id == int(ctx.user.id)
+            )
+
+        if user_data is None:
+            embed = interactions.Embed(
+                title="You have no history",
+                description="You have not played Who's that Pokemon yet.",
+                color=color,
+            )
+            return await ctx.send(embed=embed)
 
         fields = []
         for index, history in enumerate(reversed(list(user_data.history))):
