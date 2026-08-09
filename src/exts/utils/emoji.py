@@ -317,37 +317,36 @@ class Emoji(interactions.Extension):
             if emoji_name is None:
                 emoji_name = emote.name
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    if resp.status != 200:
-                        return await ctx.send(
-                            "Invalid emoji. Please try again.", ephemeral=True
-                        )
-
-                    _io = (io.BytesIO(await resp.read())).read()
-                    image = interactions.File(
-                        file_name=(
-                            "unknown.gif" if emote.animated else "unknown.png"
-                        ),
-                        file=_io,
+            async with self.client.session.get(url) as resp:
+                if resp.status != 200:
+                    return await ctx.send(
+                        "Invalid emoji. Please try again.", ephemeral=True
                     )
-                    try:
-                        e = await ctx.guild.create_custom_emoji(
-                            imagefile=image, name=emoji_name
-                        )
-                    except interactions.errors.HTTPException as err:
-                        return await ctx.send(
-                            content=f"{err.text}.",
-                            ephemeral=True,
-                        )
 
-                    await ctx.send(
-                        content=(
-                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
-                            if e.animated is not True
-                            else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
-                        )
+                _io = (io.BytesIO(await resp.read())).read()
+                image = interactions.File(
+                    file_name=(
+                        "unknown.gif" if emote.animated else "unknown.png"
+                    ),
+                    file=_io,
+                )
+                try:
+                    e = await ctx.guild.create_custom_emoji(
+                        imagefile=image, name=emoji_name
                     )
+                except interactions.errors.HTTPException as err:
+                    return await ctx.send(
+                        content=f"{err.text}.",
+                        ephemeral=True,
+                    )
+
+                await ctx.send(
+                    content=(
+                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                        if e.animated is not True
+                        else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
+                    )
+                )
         elif emote.id is not None and emote.name is None:
             if emoji_name is None:
                 return await ctx.send(
@@ -364,39 +363,38 @@ class Emoji(interactions.Extension):
 
             url = f"https://cdn.discordapp.com/emojis/{str(emote.id)}"
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    if resp.status != 200:
-                        return await ctx.send(
-                            "Invalid emoji. Please try again.", ephemeral=True
-                        )
-
-                    _io = (io.BytesIO(await resp.read())).read()
-                    image = interactions.File(
-                        file_name=(
-                            "unknown.gif"
-                            if str(resp.content_type) == "image/gif"
-                            else "unknown.png"
-                        ),
-                        file=_io,
+            async with self.client.session.get(url) as resp:
+                if resp.status != 200:
+                    return await ctx.send(
+                        "Invalid emoji. Please try again.", ephemeral=True
                     )
-                    try:
-                        e = await ctx.guild.create_custom_emoji(
-                            imagefile=image, name=emoji_name
-                        )
-                    except interactions.errors.HTTPException as err:
-                        return await ctx.send(
-                            content=f"{err.text}.",
-                            ephemeral=True,
-                        )
 
-                    await ctx.send(
-                        content=(
-                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
-                            if e.animated is not True
-                            else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
-                        )
+                _io = (io.BytesIO(await resp.read())).read()
+                image = interactions.File(
+                    file_name=(
+                        "unknown.gif"
+                        if str(resp.content_type) == "image/gif"
+                        else "unknown.png"
+                    ),
+                    file=_io,
+                )
+                try:
+                    e = await ctx.guild.create_custom_emoji(
+                        imagefile=image, name=emoji_name
                     )
+                except interactions.errors.HTTPException as err:
+                    return await ctx.send(
+                        content=f"{err.text}.",
+                        ephemeral=True,
+                    )
+
+                await ctx.send(
+                    content=(
+                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                        if e.animated is not True
+                        else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
+                    )
+                )
 
         else:
             await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
@@ -459,107 +457,105 @@ class Emoji(interactions.Extension):
 
         # If the user chooses to add emoji from an URL.
         if url and image is None:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    if resp.status != 200:
-                        return await ctx.send(
-                            content="Invalid url. Please try again.",
-                            ephemeral=True,
-                        )
+            async with self.client.session.get(url) as resp:
+                if resp.status != 200:
+                    return await ctx.send(
+                        content="Invalid url. Please try again.",
+                        ephemeral=True,
+                    )
 
-                    if resp.content_type not in {
-                        "image/png",
-                        "image/jpeg",
-                        "imgage/jpg",
-                        "image/webp",
-                        "image/gif",
-                    }:
-                        return await ctx.send(
-                            content="".join(
-                                [
-                                    "Invalid url. Please try again.\nSuppo",
-                                    "rted format: png, jpeg, jpg, webp, gif",
-                                ]
-                            ),
-                            ephemeral=True,
-                        )
-
-                    _io = (io.BytesIO(await resp.read())).read()
-                    image = interactions.File(
-                        file=_io,
-                        file_name=(
-                            "unknown.gif"
-                            if resp.content_type == "image/gif"
-                            else "unknown.png"
+                if resp.content_type not in {
+                    "image/png",
+                    "image/jpeg",
+                    "imgage/jpg",
+                    "image/webp",
+                    "image/gif",
+                }:
+                    return await ctx.send(
+                        content="".join(
+                            [
+                                "Invalid url. Please try again.\nSuppo",
+                                "rted format: png, jpeg, jpg, webp, gif",
+                            ]
                         ),
+                        ephemeral=True,
                     )
-                    try:
-                        e = await ctx.guild.create_custom_emoji(
-                            imagefile=image, name=emoji_name
-                        )
-                    except interactions.errors.HTTPException as err:
-                        return await ctx.send(
-                            content=f"{err.text}.",
-                            ephemeral=True,
-                        )
 
-                    await ctx.send(
-                        content=(
-                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
-                            if e.animated is not True
-                            else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
-                        )
+                _io = (io.BytesIO(await resp.read())).read()
+                image = interactions.File(
+                    file=_io,
+                    file_name=(
+                        "unknown.gif"
+                        if resp.content_type == "image/gif"
+                        else "unknown.png"
+                    ),
+                )
+                try:
+                    e = await ctx.guild.create_custom_emoji(
+                        imagefile=image, name=emoji_name
                     )
+                except interactions.errors.HTTPException as err:
+                    return await ctx.send(
+                        content=f"{err.text}.",
+                        ephemeral=True,
+                    )
+
+                await ctx.send(
+                    content=(
+                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                        if e.animated is not True
+                        else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
+                    )
+                )
 
         # If the user chooses to add emoji from an attachment.
         if image and url is None:
             await ctx.defer()
 
-            async with aiohttp.ClientSession() as session:
-                async with session.get(image.url) as resp:
-                    if resp.content_type not in {
-                        "image/png",
-                        "image/jpeg",
-                        "imgage/jpg",
-                        "image/webp",
-                        "image/gif",
-                    }:
-                        return await ctx.send(
-                            content="".join(
-                                [
-                                    "Invalid url. Please try again.\nSuppo",
-                                    "rted format: png, jpeg, jpg, webp, gif",
-                                ]
-                            ),
-                            ephemeral=True,
-                        )
-
-                    _io = (io.BytesIO(await resp.read())).read()
-                    image = interactions.File(
-                        file=_io,
-                        file_name=(
-                            "unknown.gif"
-                            if resp.content_type == "image/gif"
-                            else "unknown.png"
+            async with self.client.session.get(image.url) as resp:
+                if resp.content_type not in {
+                    "image/png",
+                    "image/jpeg",
+                    "imgage/jpg",
+                    "image/webp",
+                    "image/gif",
+                }:
+                    return await ctx.send(
+                        content="".join(
+                            [
+                                "Invalid url. Please try again.\nSuppo",
+                                "rted format: png, jpeg, jpg, webp, gif",
+                            ]
                         ),
+                        ephemeral=True,
                     )
-                    try:
-                        e = await ctx.guild.create_custom_emoji(
-                            imagefile=image, name=emoji_name
-                        )
-                    except interactions.errors.HTTPException as err:
-                        return await ctx.send(
-                            content=f"{err.text}.",
-                            ephemeral=True,
-                        )
 
-                    await ctx.send(
-                        content=(
-                            f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
-                            if e.animated is not True
-                            else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
-                        )
+                _io = (io.BytesIO(await resp.read())).read()
+                image = interactions.File(
+                    file=_io,
+                    file_name=(
+                        "unknown.gif"
+                        if resp.content_type == "image/gif"
+                        else "unknown.png"
+                    ),
+                )
+                try:
+                    e = await ctx.guild.create_custom_emoji(
+                        imagefile=image, name=emoji_name
                     )
+                except interactions.errors.HTTPException as err:
+                    return await ctx.send(
+                        content=f"{err.text}.",
+                        ephemeral=True,
+                    )
+
+                await ctx.send(
+                    content=(
+                        f"Emoji <:{e.name}:{e.id}>`:{e.name}:` was created."
+                        if e.animated is not True
+                        else f"Emoji <a:{e.name}:{e.id}>`:{e.name}:` was created."
+                    )
+                )
 
     @emoji.subcommand(
         sub_cmd_name="remove",
