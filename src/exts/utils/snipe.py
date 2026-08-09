@@ -44,12 +44,15 @@ class Snipe(interactions.Extension):
         if not isinstance(message, interactions.Message):
             return
 
+        if message.author.bot:
+            return
+
         _channel_id = str(message.channel.id)
 
         if not self._cached.get(_channel_id, None):
             self._cached[_channel_id] = []
 
-        if len(self._cached[_channel_id]) == 5:
+        if len(self._cached[_channel_id]) >= 5:
             self._cached[_channel_id].pop(0)
 
         self._cached[_channel_id].append(
@@ -77,12 +80,13 @@ class Snipe(interactions.Extension):
             title="Deleted Messages (History)",
             footer=interactions.EmbedFooter(
                 text=f"Requested by {handle_username(ctx.author.user.username, ctx.author.user.discriminator)}",
-                icon_url=ctx.author.avatar.url,
+                icon_url=ctx.author.avatar_url,
             ),
             description="",
         )
         for i in self._cached[channel_id]:
-            embed.description += f"""<@{i["author_id"]}>: {i["content"]} - <t:{i["timestamp"]}:R>\n"""  # type: ignore
+            content = i["content"][:300] + ("…" if len(i["content"]) > 300 else "")
+            embed.description += f"""<@{i["author_id"]}>: {content} - <t:{i["timestamp"]}:R>\n"""  # type: ignore
 
         await ctx.send(embed=embed)
 
