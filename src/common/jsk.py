@@ -14,7 +14,8 @@ import contextlib
 import traceback
 import time
 import typing
-from datetime import datetime
+from collections import Counter
+from datetime import datetime, timedelta
 from interactions.ext.prefixed_commands import (
     prefixed_command,
     PrefixedContext,
@@ -25,6 +26,7 @@ from interactions import check, is_owner
 from interactions.ext.paginators import Paginator
 from interactions.ext.debug_extension.utils import get_cache_state, debug_embed
 from src.common import utils
+from src.common.models import usage as usage_db
 from src.const import VERSION
 
 
@@ -320,5 +322,66 @@ class Jsk(interactions.Extension):
             prefix="```py",
             suffix="```",
             page_size=2000,
+        )
+        return await paginator.reply(ctx)
+
+    @jsk.subcommand()
+    @check(is_owner())
+    async def usage(
+        self, ctx: PrefixedContext, timeframe: str = "day"
+    ) -> None:
+        """Shows command usage stats from MongoDB."""
+
+        if int(ctx.user.id) != int(self.client.owner.id):
+            return await ctx.send(
+                "You must be the bot owner to perform this action."
+            )
+
+        timeframe = timeframe.lower()
+        now = datetime.now()
+
+        if timeframe in ["day", "today", "daily"]:
+            start_date = now - timedelta(days=1)
+            tf_label = "Last 24 Hours"
+        elif timeframe in ["week", "weekly"]:
+            start_date = now - timedelta(days=7)
+            tf_label = "Last 7 Days"
+        elif timeframe in ["month", "monthly"]:
+            start_date = now - timedelta(days=30)
+            tf_label = "Last 30 Days"
+        elif timeframe in ["year", "yearly"]:
+            start_date = now - timedelta(days=365)
+            tf_label = "Last 365 Days"
+        else:
+            return await ctx.reply(
+                "Invalid timeframe. Choose from: `day`, `week`, `month`, `year`."
+            )
+
+        try:
+            logs = await usage_db.find(
+                usage_db.timestamp >= start_date
+            ).to_list()
+        except Exception as e:
+            return await ctx.reply(f"Failed to query database: {e}")
+
+        if not logs:
+            return await ctx.reply(
+                f"No command usage logs found for **{tf_label}**."
+            )
+
+        counts = Counter(log.command_name for log in logs)
+        total_runs = len(logs)
+
+        sorted_counts = counts.most_common()
+        output = [
+            f"{idx}. `/{cmd_name}`: `{count}` runs ({((count / total_runs) * 100):.1f}%)"
+            for idx, (cmd_name, count) in enumerate(sorted_counts, 1)
+        ]
+
+        paginator = Paginator.create_from_list(
+            self.client,
+            output,
+            prefix=f"**Usage Report ({tf_label})**\nTotal: `{total_runs}` | Commands: `{len(counts)}`\n\n",
+            page_size=300,
         )
         return await paginator.reply(ctx)

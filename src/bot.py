@@ -27,6 +27,7 @@ from src.common.models import (
     hangman_saves,
     wtp_easy_saves,
     wtp_hard_saves,
+    usage
 )
 
 
@@ -255,7 +256,7 @@ async def start() -> None:
         logging.info("Successfully connected to MongoDB!")
         await init_beanie(
             client.mongo_db,
-            document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves],
+            document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves, usage],
         )
     except Exception as e:
         logging.error("Failed to connect to MongoDB: %s", e)
@@ -264,6 +265,7 @@ async def start() -> None:
     try:
         client.load_extension("src.common.jsk")
         client.load_extension("src.common.error_handler")
+        client.load_extension("src.common.usage")
         client.load_extension("src.exts.core.__init__")
         client.load_extension("src.exts.fun.__init__")
         client.load_extension("src.exts.utils.__init__")
