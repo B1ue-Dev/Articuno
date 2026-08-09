@@ -36,6 +36,9 @@ def generate_ascii_image(img, size, sharpness, brightness, rgb_tuple, custom_fon
     img_buffer = io.BytesIO()
     ascii_art_png.save(img_buffer, "PNG")
     img_buffer.seek(0)
+    
+    img.close()
+    ascii_art_png.close()
 
     return ascii_art_txt, img_buffer
 
@@ -58,8 +61,12 @@ def generate_text_image(text: str, rgb_tuple: tuple) -> io.BytesIO:
     )
 
     final = io.BytesIO()
-    imgs.save(final, "png")
+    imgs.save(final, "PNG")
     final.seek(0)
+    
+    i.close()
+    imgs.close()
+
     return final
 
 
