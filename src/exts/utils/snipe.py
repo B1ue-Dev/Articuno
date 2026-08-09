@@ -20,7 +20,19 @@ class Snipe(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self._cached: dict[str, str] = {}
+        self._cached: dict[str, list[dict[str, str]]] = {}
+        self.clear_cache.start()
+
+    @interactions.Task.create(interactions.IntervalTrigger(seconds=60))
+    async def clear_cache(self) -> None:
+        current_time = datetime.now().timestamp()
+        for channel_id in list(self._cached.keys()):
+            self._cached[channel_id] = [
+                msg for msg in self._cached[channel_id]
+                if current_time - float(msg["timestamp"]) < 300
+            ]
+            if not self._cached[channel_id]:
+                self._cached.pop(channel_id, None)
 
     @interactions.listen(interactions.events.MessageDelete)
     async def on_message_delete(
@@ -48,18 +60,6 @@ class Snipe(interactions.Extension):
             }
         )
 
-        async def delete_message():
-            try:
-                _item = self._cached[_channel_id][-1:][0]
-                await asyncio.sleep(300)
-                self._cached[_channel_id].remove(_item)
-            except ValueError:
-                pass
-
-            if len(self._cached[_channel_id]) == 0:
-                self._cached.pop(_channel_id)
-
-        asyncio.create_task(delete_message())
 
     @hybrid_slash_command(
         name="snipe",
