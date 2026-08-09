@@ -51,8 +51,8 @@ def draw_frame(crewmate_img, stars, text, crewmate_x):
 
 
 def make_gif(username, impostor, buf):
-    with Image.open(buf).convert("RGBA") as _member_avatar:
-        member_avatar = _member_avatar
+    with Image.open(buf) as _member_avatar:
+        member_avatar = _member_avatar.convert("RGBA")
     crewmate_img_orig = member_avatar.resize((128, 128), Image.LANCZOS)
 
     text = (

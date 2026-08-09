@@ -22,13 +22,15 @@ from src.common.utils import get_response, get_color, rgb_to_int
 from src.common.models import wtp_easy_saves, wtp_hard_saves
 
 
-bg = Image.open("./src/assets/whos_that_pokemon_1_optimized.webp")
+with Image.open("./src/assets/whos_that_pokemon_1_optimized.webp") as _bg:
+    bg = _bg.convert("RGBA")
 
 
 def _resize_pokemon_image(buf) -> Image.Image:
     """Resize the original Pokemon image to suit the background."""
 
-    img = Image.open(buf).convert("RGBA")
+    with Image.open(buf) as _img:
+        img = _img.convert("RGBA")
     print(f"Image size: {img.size}")
     if img.size[1] <= 130:
         img = img.resize((int(img.width * 3.9), int(img.height * 3.9)))
@@ -81,6 +83,11 @@ def _generate_image(img: Image, correct_pokemon: Pokemon) -> list[interactions.F
         file=out2,
         description=f"{correct_pokemon.name}",
     )
+
+    img.close()
+    _black_image.close()
+    text_img.close()
+    _text_img.close()
 
     return [file, _file]
 

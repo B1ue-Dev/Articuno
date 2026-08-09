@@ -18,14 +18,13 @@ from src.common.utils import get_response
 
 def generate_pet_gif(buf) -> BytesIO:
 
-    member_avatar = Image.open(buf).convert("RGBA")
-    member_avatar = member_avatar.resize(
-        (75, 75), Image.Resampling.LANCZOS
-    )
+    with Image.open(buf) as _member_avatar:
+        member_avatar = _member_avatar.convert("RGBA").resize(
+            (75, 75), Image.Resampling.LANCZOS
+        )
     # base canvas
-    sprite = Image.open("./src/assets/sprite.png", mode="r").convert(
-        "RGBA"
-    )
+    with Image.open("./src/assets/sprite.png", mode="r") as _sprite:
+        sprite = _sprite.convert("RGBA")
 
     # pasting the pfp
     images = []

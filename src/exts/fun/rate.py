@@ -26,7 +26,8 @@ def lerp_color(color1, color2, factor):
 
 def overlay_gay(buf) -> BytesIO:
 
-    img = Image.open(buf).convert("RGBA")
+    with Image.open(buf) as _img:
+        img = _img.convert("RGBA")
     w, h = img.size
 
     colors = [
