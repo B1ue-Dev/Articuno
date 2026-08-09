@@ -22,6 +22,18 @@ class Edited(interactions.Extension):
         self.client: interactions.Client = client
         # channel_id -> message_id -> list of versions
         self._cached: dict[str, dict[str, list[dict[str, str]]]] = {}
+        self.clear_cache.start()
+
+    @interactions.Task.create(interactions.IntervalTrigger(seconds=60))
+    async def clear_cache(self) -> None:
+        current_time = datetime.now().timestamp()
+        for channel_id in list(self._cached.keys()):
+            for message_id in list(self._cached[channel_id].keys()):
+                versions = self._cached[channel_id][message_id]
+                if versions and current_time - float(versions[-1]["timestamp"]) >= 300:
+                    self._cached[channel_id].pop(message_id, None)
+            if not self._cached[channel_id]:
+                self._cached.pop(channel_id, None)
 
     @interactions.listen(interactions.events.MessageUpdate)
     async def on_message_edit(
@@ -60,16 +72,6 @@ class Edited(interactions.Extension):
             }
         )
 
-        async def delete_history():
-            await asyncio.sleep(300)
-            try:
-                self._cached[channel_id].pop(message_id)
-                if not self._cached[channel_id]:
-                    self._cached.pop(channel_id)
-            except KeyError:
-                pass
-
-        asyncio.create_task(delete_history())
 
     @hybrid_slash_command(
         name="edited",
