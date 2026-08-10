@@ -20,7 +20,9 @@ jobs:
           show-emoji: false
 
       - name: Get the changelog
-        run: echo "${{ steps.changelog.outputs.changelog }}"
+        env:
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+        run: printf '%s\n' "$CHANGELOG"
 
       - name: Create Release
         uses: ncipollo/release-action@v1
