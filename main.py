@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
         asyncio.run(start())
     except KeyboardInterrupt:
-        print("Shutting down...")
+        print("KeyboardInterrupt, shutting down...")
         sys.exit(0)
     except Exception as e:
         traceback.print_exc()

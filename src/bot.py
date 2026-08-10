@@ -7,9 +7,11 @@ Root bot file.
 import sys
 import asyncio
 import logging
+import gc
 from datetime import datetime, timedelta, timezone, UTC
 import aiohttp
 import interactions
+from interactions import Task, IntervalTrigger
 import interactions.models as models
 import colorlog
 from interactions.ext.prefixed_commands import setup as prefixed_setup
@@ -219,9 +221,16 @@ async def on_bot_mentions(_msg: interactions.events.MessageCreate) -> None:
         await msg.channel.send(embeds=embed)
 
 
+@Task.create(IntervalTrigger(minutes=15))
+async def periodic_gc() -> None:
+    """Periodically collect garbage to release unreferenced memory arenas."""
+    gc.collect()
+
+
 async def start() -> None:
     """Starts the bot."""
 
+    periodic_gc.start()
     client.session = aiohttp.ClientSession()
 
     if debug_system is True:
