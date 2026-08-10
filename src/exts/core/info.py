@@ -128,7 +128,7 @@ class Info(interactions.Extension):
             else:
                 _hash = (user.id >> 22) % 6
         elif isinstance(user, interactions.Member):
-            if getattr(user.user.avatar, "url"):
+            if getattr(user.user.avatar, "url", None):
                 _url = user.user.avatar.url
             else:
                 _hash = (user.id >> 22) % 6
@@ -593,7 +593,7 @@ class Info(interactions.Extension):
                 name="Flags", value=f"{flags}", inline=True
             ),
         ]
-        if ctx.guild is None and ctx.guild_id:
+        if ctx.guild is not None and ctx.guild_id:
             nick: str = ctx.target.nick
             fields.insert(
                 1,

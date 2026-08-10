@@ -368,7 +368,7 @@ class Hman(interactions.Extension):
                                 message=_res.message_id, embed=embed
                             )
 
-                    elif len(ans) == len(ans) and ans.isalpha():
+                    elif len(ans) > 1 and ans.isalpha():
                         if ans in guessed_words:
                             embed.description = (
                                 f"You already guessed the word {ans}."

@@ -51,7 +51,7 @@ async def handle_error(
     traceb = traceb.replace("\\", "/")
 
     logging.error(traceb)
-    cmd_called = f"{ctx.invoke_target} with {ctx.args = } | {ctx.kwargs = }"
+    cmd_called = f"{ctx.invoke_target} with {ctx.args = } | {ctx.kwargs = }" if ctx else "N/A"
 
     traceb_desc = "".join(
         [
