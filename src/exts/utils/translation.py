@@ -88,6 +88,7 @@ class Translation(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
+        self.translator = Translator()
         self.select_menu = interactions.StringSelectMenu(
             [
                 interactions.StringSelectOption(
@@ -184,7 +185,6 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        translator = Translator()
         msg: interactions.Message = ctx.target
         content = msg.content
 
@@ -193,8 +193,8 @@ class Translation(interactions.Extension):
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = translator.detect(content).lang
-        translated_text = translator.translate(content).text
+        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
+        translated_text = (await asyncio.to_thread(self.translator.translate, content)).text
 
         embed = interactions.Embed(
             title="".join(
@@ -221,7 +221,7 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = translator.translate(content, dest=selects)
+                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -270,9 +270,8 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        translator = Translator()
-        detected_lang = translator.detect(content).lang
-        translation = translator.translate(content, dest="en")
+        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
+        translation = await asyncio.to_thread(self.translator.translate, content, dest="en")
         translated_text = translation.text
 
         embed = interactions.Embed(
@@ -301,7 +300,7 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = translator.translate(content, dest=selects)
+                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -373,17 +372,15 @@ class Translation(interactions.Extension):
                 ephemeral=True,
             )
 
-        translator = Translator()
         content = msg["content"]
         if str(content) == "None" or str(content) == "":
             return await ctx.send(
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = translator.detect(content).lang
-        translation = translator.translate(content, dest=lang)
+        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
+        translation = await asyncio.to_thread(self.translator.translate, content, dest=lang)
         translated_text = translation.text
-        lang = translator.detect(content).lang
 
         embed = interactions.Embed(
             title="".join(
@@ -411,7 +408,7 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = translator.translate(content, dest=selects)
+                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
                 translated_text = translation.text
 
                 embed = interactions.Embed(
