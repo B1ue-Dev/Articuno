@@ -7,6 +7,7 @@ Tag system.
 import asyncio
 import logging
 import re
+import time
 from datetime import datetime, timezone
 from beanie import PydanticObjectId
 import interactions
@@ -25,6 +26,7 @@ def get_utc_time() -> datetime:
 class Tag(interactions.Extension):
     def __init__(self, client: interactions.Client):
         self.client: interactions.Client = client
+        self.tag_cache = {}
 
     @interactions.slash_command(
         name="tag",
@@ -444,8 +446,20 @@ class Tag(interactions.Extension):
         """Autcomplete for tag commands."""
 
         guild_id = str(ctx.guild_id)
+        now = time.time()
 
-        if guild_tags := await tags.find_one(tags.guild_id == guild_id):
+        guild_tags = None
+        if guild_id in self.tag_cache:
+            cached_time, cached_tags = self.tag_cache[guild_id]
+            if now - cached_time < 30:
+                guild_tags = cached_tags
+
+        if guild_tags is None:
+            guild_tags = await tags.find_one(tags.guild_id == guild_id)
+            if guild_tags:
+                self.tag_cache[guild_id] = (now, guild_tags)
+
+        if guild_tags:
 
             if tag_name := ctx.kwargs.get("tag_name"):
                 letters: list = list(tag_name) if tag_name != "" else []
