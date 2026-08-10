@@ -240,26 +240,29 @@ async def send_promote(ctx: interactions.SlashContext, cmd_type: str):
         else:
             random_hard_number = random.randint(100, 250)
 
-    topgg_button = interactions.Button(
-        style=interactions.ButtonStyle.URL,
-        label="Vote for Articuno",
-        url="https://top.gg/bot/809084067446259722/vote",
-    )
-    donate_button = interactions.Button(
-        style=interactions.ButtonStyle.URL,
-        label="Support Articuno",
-        url="https://buymeacoffee.com/b1uedev",
-    )
-    msg = await ctx.send(
-        components=[topgg_button, donate_button],
-        content="**Like the bot?**\n"
-        "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
-        "It's a great way to support Articuno too and help it grow :)\n"
-        "-# This message will be deleted in 10 seconds.",
-    )
+    async def _send_and_delete():
+        topgg_button = interactions.Button(
+            style=interactions.ButtonStyle.URL,
+            label="Vote for Articuno",
+            url="https://top.gg/bot/809084067446259722/vote",
+        )
+        donate_button = interactions.Button(
+            style=interactions.ButtonStyle.URL,
+            label="Support Articuno",
+            url="https://buymeacoffee.com/b1uedev",
+        )
+        msg = await ctx.send(
+            components=[topgg_button, donate_button],
+            content="**Like the bot?**\n"
+            "Consider voting the bot on Top.gg, so more people will be able to know Articuno ✨🦅\n"
+            "It's a great way to support Articuno too and help it grow :)\n"
+            "-# This message will be deleted in 10 seconds.",
+        )
 
-    await asyncio.sleep(10)
-    try:
-        await msg.delete()
-    except Exception:
-        pass
+        await asyncio.sleep(10)
+        try:
+            await msg.delete()
+        except Exception:
+            pass
+
+    asyncio.create_task(_send_and_delete())
