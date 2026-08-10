@@ -10,7 +10,6 @@ from datetime import datetime
 from typing import List
 from unicodedata import normalize
 from aiohttp import ClientSession
-from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
 from interactions.ext.hybrid_commands import (
@@ -170,15 +169,17 @@ class Hman(interactions.Extension):
             value=f"""```\n{display_hangman(tries)}\n```""",
         )
 
-        if not await hangman_saves.find_one(
+        user_data = await hangman_saves.find_one(
             hangman_saves.user_id == int(ctx.user.id)
-        ).exists():
-            await hangman_saves(
+        )
+        if user_data is None:
+            user_data = hangman_saves(
                 user_id=int(ctx.user.id),
                 user_name=ctx.user.username,
                 highest_point=0,
                 history=[],
-            ).save()
+            )
+            await user_data.save()
 
         msg = await ctx.send(embed=embed, components=button)
 
@@ -306,7 +307,6 @@ class Hman(interactions.Extension):
                                     2 if tries > 3 else 1
                                 )
 
-                                user_data = await hangman_saves.find_one(hangman_saves.user_id == int(ctx.user.id))
                                 user_data.highest_point = (
                                     user_data.highest_point + gained_point
                                 )
@@ -420,7 +420,6 @@ class Hman(interactions.Extension):
                                 2 if tries > 3 else 1
                             )
 
-                            user_data = await hangman_saves.find_one(hangman_saves.user_id == int(ctx.user.id))
                             user_data.highest_point = (
                                 user_data.highest_point + gained_point
                             )
