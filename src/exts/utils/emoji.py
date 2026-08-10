@@ -323,7 +323,7 @@ class Emoji(interactions.Extension):
                         "Invalid emoji. Please try again.", ephemeral=True
                     )
 
-                _io = (io.BytesIO(await resp.read())).read()
+                _io = await resp.read()
                 image = interactions.File(
                     file_name=(
                         "unknown.gif" if emote.animated else "unknown.png"
@@ -369,7 +369,7 @@ class Emoji(interactions.Extension):
                         "Invalid emoji. Please try again.", ephemeral=True
                     )
 
-                _io = (io.BytesIO(await resp.read())).read()
+                _io = await resp.read()
                 image = interactions.File(
                     file_name=(
                         "unknown.gif"
@@ -481,7 +481,7 @@ class Emoji(interactions.Extension):
                         ephemeral=True,
                     )
 
-                _io = (io.BytesIO(await resp.read())).read()
+                _io = await resp.read()
                 image = interactions.File(
                     file=_io,
                     file_name=(
@@ -530,7 +530,7 @@ class Emoji(interactions.Extension):
                         ephemeral=True,
                     )
 
-                _io = (io.BytesIO(await resp.read())).read()
+                _io = await resp.read()
                 image = interactions.File(
                     file=_io,
                     file_name=(
