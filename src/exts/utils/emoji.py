@@ -36,11 +36,9 @@ class Emote:
         self.created_at = kwargs.get("created_at", None)
 
     def __str__(self):
-        return (
-            f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
-            if self.id is not None
-            else self.name
-        )
+        if self.id is not None:
+            return f"<{'a' if self.animated else ''}:{self.name}:{self.id}>"
+        return self.name or ""
 
     @classmethod
     def get_emoji(cls, emoji_str: str) -> "Emote":
@@ -49,8 +47,8 @@ class Emote:
 
         :param emoji_str: The emoji string.
         :type emoji_str: str
-        :return: The ID of the emoji.
-        :rtype: int
+        :return: An Emote parsed from the string.
+        :rtype: Emote
         """
 
         if (
@@ -58,40 +56,37 @@ class Emote:
             and emoji_str.startswith("<")
             and emoji_str.endswith(">")
         ):
-            emoji_regex = re.compile(r"<?(a)?:(\w*):(\d*)>?")
+            emoji_regex = re.compile(r"<(a)?:(\w+):(\d+)>")
+            match = emoji_regex.match(emoji_str)
 
-            parsed = emoji_regex.findall(emoji_str)
-            if parsed:
-                parsed = tuple(filter(None, parsed[0]))
-                if len(parsed) == 3:
-                    return Emote(
-                        name=parsed[1],
-                        id=parsed[2],
-                        animated=True,
-                        created_at=interactions.to_snowflake(
-                            parsed[2]
-                        ).created_at,
-                    )
-                else:
-                    return Emote(
-                        name=parsed[0],
-                        id=parsed[1],
-                        animated=False,
-                        created_at=interactions.to_snowflake(
-                            parsed[1]
-                        ).created_at,
-                    )
+            if match:
+                animated_flag, name, snowflake_id = match.groups()
+                return Emote(
+                    name=name,
+                    id=int(snowflake_id),
+                    animated=bool(animated_flag),
+                    created_at=interactions.to_snowflake(
+                        snowflake_id
+                    ).created_at,
+                )
+            else:
+                return Emote(name=emoji_str)
 
-        elif emoji_str.isnumeric() and len(emoji_str) > 0:
-            return Emote(id=int(emoji_str))
+        elif emoji_str.isdecimal():
+            return Emote(
+                id=int(emoji_str),
+                created_at=interactions.to_snowflake(emoji_str).created_at,
+            )
 
         else:
             return Emote(name=str(emoji_str))
 
     @property
-    def url(self) -> str:
-        """Returns the url of the emoji."""
+    def url(self) -> str | None:
+        """Returns the url of the emoji, or None if this Emote has no id."""
 
+        if self.id is None:
+            return None
         return f"https://cdn.discordapp.com/emojis/{self.id}" + (
             ".gif" if self.animated else ".png"
         )
@@ -645,7 +640,7 @@ class Emoji(interactions.Extension):
         """Message context for getting the emoji information."""
 
         message: interactions.Message = ctx.target
-        emoji_regex = re.compile(r"<?(a)?:(\w*):(\d+)>?")
+        emoji_regex = re.compile(r"<(a)?:(\w+):(\d+)>")
         parsed = emoji_regex.findall(message.content)
 
         if len(parsed) > 1:
@@ -675,7 +670,10 @@ class Emoji(interactions.Extension):
                         messages=int(msg.id),
                         timeout=30,
                     )
-                    _emoji = Emote().get_emoji(res.ctx.values[0])
+                    _emoji = Emote.get_emoji(res.ctx.values[0])
+
+                    if _emoji.id is None:
+                        return await ctx.send("Invalid custom emoji.", ephemeral=True)
 
                     image = interactions.EmbedAttachment(url=_emoji.url)
                     embed = interactions.Embed(
@@ -708,6 +706,9 @@ class Emoji(interactions.Extension):
             _emoji = Emote().get_emoji(
                 f"<{parsed[0][0]}:{parsed[0][1]}:{parsed[0][2]}>"
             )
+
+            if _emoji.id is None:
+                return await ctx.send("Invalid custom emoji.", ephemeral=True)
 
             image = interactions.EmbedAttachment(url=_emoji.url)
             embed = interactions.Embed(
