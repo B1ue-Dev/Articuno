@@ -22,6 +22,12 @@ from src.common.utils import get_response, get_color, rgb_to_int
 from src.common.models import wtp_easy_saves, wtp_hard_saves
 
 
+class AutoCloseFile(interactions.File):
+    def __del__(self):
+        if self.file:
+            self.file.close()
+
+
 with Image.open("./src/assets/whos_that_pokemon_1_optimized.webp") as _bg:
     bg = _bg.convert("RGBA")
 
@@ -64,7 +70,7 @@ def _generate_image(img: Image, correct_pokemon: Pokemon) -> list[interactions.F
     out1 = io.BytesIO()
     text_img.save(out1, format="PNG")
     out1.seek(0)
-    file = interactions.File(
+    file = AutoCloseFile(
         file_name="image.png",
         file=out1,
         description="Guess the Pokemon.",
@@ -78,7 +84,7 @@ def _generate_image(img: Image, correct_pokemon: Pokemon) -> list[interactions.F
     out2 = io.BytesIO()
     _text_img.save(out2, format="PNG")
     out2.seek(0)
-    _file = interactions.File(
+    _file = AutoCloseFile(
         file_name="image.png",
         file=out2,
         description=f"{correct_pokemon.name}",
