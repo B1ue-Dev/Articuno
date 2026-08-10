@@ -236,10 +236,14 @@ async def start() -> None:
     if debug_system is True:
         logging.warning("Debug mode for Articuno is enabled.")
     else:
+
+        def parse_version(v: str):
+            return tuple(map(int, v.lstrip("v").split(".")))
+
         latest_release_version = await Init.get_latest_release_version(client.session)
         if (
             latest_release_version is not None
-            and latest_release_version > VERSION
+            and parse_version(latest_release_version) > parse_version(VERSION)
         ):
             print(
                 "".join(
