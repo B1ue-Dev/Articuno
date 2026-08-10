@@ -315,7 +315,8 @@ class Emoji(interactions.Extension):
             async with self.client.session.get(url) as resp:
                 if resp.status != 200:
                     return await ctx.send(
-                        "Invalid custom emoji. Please try again.", ephemeral=True
+                        "Invalid custom emoji. Please try again.",
+                        ephemeral=True,
                     )
 
                 _io = await resp.read()
@@ -361,7 +362,8 @@ class Emoji(interactions.Extension):
             async with self.client.session.get(url) as resp:
                 if resp.status != 200:
                     return await ctx.send(
-                        "Invalid custom emoji. Please try again.", ephemeral=True
+                        "Invalid custom emoji. Please try again.",
+                        ephemeral=True,
                     )
 
                 _io = await resp.read()
@@ -392,7 +394,9 @@ class Emoji(interactions.Extension):
                 )
 
         else:
-            await ctx.send("Invalid custom emoji. Please try again.", ephemeral=True)
+            await ctx.send(
+                "Invalid custom emoji. Please try again.", ephemeral=True
+            )
 
     @emoji.subcommand(
         sub_cmd_name="add",
@@ -451,7 +455,9 @@ class Emoji(interactions.Extension):
             )
 
         if not url and not image:
-            return await ctx.send("Please choose either `url` or `image`.", ephemeral=True)
+            return await ctx.send(
+                "Please choose either `url` or `image`.", ephemeral=True
+            )
 
         # If the user chooses to add emoji from an URL.
         if url and image is None:
@@ -675,7 +681,9 @@ class Emoji(interactions.Extension):
                     _emoji = Emote.get_emoji(res.ctx.values[0])
 
                     if _emoji.id is None:
-                        return await ctx.send("Invalid custom emoji.", ephemeral=True)
+                        return await ctx.send(
+                            "Invalid custom emoji.", ephemeral=True
+                        )
 
                     image = interactions.EmbedAttachment(url=_emoji.url)
                     embed = interactions.Embed(
@@ -723,7 +731,9 @@ class Emoji(interactions.Extension):
                 color=0x788CDC,
                 images=[image],
             )
-            await ctx.send(content=f"<{_emoji.url}>", embeds=embed, ephemeral=True)
+            await ctx.send(
+                content=f"<{_emoji.url}>", embeds=embed, ephemeral=True
+            )
 
         elif len(unique_parsed) == 0:
             return await ctx.send(

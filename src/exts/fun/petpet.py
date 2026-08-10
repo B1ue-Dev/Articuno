@@ -17,7 +17,6 @@ from src.common.utils import get_response
 
 
 def generate_pet_gif(buf) -> BytesIO:
-
     with Image.open(buf) as _member_avatar:
         member_avatar = _member_avatar.convert("RGBA").resize(
             (75, 75), Image.Resampling.LANCZOS
@@ -69,7 +68,6 @@ def generate_pet_gif(buf) -> BytesIO:
     return fp
 
 
-
 class Petpet(interactions.Extension):
     """Extension for petpet commands."""
 
@@ -96,7 +94,10 @@ class Petpet(interactions.Extension):
         buf = await get_response(user.display_avatar.url, self.client.session)
 
         if not buf:
-            return await ctx.send("Failed to download avatar. Please try again later.", ephemeral=True)
+            return await ctx.send(
+                "Failed to download avatar. Please try again later.",
+                ephemeral=True,
+            )
 
         fp = await asyncio.to_thread(generate_pet_gif, buf)
         _file = interactions.File(file=fp, file_name="petpet.gif")

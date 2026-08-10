@@ -193,8 +193,12 @@ class Translation(interactions.Extension):
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
-        translated_text = (await asyncio.to_thread(self.translator.translate, content)).text
+        detected_lang = (
+            await asyncio.to_thread(self.translator.detect, content)
+        ).lang
+        translated_text = (
+            await asyncio.to_thread(self.translator.translate, content)
+        ).text
 
         embed = interactions.Embed(
             title="".join(
@@ -221,7 +225,9 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
+                translation = await asyncio.to_thread(
+                    self.translator.translate, content, dest=selects
+                )
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -270,8 +276,12 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
-        translation = await asyncio.to_thread(self.translator.translate, content, dest="en")
+        detected_lang = (
+            await asyncio.to_thread(self.translator.detect, content)
+        ).lang
+        translation = await asyncio.to_thread(
+            self.translator.translate, content, dest="en"
+        )
         translated_text = translation.text
 
         embed = interactions.Embed(
@@ -300,7 +310,9 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
+                translation = await asyncio.to_thread(
+                    self.translator.translate, content, dest=selects
+                )
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -363,7 +375,7 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        msg: dict | None  = None
+        msg: dict | None = None
         try:
             msg = await self.client.http.get_message(channel_id, message_id)
         except interactions.errors.HTTPException:
@@ -378,8 +390,12 @@ class Translation(interactions.Extension):
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = (await asyncio.to_thread(self.translator.detect, content)).lang
-        translation = await asyncio.to_thread(self.translator.translate, content, dest=lang)
+        detected_lang = (
+            await asyncio.to_thread(self.translator.detect, content)
+        ).lang
+        translation = await asyncio.to_thread(
+            self.translator.translate, content, dest=lang
+        )
         translated_text = translation.text
 
         embed = interactions.Embed(
@@ -408,7 +424,9 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(self.translator.translate, content, dest=selects)
+                translation = await asyncio.to_thread(
+                    self.translator.translate, content, dest=selects
+                )
                 translated_text = translation.text
 
                 embed = interactions.Embed(

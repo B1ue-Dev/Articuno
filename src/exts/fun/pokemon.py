@@ -15,7 +15,8 @@ from interactions.ext.hybrid_commands import (
 )
 
 
-with open("./src/db/pokemon.json", "r", encoding="utf8") as f: data = json.load(f)
+with open("./src/db/pokemon.json", "r", encoding="utf8") as f:
+    data = json.load(f)
 poketwo_list: List[str] = []
 for mon in list(data.keys()):
     poketwo_list.append(data[mon]["name"])

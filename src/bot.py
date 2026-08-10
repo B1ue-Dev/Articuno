@@ -29,7 +29,7 @@ from src.common.models import (
     hangman_saves,
     wtp_easy_saves,
     wtp_hard_saves,
-    usage
+    usage,
 )
 
 
@@ -43,9 +43,10 @@ class Init:
         UTC_PLUS_7 = timezone(timedelta(hours=7))
         return datetime.now(tz=UTC_PLUS_7)
 
-
     @classmethod
-    async def get_latest_release_version(cls, session: aiohttp.ClientSession) -> str:
+    async def get_latest_release_version(
+        cls, session: aiohttp.ClientSession
+    ) -> str:
         """Returns the latest version of Articuno on GitHub."""
 
         url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
@@ -156,7 +157,7 @@ async def on_startup() -> None:
         db_name = client.mongo_db.name
         try:
             stats = await client.mongo_db.command("dbstats")
-            size_in_mb = stats["dataSize"] / (1024 ** 2)
+            size_in_mb = stats["dataSize"] / (1024**2)
             logging.info(
                 f"""Connected to MongoDB cluster.
                 Database: {db_name}
@@ -240,11 +241,12 @@ async def start() -> None:
         def parse_version(v: str):
             return tuple(map(int, v.lstrip("v").split(".")))
 
-        latest_release_version = await Init.get_latest_release_version(client.session)
-        if (
-            latest_release_version is not None
-            and parse_version(latest_release_version) > parse_version(VERSION)
-        ):
+        latest_release_version = await Init.get_latest_release_version(
+            client.session
+        )
+        if latest_release_version is not None and parse_version(
+            latest_release_version
+        ) > parse_version(VERSION):
             print(
                 "".join(
                     [
@@ -269,7 +271,13 @@ async def start() -> None:
         logging.info("Successfully connected to MongoDB!")
         await init_beanie(
             client.mongo_db,
-            document_models=[tags, hangman_saves, wtp_easy_saves, wtp_hard_saves, usage],
+            document_models=[
+                tags,
+                hangman_saves,
+                wtp_easy_saves,
+                wtp_hard_saves,
+                usage,
+            ],
         )
     except Exception as e:
         logging.error("Failed to connect to MongoDB: %s", e)
@@ -288,7 +296,9 @@ async def start() -> None:
         logging.error("AIOHTTP Client Error: %s", e)
         sys.exit(1)
     except Exception as e:
-        logging.error("An error occurred during bot startup: %s", e, exc_info=True)
+        logging.error(
+            "An error occurred during bot startup: %s", e, exc_info=True
+        )
         sys.exit(1)
     finally:
         if client.session:

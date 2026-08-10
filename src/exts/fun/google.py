@@ -88,7 +88,9 @@ class Google(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
-        self.google_icon: str = "https://pngimg.com/uploads/google/google_PNG19645.png"
+        self.google_icon: str = (
+            "https://pngimg.com/uploads/google/google_PNG19645.png"
+        )
 
     @hybrid_slash_command(
         name="img",
@@ -144,7 +146,6 @@ class Google(interactions.Extension):
             max_page = len(all_result) - 1
 
             def build_embed(index: int) -> interactions.Embed:
-
                 image_data = all_result[index]
                 embed = interactions.Embed(
                     title=f"Image for: {query}",

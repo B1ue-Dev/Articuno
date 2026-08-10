@@ -175,12 +175,19 @@ class Amogus(interactions.Extension):
         else:
             impostor = bool(impostor)
 
-        buf = await get_response(user.display_avatar.url, session=self.client.session)
+        buf = await get_response(
+            user.display_avatar.url, session=self.client.session
+        )
 
         if not buf:
-            return await ctx.send("Failed to download avatar. Please try again later.", ephemeral=True)
+            return await ctx.send(
+                "Failed to download avatar. Please try again later.",
+                ephemeral=True,
+            )
 
-        fp = await asyncio.to_thread(make_gif, user.display_name, impostor, buf)
+        fp = await asyncio.to_thread(
+            make_gif, user.display_name, impostor, buf
+        )
         file = interactions.File(file=fp, file_name="amogus.gif")
         await ctx.send(file=file)
         from src.common.utils import send_promote

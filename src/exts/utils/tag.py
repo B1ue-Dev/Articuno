@@ -459,7 +459,6 @@ class Tag(interactions.Extension):
                 self.tag_cache[guild_id] = (now, guild_tags)
 
         if guild_tags:
-
             if tag_name := ctx.kwargs.get("tag_name"):
                 letters: list = list(tag_name) if tag_name != "" else []
                 choices: list = []

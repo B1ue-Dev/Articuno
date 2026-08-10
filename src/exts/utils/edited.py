@@ -30,7 +30,10 @@ class Edited(interactions.Extension):
         for channel_id in list(self._cached.keys()):
             for message_id in list(self._cached[channel_id].keys()):
                 versions = self._cached[channel_id][message_id]
-                if versions and current_time - float(versions[-1]["timestamp"]) >= 300:
+                if (
+                    versions
+                    and current_time - float(versions[-1]["timestamp"]) >= 300
+                ):
                     self._cached[channel_id].pop(message_id, None)
             if not self._cached[channel_id]:
                 self._cached.pop(channel_id, None)
@@ -68,7 +71,9 @@ class Edited(interactions.Extension):
             self._cached[channel_id][message_id] = [
                 {
                     "content": before.content,
-                    "timestamp": str(round(before.timestamp.timestamp())) if hasattr(before, "timestamp") and before.timestamp else str(round(datetime.now().timestamp())),
+                    "timestamp": str(round(before.timestamp.timestamp()))
+                    if hasattr(before, "timestamp") and before.timestamp
+                    else str(round(datetime.now().timestamp())),
                     "author_id": str(before.author.id),
                 }
             ]
@@ -84,7 +89,6 @@ class Edited(interactions.Extension):
                 "author_id": str(before.author.id),
             }
         )
-
 
     @hybrid_slash_command(
         name="edited",
@@ -113,19 +117,25 @@ class Edited(interactions.Extension):
                 break
 
             author_id = versions[0]["author_id"]
-            
-            msg_desc = f"<@{author_id}> edited a message (ID: `{message_id}`):\n"
-            
+
+            msg_desc = (
+                f"<@{author_id}> edited a message (ID: `{message_id}`):\n"
+            )
+
             for i, version in enumerate(versions):
                 label = "Original" if i == 0 else f"Edit {i}"
-                content = version["content"][:300] + ("…" if len(version["content"]) > 300 else "")
-                msg_desc += f"**{label}:** {content} (<t:{version['timestamp']}:R>)\n"
-            
+                content = version["content"][:300] + (
+                    "…" if len(version["content"]) > 300 else ""
+                )
+                msg_desc += (
+                    f"**{label}:** {content} (<t:{version['timestamp']}:R>)\n"
+                )
+
             msg_desc += "\n"
-            
+
             if len(embed.description) + len(msg_desc) > 4096:
                 break
-                
+
             embed.description += msg_desc
             shown += 1
 

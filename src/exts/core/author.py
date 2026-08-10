@@ -159,7 +159,10 @@ class Author(interactions.Extension):
         headers: dict = {"Authorization": TOPGGAPI}
         params: dict = {"userId": ctx.user.id}
         resp: dict = await get_response(
-            url=url, session=self.client.session, headers=headers, params=params
+            url=url,
+            session=self.client.session,
+            headers=headers,
+            params=params,
         )
 
         button = interactions.Button(

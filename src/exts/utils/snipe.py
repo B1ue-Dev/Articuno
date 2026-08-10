@@ -28,7 +28,8 @@ class Snipe(interactions.Extension):
         current_time = datetime.now().timestamp()
         for channel_id in list(self._cached.keys()):
             self._cached[channel_id] = [
-                msg for msg in self._cached[channel_id]
+                msg
+                for msg in self._cached[channel_id]
                 if current_time - float(msg["timestamp"]) < 300
             ]
             if not self._cached[channel_id]:
@@ -63,7 +64,6 @@ class Snipe(interactions.Extension):
             }
         )
 
-
     @hybrid_slash_command(
         name="snipe",
         description="Snipes the last deleted message from the current channel.",
@@ -85,7 +85,9 @@ class Snipe(interactions.Extension):
             description="",
         )
         for i in self._cached[channel_id]:
-            content = i["content"][:300] + ("…" if len(i["content"]) > 300 else "")
+            content = i["content"][:300] + (
+                "…" if len(i["content"]) > 300 else ""
+            )
             embed.description += f"""<@{i["author_id"]}>: {content} - <t:{i["timestamp"]}:R>\n"""  # type: ignore
 
         await ctx.send(embed=embed)

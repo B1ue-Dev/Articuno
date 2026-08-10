@@ -25,18 +25,26 @@ from src.common.ascii import (
 from src.common.utils import get_response
 
 
-def generate_ascii_image(img, size, sharpness, brightness, rgb_tuple, custom_font=None):
-    ascii_art_txt = image_to_ascii(img, size=(size, size), sharpness=sharpness, brightness=brightness)
+def generate_ascii_image(
+    img, size, sharpness, brightness, rgb_tuple, custom_font=None
+):
+    ascii_art_txt = image_to_ascii(
+        img, size=(size, size), sharpness=sharpness, brightness=brightness
+    )
 
     if custom_font:
-        ascii_art_png = ascii_to_image(ascii_art_txt, custom_font, color=rgb_tuple)
+        ascii_art_png = ascii_to_image(
+            ascii_art_txt, custom_font, color=rgb_tuple
+        )
     else:
-        ascii_art_png = ascii_to_image(ascii_art_txt, color=rgb_tuple, font=base_font)
+        ascii_art_png = ascii_to_image(
+            ascii_art_txt, color=rgb_tuple, font=base_font
+        )
 
     img_buffer = io.BytesIO()
     ascii_art_png.save(img_buffer, "PNG")
     img_buffer.seek(0)
-    
+
     img.close()
     ascii_art_png.close()
 
@@ -63,7 +71,7 @@ def generate_text_image(text: str, rgb_tuple: tuple) -> io.BytesIO:
     final = io.BytesIO()
     imgs.save(final, "PNG")
     final.seek(0)
-    
+
     i.close()
     imgs.close()
 
@@ -160,7 +168,9 @@ class ASCII(interactions.Extension):
                 ephemeral=True,
             )
 
-        buf = await get_response(user.display_avatar.url, session=self.client.session)
+        buf = await get_response(
+            user.display_avatar.url, session=self.client.session
+        )
         img = await asyncio.to_thread(Image.open, buf)
 
         font_stream = None
@@ -169,7 +179,9 @@ class ASCII(interactions.Extension):
                 if response.status == 200:
                     font_stream = io.BytesIO(await response.read())
                 else:
-                    return await ctx.send("Failed to get the font.", ephemeral=True)
+                    return await ctx.send(
+                        "Failed to get the font.", ephemeral=True
+                    )
 
         rgb_tuple = tuple(map(int, color.split(",")))
         custom_font = None
@@ -189,7 +201,7 @@ class ASCII(interactions.Extension):
             sharpness,
             brightness,
             rgb_tuple,
-            custom_font
+            custom_font,
         )
 
         send_file = []

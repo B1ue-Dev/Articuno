@@ -20,23 +20,23 @@ from src.common.utils import get_response
 
 
 def lerp_color(color1, color2, factor):
-
-    return tuple(int(c1 + (c2 - c1) * factor) for c1, c2 in zip(color1, color2))
+    return tuple(
+        int(c1 + (c2 - c1) * factor) for c1, c2 in zip(color1, color2)
+    )
 
 
 def overlay_gay(buf) -> BytesIO:
-
     with Image.open(buf) as _img:
         img = _img.convert("RGBA")
     w, h = img.size
 
     colors = [
-        (228, 3, 3),    # Red
+        (228, 3, 3),  # Red
         (255, 140, 0),  # Orange
         (255, 237, 0),  # Yellow
-        (0, 128, 38),   # Green
-        (0, 76, 255),   # Blue
-        (115, 41, 130)  # Violet
+        (0, 128, 38),  # Green
+        (0, 76, 255),  # Blue
+        (115, 41, 130),  # Violet
     ]
 
     gradient_1d = Image.new("RGBA", (1, h))
@@ -55,9 +55,11 @@ def overlay_gay(buf) -> BytesIO:
             current_color = colors[-1]
         else:
             local_factor = segment - index
-            current_color = lerp_color(colors[index], colors[index + 1], local_factor)
+            current_color = lerp_color(
+                colors[index], colors[index + 1], local_factor
+            )
 
-        pixels[0, y] = current_color + (alpha_value, )
+        pixels[0, y] = current_color + (alpha_value,)
 
     gradient_overlay = gradient_1d.resize((w, h))
     final_img = Image.alpha_composite(img, gradient_overlay)
@@ -108,7 +110,7 @@ class Rate(interactions.Extension):
             if _user:
                 random.seed(str(_user) + str(int(time.time() / 300)))
 
-        img: interactions.File | None  = None
+        img: interactions.File | None = None
         perc: int = random.choice(range(0, 100))
 
         embed = interactions.Embed(
@@ -126,7 +128,9 @@ class Rate(interactions.Extension):
                 except:
                     user = await ctx.client.fetch_user(_user)
 
-                user_avatar = await get_response(user.display_avatar.url, self.client.session)
+                user_avatar = await get_response(
+                    user.display_avatar.url, self.client.session
+                )
                 if not user_avatar:
                     return await ctx.send(embed=embed)
                 res = await asyncio.to_thread(overlay_gay, user_avatar)

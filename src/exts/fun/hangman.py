@@ -482,7 +482,9 @@ class Hman(interactions.Extension):
                         await _res.edit(message=_res.message_id, embed=embed)
 
             except asyncio.TimeoutError:
-                user_data = await hangman_saves.find_one(hangman_saves.user_id == int(ctx.user.id))
+                user_data = await hangman_saves.find_one(
+                    hangman_saves.user_id == int(ctx.user.id)
+                )
                 created_at: int = round(datetime.now().timestamp())
                 if len(user_data.history) == 5:
                     user_data.history.pop(0)
@@ -516,7 +518,9 @@ class Hman(interactions.Extension):
                     return
 
         if guessed is False:
-            user_data = await hangman_saves.find_one(hangman_saves.user_id == int(ctx.user.id))
+            user_data = await hangman_saves.find_one(
+                hangman_saves.user_id == int(ctx.user.id)
+            )
             created_at: int = round(datetime.now().timestamp())
             if len(user_data.history) == 5:
                 user_data.history.pop(0)
@@ -557,11 +561,15 @@ class Hman(interactions.Extension):
 
         await ctx.defer()
 
-        buf = await get_response(ctx.user.avatar_url, session=self.client.session)
+        buf = await get_response(
+            ctx.user.avatar_url, session=self.client.session
+        )
         color_tuple = await asyncio.to_thread(get_color, buf)
         color = rgb_to_int(color_tuple)
         try:
-            user_data = await hangman_saves.find_one(hangman_saves.user_id == int(ctx.user.id))
+            user_data = await hangman_saves.find_one(
+                hangman_saves.user_id == int(ctx.user.id)
+            )
 
             fields = []
             for index, history in enumerate(reversed(list(user_data.history))):

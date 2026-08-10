@@ -52,7 +52,9 @@ def _resize_pokemon_image(buf) -> Image.Image:
     return img
 
 
-def _generate_image(img: Image, correct_pokemon: Pokemon) -> list[interactions.File]:
+def _generate_image(
+    img: Image, correct_pokemon: Pokemon
+) -> list[interactions.File]:
     """Generate the background with the Pokemon."""
 
     # Process the image and background.
@@ -115,7 +117,9 @@ async def extract_pokemon_image(url: str, session) -> Image.Image:
     return img
 
 
-async def generate_images(correct_pokemon: Pokemon, session) -> list[interactions.File]:
+async def generate_images(
+    correct_pokemon: Pokemon, session
+) -> list[interactions.File]:
     """
     Generate the background with the Pokemon for the command.
     :param correct_pokemon: The correct Pokemon.
@@ -372,7 +376,9 @@ class WTP(interactions.Extension):
                 logging.info("Pokemon list: {}".format(pokemon_list))
                 logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
-                results = await generate_images(corrected_pokemon, self.client.session)
+                results = await generate_images(
+                    corrected_pokemon, self.client.session
+                )
                 file = results[0]
                 _file = results[1]
 
@@ -402,7 +408,7 @@ class WTP(interactions.Extension):
                         _button_disabled = _result_buttons(
                             pokemon_list,
                             corrected_pokemon,
-                            chosen_id=corrected_pokemon.num
+                            chosen_id=corrected_pokemon.num,
                         )
 
                         await res.ctx.edit_origin(
@@ -429,7 +435,7 @@ class WTP(interactions.Extension):
                         _button_disabled = _result_buttons(
                             pokemon_list,
                             corrected_pokemon,
-                            chosen_id=res.ctx.custom_id
+                            chosen_id=res.ctx.custom_id,
                         )
 
                         action_rows: list[interactions.ActionRow] = [
@@ -441,7 +447,9 @@ class WTP(interactions.Extension):
 
                         # Calculating point
                         if point_eligible:
-                            total_score = await _save_score(save_doc, cnt, divisor=10)
+                            total_score = await _save_score(
+                                save_doc, cnt, divisor=10
+                            )
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -475,7 +483,7 @@ class WTP(interactions.Extension):
                         _button_disabled = _result_buttons(
                             pokemon_list,
                             corrected_pokemon,
-                            chosen_id=res.ctx.custom_id
+                            chosen_id=res.ctx.custom_id,
                         )
 
                         action_rows: list[interactions.ActionRow] = [
@@ -485,7 +493,9 @@ class WTP(interactions.Extension):
                             ),
                         ]
                         if point_eligible:
-                            total_score = await _save_score(save_doc, cnt, divisor=10)
+                            total_score = await _save_score(
+                                save_doc, cnt, divisor=10
+                            )
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -528,7 +538,9 @@ class WTP(interactions.Extension):
                     ]
                     try:
                         if point_eligible:
-                            total_score = await _save_score(save_doc, cnt, divisor=10)
+                            total_score = await _save_score(
+                                save_doc, cnt, divisor=10
+                            )
 
                             await msg.edit(
                                 content="".join(
@@ -582,7 +594,9 @@ class WTP(interactions.Extension):
                 logging.info("Pokemon list: {}".format(pokemon_list))
                 logging.info("Correct Pokemon: {}".format(corrected_pokemon))
 
-                results = await generate_images(corrected_pokemon, self.client.session)
+                results = await generate_images(
+                    corrected_pokemon, self.client.session
+                )
                 file = results[0]
                 _file = results[1]
 
@@ -634,7 +648,9 @@ class WTP(interactions.Extension):
 
                         # Calculating point
                         if point_eligible:
-                            total_score = await _save_score(save_doc, cnt, divisor=5)
+                            total_score = await _save_score(
+                                save_doc, cnt, divisor=5
+                            )
 
                             await res.ctx.edit_origin(
                                 content="".join(
@@ -719,7 +735,9 @@ class WTP(interactions.Extension):
 
                             # Calculating point
                             if point_eligible:
-                                total_score = await _save_score(save_doc, cnt, divisor=5)
+                                total_score = await _save_score(
+                                    save_doc, cnt, divisor=5
+                                )
 
                                 await _res.edit(
                                     message=_res.message_id,
@@ -758,7 +776,9 @@ class WTP(interactions.Extension):
 
                     try:
                         if point_eligible:
-                            total_score = await _save_score(save_doc, cnt, divisor=5)
+                            total_score = await _save_score(
+                                save_doc, cnt, divisor=5
+                            )
 
                             await msg.edit(
                                 content="".join(
@@ -823,15 +843,11 @@ class WTP(interactions.Extension):
         leaderboard: list = []
         if mode == "easy":
             leaderboard = (
-                await wtp_easy_saves.find_all()
-                .sort("-points")
-                .to_list()
+                await wtp_easy_saves.find_all().sort("-points").to_list()
             )
         elif mode == "hard":
             leaderboard = (
-                await wtp_hard_saves.find_all()
-                .sort("-points")
-                .to_list()
+                await wtp_hard_saves.find_all().sort("-points").to_list()
             )
         for position, user in enumerate(leaderboard, start=1):
             value: str = ""
@@ -892,7 +908,9 @@ class WTP(interactions.Extension):
 
         await ctx.defer()
 
-        buf = await get_response(ctx.user.avatar_url, session=self.client.session)
+        buf = await get_response(
+            ctx.user.avatar_url, session=self.client.session
+        )
         color_tuple = await asyncio.to_thread(get_color, buf)
         color = rgb_to_int(color_tuple)
 

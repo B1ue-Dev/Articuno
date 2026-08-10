@@ -59,7 +59,9 @@ class Urban(interactions.Extension):
         await ctx.defer()
         url = "https://api.urbandictionary.com/v0/define"
         params = {"term": term}
-        resp: dict = await get_response(url, session=self.client.session, params=params)
+        resp: dict = await get_response(
+            url, session=self.client.session, params=params
+        )
 
         if not resp or len(resp.get("list", [])) == 0:
             embed = interactions.Embed(
@@ -69,7 +71,6 @@ class Urban(interactions.Extension):
 
         ran = 0
         page = int(len(resp["list"]) - 1)
-
 
         def build_embed(index: int) -> interactions.Embed:
             definition = resp["list"][index]["definition"]

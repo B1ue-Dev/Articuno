@@ -17,7 +17,6 @@ from interactions.ext.hybrid_commands import (
 from src.common.utils import get_response, get_color, rgb_to_int
 
 
-
 def snowflake_time(snowflake):
     return datetime.fromtimestamp(((snowflake >> 22) + 1420070400000) / 1000)
 

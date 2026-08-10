@@ -64,33 +64,47 @@ class TruthDare(interactions.Extension):
     async def _truth(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /truth."""
 
-        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Truth")
+        await TruthDare.send_message(
+            self, self.base_url + ctx.custom_id, ctx, "Truth"
+        )
 
     @interactions.component_callback("/dare")
     async def _dare(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /dare."""
 
-        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Dare")
+        await TruthDare.send_message(
+            self, self.base_url + ctx.custom_id, ctx, "Dare"
+        )
 
     @interactions.component_callback("/wyr")
     async def _wyr(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /wyr."""
 
-        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Would you rather")
+        await TruthDare.send_message(
+            self, self.base_url + ctx.custom_id, ctx, "Would you rather"
+        )
 
     @interactions.component_callback("/paranoia")
     async def _paranoia(self, ctx: interactions.ComponentContext) -> None:
         """Callback for /paranoia."""
 
-        await TruthDare.send_message(self, self.base_url + ctx.custom_id, ctx, "Paranoia")
+        await TruthDare.send_message(
+            self, self.base_url + ctx.custom_id, ctx, "Paranoia"
+        )
 
-
-    async def send_message(self, url: str, ctx: interactions.ComponentContext, type_text: str) -> None:
+    async def send_message(
+        self, url: str, ctx: interactions.ComponentContext, type_text: str
+    ) -> None:
         """Send message handler."""
 
-        resp: dict = await get_response(url, session=self.client.session, params={"rating": "PG"})
+        resp: dict = await get_response(
+            url, session=self.client.session, params={"rating": "PG"}
+        )
         if not resp:
-            return await ctx.send("Unavailable at the moment. Please try again later", ephemeral=True)
+            return await ctx.send(
+                "Unavailable at the moment. Please try again later",
+                ephemeral=True,
+            )
         _question: str = resp["question"]
         _id: str = resp["id"]
 
