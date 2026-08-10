@@ -284,7 +284,7 @@ async def start() -> None:
         logging.error("AIOHTTP Client Error: %s", e)
         sys.exit(1)
     except Exception as e:
-        logging.error("An error occurred during bot startup: %s", e)
+        logging.error("An error occurred during bot startup: %s", e, exc_info=True)
         sys.exit(1)
     finally:
         if client.session:
