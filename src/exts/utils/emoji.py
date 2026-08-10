@@ -514,7 +514,7 @@ class Emoji(interactions.Extension):
                 if resp.content_type not in {
                     "image/png",
                     "image/jpeg",
-                    "imgage/jpg",
+                    "image/jpg",
                     "image/webp",
                     "image/gif",
                 }:
@@ -703,7 +703,7 @@ class Emoji(interactions.Extension):
                         return
 
         elif len(parsed) == 1:
-            _emoji = Emote().get_emoji(
+            _emoji = Emote.get_emoji(
                 f"<{parsed[0][0]}:{parsed[0][1]}:{parsed[0][2]}>"
             )
 
