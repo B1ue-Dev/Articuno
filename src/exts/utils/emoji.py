@@ -137,7 +137,7 @@ class Emoji(interactions.Extension):
                 return await ctx.send(
                     content="".join(
                         [
-                            "Invalid emoji. Please try again and make",
+                            "Invalid custom emoji. Please try again and make",
                             " sure that it is **from** this server.",
                         ]
                     ),
@@ -182,7 +182,7 @@ class Emoji(interactions.Extension):
                 return await ctx.send(
                     content="".join(
                         [
-                            "Invalid emoji. Please try again and make",
+                            "Invalid custom emoji. Please try again and make",
                             " sure that it is **from** this server.",
                         ]
                     ),
@@ -226,7 +226,7 @@ class Emoji(interactions.Extension):
                 return await ctx.send(
                     content="".join(
                         [
-                            "Invalid emoji. Please try again and make",
+                            "Invalid custom emoji. Please try again and make",
                             " sure that it is **from** this server.",
                         ]
                     ),
@@ -258,7 +258,7 @@ class Emoji(interactions.Extension):
             await ctx.send(
                 content="".join(
                     [
-                        "Invalid emoji. Please try again and make",
+                        "Invalid custom emoji. Please try again and make",
                         " sure that it is **from** this server.",
                     ]
                 ),
@@ -320,7 +320,7 @@ class Emoji(interactions.Extension):
             async with self.client.session.get(url) as resp:
                 if resp.status != 200:
                     return await ctx.send(
-                        "Invalid emoji. Please try again.", ephemeral=True
+                        "Invalid custom emoji. Please try again.", ephemeral=True
                     )
 
                 _io = await resp.read()
@@ -366,7 +366,7 @@ class Emoji(interactions.Extension):
             async with self.client.session.get(url) as resp:
                 if resp.status != 200:
                     return await ctx.send(
-                        "Invalid emoji. Please try again.", ephemeral=True
+                        "Invalid custom emoji. Please try again.", ephemeral=True
                     )
 
                 _io = await resp.read()
@@ -397,7 +397,7 @@ class Emoji(interactions.Extension):
                 )
 
         else:
-            await ctx.send("Invalid emoji. Please try again.", ephemeral=True)
+            await ctx.send("Invalid custom emoji. Please try again.", ephemeral=True)
 
     @emoji.subcommand(
         sub_cmd_name="add",
@@ -615,7 +615,7 @@ class Emoji(interactions.Extension):
 
             if not _emoji:
                 return await ctx.send(
-                    "Invalid emoji. Please try again.", ephemeral=True
+                    "Invalid custom emoji. Please try again.", ephemeral=True
                 )
             try:
                 await _emoji.delete()
@@ -629,7 +629,7 @@ class Emoji(interactions.Extension):
 
         else:
             return await ctx.send(
-                "Invalid emoji. Please try again.", ephemeral=True
+                "Invalid custom emoji. Please try again.", ephemeral=True
             )
 
     @interactions.message_context_menu(
