@@ -455,6 +455,9 @@ class Emoji(interactions.Extension):
                 ephemeral=True,
             )
 
+        if not url and not image:
+            return await ctx.send("Please choose either `url` or `image`.", ephemeral=True)
+
         # If the user chooses to add emoji from an URL.
         if url and image is None:
             async with self.client.session.get(url) as resp:
