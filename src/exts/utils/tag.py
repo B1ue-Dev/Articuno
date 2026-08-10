@@ -9,7 +9,6 @@ import logging
 import re
 import time
 from datetime import datetime, timezone
-from beanie import PydanticObjectId
 import interactions
 from interactions.ext.paginators import Paginator
 from src.common.utils import Permissions, has_permission
