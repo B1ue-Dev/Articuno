@@ -98,14 +98,10 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild_id)
 
-        if not await tags.find_one(tags.guild_id == guild_id).exists():
+        if not (guild_tags := await tags.find_one(tags.guild_id == guild_id)):
             return await ctx.send("This server does not have any tag.")
 
-        if guild_tags := await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        ):
+        if guild_tags:
             if guild_tags.tags.get(tag_name, None):
                 await ctx.send(guild_tags.tags[tag_name]["description"])
             else:
@@ -142,14 +138,10 @@ class Tag(interactions.Extension):
             )
 
         guild_id = str(ctx.guild.id)
-        if not await tags.find_one(tags.guild_id == guild_id).exists():
+        if not (guild_tags := await tags.find_one(tags.guild_id == guild_id)):
             return await ctx.send("This server does not have any tag.")
 
-        if guild_tags := await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        ):
+        if guild_tags:
             if not guild_tags.tags.get(tag_name, None):
                 return await ctx.send("Tag not found.")
 
@@ -195,14 +187,10 @@ class Tag(interactions.Extension):
         await ctx.defer()
         guild_id = str(ctx.guild_id)
 
-        if not await tags.find_one(tags.guild_id == guild_id).exists():
+        if not (guild_tags := await tags.find_one(tags.guild_id == guild_id)):
             return await ctx.send("This server does not have any tag.")
 
-        if guild_tags := await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        ):
+        if guild_tags:
             if guild_tags.tags.get(tag_name, None):
                 footer = interactions.EmbedFooter(
                     text=f"Requested by {ctx.author.username}#{ctx.author.discriminator}",
@@ -281,14 +269,10 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild.id)
 
-        if not await tags.find_one(tags.guild_id == guild_id).exists():
+        if not (guild_tags := await tags.find_one(tags.guild_id == guild_id)):
             return await ctx.send("This server does not have any tag.")
 
-        if guild_tags := await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        ):
+        if guild_tags:
             if not guild_tags.tags.get(tag_name, None):
                 return await ctx.send("Tag not found.")
 
@@ -327,11 +311,7 @@ class Tag(interactions.Extension):
             )
 
             if res.ctx.custom_id == "yes":
-                guild_tags = await tags.get(
-                    PydanticObjectId(
-                        (await tags.find_one(tags.guild_id == guild_id)).id
-                    )
-                )
+                guild_tags = await tags.find_one(tags.guild_id == guild_id)
                 del guild_tags.tags[tag_name]
                 if len(guild_tags.tags) == 0:
                     await guild_tags.delete()
@@ -366,11 +346,7 @@ class Tag(interactions.Extension):
         if not await tags.find_one(tags.guild_id == guild_id).exists():
             return await ctx.send("This server does not have any tag.")
 
-        guild_tags = await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        )
+        guild_tags = await tags.find_one(tags.guild_id == guild_id)
 
         tag_list = [
             f"` {i+1} ` {tag}" for i, tag in enumerate(guild_tags.tags)
@@ -410,11 +386,7 @@ class Tag(interactions.Extension):
                 tags={},
             ).save()
 
-        guild_tags = await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        )
+        guild_tags = await tags.find_one(tags.guild_id == guild_id)
         guild_tags.tags.update(
             {
                 tag_name: {
@@ -444,11 +416,7 @@ class Tag(interactions.Extension):
         original_tag_name = ctx.custom_id.replace("edit_tag_", "", 1)
         guild_id = str(ctx.guild.id)
 
-        guild_tags = await tags.get(
-            PydanticObjectId(
-                (await tags.find_one(tags.guild_id == guild_id)).id
-            )
-        )
+        guild_tags = await tags.find_one(tags.guild_id == guild_id)
         guild_tags.tags[tag_name] = {
             "description": tag_description,
             "created_on": guild_tags.tags[original_tag_name]["created_on"],
@@ -477,12 +445,7 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild_id)
 
-        if await tags.find_one(tags.guild_id == guild_id).exists():
-            guild_tags = await tags.get(
-                PydanticObjectId(
-                    (await tags.find_one(tags.guild_id == guild_id)).id
-                )
-            )
+        if guild_tags := await tags.find_one(tags.guild_id == guild_id):
 
             if tag_name := ctx.kwargs.get("tag_name"):
                 letters: list = list(tag_name) if tag_name != "" else []
