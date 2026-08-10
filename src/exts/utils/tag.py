@@ -6,6 +6,7 @@ Tag system.
 
 import asyncio
 import logging
+import re
 from datetime import datetime, timezone
 from beanie import PydanticObjectId
 import interactions
@@ -24,7 +25,6 @@ def get_utc_time() -> datetime:
 class Tag(interactions.Extension):
     def __init__(self, client: interactions.Client):
         self.client: interactions.Client = client
-        self.edited_name = None
 
     @interactions.slash_command(
         name="tag",
@@ -153,7 +153,6 @@ class Tag(interactions.Extension):
             if not guild_tags.tags.get(tag_name, None):
                 return await ctx.send("Tag not found.")
 
-        self.edited_name = tag_name
         modal = interactions.Modal(
             interactions.InputText(
                 style=interactions.TextStyles.SHORT,
@@ -172,7 +171,7 @@ class Tag(interactions.Extension):
                 value=guild_tags.tags[tag_name]["description"],
             ),
             title=f"Edit tag: {tag_name}",
-            custom_id="edit_tag",
+            custom_id=f"edit_tag_{tag_name}",
         )
 
         await ctx.send_modal(modal)
@@ -433,7 +432,7 @@ class Tag(interactions.Extension):
             content=f"Tag ``{tag_name}`` created.",
         )
 
-    @interactions.modal_callback("edit_tag")
+    @interactions.modal_callback(re.compile(r"^edit_tag_.*"))
     async def edit_tag(
         self,
         ctx: interactions.ModalContext,
@@ -442,6 +441,7 @@ class Tag(interactions.Extension):
     ) -> None:
         """Modal callback for editing an existing tag."""
 
+        original_tag_name = ctx.custom_id.replace("edit_tag_", "", 1)
         guild_id = str(ctx.guild.id)
 
         guild_tags = await tags.get(
@@ -451,20 +451,20 @@ class Tag(interactions.Extension):
         )
         guild_tags.tags[tag_name] = {
             "description": tag_description,
-            "created_on": guild_tags.tags[self.edited_name]["created_on"],
-            "author": guild_tags.tags[self.edited_name]["author"],
+            "created_on": guild_tags.tags[original_tag_name]["created_on"],
+            "author": guild_tags.tags[original_tag_name]["author"],
             "last_edited_on": round(get_utc_time().timestamp()),
             "last_edited_by": str(ctx.author.id),
         }
-        if tag_name != self.edited_name:
-            del guild_tags.tags[self.edited_name]
+        if tag_name != original_tag_name:
+            del guild_tags.tags[original_tag_name]
         await guild_tags.save()
 
         await ctx.send(
             content=(
-                f"Tag ``{self.edited_name}`` edited into ``{tag_name}``."
-                if self.edited_name != tag_name
-                else f"Tag ``{self.edited_name}`` edited."
+                f"Tag ``{original_tag_name}`` edited into ``{tag_name}``."
+                if original_tag_name != tag_name
+                else f"Tag ``{original_tag_name}`` edited."
             ),
         )
 
