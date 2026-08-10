@@ -480,7 +480,7 @@ class Emoji(interactions.Extension):
                     )
 
                 _io = await resp.read()
-                image = interactions.File(
+                emoji_file = interactions.File(
                     file=_io,
                     file_name=(
                         "unknown.gif"
@@ -490,7 +490,7 @@ class Emoji(interactions.Extension):
                 )
                 try:
                     e = await ctx.guild.create_custom_emoji(
-                        imagefile=image, name=emoji_name
+                        imagefile=emoji_file, name=emoji_name
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
@@ -529,7 +529,7 @@ class Emoji(interactions.Extension):
                     )
 
                 _io = await resp.read()
-                image = interactions.File(
+                emoji_file = interactions.File(
                     file=_io,
                     file_name=(
                         "unknown.gif"
@@ -539,7 +539,7 @@ class Emoji(interactions.Extension):
                 )
                 try:
                     e = await ctx.guild.create_custom_emoji(
-                        imagefile=image, name=emoji_name
+                        imagefile=emoji_file, name=emoji_name
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
