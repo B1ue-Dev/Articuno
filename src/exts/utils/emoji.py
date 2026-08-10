@@ -643,26 +643,28 @@ class Emoji(interactions.Extension):
         emoji_regex = re.compile(r"<(a)?:(\w+):(\d+)>")
         parsed = emoji_regex.findall(message.content)
 
-        if len(parsed) > 1:
+        unique_parsed = list(dict.fromkeys(parsed))
+
+        if len(unique_parsed) > 1:
             emoji_select = interactions.StringSelectMenu(
                 custom_id=f"emoji_select_{ctx.user.id}",
                 placeholder="Select the emoji you want to get.",
                 min_values=1,
                 max_values=1,
             )
-            for emj in parsed:
+            for emj in unique_parsed[:25]:
                 emoji_name = emj[1]
                 emoji_id = emj[2]
                 emoji_select.options.append(
                     interactions.StringSelectOption(
-                        label=f"<:{emoji_name}:{emoji_id}>",
+                        label=emoji_name,
                         emoji=interactions.PartialEmoji(
                             name=emoji_name, id=emoji_id
                         ),
                         value=f"<{emj[0]}:{emoji_name}:{emoji_id}>",
                     )
                 )
-            msg = await ctx.send(components=emoji_select)
+            msg = await ctx.send(components=emoji_select, ephemeral=True)
             while True:
                 try:
                     res = await self.client.wait_for_component(
@@ -695,16 +697,11 @@ class Emoji(interactions.Extension):
                         content=f"<{_emoji.url}>", embeds=embed
                     )
                 except asyncio.TimeoutError:
-                    try:
-                        return await msg.edit(
-                            components=[], content="Timeout."
-                        )
-                    except interactions.client.errors.NotFound:
-                        return
+                    return
 
-        elif len(parsed) == 1:
+        elif len(unique_parsed) == 1:
             _emoji = Emote.get_emoji(
-                f"<{parsed[0][0]}:{parsed[0][1]}:{parsed[0][2]}>"
+                f"<{unique_parsed[0][0]}:{unique_parsed[0][1]}:{unique_parsed[0][2]}>"
             )
 
             if _emoji.id is None:
@@ -726,11 +723,11 @@ class Emoji(interactions.Extension):
                 color=0x788CDC,
                 images=[image],
             )
-            await ctx.send(content=f"<{_emoji.url}>", embeds=embed)
+            await ctx.send(content=f"<{_emoji.url}>", embeds=embed, ephemeral=True)
 
-        elif len(parsed) == 0:
+        elif len(unique_parsed) == 0:
             return await ctx.send(
-                "No emoji found in this message.", ephemeral=True
+                "No custom emoji found in this message.", ephemeral=True
             )
 
 
