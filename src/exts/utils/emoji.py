@@ -20,13 +20,13 @@ class Emote:
 
     __slots__ = ["name", "id", "animated", "created_at"]
 
-    name: str
+    name: str | None = None
     """The name of the emoji."""
-    id: int
+    id: int | None = None
     """The ID of the emoji."""
-    animated: bool
+    animated: bool | None = None
     """True if emoji is animated."""
-    created_at: interactions.Timestamp
+    created_at: interactions.Timestamp | None = None
     """When this emoji is created."""
 
     def __init__(self, **kwargs) -> None:
@@ -425,8 +425,8 @@ class Emoji(interactions.Extension):
         self,
         ctx: interactions.SlashContext,
         emoji_name: str,
-        url: str = None,
-        image: interactions.Attachment = None,
+        url: str | None = None,
+        image: interactions.Attachment | None = None,
     ):
         """Creates an emoji from a URL or an image."""
 
