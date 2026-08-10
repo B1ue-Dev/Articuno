@@ -20,13 +20,13 @@ class Emote:
 
     __slots__ = ["name", "id", "animated", "created_at"]
 
-    name: str | None = None
+    name: str | None
     """The name of the emoji."""
-    id: int | None = None
+    id: int | None
     """The ID of the emoji."""
-    animated: bool | None = None
+    animated: bool | None
     """True if emoji is animated."""
-    created_at: interactions.Timestamp | None = None
+    created_at: interactions.Timestamp | None
     """When this emoji is created."""
 
     def __init__(self, **kwargs) -> None:
@@ -285,7 +285,7 @@ class Emoji(interactions.Extension):
         self,
         ctx: interactions.SlashContext,
         emoji: str,
-        emoji_name: str = None,
+        emoji_name: str | None = None,
     ) -> None:
         """Gets an emoji from another server and adds to the current one."""
 
