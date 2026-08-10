@@ -470,7 +470,7 @@ class Emoji(interactions.Extension):
                 if resp.content_type not in {
                     "image/png",
                     "image/jpeg",
-                    "imgage/jpg",
+                    "image/jpg",
                     "image/webp",
                     "image/gif",
                 }:
