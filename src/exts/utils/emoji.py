@@ -336,7 +336,7 @@ class Emoji(interactions.Extension):
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
-                        content=f"{err.text}.",
+                        content=f"Error: {err.text}.",
                         ephemeral=True,
                     )
 
@@ -384,7 +384,7 @@ class Emoji(interactions.Extension):
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
-                        content=f"{err.text}.",
+                        content=f"Error: {err.text}.",
                         ephemeral=True,
                     )
 
@@ -496,7 +496,7 @@ class Emoji(interactions.Extension):
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
-                        content=f"{err.text}.",
+                        content=f"Error: {err.text}.",
                         ephemeral=True,
                     )
 
@@ -545,7 +545,7 @@ class Emoji(interactions.Extension):
                     )
                 except interactions.errors.HTTPException as err:
                     return await ctx.send(
-                        content=f"{err.text}.",
+                        content=f"Error: {err.text}.",
                         ephemeral=True,
                     )
 
@@ -593,7 +593,7 @@ class Emoji(interactions.Extension):
                 )
             except interactions.errors.HTTPException as err:
                 return await ctx.send(
-                    content=f"{err.text}.",
+                    content=f"Error: {err.text}.",
                     ephemeral=True,
                 )
 
@@ -618,7 +618,7 @@ class Emoji(interactions.Extension):
                 await _emoji.delete()
             except interactions.errors.HTTPException as err:
                 return await ctx.send(
-                    content=f"{err.text}.",
+                    content=f"Error: {err.text}.",
                     ephemeral=True,
                 )
 
