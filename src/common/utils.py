@@ -121,7 +121,9 @@ def get_color(img) -> tuple[int, int, int]:
     """
 
     clr_thief = ColorThief(img)
-    dominant_color = clr_thief.get_color(quality=1)
+    dominant_color = clr_thief.get_color(quality=5)
+    if hasattr(clr_thief, "image") and clr_thief.image:
+        clr_thief.image.close()
 
     return dominant_color
 

@@ -58,7 +58,9 @@ class ColorThief(object):
                         greater the likelihood that colors will be missed.
         :return list: a list of tuple in the form (r, g, b)
         """
-        image = self.image.convert("RGBA")
+        image = self.image.copy()
+        image.thumbnail((150, 150))
+        image = image.convert("RGBA")
         width, height = image.size
         pixels = image.getdata()
         pixel_count = width * height
