@@ -5,7 +5,6 @@ Edited command with full version history.
 """
 
 import logging
-import asyncio
 from datetime import datetime
 import interactions
 from interactions.ext.hybrid_commands import (

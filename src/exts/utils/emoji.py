@@ -5,11 +5,9 @@ Emoji management commands.
 """
 
 import logging
-import io
 import re
 import asyncio
 import interactions
-import aiohttp
 from src.common.utils import Permissions, has_permission
 
 
