@@ -419,8 +419,7 @@ class TicTacToe(interactions.Extension):
                 if ctx.author.id != user.id:
                     return
         except Exception as ex:
-            print(ex)
-            breakpoint()
+            logging.exception(ex)
             return
 
         button_pos = (ctx.custom_id.split("||")[-1]).split(",")
