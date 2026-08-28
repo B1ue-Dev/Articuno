@@ -15,15 +15,11 @@ repos:
       name: TOML Structure
     - id: check-merge-conflict
       name: Merge Conflicts
-  - repo: https://github.com/psf/black
-    rev: 23.3.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.5
     hooks:
-      - id: black
-        name: Black Formatting
-        language: python
-        types: [ file, python ]
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        name: Flake8 Formatting
+      - id: ruff
+        name: Ruff Lint
+        args: [--fix]
+      - id: ruff-format
+        name: Ruff Format

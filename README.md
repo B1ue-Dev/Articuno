@@ -58,7 +58,7 @@ Type `$help` to see a list of available prefixed message commands.
 # Contribution
 Contribution is welcomed. However, we require you to follow our set of rules:
 - Follow the repository schema. (Breaking it will result in your Pull Request get closed)
-- PRs are enforced under black **black**, **flake8** and **Conventional Commits**.
+- PRs are enforced under **Ruff** and **Conventional Commits**.
 - Must work with Python version requirement ``>=3.13``.
 - Breaking change/new feature implementation must be documented precisely.
 - We do not accept abstraction-based requests. (e.g. ``colour`` for ``color``)

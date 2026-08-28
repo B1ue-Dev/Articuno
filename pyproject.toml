@@ -21,12 +21,25 @@ pyfiglet = "1.0.4"
 python-dotenv = "1.2.2"
 numpy = "2.5.1"
 
-[tool.black]
+[tool.ruff]
 line-length = 79
+target-version = "py313"
+extend-exclude = [
+    ".codesandbox",
+    ".db",
+    ".conda",
+    ".env",
+    "env",
+    ".venv",
+    "test",
+]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+ignore = ["E501", "W605", "E203", "E231", "E702", "E225", "E226"]
 
 [tool.poetry.dev-dependencies]
-flake8 = "6.0.0"
-black = "23.3.0"
+ruff = "0.16.5"
 poetry = "1.4.2"
 
 [build-system]
