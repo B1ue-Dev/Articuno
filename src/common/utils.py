@@ -45,14 +45,7 @@ def natural_size(size_in_bytes: int) -> str:
 
     units = ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB")
     power = int(log(size_in_bytes, 1024))
-    return f"{size_in_bytes / (1024 ** power):.2f} {units[power]}"
-
-
-def timestamp(times: datetime) -> str:
-    """Return the round() format of a timestamp."""
-
-    res = int(f"{times.timestamp():.0f}")
-    return f"{res}"
+    return f"{size_in_bytes / (1024**power):.2f} {units[power]}"
 
 
 def pretty_date(time: int | datetime) -> str:
@@ -104,14 +97,6 @@ def pretty_date(time: int | datetime) -> str:
     return str(day_diff // 365) + " years ago"
 
 
-def send_as_file(text: str) -> StringIO:
-    """Converts a text into a bytesteam object."""
-
-    _io = StringIO(text)
-    _io.seek(0)
-    return _io
-
-
 def get_color(img) -> tuple[int, int, int]:
     """
     Get the dominant color of an image.
@@ -137,6 +122,18 @@ def rgb_to_int(rgb: tuple[int, int, int]) -> int:
     return (clamp(rgb[0]) << 16) + (clamp(rgb[1]) << 8) + clamp(rgb[2])
 
 
+"""
+Custom functions for Articuno.
+"""
+
+
+def timestamp(times: datetime) -> str:
+    """Return the round() format of a timestamp."""
+
+    res = int(f"{times.timestamp():.0f}")
+    return f"{res}"
+
+
 def handle_username(name: str, discriminator: str) -> str:
     """Returns the username in old/new format."""
 
@@ -144,6 +141,14 @@ def handle_username(name: str, discriminator: str) -> str:
         return f"@{name}"
     else:
         return f"{name}#{discriminator}"
+
+
+def send_as_file(text: str) -> StringIO:
+    """Converts a text into a bytesteam object."""
+
+    _io = StringIO(text)
+    _io.seek(0)
+    return _io
 
 
 # https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
