@@ -4,16 +4,16 @@ Pokemon related commands.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
 import json
+import logging
 import re
 from typing import List
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
-
 
 with open("./src/db/pokemon.json", "r", encoding="utf8") as f:
     data = json.load(f)

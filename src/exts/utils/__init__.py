@@ -5,7 +5,9 @@ Root file for exts/utils.
 """
 
 import logging
+
 import interactions
+
 from src.const import EXT_UTILS
 
 

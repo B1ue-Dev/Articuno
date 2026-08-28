@@ -5,12 +5,14 @@
 """
 
 import logging
+
 import interactions
-from src.const import VERSION, TOPGGAPI
+
 from src.common.utils import (
-    handle_username,
     get_response,
+    handle_username,
 )
+from src.const import TOPGGAPI, VERSION
 
 
 class Author(interactions.Extension):

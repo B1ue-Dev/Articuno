@@ -1,12 +1,11 @@
 """A program to convert images to ASCII art."""
 
-from typing import Optional
 import logging
+from string import ascii_letters, digits, punctuation
+from typing import Optional
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance
-
-from string import ascii_letters, digits, punctuation
+from PIL import Image, ImageDraw, ImageEnhance, ImageFont
 
 CONVERSION_CHARACTERS = ascii_letters + digits + punctuation
 

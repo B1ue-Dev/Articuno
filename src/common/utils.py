@@ -1,19 +1,28 @@
 """
 Utils for Articuno.
 
+Some parts are shared between Articuno and B1ue.
+
 (C) 2022-2026 - B1ue-Dev
 """
 
-from math import log
-import random
 import asyncio
-from io import BytesIO, StringIO
-from typing import Union, Any
-from enum import Enum
+import random
 from datetime import datetime, timedelta, timezone
-from aiohttp import ClientSession
+from enum import Enum
+from io import BytesIO, StringIO
+from math import log
+from typing import Any, Union
+
 import interactions
+from aiohttp import ClientSession
+
 from src.common.colorthief import ColorThief
+
+"""
+Shared function between B1ue and Articuno.
+These functions must share the same code between both bots.
+"""
 
 
 async def get_response(

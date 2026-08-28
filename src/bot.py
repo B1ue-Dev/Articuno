@@ -4,33 +4,33 @@ Root bot file.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import sys
 import asyncio
-import logging
 import gc
-from datetime import datetime, timedelta, timezone, UTC
-import aiohttp
-import interactions
-from interactions import Task, IntervalTrigger
-import interactions.models as models
-import colorlog
-from interactions.ext.prefixed_commands import setup as prefixed_setup
-from interactions.ext.hybrid_commands import setup as hybrid_setup
+import logging
+import sys
+from datetime import UTC, datetime, timedelta, timezone
 
+import aiohttp
+import colorlog
+import interactions
+import interactions.models as models
+from beanie import init_beanie
+from interactions import IntervalTrigger, Task
+from interactions.ext.hybrid_commands import setup as hybrid_setup
+from interactions.ext.prefixed_commands import setup as prefixed_setup
 from pymongo import AsyncMongoClient
 from pymongo.server_api import ServerApi
-from beanie import init_beanie
 
 from src.common.error_handler import debug_system
-from src.const import TOKEN, VERSION, MONGO_DB_URL, LOG_CHANNEL
-from src.common.utils import get_response
 from src.common.models import (
-    tags,
     hangman_saves,
+    tags,
+    usage,
     wtp_easy_saves,
     wtp_hard_saves,
-    usage,
 )
+from src.common.utils import get_response
+from src.const import LOG_CHANNEL, MONGO_DB_URL, TOKEN, VERSION
 
 
 class Init:
@@ -74,8 +74,8 @@ class Init:
                 )
 
         log = logging.getLogger()
-        logging.Formatter.converter = (
-            lambda *args: Init.get_local_time().timetuple()
+        logging.Formatter.converter = lambda *args: (
+            Init.get_local_time().timetuple()
         )
         log.setLevel(logging.INFO)
 
@@ -161,8 +161,8 @@ async def on_startup() -> None:
             logging.info(
                 f"""Connected to MongoDB cluster.
                 Database: {db_name}
-                Collections: {stats['collections']}
-                Objects: {stats['objects']}
+                Collections: {stats["collections"]}
+                Objects: {stats["objects"]}
                 Data Size: {size_in_mb:.2f} MB"""
             )
         except Exception as e:

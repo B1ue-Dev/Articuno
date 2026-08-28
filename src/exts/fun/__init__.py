@@ -5,7 +5,9 @@ Root file for exts/fun.
 """
 
 import logging
+
 import interactions
+
 from src.const import EXT_FUN
 
 

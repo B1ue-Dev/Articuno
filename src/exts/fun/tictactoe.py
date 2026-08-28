@@ -4,16 +4,17 @@ Tic_tac_toe command.
 (C) 2023-2026 - B1ue-Dev
 """
 
-import logging
 import asyncio
-import enum
-import random
 import copy
+import enum
+import logging
 import math
+import random
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
     HybridContext,
+    hybrid_slash_subcommand,
 )
 
 

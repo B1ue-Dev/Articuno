@@ -3,10 +3,11 @@ Main runner file.
 
 (C) 2023-2026 - B1ue-Dev
 """
+
 # Disable writing of .pyc files
-import sys
-import asyncio
 import argparse
+import asyncio
+import sys
 import traceback
 
 sys.dont_write_bytecode = True
@@ -33,6 +34,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KeyboardInterrupt, shutting down...")
         sys.exit(0)
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         sys.exit(1)

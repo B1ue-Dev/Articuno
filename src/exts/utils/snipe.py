@@ -6,11 +6,13 @@ Snipe command.
 
 import logging
 from datetime import datetime
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
+
 from src.common.utils import handle_username
 
 

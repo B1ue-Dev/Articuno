@@ -5,11 +5,13 @@ Error system handler.
 """
 
 import datetime
-import traceback
 import logging
+import traceback
+
 import interactions
 from interactions import models
 from interactions.ext.prefixed_commands import PrefixedContext
+
 from src.const import LOG_CHANNEL
 
 debug_system: bool = False
@@ -154,8 +156,7 @@ class Error(interactions.Extension):
 
         elif isinstance(event.error, interactions.errors.CommandCheckFailure):
 
-            class Null:
-                ...
+            class Null: ...
 
             return Null
 

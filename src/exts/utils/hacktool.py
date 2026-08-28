@@ -4,10 +4,12 @@ Random base64, brainfuck commands.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
 import base64 as b64
 import binascii
+import logging
+
 import interactions
+
 from src.common import brainfuck, utils
 
 

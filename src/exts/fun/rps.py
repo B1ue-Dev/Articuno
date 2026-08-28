@@ -4,15 +4,15 @@ Rock-paper-scissors command.
 (C) 2022-2026 - B1ue-Dev
 """
 
+import asyncio
 import logging
 import random
-import asyncio
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
     HybridContext,
+    hybrid_slash_subcommand,
 )
-
 
 buttons = [
     interactions.ActionRow(

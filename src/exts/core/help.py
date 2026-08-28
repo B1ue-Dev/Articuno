@@ -5,12 +5,12 @@
 """
 
 import interactions
-from interactions.ext.paginators import Paginator
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
     HybridSlashCommand,
+    hybrid_slash_command,
 )
+from interactions.ext.paginators import Paginator
 
 
 class Help(interactions.Extension):

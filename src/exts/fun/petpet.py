@@ -4,15 +4,17 @@ Petpet command.
 (C) 2023-2026 - B1ue-Dev
 """
 
-import logging
 import asyncio
+import logging
 from io import BytesIO
-from PIL import Image
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
+from PIL import Image
+
 from src.common.utils import get_response
 
 

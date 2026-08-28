@@ -5,8 +5,9 @@ For value data.
 """
 
 import os
-from dotenv import load_dotenv
 import tomllib
+
+from dotenv import load_dotenv
 
 with open("pyproject.toml", "rb") as f:
     config = tomllib.load(f)

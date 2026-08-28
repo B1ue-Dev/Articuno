@@ -6,10 +6,11 @@ UwU related commands.
 
 import logging
 import random
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
 
 

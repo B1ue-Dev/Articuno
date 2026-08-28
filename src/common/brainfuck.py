@@ -2,8 +2,8 @@
 # - https://github.com/sstelian/Text-to-Brainfuck/blob/master/brainfuck_generator.py
 # - https://github.com/redevined/brainfuck/blob/master/brainfuck.py
 
-import sys
 import asyncio
+import sys
 
 
 def char_to_bf(char):

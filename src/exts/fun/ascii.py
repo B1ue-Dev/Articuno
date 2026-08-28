@@ -4,22 +4,25 @@ Turn image into ASCII art.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
-import io
 import asyncio
+import io
+import logging
 
 import interactions
+import pyfiglet
 from interactions import Message
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
     HybridContext,
+    hybrid_slash_subcommand,
 )
-import pyfiglet
 from PIL import Image, ImageDraw, ImageFont
+
 from src.common.ascii import (
-    image_to_ascii,
     ascii_to_image,
     base_font,
+    image_to_ascii,
+)
+from src.common.ascii import (
     sizeof as ascii_sizeof,
 )
 from src.common.utils import get_response

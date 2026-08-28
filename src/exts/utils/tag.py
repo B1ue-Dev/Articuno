@@ -9,10 +9,12 @@ import logging
 import re
 import time
 from datetime import datetime, timezone
+
 import interactions
 from interactions.ext.paginators import Paginator
-from src.common.utils import Permissions, has_permission
+
 from src.common.models import tags
+from src.common.utils import Permissions, has_permission
 
 
 def get_utc_time() -> datetime:
@@ -350,7 +352,7 @@ class Tag(interactions.Extension):
         guild_tags = await tags.find_one(tags.guild_id == guild_id)
 
         tag_list = [
-            f"` {i+1} ` {tag}" for i, tag in enumerate(guild_tags.tags)
+            f"` {i + 1} ` {tag}" for i, tag in enumerate(guild_tags.tags)
         ]
         chunks = [tag_list[x : x + 9] for x in range(0, len(tag_list), 9)]
         embeds = [

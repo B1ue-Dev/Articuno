@@ -6,9 +6,11 @@ Usage system.
 
 import logging
 from datetime import datetime
+
 import interactions
-from src.common.models import usage as usage_db
+
 from src.common import error_handler
+from src.common.models import usage as usage_db
 
 
 class Usage(interactions.Extension):

@@ -4,14 +4,16 @@ Trivia command.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
 import asyncio
 import base64 as b64
+import logging
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
+
 from src.common.utils import get_response
 
 

@@ -5,7 +5,9 @@ Root file for exts/core.
 """
 
 import logging
+
 import interactions
+
 from src.const import EXT_CORE
 
 

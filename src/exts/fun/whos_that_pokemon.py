@@ -4,22 +4,24 @@ Who's that Pokemon command.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
-import io
-import random
 import asyncio
-from time import time
+import io
+import logging
+import random
 from datetime import datetime
+from time import time
+
 import interactions
-from interactions.ext.paginators import Paginator
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
     HybridContext,
+    hybrid_slash_subcommand,
 )
+from interactions.ext.paginators import Paginator
 from PIL import Image
-from src.exts.fun.pokemon import Pokemon
-from src.common.utils import get_response, get_color, rgb_to_int
+
 from src.common.models import wtp_easy_saves, wtp_hard_saves
+from src.common.utils import get_color, get_response, rgb_to_int
+from src.exts.fun.pokemon import Pokemon
 
 
 class AutoCloseFile(interactions.File):
@@ -936,7 +938,7 @@ class WTP(interactions.Extension):
         for index, history in enumerate(reversed(list(user_data.history))):
             fields.append(
                 interactions.EmbedField(
-                    name=f"#{index+1}",
+                    name=f"#{index + 1}",
                     value="".join(
                         [
                             f"""<t:{history["created_at"]}:f> UTC\n""",

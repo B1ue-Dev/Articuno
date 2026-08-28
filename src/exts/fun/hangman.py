@@ -4,20 +4,22 @@ Hangman command.
 (C) 2023-2026 - B1ue-Dev
 """
 
-import logging
 import asyncio
+import logging
 from datetime import datetime
 from typing import List
 from unicodedata import normalize
-from aiohttp import ClientSession
+
 import interactions
-from interactions.ext.paginators import Paginator
+from aiohttp import ClientSession
 from interactions.ext.hybrid_commands import (
     HybridContext,
     hybrid_slash_subcommand,
 )
-from src.common.utils import get_response, get_color, rgb_to_int
+from interactions.ext.paginators import Paginator
+
 from src.common.models import hangman_saves
+from src.common.utils import get_color, get_response, rgb_to_int
 
 
 def display_hangman(tries):
@@ -575,7 +577,7 @@ class Hman(interactions.Extension):
             for index, history in enumerate(reversed(list(user_data.history))):
                 fields.append(
                     interactions.EmbedField(
-                        name=f"#{index+1}",
+                        name=f"#{index + 1}",
                         value="".join(
                             [
                                 f"""<t:{history["created_at"]}:f> UTC\n""",

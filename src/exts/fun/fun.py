@@ -4,17 +4,18 @@ Fun related commands.
 (C) 2022-2026 - B1ue-Dev
 """
 
+import asyncio
 import logging
 import random
-import asyncio
 import re
 
 import interactions
 from interactions import Message
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
+
 from src.common.utils import get_response
 from src.const import SOME_RANDOM_API
 

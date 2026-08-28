@@ -4,16 +4,17 @@ Translate message using Google Translate.
 (C) 2022-2026 - B1ue-Dev
 """
 
-import logging
 import asyncio
+import logging
+
 import googletrans
 import interactions
+from googletrans import Translator
 from interactions import integration_types
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_subcommand,
     HybridContext,
+    hybrid_slash_subcommand,
 )
-from googletrans import Translator
 
 
 class Translation(interactions.Extension):

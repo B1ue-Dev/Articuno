@@ -4,16 +4,18 @@
 (C) 2025-2026 - B1ue-Dev
 """
 
+import asyncio
 import logging
 import random
-import asyncio
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
+
 import interactions
 from interactions.ext.hybrid_commands import (
-    hybrid_slash_command,
     HybridContext,
+    hybrid_slash_command,
 )
+from PIL import Image, ImageDraw, ImageFont
+
 from src.common.utils import get_response
 
 WIDTH, HEIGHT = 800, 450
