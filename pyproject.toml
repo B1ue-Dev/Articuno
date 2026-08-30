@@ -10,15 +10,15 @@ repository = "https://github.com/B1ue-Dev/Articuno"
 
 [tool.poetry.dependencies]
 python = ">=3.13,<4.0"
-beanie = "2.1.0"
-colorlog = "6.10.1"
+python-dotenv = "1.2.2"
 interactions.py = "6.0.0rc1"
+psutil = "7.2.2"
+colorlog = "6.10.1"
+beanie = "2.1.0"
+Pillow = "11.2.1"
 google-api-python-client = "2.198.0"
 googletrans-py = "4.0.0"
-Pillow = "11.2.1"
-psutil = "7.2.2"
 pyfiglet = "1.0.4"
-python-dotenv = "1.2.2"
 numpy = "2.5.1"
 
 [tool.ruff]
