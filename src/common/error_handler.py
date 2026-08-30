@@ -99,8 +99,13 @@ async def handle_error(
     payload: dict = models.discord.message.process_message_payload(
         embeds=log_error
     )
+    channel_id = (
+        int(ctx.channel_id)
+        if debug_system and ctx is not None
+        else int(LOG_CHANNEL)
+    )
     await _client.http.create_message(
-        channel_id=(LOG_CHANNEL if not debug_system else int(ctx.channel_id)),
+        channel_id=channel_id,
         payload=payload,
     )
 
