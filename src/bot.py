@@ -15,7 +15,6 @@ import colorlog
 import interactions
 import interactions.models as models
 from beanie import init_beanie
-from interactions import IntervalTrigger, Task
 from interactions.ext.hybrid_commands import setup as hybrid_setup
 from interactions.ext.prefixed_commands import setup as prefixed_setup
 from pymongo import AsyncMongoClient
@@ -29,6 +28,7 @@ from src.common.models import (
     wtp_easy_saves,
     wtp_hard_saves,
 )
+from src.common.task import shutdown_tasks, start_task
 from src.common.utils import get_response
 from src.const import LOG_CHANNEL, MONGO_DB_URL, TOKEN, VERSION
 
@@ -42,16 +42,6 @@ class Init:
 
         UTC_PLUS_7 = timezone(timedelta(hours=7))
         return datetime.now(tz=UTC_PLUS_7)
-
-    @classmethod
-    async def get_latest_release_version(
-        cls, session: aiohttp.ClientSession
-    ) -> str:
-        """Returns the latest version of Articuno on GitHub."""
-
-        url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
-        response: dict = await get_response(url, session)
-        return response["tag_name"]
 
     @classmethod
     def logger_config(cls) -> logging.Logger:
@@ -106,6 +96,16 @@ class Init:
         log.addHandler(stderr_handler)
 
         return log
+
+    @classmethod
+    async def get_latest_release_version(
+        cls, session: aiohttp.ClientSession
+    ) -> str:
+        """Returns the latest version of Articuno on GitHub."""
+
+        url = "https://api.github.com/repos/B1ue-Dev/Articuno/releases/latest"
+        response: dict = await get_response(url, session)
+        return response["tag_name"]
 
 
 client = interactions.Client(
@@ -222,7 +222,6 @@ async def on_bot_mentions(_msg: interactions.events.MessageCreate) -> None:
         await msg.channel.send(embeds=embed)
 
 
-@Task.create(IntervalTrigger(minutes=15))
 async def periodic_gc() -> None:
     """Periodically collect garbage to release unreferenced memory arenas."""
     gc.collect()
@@ -231,7 +230,7 @@ async def periodic_gc() -> None:
 async def start() -> None:
     """Starts the bot."""
 
-    periodic_gc.start()
+    start_task("garbage-collection", periodic_gc, 15 * 60)
     client.session = aiohttp.ClientSession()
 
     if debug_system is True:
@@ -301,6 +300,7 @@ async def start() -> None:
         )
         sys.exit(1)
     finally:
+        await shutdown_tasks()
         if client.session:
             await client.session.close()
 

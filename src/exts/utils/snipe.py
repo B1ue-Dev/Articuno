@@ -13,6 +13,7 @@ from interactions.ext.hybrid_commands import (
     hybrid_slash_command,
 )
 
+from src.common.task import start_task
 from src.common.utils import handle_username
 
 
@@ -22,9 +23,8 @@ class Snipe(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
         self._cached: dict[str, list[dict[str, str]]] = {}
-        self.clear_cache.start()
+        start_task("snipe-cache", self.clear_cache, 60)
 
-    @interactions.Task.create(interactions.IntervalTrigger(seconds=60))
     async def clear_cache(self) -> None:
         current_time = datetime.now().timestamp()
         for channel_id in list(self._cached.keys()):
@@ -78,7 +78,7 @@ class Snipe(interactions.Extension):
             return await ctx.send("No message to snipe.")
 
         embed = interactions.Embed(
-            title="Deleted Messages (History)",
+            title="Deleted Messages History",
             footer=interactions.EmbedFooter(
                 text=f"Requested by {handle_username(ctx.author.user.username, ctx.author.user.discriminator)}",
                 icon_url=ctx.author.avatar_url,
