@@ -127,7 +127,7 @@ class Rate(interactions.Extension):
                 await ctx.defer()
                 try:
                     user = ctx.guild.get_member(_user)
-                except:
+                except Exception:
                     user = await ctx.client.fetch_user(_user)
 
                 user_avatar = await get_response(

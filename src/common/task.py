@@ -8,7 +8,6 @@ import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 
-
 periodic_tasks: set[asyncio.Task[None]] = set()
 
 

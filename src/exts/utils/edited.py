@@ -136,7 +136,7 @@ class Edited(interactions.Extension):
             if len(embed.description) + len(msg_desc) > 4096:
                 break
 
-            embed.description += msg_desc # type: ignore
+            embed.description += msg_desc  # type: ignore
             shown += 1
 
         await ctx.send(embed=embed)
