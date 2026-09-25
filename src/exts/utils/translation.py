@@ -17,6 +17,10 @@ from interactions.ext.hybrid_commands import (
 )
 
 
+class TranslationError(Exception):
+    """Exception when Google Translate encounter an error."""
+
+
 class Translation(interactions.Extension):
     """Extension for translator app-context command."""
 
@@ -177,6 +181,32 @@ class Translation(interactions.Extension):
             custom_id="select_menu",
         )
 
+    async def _translate(self, content: str, dest: str = "en"):
+
+        try:
+            return await asyncio.to_thread(
+                self.translator.translate, content, dest=dest
+            )
+        except Exception as exc:
+            logging.warning(
+                "Google Translate request failed (destination=%s): %s",
+                dest,
+                exc,
+                exc_info=True,
+            )
+            raise TranslationError from exc
+
+    @staticmethod
+    async def _send_service_error(ctx, *, edit_origin: bool = False) -> None:
+        message = (
+            "The translation service is temporarily unavailable. "
+            "Please try again in a moment."
+        )
+        if edit_origin:
+            await ctx.edit_origin(content=message, embeds=[], components=[])
+        else:
+            await ctx.send(content=message, ephemeral=True)
+
     @interactions.message_context_menu(name="Translate")
     @integration_types(guild=True, user=True)
     async def msg_cmd_translate(
@@ -194,12 +224,13 @@ class Translation(interactions.Extension):
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = (
-            await asyncio.to_thread(self.translator.detect, content)
-        ).lang
-        translated_text = (
-            await asyncio.to_thread(self.translator.translate, content)
-        ).text
+        try:
+            translation = await self._translate(content)
+        except TranslationError:
+            return await self._send_service_error(ctx)
+
+        detected_lang = translation.src
+        translated_text = translation.text
 
         embed = interactions.Embed(
             title="".join(
@@ -226,9 +257,13 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(
-                    self.translator.translate, content, dest=selects
-                )
+                try:
+                    translation = await self._translate(content, selects)
+                except TranslationError:
+                    await self._send_service_error(
+                        res.ctx, edit_origin=True
+                    )
+                    break
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -277,12 +312,12 @@ class Translation(interactions.Extension):
 
         await ctx.defer(ephemeral=True)
 
-        detected_lang = (
-            await asyncio.to_thread(self.translator.detect, content)
-        ).lang
-        translation = await asyncio.to_thread(
-            self.translator.translate, content, dest="en"
-        )
+        try:
+            translation = await self._translate(content)
+        except TranslationError:
+            return await self._send_service_error(ctx)
+
+        detected_lang = translation.src
         translated_text = translation.text
 
         embed = interactions.Embed(
@@ -311,9 +346,13 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(
-                    self.translator.translate, content, dest=selects
-                )
+                try:
+                    translation = await self._translate(content, selects)
+                except TranslationError:
+                    await self._send_service_error(
+                        res.ctx, edit_origin=True
+                    )
+                    break
                 translated_text = translation.text
 
                 embed = interactions.Embed(
@@ -391,12 +430,12 @@ class Translation(interactions.Extension):
                 "No content in this message.", ephemeral=True
             )
 
-        detected_lang = (
-            await asyncio.to_thread(self.translator.detect, content)
-        ).lang
-        translation = await asyncio.to_thread(
-            self.translator.translate, content, dest=lang
-        )
+        try:
+            translation = await self._translate(content, lang)
+        except TranslationError:
+            return await self._send_service_error(ctx)
+
+        detected_lang = translation.src
         translated_text = translation.text
 
         embed = interactions.Embed(
@@ -425,9 +464,13 @@ class Translation(interactions.Extension):
                 )
                 selects = res.ctx.values[0]
                 await res.ctx.defer(edit_origin=True)
-                translation = await asyncio.to_thread(
-                    self.translator.translate, content, dest=selects
-                )
+                try:
+                    translation = await self._translate(content, selects)
+                except TranslationError:
+                    await self._send_service_error(
+                        res.ctx, edit_origin=True
+                    )
+                    break
                 translated_text = translation.text
 
                 embed = interactions.Embed(
