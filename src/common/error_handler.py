@@ -58,13 +58,15 @@ async def handle_error(
         if ctx
         else "N/A"
     )
+    cmd_prefix = "/" if cmd_called[:1].islower() else ""
 
     traceb_desc = "".join(
         [
             "```\n",
             f"{traceb[-3000:]}\n",
             "```\n",
-            f"**Command Called**\n```\n/{cmd_called[:1000]}...\n```\n",
+            "**Command Called**\n",
+            f"```\n{cmd_prefix}{cmd_called[:1000]}...\n```\n",
         ]
     )
 
