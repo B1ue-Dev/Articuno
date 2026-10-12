@@ -214,6 +214,7 @@ class Jsk(interactions.Extension):
     async def shell(self, ctx: PrefixedContext, *, cmd: str) -> None:
         """Executes statements in the system shell."""
 
+        max_output_bytes = 128 * 1024
         msg = await ctx.send("⏳ Running shell command...")
 
         process = await asyncio.create_subprocess_shell(
@@ -222,19 +223,25 @@ class Jsk(interactions.Extension):
             stderr=asyncio.subprocess.STDOUT,
         )
 
-        output_lines = []
+        output = bytearray()
+        trunc = False
         last_update_time = time.monotonic()
 
         while True:
-            line = await process.stdout.readline()
-            if not line:
+            chunk = await process.stdout.read(8192)
+            if not chunk:
                 break
 
-            output_lines.append(line.decode("utf-8"))
+            output.extend(chunk)
+            if len(output) > max_output_bytes:
+                del output[: len(output) - max_output_bytes]
+                trunc = True
 
             now = time.monotonic()
             if now - last_update_time >= 5:
-                preview_output = "".join(output_lines)[-1900:]
+                preview_output = output.decode("utf-8", errors="replace")[-1900:]
+                if trunc:
+                    preview_output = "[Earlier output omitted]\n" + preview_output
                 try:
                     await msg.edit(content=f"```sh\n{preview_output}```")
                 except Exception:
@@ -243,10 +250,10 @@ class Jsk(interactions.Extension):
 
         # Wait for the process to fully complete
         return_code = await process.wait()
-        output_lines.append(
-            f"\n\n[✅ Command finished — Return code {return_code}]"
-        )
-        final_output = "".join(output_lines)
+        final_output = output.decode("utf-8", errors="replace")
+        if trunc:
+            final_output = "[Earlier output omitted; showing the last 128 KiB]\n" + final_output
+        final_output += f"\n\n[✅ Command finished — Return code {return_code}]"
 
         # Send final output
         if len(final_output) > 2000:
