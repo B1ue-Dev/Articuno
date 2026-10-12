@@ -23,7 +23,11 @@ class Snipe(interactions.Extension):
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
         self._cached: dict[str, list[dict[str, str]]] = {}
-        start_task("snipe-cache", self.clear_cache, 60)
+        self._cache_task = start_task("snipe-cache", self.clear_cache, 60)
+
+    def drop(self, **kwargs) -> None:
+        self._cache_task.cancel()
+        super().drop(**kwargs)
 
     async def clear_cache(self) -> None:
         current_time = datetime.now().timestamp()

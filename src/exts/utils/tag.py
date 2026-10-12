@@ -8,6 +8,7 @@ import asyncio
 import logging
 import re
 import time
+from collections import OrderedDict
 from datetime import datetime, timezone
 
 import interactions
@@ -15,6 +16,10 @@ from interactions.ext.paginators import Paginator
 
 from src.common.models import tags
 from src.common.utils import Permissions, has_permission
+
+TAG_CACHE_TTL = 30
+TAG_CACHE_MAX_ENTRIES = 1000
+TAG_CACHE_PRUNE_INTERVAL = 30
 
 
 def get_utc_time() -> datetime:
@@ -27,7 +32,21 @@ def get_utc_time() -> datetime:
 class Tag(interactions.Extension):
     def __init__(self, client: interactions.Client):
         self.client: interactions.Client = client
-        self.tag_cache = {}
+        self.tag_cache: OrderedDict[str, tuple[float, tags]] = OrderedDict()
+        self._last_tag_cache_prune = 0.0
+
+    def _prune_tag_cache(self, now: float) -> None:
+        if now - self._last_tag_cache_prune < TAG_CACHE_PRUNE_INTERVAL:
+            return
+
+        self._last_tag_cache_prune = now
+        expired = [
+            guild_id
+            for guild_id, (cached_time, _) in self.tag_cache.items()
+            if now - cached_time >= TAG_CACHE_TTL
+        ]
+        for guild_id in expired:
+            self.tag_cache.pop(guild_id, None)
 
     @interactions.slash_command(
         name="tag",
@@ -448,17 +467,24 @@ class Tag(interactions.Extension):
 
         guild_id = str(ctx.guild_id)
         now = time.time()
+        self._prune_tag_cache(now)
 
         guild_tags = None
         if guild_id in self.tag_cache:
             cached_time, cached_tags = self.tag_cache[guild_id]
-            if now - cached_time < 30:
+            if now - cached_time < TAG_CACHE_TTL:
                 guild_tags = cached_tags
+                self.tag_cache.move_to_end(guild_id)
+            else:
+                self.tag_cache.pop(guild_id, None)
 
         if guild_tags is None:
             guild_tags = await tags.find_one(tags.guild_id == guild_id)
             if guild_tags:
                 self.tag_cache[guild_id] = (now, guild_tags)
+                self.tag_cache.move_to_end(guild_id)
+                while len(self.tag_cache) > TAG_CACHE_MAX_ENTRIES:
+                    self.tag_cache.popitem(last=False)
 
         if guild_tags:
             if tag_name := ctx.kwargs.get("tag_name"):

@@ -31,7 +31,7 @@ def start_task(
     name: str,
     callback: Callable[[], Awaitable[None]],
     interval_seconds: int,
-) -> None:
+) -> asyncio.Task[None]:
 
     task = asyncio.create_task(
         run_periodically(name, callback, interval_seconds),
@@ -39,6 +39,7 @@ def start_task(
     )
     periodic_tasks.add(task)
     task.add_done_callback(periodic_tasks.discard)
+    return task
 
 
 async def shutdown_tasks() -> None:
