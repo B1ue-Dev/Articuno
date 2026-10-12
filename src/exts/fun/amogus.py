@@ -5,8 +5,11 @@
 """
 
 import asyncio
+import ctypes
+import gc
 import logging
 import random
+import sys
 from io import BytesIO
 
 import interactions
@@ -19,8 +22,24 @@ from PIL import Image, ImageDraw, ImageFont
 from src.common.utils import get_response
 
 WIDTH, HEIGHT = 800, 450
-FRAMES = 95  # Total frames for the animation, + for faster animation and - for slower
+FRAMES = 95
 STAR_COUNT = 80
+
+
+def _trim_memory() -> None:
+
+    gc.collect()
+    if not sys.platform.startswith("linux"):
+        return
+
+    try:
+        malloc_trim = ctypes.CDLL(None).malloc_trim
+    except (AttributeError, OSError):
+        return
+
+    malloc_trim.argtypes = [ctypes.c_size_t]
+    malloc_trim.restype = ctypes.c_int
+    malloc_trim(0)
 
 
 def random_stars():
@@ -56,6 +75,7 @@ def make_gif(username, impostor, buf):
     with Image.open(buf) as _member_avatar:
         member_avatar = _member_avatar.convert("RGBA")
     crewmate_img_orig = member_avatar.resize((128, 128), Image.LANCZOS)
+    member_avatar.close()
 
     text = (
         f"{username} was {'The Impostor' if impostor else 'Not The Impostor'}"
@@ -76,8 +96,7 @@ def make_gif(username, impostor, buf):
 
     total_frames = FRAMES + typing_frames + delay_frames
 
-    frames = []
-    for i in range(total_frames):
+    def make_frame(i: int) -> Image.Image:
         # Progress for stars: always based on total_frames
         star_progress = i / (total_frames - 1)
         star_offset = int((end_x - start_x) * star_progress * 0.15)
@@ -105,34 +124,68 @@ def make_gif(username, impostor, buf):
         else:
             frame_text = text
 
-        frame = draw_frame(crewmate_img, stars, frame_text, x)
-        frames.append(frame)
+        try:
+            return draw_frame(crewmate_img, stars, frame_text, x)
+        finally:
+            crewmate_img.close()
 
-    sample_stride = max(1, len(frames) // 12)
-    samples = frames[::sample_stride]
+    sample_step = max(1, total_frames // 12)
+    sample_frames = range(0, total_frames, sample_step)
 
     strip_w = 64
-    strip = Image.new("RGB", (strip_w * len(samples), HEIGHT))
-    for idx, sample in enumerate(samples):
-        strip.paste(sample.resize((strip_w, HEIGHT)), (idx * strip_w, 0))
+    strip = Image.new("RGB", (strip_w * len(sample_frames), HEIGHT))
+    try:
+        for idx, frame_index in enumerate(sample_frames):
+            sample = make_frame(frame_index)
+            try:
+                resized = sample.resize((strip_w, HEIGHT))
+                try:
+                    strip.paste(resized, (idx * strip_w, 0))
+                finally:
+                    resized.close()
+            finally:
+                sample.close()
+        palette = strip.quantize(
+            colors=256, method=Image.MEDIANCUT
+        )
+    finally:
+        strip.close()
 
-    global_palette_img = strip.quantize(colors=256, method=Image.MEDIANCUT)
-    quantized_frames = [
-        frame.quantize(palette=global_palette_img, dither=Image.FLOYDSTEINBERG)
-        for frame in frames
-    ]
+    frames = []
+    try:
+        for frame_index in range(total_frames):
+            frame = make_frame(frame_index)
+            try:
+                frames.append(
+                    frame.quantize(
+                        palette=palette,
+                        dither=Image.FLOYDSTEINBERG,
+                    )
+                )
+            finally:
+                frame.close()
 
-    fp = BytesIO()
-    quantized_frames[0].save(
-        fp,
-        "GIF",
-        save_all=True,
-        append_images=quantized_frames[1:],
-        duration=frame_duration,
-        loop=0,
-    )
-    fp.seek(0)
-    return fp
+        fp = BytesIO()
+        try:
+            frames[0].save(
+                fp,
+                "GIF",
+                save_all=True,
+                append_images=frames[1:],
+                duration=frame_duration,
+                loop=0,
+            )
+        except Exception:
+            fp.close()
+            raise
+        fp.seek(0)
+        return fp
+    finally:
+        for frame in frames:
+            frame.close()
+        palette.close()
+        crewmate_img_orig.close()
+        _trim_memory()
 
 
 class Amogus(interactions.Extension):
@@ -140,6 +193,7 @@ class Amogus(interactions.Extension):
 
     def __init__(self, client: interactions.Client) -> None:
         self.client: interactions.Client = client
+        self._gif_lock = asyncio.Semaphore(1)
 
     @hybrid_slash_command(
         name="amogus",
@@ -177,21 +231,29 @@ class Amogus(interactions.Extension):
         else:
             impostor = bool(impostor)
 
-        buf = await get_response(
-            user.display_avatar.url, session=self.client.session
-        )
-
-        if not buf:
-            return await ctx.send(
-                "Failed to download avatar. Please try again later.",
-                ephemeral=True,
+        async with self._gif_lock:
+            buf = await get_response(
+                user.display_avatar.url, session=self.client.session
             )
 
-        fp = await asyncio.to_thread(
-            make_gif, user.display_name, impostor, buf
-        )
-        file = interactions.File(file=fp, file_name="amogus.gif")
-        await ctx.send(file=file)
+            if not buf:
+                return await ctx.send(
+                    "Failed to download avatar. Please try again later.",
+                    ephemeral=True,
+                )
+
+            try:
+                fp = await asyncio.to_thread(
+                    make_gif, user.display_name, impostor, buf
+                )
+            finally:
+                buf.close()
+
+            file = interactions.File(file=fp, file_name="amogus.gif")
+            try:
+                await ctx.send(file=file)
+            finally:
+                fp.close()
         from src.common.utils import send_promote
 
         await send_promote(ctx, "easy")

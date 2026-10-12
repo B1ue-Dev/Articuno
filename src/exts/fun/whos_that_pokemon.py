@@ -25,9 +25,13 @@ from src.exts.fun.pokemon import Pokemon
 
 
 class AutoCloseFile(interactions.File):
+    def close(self):
+        stream = getattr(self, "file", None)
+        if stream and not stream.closed:
+            stream.close()
+
     def __del__(self):
-        if self.file:
-            self.file.close()
+        self.close()
 
 
 with Image.open("./src/assets/whos_that_pokemon_1_optimized.webp") as _bg:
@@ -39,19 +43,21 @@ def _resize_pokemon_image(buf) -> Image.Image:
 
     with Image.open(buf) as _img:
         img = _img.convert("RGBA")
-    print(f"Image size: {img.size}")
-    if img.size[1] <= 130:
-        img = img.resize((int(img.width * 3.9), int(img.height * 3.9)))
-    elif img.size[1] <= 160:
-        img = img.resize((int(img.width * 3.4), int(img.height * 3.4)))
-    elif img.size[1] <= 190:
-        img = img.resize((int(img.width * 2.7), int(img.height * 2.7)))
-    elif img.size[1] <= 235:
-        img = img.resize((int(img.width * 2.35), int(img.height * 2.35)))
-    else:
-        img = img.resize((int(img.width * 2), int(img.height * 2)))
-
-    return img
+    try:
+        print(f"Image size: {img.size}")
+        if img.size[1] <= 130:
+            new_size = (int(img.width * 3.9), int(img.height * 3.9))
+        elif img.size[1] <= 160:
+            new_size = (int(img.width * 3.4), int(img.height * 3.4))
+        elif img.size[1] <= 190:
+            new_size = (int(img.width * 2.7), int(img.height * 2.7))
+        elif img.size[1] <= 235:
+            new_size = (int(img.width * 2.35), int(img.height * 2.35))
+        else:
+            new_size = (int(img.width * 2), int(img.height * 2))
+        return img.resize(new_size)
+    finally:
+        img.close()
 
 
 def _generate_image(
@@ -59,47 +65,64 @@ def _generate_image(
 ) -> list[interactions.File]:
     """Generate the background with the Pokemon."""
 
-    # Process the image and background.
-    _black_image = Image.new("RGBA", img.size, (0, 0, 0))
-    center_x, center_y = 470, 410
-    paste_x = center_x - img.width // 2
-    paste_y = center_y - img.height // 2
-    paste_pos = (paste_x, paste_y)
+    _black_image = text_img = _text_img = None
+    file = _file = None
+    out1 = out2 = None
+    try:
+        _black_image = Image.new("RGBA", img.size, (0, 0, 0))
+        center_x, center_y = 470, 410
+        paste_pos = (
+            center_x - img.width // 2,
+            center_y - img.height // 2,
+        )
 
-    text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-    text_img.paste(bg, (0, 0))
-    text_img.paste(_black_image, paste_pos, img)
+        text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+        text_img.paste(bg, (0, 0))
+        text_img.paste(_black_image, paste_pos, img)
 
-    # Image for the user guessing the Pokemon.
-    out1 = io.BytesIO()
-    text_img.save(out1, format="PNG")
-    out1.seek(0)
-    file = AutoCloseFile(
-        file_name="image.png",
-        file=out1,
-        description="Guess the Pokemon.",
-    )
+        out1 = io.BytesIO()
+        text_img.save(out1, format="PNG")
+        out1.seek(0)
+        file = AutoCloseFile(
+            file_name="image.png",
+            file=out1,
+            description="Guess the Pokemon.",
+        )
+        out1 = None
 
-    # Image for the correct Pokemon.
-    _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
-    _text_img.paste(bg, (0, 0))
-    _text_img.paste(img, paste_pos, img)
+        _text_img = Image.new("RGBA", bg.size, (255, 255, 255, 0))
+        _text_img.paste(bg, (0, 0))
+        _text_img.paste(img, paste_pos, img)
 
-    out2 = io.BytesIO()
-    _text_img.save(out2, format="PNG")
-    out2.seek(0)
-    _file = AutoCloseFile(
-        file_name="image.png",
-        file=out2,
-        description=f"{correct_pokemon.name}",
-    )
+        out2 = io.BytesIO()
+        _text_img.save(out2, format="PNG")
+        out2.seek(0)
+        _file = AutoCloseFile(
+            file_name="image.png",
+            file=out2,
+            description=f"{correct_pokemon.name}",
+        )
+        out2 = None
 
-    img.close()
-    _black_image.close()
-    text_img.close()
-    _text_img.close()
-
-    return [file, _file]
+        return [file, _file]
+    except Exception:
+        if file:
+            file.close()
+        if _file:
+            _file.close()
+        raise
+    finally:
+        img.close()
+        if _black_image:
+            _black_image.close()
+        if text_img:
+            text_img.close()
+        if _text_img:
+            _text_img.close()
+        if out1:
+            out1.close()
+        if out2:
+            out2.close()
 
 
 async def extract_pokemon_image(url: str, session) -> Image.Image:
@@ -114,9 +137,11 @@ async def extract_pokemon_image(url: str, session) -> Image.Image:
     """
 
     buf = await get_response(url, session)
-    img = await asyncio.to_thread(_resize_pokemon_image, buf)
-
-    return img
+    try:
+        return await asyncio.to_thread(_resize_pokemon_image, buf)
+    finally:
+        if buf:
+            buf.close()
 
 
 async def generate_images(
@@ -572,6 +597,9 @@ class WTP(interactions.Extension):
                         )
                     except interactions.client.errors.NotFound:
                         return
+                finally:
+                    file.close()
+                    _file.close()
 
         elif difficulty == "hard":
             cnt = 0
@@ -811,6 +839,9 @@ class WTP(interactions.Extension):
                         )
                     except interactions.client.errors.NotFound:
                         return
+                finally:
+                    file.close()
+                    _file.close()
 
     @hybrid_slash_subcommand(
         base="whos_that_pokemon",
