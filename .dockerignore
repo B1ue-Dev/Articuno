@@ -5,6 +5,7 @@
 # https://docs.docker.com/go/build-context-dockerignore/
 
 **/.DS_Store
+**/.env
 **/__pycache__
 **/.venv
 **/.classpath
