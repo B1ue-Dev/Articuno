@@ -111,7 +111,7 @@ class Init:
 client = interactions.Client(
     sync_interactions=True,
     sync_ext=True,
-    delete_unused_application_cmds=True,
+    delete_unused_application_cmds=False,
     intents=interactions.Intents.GUILDS
     | interactions.Intents.GUILD_MESSAGES
     | interactions.Intents.MESSAGE_CONTENT
@@ -319,8 +319,8 @@ async def join_leave_msg(
     elif action == "left":
         function_name = "Left"
 
-    embed = interactions.Embed(title=f"{function_name} {_guild.name}")
-    embed.add_field(name="ID", value=f"{_guild.id}", inline=True)
+    embed = interactions.Embed(title=f"{function_name} {_guild.name if _guild else None}")
+    embed.add_field(name="ID", value=f"{guild.guild_id}", inline=True)
     embed.add_field(
         name=f"{function_name} on",
         value=f"<t:{round(current_time)}:F>",
@@ -328,10 +328,10 @@ async def join_leave_msg(
     )
     embed.add_field(
         name="Member",
-        value=f"{_guild.member_count}",
+        value=f"{_guild.member_count if _guild else None}",
         inline=True,
     )
-    if _guild.icon:
+    if _guild and _guild.icon:
         embed.set_thumbnail(url=f"{_guild.icon.url}")
 
     payload: dict = models.discord.message.process_message_payload(
